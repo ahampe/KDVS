@@ -1,24 +1,26 @@
 package fho.kdvs
 
 import android.os.Bundle
-import android.view.View
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     private var viewModel: KdvsViewModel? = null
+    private val navController: NavController get() = findNavController(R.id.nav_host_fragment)
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_home -> {
-                // Home page
+                navController.navigate(R.id.homeFragment)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_schedule_grid -> {
-                // Programming grid
+                navController.navigate(R.id.scheduleFragment)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_settings -> {
@@ -36,11 +38,9 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this).get(KdvsViewModel::class.java)
 
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+
+        Log.d("DAVISCA","Test Foobar")
     }
 
-    fun onPlayPause(v: View) {
-        viewModel?.togglePlay()
-    }
-
-    override fun onSupportNavigateUp() = findNavController(R.id.nav_host_fragment).navigateUp()
+    override fun onSupportNavigateUp() = navController.navigateUp()
 }

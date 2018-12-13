@@ -7,7 +7,8 @@ import java.lang.Exception
 
 class KdvsViewModel(application: Application) : AndroidViewModel(application) {
     val player = RadioMediaPlayer(streamUrl)
-    val playerState: LiveData<Boolean> = player.readyStateLiveData
+    val preparedState: LiveData<Boolean> = player.readyStateLiveData
+    val playingState: LiveData<Boolean> = player.playbackStateLiveData
 
     fun togglePlay() {
         try {
