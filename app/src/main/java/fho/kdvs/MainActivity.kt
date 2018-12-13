@@ -1,16 +1,15 @@
 package fho.kdvs
 
-import android.media.AudioAttributes
-import android.media.MediaPlayer
 import android.os.Bundle
-import android.support.design.widget.BottomNavigationView
-import android.support.v7.app.AppCompatActivity
 import android.view.View
-import android.widget.ToggleButton
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.findNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-    private val mPlayer = MediaPlayer()
+    private var viewModel: KdvsViewModel? = null
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -18,11 +17,11 @@ class MainActivity : AppCompatActivity() {
                 // Home page
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_dashboard -> {
+            R.id.navigation_schedule_grid -> {
                 // Programming grid
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_notifications -> {
+            R.id.navigation_settings -> {
                 // Settings / other stuff
                 return@OnNavigationItemSelectedListener true
             }
@@ -34,40 +33,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Prepare media player
-        mPlayer.apply {
-            setAudioAttributes(audioAttrs)
-            setDataSource(streamUrl)
+        viewModel = ViewModelProviders.of(this).get(KdvsViewModel::class.java)
 
-            // Prepare the audio stream in the background, and enable the play button only when ready
-            prepareAsync()
-            setOnPreparedListener {
-                playButton.isEnabled = true
-            }
-        }
-
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+        bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
     }
 
     fun onPlayPause(v: View) {
-        val button = v as? ToggleButton ?: return
-        try {
-            if (!mPlayer.isPlaying) {
-                mPlayer.start()
-            } else {
-                mPlayer.pause()
-            }
-        } catch (e: Exception) {
-            button.isChecked = !button.isChecked
-            e.printStackTrace()
-        }
+        viewModel?.togglePlay()
     }
 
-    companion object {
-        private val audioAttrs = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_MEDIA)
-            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-            .build()
-        private const val streamUrl = "http://archives.kdvs.org:8000/kdvs128mp3"
-    }
+    override fun onSupportNavigateUp() = findNavController(R.id.nav_host_fragment).navigateUp()
 }
