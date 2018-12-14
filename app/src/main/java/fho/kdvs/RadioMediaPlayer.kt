@@ -2,7 +2,6 @@ package fho.kdvs
 
 import android.media.AudioAttributes
 import android.media.MediaPlayer
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 
 class RadioMediaPlayer(sourceUrl: String) : MediaPlayer() {
@@ -21,23 +20,22 @@ class RadioMediaPlayer(sourceUrl: String) : MediaPlayer() {
         prepareAsync()
         setOnPreparedListener {
             readyStateLiveData.postValue(true)
-            Log.d("DAVISCA", "Updated RadioMediaPlayer LiveData")
         }
     }
 
     override fun start() {
-        playbackStateLiveData.postValue(true)
         super.start()
+        playbackStateLiveData.postValue(true)
     }
 
     override fun stop() {
-        playbackStateLiveData.postValue(false)
         super.stop()
+        playbackStateLiveData.postValue(false)
     }
 
     override fun pause() {
-        playbackStateLiveData.postValue(false)
         super.pause()
+        playbackStateLiveData.postValue(false)
     }
 
     companion object {

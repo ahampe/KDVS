@@ -1,7 +1,6 @@
 package fho.kdvs
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavController
@@ -38,8 +37,6 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this).get(KdvsViewModel::class.java)
 
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
-
-        Log.d("DAVISCA","Test Foobar")
     }
 
     override fun onSupportNavigateUp() = navController.navigateUp()

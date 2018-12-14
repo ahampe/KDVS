@@ -7,10 +7,10 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="fho.kdvs.HomeFragment"
+        android:name="fho.kdvs.fragments.HomeFragment"
         android:label="HomeFragment" />
     <fragment
         android:id="@+id/scheduleFragment"
-        android:name="fho.kdvs.ScheduleFragment"
+        android:name="fho.kdvs.fragments.ScheduleFragment"
         android:label="ScheduleFragment" />
 </navigation>
