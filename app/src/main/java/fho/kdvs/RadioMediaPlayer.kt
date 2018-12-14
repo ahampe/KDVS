@@ -39,7 +39,7 @@ class RadioMediaPlayer(sourceUrl: String) : MediaPlayer() {
     }
 
     companion object {
-        private val audioAttrs = AudioAttributes.Builder()
+        val audioAttrs = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_MEDIA)
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build()

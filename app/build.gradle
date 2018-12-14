@@ -49,9 +49,6 @@ dependencies {
     implementation "android.arch.navigation:navigation-ui-ktx:$nav_version"
     androidTestImplementation "android.arch.navigation:navigation-testing:$nav_version"
 
-    // Data binding
-    kapt "com.android.databinding:compiler:$gradle_version"
-
     // Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
 }
