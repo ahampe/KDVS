@@ -1,59 +1,55 @@
 package fho.kdvs
 
 import android.app.Application
-import android.content.Context
-import android.media.AudioFocusRequest
-import android.media.AudioManager
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import timber.log.Timber
+import fho.kdvs.playback.FocusManager
+import fho.kdvs.playback.PlaybackFocusListener
+import fho.kdvs.playback.RadioMediaPlayer
 
 class KdvsViewModel(application: Application) : AndroidViewModel(application) {
-    private val audioMgr: AudioManager =
-        application.applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
-    private val listener = AudioManager.OnAudioFocusChangeListener {
-        when (it) {
-            AudioManager.AUDIOFOCUS_GAIN -> Timber.d("AF gain")
-            AudioManager.AUDIOFOCUS_LOSS -> Timber.d("AF loss")
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> Timber.d("AF loss transient")
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> Timber.d("AF loss transient can duck")
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private val focusRequest =
-        AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-            .setAudioAttributes(RadioMediaPlayer.audioAttrs)
-            .setOnAudioFocusChangeListener(listener) // optional handler
-            .build()
 
     private val player = RadioMediaPlayer(streamUrl)
+
+    private val focusListener = object : PlaybackFocusListener {
+        override fun onGainedAudioFocus() = player.start()
+        override fun onLostAudioFocus() = player.pause()
+        override fun onLostAudioFocusTransient() = player.pause()
+        override fun onLostAudioFocusCanDuck() = player.duck()
+    }
+    private val focusManager = FocusManager(application.applicationContext, focusListener)
 
     val preparedState: LiveData<Boolean> = player.readyStateLiveData
     val playingState: LiveData<Boolean> = player.playbackStateLiveData
 
+    fun changeToWmnf() {
+        player.setNewUrl(wmnfStreamUrl)
+    }
+
+    fun changeToWfmu() {
+        player.setNewUrl(wfmuStreamUrl)
+    }
+
     fun togglePlay() {
         if (!player.isPlaying) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                audioMgr.requestAudioFocus(focusRequest)
-            } else {
-                audioMgr.requestAudioFocus(listener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
+            if (focusManager.isFocusGranted) {
+                player.start()
             }
-            player.start()
         } else {
+            focusManager.abandonFocus()
             player.pause()
         }
     }
 
     override fun onCleared() {
+        focusManager.abandonFocus()
         player.release()
         super.onCleared()
     }
 
     companion object {
-        private const val streamUrl = "http://archives.kdvs.org:8000/kdvs128mp3"
+        private const val streamUrl = "https://stream.wmnf.org:4443/wmnf_high_quality"
+        private const val wfmuStreamUrl = "http://stream0.wfmu.org/freeform-128k"
+        private const val wmnfStreamUrl = "https://stream.wmnf.org:4443/wmnf_high_quality"
     }
 }
