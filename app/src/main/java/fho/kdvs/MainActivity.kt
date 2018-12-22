@@ -1,5 +1,6 @@
 package fho.kdvs
 
+import android.media.AudioManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
@@ -35,6 +36,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         viewModel = ViewModelProviders.of(this).get(KdvsViewModel::class.java)
+
+        // Direct system volume controls to affect in-app volume
+        volumeControlStream = AudioManager.STREAM_MUSIC
 
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
     }

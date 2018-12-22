@@ -1,8 +1,15 @@
 package fho.kdvs
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.util.Util
+import fho.kdvs.playback.AudioHelper
 import fho.kdvs.playback.FocusManager
 import fho.kdvs.playback.PlaybackFocusListener
 import fho.kdvs.playback.RadioMediaPlayer
@@ -10,6 +17,22 @@ import fho.kdvs.playback.RadioMediaPlayer
 class KdvsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val player = RadioMediaPlayer(streamUrl)
+
+    val exoPlayer: SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(application)
+
+    init {
+        // Produces DataSource instances through which media data is loaded.
+        val dataSourceFactory = DefaultDataSourceFactory(
+            application,
+            Util.getUserAgent(application, "yourApplicationName")
+        )
+
+        // This is the MediaSource representing the media to be played.
+        val audioSource = ExtractorMediaSource.Factory(dataSourceFactory)
+            .createMediaSource(Uri.parse(wfmuStreamUrl))
+
+        exoPlayer.prepare(audioSource)
+    }
 
     private val focusListener = object : PlaybackFocusListener {
         override fun onGainedAudioFocus() = player.start()
@@ -28,6 +51,10 @@ class KdvsViewModel(application: Application) : AndroidViewModel(application) {
 
     fun changeToWfmu() {
         player.setNewUrl(wfmuStreamUrl)
+    }
+
+    fun changeToWvfs() {
+        player.setNewUrl(wvfsStreamUrl)
     }
 
     fun togglePlay() {
@@ -51,5 +78,6 @@ class KdvsViewModel(application: Application) : AndroidViewModel(application) {
         private const val streamUrl = "https://stream.wmnf.org:4443/wmnf_high_quality"
         private const val wfmuStreamUrl = "http://stream0.wfmu.org/freeform-128k"
         private const val wmnfStreamUrl = "https://stream.wmnf.org:4443/wmnf_high_quality"
+        private const val wvfsStreamUrl = "http://voice.wvfs.fsu.edu:8000/stream"
     }
 }

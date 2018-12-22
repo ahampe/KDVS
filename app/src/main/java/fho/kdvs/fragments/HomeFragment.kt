@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProviders
 import fho.kdvs.KdvsViewModel
 import fho.kdvs.R
 import fho.kdvs.databinding.FragmentHomeBinding
+import kotlinx.android.synthetic.main.fragment_home.*
 
 class HomeFragment : Fragment() {
 
@@ -22,8 +23,10 @@ class HomeFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding: FragmentHomeBinding = DataBindingUtil.inflate(inflater,
-            R.layout.fragment_home, container, false)
+        val binding: FragmentHomeBinding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_home, container, false
+        )
         val view = binding.root
 
         binding.setLifecycleOwner(requireActivity())
@@ -32,5 +35,11 @@ class HomeFragment : Fragment() {
         return view
     }
 
-    
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        exoPlayerView.player = viewModel?.exoPlayer
+
+    }
+
+
 }

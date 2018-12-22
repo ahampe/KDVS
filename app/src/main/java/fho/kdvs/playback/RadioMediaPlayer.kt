@@ -10,9 +10,11 @@ import timber.log.Timber
 class RadioMediaPlayer(sourceUrl: String) : MediaPlayer() {
     // this LiveData will keep track of the player's prepared state
     val readyStateLiveData = MutableLiveData<Boolean>()
+        .apply { postValue(false) }
 
     // this LiveData will keep track of whether the player is playing (true) or paused / stopped (false)
     val playbackStateLiveData = MutableLiveData<Boolean>()
+        .apply { postValue(false) }
 
     // reference current source URL so that we don't reload when new source == old source
     private var source: String? = null
