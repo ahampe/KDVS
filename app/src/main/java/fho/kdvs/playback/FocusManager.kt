@@ -12,6 +12,7 @@ import timber.log.Timber
  * Whenever playback is stopped or paused, [abandonFocus] should be called. */
 class FocusManager(context: Context, private val focusListener: PlaybackFocusListener) {
 
+    // region member fields / properties
     private val audioMgr: AudioManager =
         context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
@@ -70,6 +71,7 @@ class FocusManager(context: Context, private val focusListener: PlaybackFocusLis
         } else {
             null
         }
+    // endregion
 
     // region public API
     /** Makes an [AudioFocusRequest] and returns Boolean indicating whether request was granted. */
