@@ -12,6 +12,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
     private var viewModel: KdvsViewModel? = null
     private val navController: NavController get() = findNavController(R.id.nav_host_fragment)
+    //private var webScraper: WebScraper? = null
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {

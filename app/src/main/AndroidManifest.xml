@@ -23,7 +23,6 @@
                 <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>
         </service>
-
         <activity
                 android:name=".MainActivity"
                 android:label="@string/app_name">

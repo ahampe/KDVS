@@ -9,11 +9,15 @@ class KdvsApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        // Timber
         if (BuildConfig.DEBUG) {
             Timber.plant(KdvsDebugTree())
         } else {
             Timber.plant(CrashReportingTree())
         }
+
+        // Database
+        KdvsData.initialize(this)
     }
 
     private class KdvsDebugTree : Timber.DebugTree() {
