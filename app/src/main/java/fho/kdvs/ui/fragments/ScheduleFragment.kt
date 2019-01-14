@@ -1,4 +1,4 @@
-package fho.kdvs.fragments
+package fho.kdvs.ui.fragments
 
 import android.content.Context
 import android.os.Bundle

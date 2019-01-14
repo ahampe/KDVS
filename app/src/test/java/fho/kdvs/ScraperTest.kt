@@ -1,10 +1,24 @@
 package fho.kdvs
 
+import fho.kdvs.TestUtils.loadFromResource
+import fho.kdvs.web.SchedulePageScraper
 import fho.kdvs.web.StandardWebScraperFactory
 import junit.framework.Assert.assertNotNull
 import org.junit.Test
 
 open class ScraperTest {
+    @Test
+    fun scrapeSchedule_fromFile() {
+        val html = loadFromResource("schedule-grid.html")
+        val scraper = SchedulePageScraper(html)
+
+        scraper.scrape()
+
+        assertNotNull(scraper.addList)
+        assertNotNull(scraper.updateList)
+        print("")
+    }
+
     @Test
     fun scrapeSchedule() {
         val factory = StandardWebScraperFactory()
@@ -14,6 +28,7 @@ open class ScraperTest {
         assertNotNull(scraper.addList)
         assertNotNull(scraper.updateList)
     }
+
     @Test
     fun scrapeShow() {
         val factory = StandardWebScraperFactory()
@@ -23,6 +38,7 @@ open class ScraperTest {
         assertNotNull(scraper.addList)
         assertNotNull(scraper.updateList)
     }
+
     @Test
     fun scrapePlaylist() {
         val factory = StandardWebScraperFactory()

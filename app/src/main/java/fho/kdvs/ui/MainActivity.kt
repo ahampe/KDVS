@@ -1,18 +1,27 @@
-package fho.kdvs
+package fho.kdvs.ui
 
 import android.media.AudioManager
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import dagger.android.support.DaggerAppCompatActivity
+import fho.kdvs.R
+import fho.kdvs.viewmodel.KdvsViewModel
 import kotlinx.android.synthetic.main.activity_main.*
+import javax.inject.Inject
 
-class MainActivity : AppCompatActivity() {
-    private var viewModel: KdvsViewModel? = null
-    private val navController: NavController get() = findNavController(R.id.nav_host_fragment)
-    //private var webScraper: WebScraper? = null
+class MainActivity : DaggerAppCompatActivity() {
+    @Inject
+    lateinit var vmFactory: ViewModelProvider.Factory
+
+    private lateinit var viewModel: KdvsViewModel
+
+    private val navController: NavController by lazy {
+        findNavController(R.id.nav_host_fragment)
+    }
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -36,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        viewModel = ViewModelProviders.of(this).get(KdvsViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, vmFactory).get(KdvsViewModel::class.java)
 
         // Direct system volume controls to affect in-app volume
         volumeControlStream = AudioManager.STREAM_MUSIC

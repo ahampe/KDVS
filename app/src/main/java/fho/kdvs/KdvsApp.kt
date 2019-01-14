@@ -1,11 +1,18 @@
 package fho.kdvs
 
-import android.app.Application
 import android.util.Log
 import android.util.Log.INFO
+import dagger.android.AndroidInjector
+import dagger.android.support.DaggerApplication
+import fho.kdvs.injection.DaggerAppComponent
 import timber.log.Timber
 
-class KdvsApp : Application() {
+class KdvsApp : DaggerApplication() {
+
+    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
+       return DaggerAppComponent.builder().create(this)
+    }
+
     override fun onCreate() {
         super.onCreate()
 
@@ -15,9 +22,6 @@ class KdvsApp : Application() {
         } else {
             Timber.plant(CrashReportingTree())
         }
-
-        // Database
-        KdvsData.initialize(this)
     }
 
     private class KdvsDebugTree : Timber.DebugTree() {

@@ -14,7 +14,11 @@ import fho.kdvs.database.models.Day
 import fho.kdvs.database.models.Quarter
 import java.util.*
 
-@Database(entities = [ShowEntity::class, BroadcastEntity::class, TrackEntity::class], version = 1)
+@Database(
+    entities = [ShowEntity::class, BroadcastEntity::class, TrackEntity::class],
+    version = 1,
+    exportSchema = false
+)
 @TypeConverters(
     DateTypeConverter::class,
     DayTypeConverter::class,
@@ -25,16 +29,6 @@ abstract class KdvsDatabase : RoomDatabase() {
     abstract fun showDao(): ShowDao
     abstract fun broadcastDao(): BroadcastDao
     abstract fun trackDao(): TrackDao
-
-    companion object {
-        private const val FILENAME = "kdvs.db"
-
-        fun initialize(context: Context): KdvsDatabase {
-            return Room.databaseBuilder(context.applicationContext, KdvsDatabase::class.java, FILENAME)
-                .fallbackToDestructiveMigration()
-                .build()
-        }
-    }
 }
 
 class DbWorkerThread(threadName: String) : HandlerThread(threadName) {

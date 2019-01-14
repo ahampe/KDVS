@@ -1,4 +1,4 @@
-package fho.kdvs.fragments
+package fho.kdvs.ui.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
-import fho.kdvs.KdvsViewModel
+import fho.kdvs.viewmodel.KdvsViewModel
 import fho.kdvs.R
 import fho.kdvs.databinding.FragmentHomeBinding
 import kotlinx.android.synthetic.main.fragment_home.*
