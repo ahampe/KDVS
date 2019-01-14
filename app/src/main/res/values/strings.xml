@@ -16,4 +16,13 @@
     <string name="notification_skip_to_next">Skip to next</string>
     <string name="notification_play">Play</string>
     <string name="notification_pause">Pause</string>
+
+    <!-- Schedule -->
+    <string name="sun">Sunday</string>
+    <string name="mon">Monday</string>
+    <string name="tues">Tuesday</string>
+    <string name="wed">Wednesday</string>
+    <string name="thurs">Thursday</string>
+    <string name="fri">Friday</string>
+    <string name="sat">Saturday</string>
 </resources>
