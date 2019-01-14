@@ -3,31 +3,50 @@ package fho.kdvs.web
 import fho.kdvs.database.entities.BroadcastEntity
 import fho.kdvs.database.entities.ShowEntity
 import fho.kdvs.database.entities.TrackEntity
-import fho.kdvs.database.models.*
+import fho.kdvs.database.models.Day
+import fho.kdvs.database.models.Quarter
+import fho.kdvs.extensions.enumValueOrDefault
 import fho.kdvs.extensions.parseHtml
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
-abstract class PageScraper<T,K>(val url: String) {
-    abstract val document: Document?
-    abstract var addList: MutableList<T>?
-    abstract var updateList: MutableList<K>?
+abstract class PageScraper<T, K> {
+    val document: Document
+    abstract val addList: MutableList<T>?
+    abstract val updateList: MutableList<K>?
     abstract fun scrape()
+
+    constructor(file: File) {
+        document = Jsoup.parse(file, "UTF-8", "")
+    }
+
+    constructor(url: String) {
+        document = Jsoup.connect(url).get()
+    }
 }
 
-class SchedulePageScraper(url: String) : PageScraper<ShowEntity, ShowEntity>(url) {
-    override var document: Document? = null
-    override var addList: MutableList<ShowEntity>? = arrayListOf()
-    override var updateList: MutableList<ShowEntity>? = arrayListOf()
+class SchedulePageScraper : PageScraper<ShowEntity, ShowEntity> {
+    constructor(url: String) : super(url)
+    constructor(file: File) : super(file)
+
+    override val addList: MutableList<ShowEntity> = arrayListOf()
+    override val updateList: MutableList<ShowEntity> = arrayListOf()
 
     override fun scrape() {
-        document = Jsoup.connect(url).get()
-        document?.run {
-            val splitTitle = select("h1.muted-title")?.firstOrNull()?.parseHtml()?.split(' ')
-            val quarter = splitTitle?.firstOrNull()
-            val year = splitTitle?.getOrNull(1)?.toInt()
+        document.run {
+            val heading = select("h1.muted-title")?.firstOrNull()?.parseHtml()
+            val title = """(\w)+ .*(\d{2,4})""".toRegex()
+                .find(heading.orEmpty())?.groupValues
+
+            val quarter = title?.getOrNull(1) ?: "Fall"
+
+            // The schedule page is inconsistent about year numbering
+            val year = title?.getOrNull(2)?.toInt()
+                ?.let { if (it < 100) it + 2000 else it }
+                ?: 2019
 
             var day = Day.SUNDAY.name
 
@@ -36,7 +55,7 @@ class SchedulePageScraper(url: String) : PageScraper<ShowEntity, ShowEntity>(url
                 when (element.tagName()) {
                     "h2" -> day = element.html()
                     "div" -> {
-                        val imageHref = "background-image: url\\((.*)\\)".toRegex()
+                        val imageHref = """"background-image: url\((.*)\)""".toRegex()
                             .find(element.attributes().html())
                             ?.groupValues?.getOrNull(1)?.replace("&quot;", "")
 
@@ -61,12 +80,12 @@ class SchedulePageScraper(url: String) : PageScraper<ShowEntity, ShowEntity>(url
                                 defaultImageHref = imageHref,
                                 timeStart = timeStart,
                                 timeEnd = timeEnd,
-                                dayOfWeek = Day.valueOf(day.toUpperCase()),
-                                quarter = quarter?.let { Quarter.valueOf(it.toUpperCase()) },
+                                dayOfWeek = enumValueOrDefault(day.toUpperCase(), Day.SUNDAY),
+                                quarter = enumValueOrDefault(quarter.toUpperCase(), Quarter.FALL),
                                 year = year
                             )
 
-                            addList!!.add(showEntity)
+                            addList.add(showEntity)
                         }
                     }
                 }
@@ -76,25 +95,25 @@ class SchedulePageScraper(url: String) : PageScraper<ShowEntity, ShowEntity>(url
 }
 
 class ShowPageScraper(url: String) : PageScraper<BroadcastEntity, ShowEntity>(url) {
-    override var document: Document? = null
-    override var addList: MutableList<BroadcastEntity>? = arrayListOf()
-    override var updateList: MutableList<ShowEntity>? = arrayListOf()
+    override val addList: MutableList<BroadcastEntity> = arrayListOf()
+    override val updateList: MutableList<ShowEntity> = arrayListOf()
     private val showId = "kdvs.org/past-playlists/([0-9]+)".toRegex()
         .find(url)?.groupValues?.getOrNull(1)?.toInt()
 
     override fun scrape() {
-        document = Jsoup.connect(url).get()
-        document?.run {
+        document.run {
             val host = select("p.dj-name")?.firstOrNull()?.parseHtml()
             val genre = select("div.grid_6 p")?.getOrNull(2)?.parseHtml()
             val defaultDesc = select("div.grid_6 p")?.getOrNull(1)?.parseHtml()
 
-            updateList?.add(ShowEntity(
-                id = showId ?: 0,
-                host = host,
-                genre = genre,
-                defaultDesc = defaultDesc
-            ))
+            updateList.add(
+                ShowEntity(
+                    id = showId ?: 0,
+                    host = host,
+                    genre = genre,
+                    defaultDesc = defaultDesc
+                )
+            )
 
             val rows = select("table.show-tracks-table tbody tr")
             rows.forEach {
@@ -116,21 +135,22 @@ class ShowPageScraper(url: String) : PageScraper<BroadcastEntity, ShowEntity>(ur
                     date = date
                 )
 
-                addList?.add(broadcastData)
+                addList.add(broadcastData)
             }
         }
     }
 }
 
-class PlaylistPageScraper(url: String, private val fullPass: Boolean= true) : PageScraper<TrackEntity, BroadcastEntity>(url) {
-    override val document: Document? = Jsoup.connect(url).get()
-    override var addList: MutableList<TrackEntity>? = arrayListOf()
-    override var updateList: MutableList<BroadcastEntity>? = arrayListOf()
+class PlaylistPageScraper(url: String, private val fullPass: Boolean = true) :
+    PageScraper<TrackEntity, BroadcastEntity>(url) {
+
+    override val addList: MutableList<TrackEntity> = arrayListOf()
+    override val updateList: MutableList<BroadcastEntity> = arrayListOf()
     private val broadcastId = "kdvs.org/playlist-details/([0-9]+)".toRegex()
         .find(url)?.groupValues?.getOrNull(1)?.toInt()
 
     override fun scrape() {
-        document?.run {
+        document.run {
             if (fullPass) {
                 // Assume description can be across arbitrarily many <p> tags following title
                 var desc = ""
@@ -140,16 +160,18 @@ class PlaylistPageScraper(url: String, private val fullPass: Boolean= true) : Pa
                     elm = elm?.nextElementSibling()
                 }
 
-                var imageElement = select("div.showcase-image")?.firstOrNull()
-                var imageHref = "background-image: url\\('(.*)'\\)".toRegex()
+                val imageElement = select("div.showcase-image")?.firstOrNull()
+                val imageHref = """"background-image: url\('(.*)'\)""".toRegex()
                     .find(imageElement?.attributes()?.html().orEmpty())
                     ?.groupValues?.getOrNull(1)?.replace("&quot;", "")
 
-                updateList?.add(BroadcastEntity(
-                    broadcastId = broadcastId ?: 0,
-                    desc = desc.trim(),
-                    imageHref = imageHref?.trim()
-                ))
+                updateList.add(
+                    BroadcastEntity(
+                        broadcastId = broadcastId ?: 0,
+                        desc = desc.trim(),
+                        imageHref = imageHref?.trim()
+                    )
+                )
             }
 
             val tracks = select("table.show-tracks-table tbody tr")
@@ -157,11 +179,13 @@ class PlaylistPageScraper(url: String, private val fullPass: Boolean= true) : Pa
                 val brId = broadcastId ?: return@forEachIndexed
 
                 if (element.select("td.airbreak").isNotEmpty()) {
-                    addList?.add(TrackEntity(
-                        broadcastId = brId,
-                        position = index,
-                        airbreak = true
-                    ))
+                    addList.add(
+                        TrackEntity(
+                            broadcastId = brId,
+                            position = index,
+                            airbreak = true
+                        )
+                    )
                     return@forEachIndexed
                 }
 
@@ -171,15 +195,17 @@ class PlaylistPageScraper(url: String, private val fullPass: Boolean= true) : Pa
                 val label = element?.select("td")?.getOrNull(3)?.parseHtml()
                 val comment = element?.select("td")?.getOrNull(4)?.parseHtml()
 
-                addList?.add(TrackEntity(
-                    broadcastId = brId,
-                    position = index,
-                    artist = artist,
-                    song = song,
-                    album = album,
-                    label = label,
-                    comment = comment
-                ))
+                addList.add(
+                    TrackEntity(
+                        broadcastId = brId,
+                        position = index,
+                        artist = artist,
+                        song = song,
+                        album = album,
+                        label = label,
+                        comment = comment
+                    )
+                )
             }
         }
     }

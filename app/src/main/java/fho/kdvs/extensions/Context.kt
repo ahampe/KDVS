@@ -1,4 +1,4 @@
-package fho.kdvs
+package fho.kdvs.extensions
 
 import android.content.Context
 import android.net.ConnectivityManager

@@ -3,6 +3,7 @@ package fho.kdvs.database.models
 import fho.kdvs.database.entities.ShowEntity
 import java.util.*
 
+// TODO no need for these probably; just use Entities
 data class Show(
     val id: Int?,
     val name: String?,

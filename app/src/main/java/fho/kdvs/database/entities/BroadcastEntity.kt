@@ -17,7 +17,7 @@ import java.util.*
         )]
 )
 data class BroadcastEntity(
-    @PrimaryKey(autoGenerate = false) var broadcastId: Int,
+    @PrimaryKey(autoGenerate = false) val broadcastId: Int,
     @ColumnInfo(name = "showId") var showId: Int? = 0,
     @ColumnInfo(name = "desc") var desc: String? = null,
     @ColumnInfo(name = "date") var date: Date? = null,

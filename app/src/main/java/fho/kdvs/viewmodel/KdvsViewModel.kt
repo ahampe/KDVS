@@ -1,4 +1,4 @@
-package fho.kdvs
+package fho.kdvs.viewmodel
 
 import android.app.Application
 import android.net.Uri
@@ -9,12 +9,16 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import fho.kdvs.playback.AudioHelper
 import fho.kdvs.playback.FocusManager
 import fho.kdvs.playback.PlaybackFocusListener
 import fho.kdvs.playback.RadioMediaPlayer
+import fho.kdvs.repository.ShowRepository
+import javax.inject.Inject
 
-class KdvsViewModel(application: Application) : AndroidViewModel(application) {
+class KdvsViewModel @Inject constructor(
+    showRepo: ShowRepository,
+    application: Application
+) : AndroidViewModel(application) {
 
     private val player = RadioMediaPlayer(streamUrl)
 
@@ -24,7 +28,7 @@ class KdvsViewModel(application: Application) : AndroidViewModel(application) {
         // Produces DataSource instances through which media data is loaded.
         val dataSourceFactory = DefaultDataSourceFactory(
             application,
-            Util.getUserAgent(application, "yourApplicationName")
+            Util.getUserAgent(application, "KDVS")
         )
 
         // This is the MediaSource representing the media to be played.
@@ -32,6 +36,8 @@ class KdvsViewModel(application: Application) : AndroidViewModel(application) {
             .createMediaSource(Uri.parse(wfmuStreamUrl))
 
         exoPlayer.prepare(audioSource)
+
+        showRepo.printShows()
     }
 
     private val focusListener = object : PlaybackFocusListener {
