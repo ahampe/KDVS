@@ -1,9 +1,9 @@
 package fho.kdvs
 
-import fho.kdvs.database.entities.BroadcastEntity
-import fho.kdvs.database.entities.ShowEntity
-import fho.kdvs.database.models.Day
-import fho.kdvs.database.models.Quarter
+import fho.kdvs.model.database.entities.BroadcastEntity
+import fho.kdvs.model.database.entities.ShowEntity
+import fho.kdvs.model.database.models.Day
+import fho.kdvs.model.database.models.Quarter
 import java.util.*
 
 object DbTestUtils {

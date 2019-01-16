@@ -1,10 +1,10 @@
-package fho.kdvs.database.entities
+package fho.kdvs.model.database.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import fho.kdvs.database.models.Day
-import fho.kdvs.database.models.Quarter
+import fho.kdvs.model.database.models.Day
+import fho.kdvs.model.database.models.Quarter
 import java.util.*
 
 @Entity(tableName = "showData")

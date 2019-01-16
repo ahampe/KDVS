@@ -1,17 +1,17 @@
-package fho.kdvs.database
+package fho.kdvs.model.database
 
 import android.content.Context
 import android.os.Handler
 import android.os.HandlerThread
 import androidx.room.*
-import fho.kdvs.database.daos.BroadcastDao
-import fho.kdvs.database.daos.ShowDao
-import fho.kdvs.database.daos.TrackDao
-import fho.kdvs.database.entities.BroadcastEntity
-import fho.kdvs.database.entities.ShowEntity
-import fho.kdvs.database.entities.TrackEntity
-import fho.kdvs.database.models.Day
-import fho.kdvs.database.models.Quarter
+import fho.kdvs.model.database.daos.BroadcastDao
+import fho.kdvs.model.database.daos.ShowDao
+import fho.kdvs.model.database.daos.TrackDao
+import fho.kdvs.model.database.entities.BroadcastEntity
+import fho.kdvs.model.database.entities.ShowEntity
+import fho.kdvs.model.database.entities.TrackEntity
+import fho.kdvs.model.database.models.Day
+import fho.kdvs.model.database.models.Quarter
 import java.util.*
 
 @Database(

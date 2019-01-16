@@ -3,7 +3,7 @@ package fho.kdvs.db
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule
 import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
-import fho.kdvs.database.KdvsDatabase
+import fho.kdvs.model.database.KdvsDatabase
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule

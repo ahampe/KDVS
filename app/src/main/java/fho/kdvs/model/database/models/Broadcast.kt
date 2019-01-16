@@ -1,4 +1,4 @@
-package fho.kdvs.database.models
+package fho.kdvs.model.database.models
 
 import java.util.*
 

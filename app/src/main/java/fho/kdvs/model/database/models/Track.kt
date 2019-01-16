@@ -1,4 +1,4 @@
-package fho.kdvs.database.models
+package fho.kdvs.model.database.models
 
 data class Track(
     val broadcastId: Int?,

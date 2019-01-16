@@ -12,7 +12,7 @@ import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
 import fho.kdvs.R
-import fho.kdvs.database.models.Show
+import fho.kdvs.model.database.models.Show
 import kotlinx.android.synthetic.main.fragment_schedule.*
 import kotlinx.android.synthetic.main.layout_schedule_item.view.*
 import java.util.*

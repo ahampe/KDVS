@@ -1,6 +1,6 @@
-package fho.kdvs.database.models
+package fho.kdvs.model.database.models
 
-import fho.kdvs.database.entities.ShowEntity
+import fho.kdvs.model.database.entities.ShowEntity
 import java.util.*
 
 // TODO no need for these probably; just use Entities

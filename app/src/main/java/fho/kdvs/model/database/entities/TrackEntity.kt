@@ -1,4 +1,4 @@
-package fho.kdvs.database.entities
+package fho.kdvs.model.database.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

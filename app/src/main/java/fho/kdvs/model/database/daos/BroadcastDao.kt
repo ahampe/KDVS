@@ -1,10 +1,10 @@
-package fho.kdvs.database.daos
+package fho.kdvs.model.database.daos
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
-import fho.kdvs.database.entities.BroadcastEntity
+import fho.kdvs.model.database.entities.BroadcastEntity
 
 @Dao
 interface BroadcastDao {

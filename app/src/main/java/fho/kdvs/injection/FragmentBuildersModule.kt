@@ -18,11 +18,15 @@ package fho.kdvs.injection
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
-import fho.kdvs.ui.MainActivity
+import fho.kdvs.ui.fragments.HomeFragment
+import fho.kdvs.ui.fragments.ScheduleFragment
 
-@Module
 @Suppress("unused")
-abstract class MainActivityModule {
-    @ContributesAndroidInjector(modules = [FragmentBuildersModule::class])
-    abstract fun contributeMainActivity(): MainActivity
+@Module
+abstract class FragmentBuildersModule {
+    @ContributesAndroidInjector
+    abstract fun contributeHomeFragment(): HomeFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributeScheduleFragment(): ScheduleFragment
 }
