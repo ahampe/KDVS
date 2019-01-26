@@ -1,15 +1,14 @@
 package fho.kdvs.model.web
 
 import androidx.annotation.VisibleForTesting
+import fho.kdvs.extensions.enumValueOrDefault
+import fho.kdvs.extensions.parseHtml
+import fho.kdvs.model.Day
+import fho.kdvs.model.Quarter
 import fho.kdvs.model.database.KdvsDatabase
 import fho.kdvs.model.database.entities.BroadcastEntity
 import fho.kdvs.model.database.entities.ShowEntity
 import fho.kdvs.model.database.entities.TrackEntity
-import fho.kdvs.model.database.models.Day
-import fho.kdvs.model.database.models.Quarter
-import fho.kdvs.extensions.enumValueOrDefault
-import fho.kdvs.extensions.parseHtml
-import fho.kdvs.extensions.urlEncoded
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
