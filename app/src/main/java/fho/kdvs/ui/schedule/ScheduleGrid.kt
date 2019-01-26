@@ -1,4 +1,4 @@
-package fho.kdvs.schedule
+package fho.kdvs.ui.schedule
 
 import android.content.Context
 import android.util.AttributeSet

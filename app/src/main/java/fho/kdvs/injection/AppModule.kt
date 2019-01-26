@@ -5,8 +5,8 @@ import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import fho.kdvs.KdvsApp
-import fho.kdvs.database.KdvsDatabase
-import fho.kdvs.database.daos.ShowDao
+import fho.kdvs.model.database.KdvsDatabase
+import fho.kdvs.model.database.daos.ShowDao
 import javax.inject.Singleton
 
 @Module(includes = [ViewModelModule::class])

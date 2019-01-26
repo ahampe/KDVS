@@ -12,7 +12,7 @@ import com.google.android.exoplayer2.util.Util
 import fho.kdvs.playback.FocusManager
 import fho.kdvs.playback.PlaybackFocusListener
 import fho.kdvs.playback.RadioMediaPlayer
-import fho.kdvs.repository.ShowRepository
+import fho.kdvs.model.repository.ShowRepository
 import javax.inject.Inject
 
 class KdvsViewModel @Inject constructor(

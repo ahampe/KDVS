@@ -12,7 +12,7 @@ import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
 import fho.kdvs.R
-import fho.kdvs.database.models.Show
+import fho.kdvs.model.database.entities.ShowEntity
 import kotlinx.android.synthetic.main.fragment_schedule.*
 import kotlinx.android.synthetic.main.layout_schedule_item.view.*
 import java.util.*
@@ -43,7 +43,7 @@ class ScheduleFragment : Fragment() {
     }
 }
 
-class MyAdapter(private val showDataset: List<Show>):
+class MyAdapter(private val showDataset: List<ShowEntity>):
         RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
 
     // Provide a reference to the views for each data item

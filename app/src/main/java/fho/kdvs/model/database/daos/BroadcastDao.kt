@@ -1,10 +1,10 @@
-package fho.kdvs.database.daos
+package fho.kdvs.model.database.daos
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
-import fho.kdvs.database.entities.BroadcastEntity
+import fho.kdvs.model.database.entities.BroadcastEntity
 
 @Dao
 interface BroadcastDao {
@@ -37,6 +37,6 @@ interface BroadcastDao {
     @Query("DELETE from broadcastData")
     fun deleteAll()
 
-    @Query("UPDATE broadcastData SET desc = :desc, imageHref = :imageHref WHERE broadcastId = :broadcastId")
-    fun updateBroadcast(broadcastId: Int?, desc: String?, imageHref: String?)
+    @Query("UPDATE broadcastData SET descr = :descr, imageHref = :imageHref WHERE broadcastId = :broadcastId")
+    fun updateBroadcast(broadcastId: Int?, descr: String?, imageHref: String?)
 }
