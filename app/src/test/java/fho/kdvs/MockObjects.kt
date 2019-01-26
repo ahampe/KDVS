@@ -1,10 +1,10 @@
 package fho.kdvs
 
+import fho.kdvs.model.Day
+import fho.kdvs.model.Quarter
 import fho.kdvs.model.database.entities.BroadcastEntity
 import fho.kdvs.model.database.entities.ShowEntity
 import fho.kdvs.model.database.entities.TrackEntity
-import fho.kdvs.model.database.models.Day
-import fho.kdvs.model.database.models.Quarter
 
 object MockObjects {
     val scheduleShows: List<ShowEntity> by lazy {
@@ -171,8 +171,7 @@ object MockObjects {
             ShowEntity(
                 id = 5280,
                 host = "Ophelia Necro",
-                genre = "",
-                defaultDesc = ""
+                genre = ""
             ),
             ShowEntity(
                 id = 5289,
@@ -201,14 +200,12 @@ object MockObjects {
             ShowEntity(
                 id = 5331,
                 host = "Staff",
-                genre = "News",
-                defaultDesc = ""
+                genre = "News"
             ),
             ShowEntity(
                 id = 5333,
                 host = "Staff",
-                genre = "News",
-                defaultDesc = ""
+                genre = "News"
             ),
             ShowEntity(
                 id = 5355,
@@ -225,11 +222,6 @@ object MockObjects {
         )
     }
 
-    val showBroadcasts = listOf(
-        BroadcastEntity(broadcastId = 51090, showId = 5326, date = TestUtils.makeDate("01/18/2019")),
-        BroadcastEntity(broadcastId = 51089, showId = 5326, date = TestUtils.makeDate("01/11/2019"))
-        )
-
     val broadcasts: List<BroadcastEntity> by lazy {
         listOf(
             BroadcastEntity(
@@ -245,81 +237,50 @@ object MockObjects {
         )
     }
 
-    val broadcastDetails: List<BroadcastEntity> by lazy {
-        listOf(
-            BroadcastEntity(
-                broadcastId = 50771,
-                showId = null,
-                desc = "",
-                imageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg"
-            ),
-            BroadcastEntity(
-                broadcastId = 50506,
-                showId = null,
-                desc = "",
-                imageHref = "https://library.kdvs.org/media/show/images/Neonate_Logo.jpg"
-            ),
-            BroadcastEntity(
-                broadcastId = 51695,
-                showId = null,
-                desc = "what did you expect...",
-                imageHref = "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/intermediary/f/00f6ed51-f1ee-44ed-8e6f-ab16c838cef0/d13ay51-188a8475-6dbd-4027-b871-45e2bd57495b.jpg"
-            )
+    val playlist = listOf(
+        TrackEntity(
+            broadcastId = 51742,
+            position = 0,
+            artist = "Focus",
+            song = "All Together...Oh That",
+            album = "Mother Focus",
+            label = "EMI"
+        ),
+        TrackEntity(
+            broadcastId = 51742,
+            position = 1,
+            artist = "PFM",
+            song = "Photos of Ghosts",
+            album = "Photos of Ghosts",
+            label = "RCA",
+            comment = "English lang. version of Per un amico"
+        ),
+        TrackEntity(
+            broadcastId = 51742,
+            position = 2,
+            airbreak = true
+        ),
+        TrackEntity(
+            broadcastId = 51742,
+            position = 3,
+            artist = "Pete Sinfield",
+            song = "Still",
+            album = "Stillusion",
+            label = "Manticore",
+            comment = "ELP, PFM Lyrici"
+        ),
+        TrackEntity(
+            broadcastId = 51742,
+            position = 4,
+            airbreak = true
+        ),
+        TrackEntity(
+            broadcastId = 51742,
+            position = 5,
+            artist = "Eden in Progress",
+            song = "The Witness",
+            album = "From a single",
+            label = "self released"
         )
-    }
-
-    val trackDetails: List<TrackEntity> by lazy {
-        listOf(
-            TrackEntity(
-                broadcastId = 50771,
-                artist = "HG Lewis",
-                song = "Official warning",
-                album = "Eyepopping Sounds of HG Lewis",
-                label = "Birdman",
-                comment = "",
-                position = 0
-            ),
-            TrackEntity(
-                broadcastId = 50771,
-                artist = "Neurosis",
-                song = "The Eye of Every Storm",
-                album = "The Eye of Every Storm",
-                label = "Neurot",
-                comment = "",
-                position = 1
-            ),
-            TrackEntity(
-                broadcastId = 50771,
-                artist = "Scott Kelly and the the Road Home",
-                song = "We Let the Hell Come",
-                album = "The Forgiven Ghost in Me",
-                label = "Neurot",
-                comment = "",
-                position = 2
-            ),
-            TrackEntity(
-                broadcastId = 50771,
-                airbreak = true,
-                position = 3
-            ),
-            TrackEntity(
-                broadcastId = 50771,
-                artist = "Dark Buddha Rising",
-                song = "Mahathgata I",
-                album = "II",
-                label = "Neurot",
-                comment = "",
-                position = 4
-            ),
-            TrackEntity(
-                broadcastId = 50771,
-                artist = "Chrch",
-                song = "Portals",
-                album = "The Light Will Consume Us All",
-                label = "Neurot",
-                comment = "",
-                position = 5
-            )
-        )
-    }
+    )
 }

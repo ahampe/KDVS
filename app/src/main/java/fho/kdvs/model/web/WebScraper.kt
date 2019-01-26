@@ -131,7 +131,7 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
 
                 val broadcastData = BroadcastEntity(
                     broadcastId = brId ?: 0,
-                    showId = showId ?: 0,
+                    showId = showId,
                     date = date
                 )
 
@@ -151,7 +151,7 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
             var desc = ""
             var elm = select("p.dj-name")?.firstOrNull()?.nextElementSibling()
             while (elm?.tagName() != "h3") {
-                desc += elm?.parseHtml()
+                elm?.parseHtml()?.let { desc += it }
                 elm = elm?.nextElementSibling()
             }
 
@@ -212,7 +212,7 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
 
     // Helper function for scraping a mock show html file
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    fun scrapeBroadcast(file: File) {
+    fun scrapePlaylist(file: File) {
         val document = Jsoup.parse(file, "UTF-8", "")
         runBlocking { scrapePlaylist(document).join() }
     }

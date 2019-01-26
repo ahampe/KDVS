@@ -24,7 +24,7 @@ abstract class DatabaseTest {
         _db = Room.inMemoryDatabaseBuilder(
             InstrumentationRegistry.getInstrumentation().context,
             KdvsDatabase::class.java
-        ).build()
+        ).allowMainThreadQueries().build()
     }
 
     @After

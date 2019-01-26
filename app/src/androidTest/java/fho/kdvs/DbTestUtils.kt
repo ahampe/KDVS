@@ -1,9 +1,9 @@
 package fho.kdvs
 
+import fho.kdvs.model.Day
+import fho.kdvs.model.Quarter
 import fho.kdvs.model.database.entities.BroadcastEntity
 import fho.kdvs.model.database.entities.ShowEntity
-import fho.kdvs.model.database.models.Day
-import fho.kdvs.model.database.models.Quarter
 import java.util.*
 
 object DbTestUtils {
@@ -24,7 +24,7 @@ object DbTestUtils {
     fun createBroadcast() = BroadcastEntity(
         broadcastId = 290,
         showId = 1888,
-        desc = "A stompin' good time with Blind Lemon",
+        descr = "A stompin' good time with Blind Lemon",
         date = Date(5_000_00L),
         imageHref = "http://www.leadbelly.com/blindlemon.jpg"
     )

@@ -5,69 +5,64 @@ import fho.kdvs.TestUtils
 import fho.kdvs.model.database.entities.BroadcastEntity
 import fho.kdvs.model.database.entities.ShowEntity
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.`when`
 
 class ShowScraperTest : ScraperTest() {
     private lateinit var scrapedShow: ShowEntity
+    private val scrapedBroadcasts = mutableListOf<BroadcastEntity>()
 
-    private val expectedShow = ShowEntity(
-        id = 5326,
-        name = "The Smiles Show",
-        host = "Jimmy Smiles",
-        genre = "Public Affairs",
-        defaultDesc = "Things in life that bring us happiness, local events (wellness and physical activity), and interviews with local artisans."
-    )
+    private lateinit var expectedShows: List<ShowEntity>
+    private lateinit var expectedBroadcasts: List<BroadcastEntity>
 
     @Before
     override fun setup() {
         super.setup()
 
-        scrapedShow = ShowEntity(
-            id = 5326,
-            name = "The Smiles Show"
-        )
-    }
-
-    @Test
-    fun scrapeShow_fromFile() {
-        val scrapedBroadcasts = mutableListOf<BroadcastEntity>()
-
-        `when`(
-            showDao.updateShowInfo( // ...
-                TestUtils.any(), TestUtils.any(), TestUtils.any(), TestUtils.any()
+        `when`(showDao.updateShowInfo(TestUtils.any(), TestUtils.any(), TestUtils.any(), TestUtils.any())).thenAnswer {
+            val show = ShowEntity(
+                id = it.getArgument(0),
+                host = it.getArgument(1),
+                genre = it.getArgument(2),
+                defaultDesc = it.getArgument(3)
             )
-        ).thenAnswer {
-            scrapedShow.host = it.getArgument(1)
-            scrapedShow.genre = it.getArgument(2)
-            scrapedShow.defaultDesc = it.getArgument(3)
-
-            assert(scrapedShow.id == it.getArgument(0))
+            Any().also { scrapedShow = show } // thenAnswer hack
         }
 
         `when`(broadcastDao.insert(TestUtils.any())).thenAnswer {
             val broadcast: BroadcastEntity = it.getArgument(0)
             scrapedBroadcasts.add(broadcast)
         }
+    }
 
-        val html = TestUtils.loadFromResource("show-5326.html")
+    @Test
+    fun scrapeShowDetails_fromFile() {
+        expectedShows = MockObjects.showDetails
 
-        scraperManager.scrapeShow(html)
+        expectedShows.forEach { show ->
+            val id = show.id
+            val html = TestUtils.loadFromResource("$id-show-details.html")
+            scraperManager.scrapeShow(html)
 
-        assertEquals("Should have updated show", scrapedShow, expectedShow)
+            assertEquals("Expected to scrape show details", show, scrapedShow)
+        }
+    }
 
-        val expectedBroadcasts = MockObjects.showBroadcasts
+    @Test
+    fun scrapeBroadcasts_fromFile() {
+        expectedBroadcasts = MockObjects.broadcasts
 
-        val scrapedBrIds = scrapedBroadcasts.map { it.broadcastId }
+        val showIds = listOf(5280, 5240)
+        showIds.forEach { showId ->
+            val html = TestUtils.loadFromResource("$showId-show-details.html")
 
-        expectedBroadcasts.forEach { broadcast ->
-            assertTrue(
-                "Expected to find broadcast ${broadcast.broadcastId}",
-                scrapedBrIds.contains(broadcast.broadcastId)
-            )
-            assertTrue("Expected to find broadcast", scrapedBroadcasts.contains(broadcast))
+            scraperManager.scrapeShow(html)
+
+            val expectedBroadcastsForShow = expectedBroadcasts.filter { it.showId == showId }
+            val scrapedBroadcastsForShow = scrapedBroadcasts.filter { it.showId == showId }
+
+            assertEquals("Expected to find broadcasts", expectedBroadcastsForShow, scrapedBroadcastsForShow)
         }
     }
 }
