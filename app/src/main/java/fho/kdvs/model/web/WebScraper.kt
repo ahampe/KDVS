@@ -171,7 +171,7 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
 
                 val trackEntity: TrackEntity
                 if (element.select("td.airbreak").isNotEmpty()) {
-                    trackEntity = TrackEntity(broadcastId = brId, position = index, airbreak = true)
+                    trackEntity = TrackEntity(0, broadcastId = brId, position = index, airbreak = true)
                 } else {
                     val artist = element?.select("td")?.getOrNull(0)?.parseHtml()
                     val song = element?.select("td")?.getOrNull(1)?.parseHtml()
@@ -180,6 +180,7 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
                     val comment = element?.select("td")?.getOrNull(4)?.parseHtml()
 
                     trackEntity = TrackEntity(
+                        trackId = 0,
                         broadcastId = brId,
                         position = index,
                         artist = artist,

@@ -37,6 +37,12 @@ interface BroadcastDao {
     @Query("DELETE from broadcastData")
     fun deleteAll()
 
+    @Query("DELETE from broadcastData WHERE broadcastId = :broadcastId")
+    fun deleteBroadcast(broadcastId: Int?)
+
+    @Query("DELETE from broadcastData WHERE showId = :showId")
+    fun deleteBroadcastsForShow(showId: Int?)
+
     @Query("UPDATE broadcastData SET descr = :descr, imageHref = :imageHref WHERE broadcastId = :broadcastId")
     fun updateBroadcast(broadcastId: Int?, descr: String?, imageHref: String?)
 }
