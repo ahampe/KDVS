@@ -239,6 +239,7 @@ object MockObjects {
 
     val playlist = listOf(
         TrackEntity(
+            trackId = 0,
             broadcastId = 51742,
             position = 0,
             artist = "Focus",
@@ -247,6 +248,7 @@ object MockObjects {
             label = "EMI"
         ),
         TrackEntity(
+            trackId = 0,
             broadcastId = 51742,
             position = 1,
             artist = "PFM",
@@ -256,11 +258,13 @@ object MockObjects {
             comment = "English lang. version of Per un amico"
         ),
         TrackEntity(
+            trackId = 0,
             broadcastId = 51742,
             position = 2,
             airbreak = true
         ),
         TrackEntity(
+            trackId = 0,
             broadcastId = 51742,
             position = 3,
             artist = "Pete Sinfield",
@@ -270,11 +274,13 @@ object MockObjects {
             comment = "ELP, PFM Lyrici"
         ),
         TrackEntity(
+            trackId = 0,
             broadcastId = 51742,
             position = 4,
             airbreak = true
         ),
         TrackEntity(
+            trackId = 0,
             broadcastId = 51742,
             position = 5,
             artist = "Eden in Progress",

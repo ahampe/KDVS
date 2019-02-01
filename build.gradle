@@ -11,7 +11,7 @@ buildscript {
         nav_version = '1.0.0-alpha08'
         dagger_version = '2.16'
         room_version = '2.1.0-alpha03'
-        mockito_verison = '2.23.0'
+        mockito_verison = '2.19.0'
     }
 
     repositories {
