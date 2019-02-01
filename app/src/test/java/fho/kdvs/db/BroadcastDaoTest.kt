@@ -2,13 +2,15 @@ package fho.kdvs.db
 
 import android.database.sqlite.SQLiteConstraintException
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import fho.kdvs.DbTestUtils
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(RobolectricTestRunner::class)
 class BroadcastDaoTest : DatabaseTest() {
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
@@ -143,19 +145,20 @@ class BroadcastDaoTest : DatabaseTest() {
     @Test
     fun updateBroadcast() {
         insertShow()
-        var broadcast = DbTestUtils.createBroadcasts().first()
+        val broadcast = DbTestUtils.createBroadcasts().first()
         db.broadcastDao().insert(broadcast)
 
-        var broadcasts = db.broadcastDao().getAll()
-        assert(broadcasts.contains(broadcast))
-        assert(broadcasts.size == 1)
+        val broadcasts = db.broadcastDao().getAll()
+        assertTrue("Could not find broadcast: $broadcast", broadcasts.contains(broadcast))
+        assertEquals("Should have 1 broadcast", broadcasts.size, 1)
 
         broadcast.descr = "Updated descr"
         broadcast.imageHref = "https://i.kym-cdn.com/photos/images/original/001/356/199/dd9.png"
 
         db.broadcastDao().updateBroadcast(broadcast.broadcastId, broadcast.descr, broadcast.imageHref)
-        assert(broadcasts.contains(broadcast))
-        assert(broadcasts.size == 1)
+        val updatedBroadcasts = db.broadcastDao().getAll()
+        assertTrue("Could not find broadcast: $broadcast", updatedBroadcasts.contains(broadcast))
+        assertEquals("Should have 1 broadcast", updatedBroadcasts.size, 1)
     }
 
     // Helper function that inserts a show that will serve as the parent of broadcasts in these tests

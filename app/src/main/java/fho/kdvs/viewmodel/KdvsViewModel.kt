@@ -16,7 +16,6 @@ import fho.kdvs.model.repository.ShowRepository
 import javax.inject.Inject
 
 class KdvsViewModel @Inject constructor(
-    showRepo: ShowRepository,
     application: Application
 ) : AndroidViewModel(application) {
 
@@ -36,8 +35,6 @@ class KdvsViewModel @Inject constructor(
             .createMediaSource(Uri.parse(wfmuStreamUrl))
 
         exoPlayer.prepare(audioSource)
-
-        showRepo.printShows()
     }
 
     private val focusListener = object : PlaybackFocusListener {

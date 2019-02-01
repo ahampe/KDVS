@@ -2,7 +2,7 @@ package fho.kdvs.db
 
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule
 import androidx.room.Room
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
 import fho.kdvs.model.database.KdvsDatabase
 import org.junit.After
 import org.junit.Before
@@ -22,7 +22,7 @@ abstract class DatabaseTest {
     @Before
     fun initDb() {
         _db = Room.inMemoryDatabaseBuilder(
-            InstrumentationRegistry.getInstrumentation().context,
+            ApplicationProvider.getApplicationContext(),
             KdvsDatabase::class.java
         ).allowMainThreadQueries().build()
     }
@@ -32,5 +32,9 @@ abstract class DatabaseTest {
     fun closeDb() {
         countingTaskExecutorRule.drainTasks(10, TimeUnit.SECONDS)
         _db.close()
+    }
+
+    companion object {
+        const val defaultTimeOut = 15L
     }
 }

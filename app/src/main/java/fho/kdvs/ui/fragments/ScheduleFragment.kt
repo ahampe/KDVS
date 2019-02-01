@@ -1,162 +1,188 @@
 package fho.kdvs.ui.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.cardview.widget.CardView
-import androidx.fragment.app.Fragment
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager.widget.PagerAdapter
-import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestOptions
+import dagger.android.support.DaggerFragment
 import fho.kdvs.R
+import fho.kdvs.databinding.CellShowBinding
+import fho.kdvs.model.Day
 import fho.kdvs.model.database.entities.ShowEntity
-import kotlinx.android.synthetic.main.fragment_schedule.*
-import kotlinx.android.synthetic.main.layout_schedule_item.view.*
+import fho.kdvs.ui.BindingRecyclerViewAdapter
+import fho.kdvs.ui.BindingViewHolder
+import fho.kdvs.util.ShowDiffCallback
+import fho.kdvs.viewmodel.KdvsViewModelFactory
+import fho.kdvs.viewmodel.ScheduleViewModel
+import kotlinx.android.synthetic.main.cell_day_column.view.*
+import timber.log.Timber
+import java.time.DayOfWeek
 import java.util.*
+import javax.inject.Inject
 
-class ScheduleFragment : Fragment() {
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var viewAdapter: MyAdapter
-    private lateinit var viewManager: RecyclerView.LayoutManager
-    private lateinit var viewPager: ViewPager
-    private lateinit var viewPagerAdapter: MyPagerAdapter
+class ScheduleFragment : DaggerFragment() {
+    @Inject
+    lateinit var viewModelFactory: KdvsViewModelFactory
+
+    private lateinit var viewModel: ScheduleViewModel
+
+    /** Outer [RecyclerView] that will hold RecyclerViews for each day. */
+    private lateinit var weekRecyclerView: RecyclerView
+    private lateinit var weekLayoutManager: LinearLayoutManager
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory)
+            .get(ScheduleViewModel::class.java)
+            .also {
+                it.fetchShows()
+            }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_schedule, container, false)
+        val view = inflater.inflate(R.layout.fragment_schedule, container, false)
+
+        weekRecyclerView = view.findViewById(R.id.weekRecyclerView)
+        weekLayoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        weekRecyclerView.layoutManager = weekLayoutManager
+
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        recyclerView = rv_sun as RecyclerView
-        recyclerView.apply{
-            layoutManager = viewManager
-            adapter = viewAdapter
+        super.onViewCreated(view, savedInstanceState)
+
+        val snapHelper = PagerSnapHelper()
+
+        val weekData = Day.values().map { day -> DayInfo(day) }
+
+        weekRecyclerView.apply {
+            adapter = WeekViewAdapter(weekData)
+            setHasFixedSize(true)
+            snapHelper.attachToRecyclerView(this)
         }
 
-        viewPager = pager as ViewPager
-        viewPager.apply{
-            viewPagerAdapter = MyPagerAdapter(context)
-            //TODO: swipe listener
+        weekRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            /** Allows looped scrolling */
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val firstVisiblePos = weekLayoutManager.findFirstVisibleItemPosition()
+                if (firstVisiblePos == 8) {
+                    weekLayoutManager.scrollToPosition(1)
+                }
+
+                val firstCompletelyVisiblePos = weekLayoutManager.findFirstCompletelyVisibleItemPosition()
+                if (firstCompletelyVisiblePos == 0) {
+                    weekLayoutManager.scrollToPosition(7)
+                }
+            }
+
+            /** For debug purposes */
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    val newView = snapHelper.findSnapView(weekLayoutManager) as ConstraintLayout
+                    Timber.d("scrolled to ${newView.tag}")
+                }
+            }
+        })
+
+        // start week view on current day
+        // TODO or from saved instance state
+        val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1
+        weekRecyclerView.layoutManager?.scrollToPosition(today)
+    }
+
+    inner class DayInfo(day: Day) {
+        val dayName = day.name
+        val showsLiveData: LiveData<List<ShowEntity>> = viewModel.getShowsForDay(day)
+    }
+
+    inner class WeekViewAdapter(private val days: List<ScheduleFragment.DayInfo>) :
+        RecyclerView.Adapter<WeekViewHolder>() {
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WeekViewHolder {
+            val dayContainer = LayoutInflater.from(parent.context)
+                .inflate(R.layout.cell_day_column, parent, false) as ConstraintLayout
+            return WeekViewHolder(dayContainer)
         }
+
+        /** Return two more than number of items to enable looped scrolling */
+        override fun getItemCount(): Int = days.size + 2
+
+        override fun onBindViewHolder(holder: WeekViewHolder, position: Int) {
+            val day = days[position % 7]
+
+            val childAdapter = ShowViewAdapter().apply {
+                clickHandler = {
+                    Timber.d("clicked ${it.item.name}")
+                }
+            }
+
+            // tag root constraint layout as the day name + position for debug purposes
+            val parent = holder.recyclerView.parent as View
+            parent.tag = "${day.dayName}_$position"
+
+            // configure each day
+            holder.textView.text = day.dayName
+            holder.recyclerView.apply {
+                layoutManager = LinearLayoutManager(holder.recyclerView.context, RecyclerView.VERTICAL, false)
+                adapter = childAdapter
+            }
+
+            day.showsLiveData.observe(this@ScheduleFragment, Observer { shows ->
+                childAdapter.onShowsChanged(shows)
+            })
+        }
+    }
+
+    class WeekViewHolder(dayContainer: ConstraintLayout) : RecyclerView.ViewHolder(dayContainer) {
+        val textView: TextView = dayContainer.textView
+        val recyclerView: RecyclerView = dayContainer.recyclerView
     }
 }
 
-class MyAdapter(private val showDataset: List<ShowEntity>):
-        RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
+class ShowViewAdapter :
+    BindingRecyclerViewAdapter<ShowEntity, ShowViewAdapter.ViewHolder>(ShowDiffCallback()) {
 
-    // Provide a reference to the views for each data item
-    // Complex data items may need more than one view per item, and
-    // you provide access to all the views for a data item in a view holder.
-    // Each data item is just a string in this case that is shown in a TextView.
-    class MyViewHolder(val cardView: CardView) : RecyclerView.ViewHolder(cardView)
+    class ViewHolder(private val binding: CellShowBinding) : BindingViewHolder<ShowEntity>(binding.root) {
+        override fun bind(listener: View.OnClickListener, item: ShowEntity) {
+            Glide.with(binding.root)
+                .applyDefaultRequestOptions(
+                    RequestOptions()
+                        .error(R.drawable.show_placeholder)
+                        .apply(RequestOptions.centerCropTransform())
+                )
+                .load(item.defaultImageHref)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .into(binding.showImage)
 
-    override fun onCreateViewHolder(parent: ViewGroup,
-                                    viewType: Int): MyAdapter.MyViewHolder {
-        val cardView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.layout_schedule_item, parent, false) as CardView
-        // set the view's size, margins, paddings and layout parameters
-
-        return MyViewHolder(cardView)
-    }
-
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        val imageView = holder.cardView.show_img
-        Glide.with(holder.cardView)
-            .load(showDataset[position].defaultImageHref)
-            .into(imageView)
-        holder.cardView.show_name.text = showDataset[position].name
-        holder.cardView.show_time.text = getStringFromTimes(showDataset[position].timeStart,
-                                                            showDataset[position].timeEnd)
-    }
-
-    override fun getItemCount() = showDataset.size
-
-    companion object {
-        fun getStringFromTimes(timeStart: Date?, timeEnd: Date?) : String?{
-            val calStart = Calendar.getInstance(); calStart.time = timeStart
-            val calEnd = Calendar.getInstance(); calEnd.time = timeEnd
-
-            val hourStart = calStart.get(Calendar.HOUR)
-            val minuteStart = calStart.get(Calendar.MINUTE)
-            val isPMStart = hourStart > 12
-
-            val hourEnd = calEnd.get(Calendar.HOUR)
-            val minuteEnd = calEnd.get(Calendar.MINUTE)
-            val isPMEnd = hourEnd > 12
-            
-            return (hourStart % 12).toString() + ":" +
-                    minuteStart.toString() + 
-                    (if (isPMStart) "PM" else "AM" ) + " - " +
-                    (hourEnd % 12).toString() + ":" +
-                    minuteEnd.toString() +
-                    (if (isPMEnd) "PM" else "AM" )
+            binding.apply {
+                clickListener = listener
+                show = item
+            }
         }
     }
-}
 
-class MyPagerAdapter(private var mContext: Context) : PagerAdapter() {
-
-    override fun instantiateItem(collection: ViewGroup, position: Int): Any {
-        val myPagerEnum = MyPagerEnum.values()[position]
-        val inflater = LayoutInflater.from(mContext)
-        val layout = inflater.inflate(myPagerEnum.getLayoutResId(), collection, false) as ViewGroup
-        collection.addView(layout)
-        return layout
+    fun onShowsChanged(shows: List<ShowEntity>) {
+        submitList(shows)
     }
 
-    override fun destroyItem(collection: ViewGroup, position: Int, view: Any) {
-        collection.removeView(view as View)
-    }
-
-    override fun getCount(): Int {
-        return MyPagerEnum.values().size
-    }
-
-    override fun getItemPosition(`object`: Any): Int {
-        return PagerAdapter.POSITION_NONE
-    }
-
-    override fun getPageTitle(position: Int): CharSequence? {
-        val myPagerEnum = MyPagerEnum.values()[position]
-        return mContext.getString(myPagerEnum.getTitleResId())
-    }
-
-    override fun isViewFromObject(view: View, `object`: Any): Boolean {
-        return view === `object`
-    }
-
-    fun getView(position: Int): String {
-        val myPagerEnum = MyPagerEnum.values()[position]
-        return mContext.getString(myPagerEnum.getLayoutResId())
-    }
-
-    fun getPrevView(position: Int): String {
-        val myPagerEnum = MyPagerEnum.values()[(position - 1) % count]
-        return mContext.getString(myPagerEnum.getLayoutResId())
-    }
-
-    fun getNextView(position: Int): String {
-        val myPagerEnum = MyPagerEnum.values()[(position + 1) % count]
-        return mContext.getString(myPagerEnum.getLayoutResId())
-    }
-}
-
-enum class MyPagerEnum(private var mTitleResId: Int, private var mLayoutResId: Int) {
-    SUNDAY(R.string.sun, R.id.rv_sun),
-    MONDAY(R.string.mon, R.id.rv_mon),
-    TUESDAY(R.string.tues, R.id.rv_tues),
-    WEDNESDAY(R.string.wed, R.id.rv_wed),
-    THURSDAY(R.string.thurs, R.id.rv_thurs),
-    FRIDAY(R.string.fri, R.id.rv_fri),
-    SATURDAY(R.string.sat, R.id.rv_sat);
-
-    fun getTitleResId(): Int {
-        return mTitleResId
-    }
-
-    fun getLayoutResId(): Int {
-        return mLayoutResId
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShowViewAdapter.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        val binding = CellShowBinding.inflate(inflater, parent, false)
+        return ViewHolder(binding)
     }
 }

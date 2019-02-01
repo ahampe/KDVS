@@ -4,10 +4,18 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
+import fho.kdvs.model.Day
 import fho.kdvs.model.database.entities.ShowEntity
+import io.reactivex.Flowable
 
 @Dao
 interface ShowDao {
+    @Query("SELECT * from showData")
+    fun allShows(): Flowable<List<ShowEntity>>
+
+    @Query("SELECT * from showData WHERE dayOfWeek = :dayOfWeek ORDER BY timeStart")
+    fun allShowsForDay(dayOfWeek: Day): Flowable<List<ShowEntity>>
+
     @Query("SELECT * from showData")
     fun getAll(): List<ShowEntity>
 

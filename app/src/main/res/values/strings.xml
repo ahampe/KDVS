@@ -25,4 +25,6 @@
     <string name="thurs">Thursday</string>
     <string name="fri">Friday</string>
     <string name="sat">Saturday</string>
+
+    <string name="show_time_range">%s - %s</string>
 </resources>

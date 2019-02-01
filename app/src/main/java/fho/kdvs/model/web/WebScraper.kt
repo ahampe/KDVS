@@ -30,13 +30,15 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
 
     fun scrape(url: String) {
         try {
-            val document = Jsoup.connect(url).get()
+            launch {
+                val document = Jsoup.connect(url).get()
 
-            when {
-                url.contains("schedule-grid") -> scrapeSchedule(document)
-                url.contains("past-playlists") -> scrapeShow(document)
-                url.contains("playlist-details") -> scrapePlaylist(document)
-                else -> throw Exception("Invalid url: $url")
+                when {
+                    url.contains("schedule-grid") -> scrapeSchedule(document)
+                    url.contains("past-playlists") -> scrapeShow(document)
+                    url.contains("playlist-details") -> scrapePlaylist(document)
+                    else -> throw Exception("Invalid url: $url")
+                }
             }
         } catch (e: Throwable) {
             Timber.d("Error while trying to connect: $e") // TODO reflect error in UI
