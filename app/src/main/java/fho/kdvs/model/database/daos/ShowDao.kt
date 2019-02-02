@@ -5,15 +5,17 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import fho.kdvs.model.Day
+import fho.kdvs.model.Quarter
 import fho.kdvs.model.database.entities.ShowEntity
 import io.reactivex.Flowable
+import java.util.*
 
 @Dao
 interface ShowDao {
     @Query("SELECT * from showData")
     fun allShows(): Flowable<List<ShowEntity>>
 
-    @Query("SELECT * from showData WHERE dayOfWeek = :dayOfWeek ORDER BY timeStart")
+    @Query("SELECT * from showData WHERE dayOfWeekStart = :dayOfWeek OR dayOfWeekEnd = :dayOfWeek ORDER BY timeStart, dayOfWeekStart")
     fun allShowsForDay(dayOfWeek: Day): Flowable<List<ShowEntity>>
 
     @Query("SELECT * from showData")
@@ -34,14 +36,18 @@ interface ShowDao {
     @Query("SELECT DISTINCT host from showData ORDER BY host")
     fun getDistinctHosts() : List<String>
 
-    @Query("SELECT * from showData where timeStart >= :timeStart " +
-            "AND timeEnd <= :timeEnd AND dayOfWeek = :dayOfWeek AND quarter = :quarter AND year = :year")
-    fun getShowsInTimeRange(timeStart: String?, timeEnd: String?, dayOfWeek: String?, quarter: String?, year: Int?) : List<ShowEntity>
-
-    @Query("SELECT * from showData where timeStart >= :timeStart " +
-            "AND genre = :genre " +
-            "AND timeEnd <= :timeEnd AND dayOfWeek = :dayOfWeek AND quarter = :quarter AND year = :year")
-    fun getShowsInTimeRangeOfGenre(genre: String?, timeStart: String?, timeEnd: String?, dayOfWeek: String?, quarter: String?, year: Int?) : List<ShowEntity>
+    @Query("""SELECT * from showData WHERE
+            (dayOfWeekStart = :dayOfWeekStart AND timeStart >= :timeStart AND
+               ((dayOfWeekEnd = :dayOfWeekEnd AND timeEnd <= :timeEnd) OR
+                ((dayOfWeekEnd < :dayOfWeekEnd) OR (dayOfWeekEnd = 6 AND :dayOfWeekEnd = 0)))) OR
+            ((dayOfWeekStart > :dayOfWeekStart OR (dayOfWeekStart = 0 AND :dayOfWeekStart = 6)) AND
+              ((timeEnd <= :timeEnd) OR
+              ((dayOfWeekEnd < :dayOfWeekEnd OR (dayOfWeekEnd = 6 AND :dayOfWeekEnd = 0)))))
+            AND quarter >= :quarterStart AND quarter <= :quarterEnd
+            AND year >= :yearStart AND year <= :yearEnd
+            ORDER BY timeStart, dayOfWeekStart, quarter, year""")
+    fun getShowsInTimeRange(timeStart: Date, timeEnd: Date, dayOfWeekStart: Day, dayOfWeekEnd: Day,
+                            quarterStart: Quarter, quarterEnd: Quarter, yearStart: Int, yearEnd: Int) : List<ShowEntity>
 
     @Query("SELECT DISTINCT s.* from showData s inner join broadcastData b on b.showId = s.id inner join trackData t on t.broadcastId = b.broadcastId " +
             "WHERE t.artist = :artist")

@@ -148,7 +148,7 @@ class TrackDaoTest : DatabaseTest() {
 
     // Helper functions
     private fun insertShow() {
-        val show = DbTestUtils.createShow()
+        val show = DbTestUtils.createShows().first()
         db.showDao().insert(show)
     }
 

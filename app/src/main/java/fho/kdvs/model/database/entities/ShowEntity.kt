@@ -17,7 +17,8 @@ data class ShowEntity(
     @ColumnInfo(name = "defaultImageHref") var defaultImageHref: String? = null,
     @ColumnInfo(name = "timeStart") var timeStart: Date? = null,
     @ColumnInfo(name = "timeEnd") var timeEnd: Date? = null,
-    @ColumnInfo(name = "dayOfWeek") var dayOfWeek: Day? = null,
+    @ColumnInfo(name = "dayOfWeekStart") var dayOfWeekStart: Day? = null,
+    @ColumnInfo(name = "dayOfWeekEnd") var dayOfWeekEnd: Day? = null,
     @ColumnInfo(name = "quarter") var quarter: Quarter? = null,
     @ColumnInfo(name = "year") var year: Int? = null
 )

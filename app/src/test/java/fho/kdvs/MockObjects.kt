@@ -15,7 +15,8 @@ object MockObjects {
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
                 timeStart = TestUtils.makeDateFromTime("00:00"),
                 timeEnd = TestUtils.makeDateFromTime("02:00"),
-                dayOfWeek = Day.SUNDAY,
+                dayOfWeekStart = Day.SUNDAY,
+                dayOfWeekEnd = Day.SUNDAY,
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -25,7 +26,8 @@ object MockObjects {
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
                 timeStart = TestUtils.makeDateFromTime("10:00"),
                 timeEnd = TestUtils.makeDateFromTime("13:00"),
-                dayOfWeek = Day.SUNDAY,
+                dayOfWeekStart = Day.SUNDAY,
+                dayOfWeekEnd = Day.SUNDAY,
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -35,7 +37,8 @@ object MockObjects {
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
                 timeStart = TestUtils.makeDateFromTime("10:00"),
                 timeEnd = TestUtils.makeDateFromTime("13:00"),
-                dayOfWeek = Day.SUNDAY,
+                dayOfWeekStart = Day.SUNDAY,
+                dayOfWeekEnd = Day.SUNDAY,
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -45,7 +48,8 @@ object MockObjects {
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
                 timeStart = TestUtils.makeDateFromTime("10:00"),
                 timeEnd = TestUtils.makeDateFromTime("13:00"),
-                dayOfWeek = Day.SUNDAY,
+                dayOfWeekStart = Day.SUNDAY,
+                dayOfWeekEnd = Day.SUNDAY,
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -55,7 +59,8 @@ object MockObjects {
                 defaultImageHref = "https://goo.gl/images/nkV7oU",
                 timeStart = TestUtils.makeDateFromTime("22:00"),
                 timeEnd = TestUtils.makeDateFromTime("01:00"),
-                dayOfWeek = Day.MONDAY,
+                dayOfWeekStart = Day.MONDAY,
+                dayOfWeekEnd = Day.TUESDAY,
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -65,7 +70,8 @@ object MockObjects {
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
                 timeStart = TestUtils.makeDateFromTime("14:30"),
                 timeEnd = TestUtils.makeDateFromTime("16:30"),
-                dayOfWeek = Day.TUESDAY,
+                dayOfWeekStart = Day.TUESDAY,
+                dayOfWeekEnd = Day.TUESDAY,
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -75,7 +81,8 @@ object MockObjects {
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
                 timeStart = TestUtils.makeDateFromTime("10:30"),
                 timeEnd = TestUtils.makeDateFromTime("12:00"),
-                dayOfWeek = Day.WEDNESDAY,
+                dayOfWeekStart = Day.WEDNESDAY,
+                dayOfWeekEnd = Day.WEDNESDAY,
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -85,7 +92,8 @@ object MockObjects {
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
                 timeStart = TestUtils.makeDateFromTime("10:30"),
                 timeEnd = TestUtils.makeDateFromTime("12:00"),
-                dayOfWeek = Day.WEDNESDAY,
+                dayOfWeekStart = Day.WEDNESDAY,
+                dayOfWeekEnd = Day.WEDNESDAY,
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -95,7 +103,8 @@ object MockObjects {
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
                 timeStart = TestUtils.makeDateFromTime("09:00"),
                 timeEnd = TestUtils.makeDateFromTime("09:30"),
-                dayOfWeek = Day.THURSDAY,
+                dayOfWeekStart = Day.THURSDAY,
+                dayOfWeekEnd = Day.THURSDAY,
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -105,7 +114,8 @@ object MockObjects {
                 defaultImageHref = "https://library.kdvs.org/media/show/images/unnamed.png",
                 timeStart = TestUtils.makeDateFromTime("12:00"),
                 timeEnd = TestUtils.makeDateFromTime("13:00"),
-                dayOfWeek = Day.THURSDAY,
+                dayOfWeekStart = Day.THURSDAY,
+                dayOfWeekEnd = Day.THURSDAY,
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -115,7 +125,8 @@ object MockObjects {
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
                 timeStart = TestUtils.makeDateFromTime("12:00"),
                 timeEnd = TestUtils.makeDateFromTime("13:00"),
-                dayOfWeek = Day.FRIDAY,
+                dayOfWeekStart = Day.FRIDAY,
+                dayOfWeekEnd = Day.FRIDAY,
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -125,7 +136,8 @@ object MockObjects {
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
                 timeStart = TestUtils.makeDateFromTime("20:00"),
                 timeEnd = TestUtils.makeDateFromTime("22:00"),
-                dayOfWeek = Day.FRIDAY,
+                dayOfWeekStart = Day.FRIDAY,
+                dayOfWeekEnd = Day.FRIDAY,
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -135,7 +147,8 @@ object MockObjects {
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
                 timeStart = TestUtils.makeDateFromTime("16:00"),
                 timeEnd = TestUtils.makeDateFromTime("18:00"),
-                dayOfWeek = Day.SATURDAY,
+                dayOfWeekStart = Day.SATURDAY,
+                dayOfWeekEnd = Day.SATURDAY,
                 quarter = Quarter.WINTER,
                 year = 2019
             )

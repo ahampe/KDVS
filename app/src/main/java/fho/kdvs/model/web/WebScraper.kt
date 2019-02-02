@@ -80,6 +80,8 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
 
                     val timeStart = getTimeStart(showTimeCaptures)
                     val timeEnd = getTimeEnd(showTimeCaptures)
+                    val dayOfWeekStart = enumValueOrDefault(day.toUpperCase(), Day.SUNDAY)
+                    val dayOfWeekEnd = if (timeEnd < timeStart) Day.getNextDay(dayOfWeekStart) else dayOfWeekStart
 
                     for ((name, id) in names.zip(ids)) {
                         val showEntity = ShowEntity(
@@ -88,7 +90,8 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
                             defaultImageHref = imageHref,
                             timeStart = timeStart,
                             timeEnd = timeEnd,
-                            dayOfWeek = enumValueOrDefault(day.toUpperCase(), Day.SUNDAY),
+                            dayOfWeekStart = dayOfWeekStart,
+                            dayOfWeekEnd = dayOfWeekEnd,
                             quarter = enumValueOrDefault(quarter.toUpperCase(), Quarter.FALL),
                             year = year
                         )

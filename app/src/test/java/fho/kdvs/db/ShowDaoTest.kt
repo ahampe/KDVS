@@ -2,6 +2,8 @@ package fho.kdvs.db
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import fho.kdvs.DbTestUtils
+import fho.kdvs.model.Day
+import fho.kdvs.model.Quarter
 import fho.kdvs.model.database.entities.ShowEntity
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
@@ -13,6 +15,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.text.SimpleDateFormat
+import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 
@@ -37,7 +41,7 @@ class ShowDaoTest : DatabaseTest() {
 
     @Test
     fun insert_basic() {
-        val show = DbTestUtils.createShow()
+        val show = DbTestUtils.createShows().first()
         showDao.insert(show)
 
         val shows = showDao.getAll()
@@ -46,10 +50,29 @@ class ShowDaoTest : DatabaseTest() {
     }
 
     @Test
+    fun get_all_shows_for_time_range() {
+        val shows = DbTestUtils.createShows()
+        shows.forEach {
+            showDao.insert(it)
+        }
+
+        val formatter = SimpleDateFormat("HH:mm")
+        val timeStart = formatter.parse("21:30")
+        val timeEnd = formatter.parse("03:00")
+
+        val showsDb = showDao.getShowsInTimeRange(timeStart, timeEnd, Day.SATURDAY, Day.SUNDAY, Quarter.SPRING, Quarter.SPRING, 1943, 1943)
+
+        assert(shows.size == showsDb.size)
+        shows.forEach {
+            assert(showsDb.contains(it))
+        }
+    }
+
+    @Test
     fun observable_insert() {
         compositeDisposable += observeShows(showDao.allShows())
 
-        val show = DbTestUtils.createShow()
+        val show = DbTestUtils.createShows().first()
         showDao.insert(show)
 
         val shows = showsQueue.poll(defaultTimeOut, TimeUnit.SECONDS)

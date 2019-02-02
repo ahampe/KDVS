@@ -163,7 +163,7 @@ class BroadcastDaoTest : DatabaseTest() {
 
     // Helper function that inserts a show that will serve as the parent of broadcasts in these tests
     private fun insertShow() {
-        val show = DbTestUtils.createShow()
+        val show = DbTestUtils.createShows().first()
         db.showDao().insert(show)
     }
 

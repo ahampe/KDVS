@@ -43,17 +43,17 @@ class DateTypeConverter {
 class DayTypeConverter {
 
     @TypeConverter
-    fun toString(value: Day?): String? = value.toString()
+    fun toInt(value: Day?): Int? = value?.value
 
     @TypeConverter
-    fun toDay(value: String?): Day? = value?.let { Day.valueOf(it) }
+    fun toDay(value: Int?): Day? = value?.let { Day.fromInt(value) }
 }
 
 class QuarterTypeConverter {
 
     @TypeConverter
-    fun toString(value: Quarter?): String? = value.toString()
+    fun toInt(value: Quarter?): Int? = value?.value
 
     @TypeConverter
-    fun toQuarter(value: String?): Quarter? = value?.let { Quarter.valueOf(it) }
+    fun toQuarter(value: Int?): Quarter? = value?.let { Quarter.fromInt(value) }
 }

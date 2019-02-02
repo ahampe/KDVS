@@ -5,21 +5,40 @@ import fho.kdvs.model.Quarter
 import fho.kdvs.model.database.entities.BroadcastEntity
 import fho.kdvs.model.database.entities.ShowEntity
 import fho.kdvs.model.database.entities.TrackEntity
+import java.text.SimpleDateFormat
 import java.util.*
 
 object DbTestUtils {
-    fun createShow() = ShowEntity(
-        id = 1888,
-        name = "Pick a Bale of Cotton",
-        host = "Leadbelly",
-        genre = "Blues",
-        defaultDesc = "Goodnight Irene",
-        defaultImageHref = "http://www.leadbelly.com/cotton.jpg",
-        timeStart = Date(1_000L),
-        timeEnd = Date(2_000L),
-        dayOfWeek = Day.SUNDAY,
-        quarter = Quarter.SPRING,
-        year = 1943
+    private val formatter = SimpleDateFormat("HH:mm")
+    fun createShows() = listOf(
+        ShowEntity(
+            id = 1888,
+            name = "Pick a Bale of Cotton",
+            host = "Leadbelly",
+            genre = "Blues",
+            defaultDesc = "Goodnight Irene",
+            defaultImageHref = "http://www.leadbelly.com/cotton.jpg",
+            timeStart = formatter.parse("01:00"),
+            timeEnd = formatter.parse("02:00"),
+            dayOfWeekStart = Day.SUNDAY,
+            dayOfWeekEnd = Day.SUNDAY,
+            quarter = Quarter.SPRING,
+            year = 1943
+        ),
+        ShowEntity(
+            id = 1889,
+            name = "Tristram Shandy",
+            host = "Laurence Sterne",
+            genre = "Rabelaisian",
+            defaultDesc = "The Absolute Madman",
+            defaultImageHref = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Laurence_Sterne_by_Sir_Joshua_Reynolds.jpg/800px-Laurence_Sterne_by_Sir_Joshua_Reynolds.jpg",
+            timeStart = formatter.parse("22:00"),
+            timeEnd = formatter.parse("01:00"),
+            dayOfWeekStart = Day.SATURDAY,
+            dayOfWeekEnd = Day.SUNDAY,
+            quarter = Quarter.SPRING,
+            year = 1943
+        )
     )
 
     fun createBroadcasts() = listOf(
