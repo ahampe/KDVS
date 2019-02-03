@@ -5,11 +5,11 @@ import fho.kdvs.model.Quarter
 import fho.kdvs.model.database.entities.BroadcastEntity
 import fho.kdvs.model.database.entities.ShowEntity
 import fho.kdvs.model.database.entities.TrackEntity
-import java.text.SimpleDateFormat
-import java.util.*
+import fho.kdvs.util.TimeHelper
+import org.threeten.bp.Instant
+import org.threeten.bp.ZoneOffset
 
 object DbTestUtils {
-    private val formatter = SimpleDateFormat("HH:mm")
     fun createShows() = listOf(
         ShowEntity(
             id = 1888,
@@ -18,10 +18,8 @@ object DbTestUtils {
             genre = "Blues",
             defaultDesc = "Goodnight Irene",
             defaultImageHref = "http://www.leadbelly.com/cotton.jpg",
-            timeStart = formatter.parse("01:00"),
-            timeEnd = formatter.parse("02:00"),
-            dayOfWeekStart = Day.SUNDAY,
-            dayOfWeekEnd = Day.SUNDAY,
+            timeStart = TimeHelper.makeWeekTime24h("01:00", Day.SUNDAY),
+            timeEnd = TimeHelper.makeWeekTime24h("02:00", Day.SUNDAY),
             quarter = Quarter.SPRING,
             year = 1943
         ),
@@ -32,10 +30,8 @@ object DbTestUtils {
             genre = "Rabelaisian",
             defaultDesc = "The Absolute Madman",
             defaultImageHref = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Laurence_Sterne_by_Sir_Joshua_Reynolds.jpg/800px-Laurence_Sterne_by_Sir_Joshua_Reynolds.jpg",
-            timeStart = formatter.parse("22:00"),
-            timeEnd = formatter.parse("01:00"),
-            dayOfWeekStart = Day.SATURDAY,
-            dayOfWeekEnd = Day.SUNDAY,
+            timeStart = TimeHelper.makeWeekTime24h("22:00", Day.SATURDAY),
+            timeEnd = TimeHelper.makeWeekTime24h("01:00", Day.SUNDAY),
             quarter = Quarter.SPRING,
             year = 1943
         )
@@ -46,14 +42,14 @@ object DbTestUtils {
             broadcastId = 290,
             showId = 1888,
             descr = "A stompin' good time with Blind Lemon",
-            date = Date(5_000_00L),
+            date = TimeHelper.makeLocalDate("1943-01-01"),
             imageHref = "http://www.leadbelly.com/blindlemon.jpg"
         ),
         BroadcastEntity(
             broadcastId = 291,
             showId = 1888,
             descr = "The Great Machine",
-            date = Date(5_000_01L),
+            date = TimeHelper.makeLocalDate("1943-01-08"),
             imageHref = "http://sfprod.shikadi.net/pic/timss.png"
         )
     )

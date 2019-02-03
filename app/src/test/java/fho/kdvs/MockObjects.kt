@@ -5,6 +5,7 @@ import fho.kdvs.model.Quarter
 import fho.kdvs.model.database.entities.BroadcastEntity
 import fho.kdvs.model.database.entities.ShowEntity
 import fho.kdvs.model.database.entities.TrackEntity
+import fho.kdvs.util.TimeHelper
 
 object MockObjects {
     val scheduleShows: List<ShowEntity> by lazy {
@@ -13,10 +14,8 @@ object MockObjects {
                 id = 5235,
                 name = "Neonate--New Life",
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TestUtils.makeDateFromTime("00:00"),
-                timeEnd = TestUtils.makeDateFromTime("02:00"),
-                dayOfWeekStart = Day.SUNDAY,
-                dayOfWeekEnd = Day.SUNDAY,
+                timeStart = TimeHelper.makeWeekTime24h("00:00", Day.SUNDAY),
+                timeEnd = TimeHelper.makeWeekTime24h("02:00", Day.SUNDAY),
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -24,10 +23,8 @@ object MockObjects {
                 id = 5238,
                 name = "Island Radio Cafe",
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TestUtils.makeDateFromTime("10:00"),
-                timeEnd = TestUtils.makeDateFromTime("13:00"),
-                dayOfWeekStart = Day.SUNDAY,
-                dayOfWeekEnd = Day.SUNDAY,
+                timeStart = TimeHelper.makeWeekTime24h("10:00", Day.SUNDAY),
+                timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.SUNDAY),
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -35,10 +32,8 @@ object MockObjects {
                 id = 5240,
                 name = "Crossing Continents",
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TestUtils.makeDateFromTime("10:00"),
-                timeEnd = TestUtils.makeDateFromTime("13:00"),
-                dayOfWeekStart = Day.SUNDAY,
-                dayOfWeekEnd = Day.SUNDAY,
+                timeStart = TimeHelper.makeWeekTime24h("10:00", Day.SUNDAY),
+                timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.SUNDAY),
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -46,10 +41,8 @@ object MockObjects {
                 id = 5239,
                 name = "Cross-cultural Currents",
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TestUtils.makeDateFromTime("10:00"),
-                timeEnd = TestUtils.makeDateFromTime("13:00"),
-                dayOfWeekStart = Day.SUNDAY,
-                dayOfWeekEnd = Day.SUNDAY,
+                timeStart = TimeHelper.makeWeekTime24h("10:00", Day.SUNDAY),
+                timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.SUNDAY),
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -57,10 +50,8 @@ object MockObjects {
                 id = 5280,
                 name = "The Suicide Watch",
                 defaultImageHref = "https://goo.gl/images/nkV7oU",
-                timeStart = TestUtils.makeDateFromTime("22:00"),
-                timeEnd = TestUtils.makeDateFromTime("01:00"),
-                dayOfWeekStart = Day.MONDAY,
-                dayOfWeekEnd = Day.TUESDAY,
+                timeStart = TimeHelper.makeWeekTime24h("22:00", Day.MONDAY),
+                timeEnd = TimeHelper.makeWeekTime24h("01:00", Day.TUESDAY),
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -68,10 +59,8 @@ object MockObjects {
                 id = 5289,
                 name = "Club 903",
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TestUtils.makeDateFromTime("14:30"),
-                timeEnd = TestUtils.makeDateFromTime("16:30"),
-                dayOfWeekStart = Day.TUESDAY,
-                dayOfWeekEnd = Day.TUESDAY,
+                timeStart = TimeHelper.makeWeekTime24h("14:30", Day.TUESDAY),
+                timeEnd = TimeHelper.makeWeekTime24h("16:30", Day.TUESDAY),
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -79,10 +68,8 @@ object MockObjects {
                 id = 5257,
                 name = "la buena onda",
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TestUtils.makeDateFromTime("10:30"),
-                timeEnd = TestUtils.makeDateFromTime("12:00"),
-                dayOfWeekStart = Day.WEDNESDAY,
-                dayOfWeekEnd = Day.WEDNESDAY,
+                timeStart = TimeHelper.makeWeekTime24h("10:30", Day.WEDNESDAY),
+                timeEnd = TimeHelper.makeWeekTime24h("12:00", Day.WEDNESDAY),
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -90,10 +77,8 @@ object MockObjects {
                 id = 5370,
                 name = "field trip",
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TestUtils.makeDateFromTime("10:30"),
-                timeEnd = TestUtils.makeDateFromTime("12:00"),
-                dayOfWeekStart = Day.WEDNESDAY,
-                dayOfWeekEnd = Day.WEDNESDAY,
+                timeStart = TimeHelper.makeWeekTime24h("10:30", Day.WEDNESDAY),
+                timeEnd = TimeHelper.makeWeekTime24h("12:00", Day.WEDNESDAY),
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -101,10 +86,8 @@ object MockObjects {
                 id = 5320,
                 name = "How You Jewin'?",
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TestUtils.makeDateFromTime("09:00"),
-                timeEnd = TestUtils.makeDateFromTime("09:30"),
-                dayOfWeekStart = Day.THURSDAY,
-                dayOfWeekEnd = Day.THURSDAY,
+                timeStart = TimeHelper.makeWeekTime24h("09:00", Day.THURSDAY),
+                timeEnd = TimeHelper.makeWeekTime24h("09:30", Day.THURSDAY),
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -112,10 +95,8 @@ object MockObjects {
                 id = 5331,
                 name = "Democracy Now!",
                 defaultImageHref = "https://library.kdvs.org/media/show/images/unnamed.png",
-                timeStart = TestUtils.makeDateFromTime("12:00"),
-                timeEnd = TestUtils.makeDateFromTime("13:00"),
-                dayOfWeekStart = Day.THURSDAY,
-                dayOfWeekEnd = Day.THURSDAY,
+                timeStart = TimeHelper.makeWeekTime24h("12:00", Day.THURSDAY),
+                timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.THURSDAY),
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -123,10 +104,8 @@ object MockObjects {
                 id = 5333,
                 name = "Democracy Now!",
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TestUtils.makeDateFromTime("12:00"),
-                timeEnd = TestUtils.makeDateFromTime("13:00"),
-                dayOfWeekStart = Day.FRIDAY,
-                dayOfWeekEnd = Day.FRIDAY,
+                timeStart = TimeHelper.makeWeekTime24h("12:00", Day.FRIDAY),
+                timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.FRIDAY),
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -134,10 +113,8 @@ object MockObjects {
                 id = 5355,
                 name = "1000 Points of Fright",
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TestUtils.makeDateFromTime("20:00"),
-                timeEnd = TestUtils.makeDateFromTime("22:00"),
-                dayOfWeekStart = Day.FRIDAY,
-                dayOfWeekEnd = Day.FRIDAY,
+                timeStart = TimeHelper.makeWeekTime24h("20:00", Day.FRIDAY),
+                timeEnd = TimeHelper.makeWeekTime24h("22:00", Day.FRIDAY),
                 quarter = Quarter.WINTER,
                 year = 2019
             ),
@@ -145,10 +122,8 @@ object MockObjects {
                 id = 5364,
                 name = "UnAbbreviated Country",
                 defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TestUtils.makeDateFromTime("16:00"),
-                timeEnd = TestUtils.makeDateFromTime("18:00"),
-                dayOfWeekStart = Day.SATURDAY,
-                dayOfWeekEnd = Day.SATURDAY,
+                timeStart = TimeHelper.makeWeekTime24h("16:00", Day.SATURDAY),
+                timeEnd = TimeHelper.makeWeekTime24h("18:00", Day.SATURDAY),
                 quarter = Quarter.WINTER,
                 year = 2019
             )
@@ -240,12 +215,12 @@ object MockObjects {
             BroadcastEntity(
                 broadcastId = 50771,
                 showId = 5280,
-                date = TestUtils.makeDate("01/14/2019")
+                date = TimeHelper.makeLocalDate("2019-01-14")
             ),
             BroadcastEntity(
                 broadcastId = 50770,
                 showId = 5280,
-                date = TestUtils.makeDate("01/07/2019")
+                date = TimeHelper.makeLocalDate("2019-01-07")
             )
         )
     }

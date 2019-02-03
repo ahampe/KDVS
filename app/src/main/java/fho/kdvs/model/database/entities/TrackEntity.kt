@@ -25,16 +25,4 @@ data class TrackEntity(
     @ColumnInfo(name = "label") var label: String? = null,
     @ColumnInfo(name = "comment") var comment: String? = null,
     @ColumnInfo(name = "airbreak") var airbreak: Boolean = false
-)  {
-//    constructor() : this(0, 0, "", "", "", "", "", false)
-//    constructor(track: Track) : this() {
-//        broadcastId = track.broadcastId
-//        position = track.position
-//        artist = track.artist
-//        song = track.song
-//        album = track.album
-//        label = track.label
-//        comment = track.comment
-//        airbreak = track.airbreak
-//    }
-}
+)

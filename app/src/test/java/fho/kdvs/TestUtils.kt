@@ -12,9 +12,10 @@ object TestUtils {
     /** Convenience function that avoids Mockito's annoying NPE for Kotlin classes in tests */
     fun <T> any(): T = Mockito.any<T>()
 
+    // TODO remove and use TimeHelper
     /** Returns a Date object given a time in 24-hour (HH:mm) format. */
-    fun makeDateFromTime(time: String): Date = SimpleDateFormat("HH:mm").parse(time)
+//    fun makeDateFromTime(time: String): Date = SimpleDateFormat("HH:mm").parse(time)
 
     /** Returns a Date object given a date string in MM/dd/yyyy format */
-    fun makeDate(date: String): Date = SimpleDateFormat("MM/dd/yyy").parse(date)
+//    fun makeWeekTime(date: String): Date = SimpleDateFormat("MM/dd/yyyy").parse(date)
 }

@@ -3,9 +3,8 @@ package fho.kdvs.model.database.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import fho.kdvs.model.Day
 import fho.kdvs.model.Quarter
-import java.util.*
+import org.threeten.bp.OffsetDateTime
 
 @Entity(tableName = "showData")
 data class ShowEntity(
@@ -15,10 +14,8 @@ data class ShowEntity(
     @ColumnInfo(name = "genre") var genre: String? = null,
     @ColumnInfo(name = "defaultDesc") var defaultDesc: String? = null,
     @ColumnInfo(name = "defaultImageHref") var defaultImageHref: String? = null,
-    @ColumnInfo(name = "timeStart") var timeStart: Date? = null,
-    @ColumnInfo(name = "timeEnd") var timeEnd: Date? = null,
-    @ColumnInfo(name = "dayOfWeekStart") var dayOfWeekStart: Day? = null,
-    @ColumnInfo(name = "dayOfWeekEnd") var dayOfWeekEnd: Day? = null,
+    @ColumnInfo(name = "timeStart") var timeStart: OffsetDateTime? = null,
+    @ColumnInfo(name = "timeEnd") var timeEnd: OffsetDateTime? = null,
     @ColumnInfo(name = "quarter") var quarter: Quarter? = null,
     @ColumnInfo(name = "year") var year: Int? = null
 )

@@ -14,7 +14,7 @@ class AppModule {
     @Provides
     fun provideApplication(app: KdvsApp): Application = app
 
-    // TODO provide db, daos, scraper manager
+    // TODO don't fallback to destructive migration in production
     @Singleton
     @Provides
     fun provideDb(app: Application): KdvsDatabase =
