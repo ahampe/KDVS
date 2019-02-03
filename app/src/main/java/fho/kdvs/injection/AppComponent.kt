@@ -3,7 +3,7 @@ package fho.kdvs.injection
 import dagger.Component
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
-import fho.kdvs.KdvsApp
+import fho.kdvs.global.KdvsApp
 import javax.inject.Singleton
 
 @Singleton

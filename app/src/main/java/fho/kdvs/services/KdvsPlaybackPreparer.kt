@@ -26,10 +26,10 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.upstream.DataSource
-import fho.kdvs.extensions.album
-import fho.kdvs.extensions.id
-import fho.kdvs.extensions.toMediaSource
-import fho.kdvs.extensions.trackNumber
+import fho.kdvs.global.extensions.album
+import fho.kdvs.global.extensions.id
+import fho.kdvs.global.extensions.toMediaSource
+import fho.kdvs.global.extensions.trackNumber
 import timber.log.Timber
 
 /**

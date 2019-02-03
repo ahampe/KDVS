@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import fho.kdvs.R
-import fho.kdvs.extensions.flag
+import fho.kdvs.global.extensions.flag
 
 class AudioPlayerService : MediaBrowserServiceCompat() {
     private lateinit var mediaSession: MediaSessionCompat
@@ -94,7 +94,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
         notificationManager = NotificationManagerCompat.from(this)
 
         becomingNoisyReceiver =
-                BecomingNoisyReceiver(context = this, sessionToken = mediaSession.sessionToken)
+            BecomingNoisyReceiver(context = this, sessionToken = mediaSession.sessionToken)
 
         // TODO
 //        mediaSource = RoomSource(context = this, source = remoteJsonSource)

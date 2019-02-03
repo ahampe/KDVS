@@ -2,8 +2,8 @@ package fho.kdvs.scraper
 
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
-import fho.kdvs.model.database.entities.BroadcastEntity
-import fho.kdvs.model.database.entities.ShowEntity
+import fho.kdvs.global.database.BroadcastEntity
+import fho.kdvs.global.database.ShowEntity
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -62,7 +62,7 @@ class ShowScraperTest : ScraperTest() {
             val expectedBroadcastsForShow = expectedBroadcasts.filter { it.showId == showId }
             val scrapedBroadcastsForShow = scrapedBroadcasts.filter { it.showId == showId }
 
-            assertEquals("Expected to find broadcasts", expectedBroadcastsForShow, scrapedBroadcastsForShow)
+            assertEquals("Expected to find broadcastsLiveData", expectedBroadcastsForShow, scrapedBroadcastsForShow)
         }
     }
 }

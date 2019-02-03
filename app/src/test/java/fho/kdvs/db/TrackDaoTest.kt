@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteConstraintException
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fho.kdvs.DbTestUtils
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -107,7 +107,7 @@ class TrackDaoTest : DatabaseTest() {
         insertBroadcast()
         insert_multiple()
 
-        val tracks = DbTestUtils.createTracks().filter { it.artist == "Dolly Parton" && it.album == "Blue Smoke"}
+        val tracks = DbTestUtils.createTracks().filter { it.artist == "Dolly Parton" && it.album == "Blue Smoke" }
         val tracksDb = db.trackDao().getTracksByArtistAlbum("Dolly Parton", "Blue Smoke")
 
         assertEquals(tracks.size, tracksDb.size)

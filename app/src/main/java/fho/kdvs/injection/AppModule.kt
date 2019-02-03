@@ -4,9 +4,11 @@ import android.app.Application
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
-import fho.kdvs.KdvsApp
-import fho.kdvs.model.database.KdvsDatabase
-import fho.kdvs.model.database.daos.ShowDao
+import fho.kdvs.global.KdvsApp
+import fho.kdvs.global.database.BroadcastDao
+import fho.kdvs.global.database.KdvsDatabase
+import fho.kdvs.global.database.ShowDao
+import fho.kdvs.global.database.TrackDao
 import javax.inject.Singleton
 
 @Module(includes = [ViewModelModule::class])
@@ -25,4 +27,12 @@ class AppModule {
     @Singleton
     @Provides
     fun provideShowDao(db: KdvsDatabase): ShowDao = db.showDao()
+
+    @Singleton
+    @Provides
+    fun provideBroadcastDao(db: KdvsDatabase): BroadcastDao = db.broadcastDao()
+
+    @Singleton
+    @Provides
+    fun provideTrackDao(db: KdvsDatabase): TrackDao = db.trackDao()
 }

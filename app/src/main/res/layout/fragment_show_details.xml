@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="fho.kdvs.show.ShowDetailsViewModel" />
+    </data>
+
+    <androidx.constraintlayout.motion.widget.MotionLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layoutDescription="@xml/scene_show_details">
+
+        <ImageView
+            android:id="@+id/showDetailImage"
+            glideHref="@{vm.show.defaultImageHref}"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/expanded_toolbar_height"
+            android:background="@color/colorPrimaryDark" />
+
+        <ImageView
+            android:id="@+id/showTitleBackground"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/colorPrimary50a"
+            app:layout_constraintBottom_toBottomOf="@id/showTitle"
+            app:layout_constraintTop_toTopOf="@id/showTitle" />
+
+        <TextView
+            android:id="@+id/showTitle"
+            style="@style/TextAppearance.MaterialComponents.Headline5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{vm.show.name}"
+            app:layout_constraintBottom_toBottomOf="@id/showDetailImage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/broadcastRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/showDetailImage" />
+
+    </androidx.constraintlayout.motion.widget.MotionLayout>
+
+
+</layout>

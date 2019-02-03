@@ -2,10 +2,10 @@ package fho.kdvs.db
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import fho.kdvs.DbTestUtils
-import fho.kdvs.model.Day
-import fho.kdvs.model.Quarter
-import fho.kdvs.model.database.entities.ShowEntity
-import fho.kdvs.util.TimeHelper
+import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.enums.Day
+import fho.kdvs.global.enums.Quarter
+import fho.kdvs.global.util.TimeHelper
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -90,7 +90,7 @@ class ShowDaoTest : DatabaseTest() {
 
         showDao.deleteShow(shows.first().id)
         val showsDb = showDao.getAll()
-        assertEquals("delete show failed",0, showsDb.filter { it.id == shows.first().id }.size)
+        assertEquals("delete show failed", 0, showsDb.filter { it.id == shows.first().id }.size)
         assertEquals("delete show failed", shows.size - 1, showsDb.size)
     }
 

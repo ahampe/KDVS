@@ -2,8 +2,6 @@ package fho.kdvs
 
 import org.mockito.Mockito
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
 
 object TestUtils {
     /** Loads a file from the test/resources directory. */

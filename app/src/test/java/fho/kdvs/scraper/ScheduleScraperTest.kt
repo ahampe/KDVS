@@ -2,7 +2,7 @@ package fho.kdvs.scraper
 
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
-import fho.kdvs.model.database.entities.ShowEntity
+import fho.kdvs.global.database.ShowEntity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
