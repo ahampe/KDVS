@@ -5,18 +5,18 @@ import fho.kdvs.DbTestUtils
 import fho.kdvs.model.Day
 import fho.kdvs.model.Quarter
 import fho.kdvs.model.database.entities.ShowEntity
+import fho.kdvs.util.TimeHelper
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.text.SimpleDateFormat
-import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 
@@ -45,8 +45,8 @@ class ShowDaoTest : DatabaseTest() {
         showDao.insert(show)
 
         val shows = showDao.getAll()
-        assert(shows.contains(show))
-        assert(shows.size == 1)
+        assertTrue(shows.contains(show))
+        assertEquals(1, shows.size)
     }
 
     @Test
@@ -56,13 +56,12 @@ class ShowDaoTest : DatabaseTest() {
             showDao.insert(it)
         }
 
-        val formatter = SimpleDateFormat("HH:mm")
-        val timeStart = formatter.parse("21:30")
-        val timeEnd = formatter.parse("03:00")
+        val timeStart = TimeHelper.makeWeekTime24h("00:00", Day.SUNDAY)
+        val timeEnd = TimeHelper.makeWeekTime24h("03:00", Day.SUNDAY)
 
-        val showsDb = showDao.getShowsInTimeRange(timeStart, timeEnd, Day.SATURDAY, Day.SUNDAY, Quarter.SPRING, Quarter.SPRING, 1943, 1943)
+        val showsDb = showDao.getShowsInTimeRange(timeStart, timeEnd, Quarter.SPRING, 1943)
 
-        assert(shows.size == showsDb.size)
+        assertEquals(shows.size, showsDb.size)
         shows.forEach {
             assert(showsDb.contains(it))
         }

@@ -3,9 +3,11 @@ package fho.kdvs.model.repository
 import androidx.lifecycle.LiveData
 import fho.kdvs.extensions.toLiveData
 import fho.kdvs.model.Day
+import fho.kdvs.model.Quarter
 import fho.kdvs.model.database.daos.ShowDao
 import fho.kdvs.model.database.entities.ShowEntity
 import fho.kdvs.model.web.WebScraperManager
+import fho.kdvs.util.TimeHelper
 import fho.kdvs.util.URLs
 import io.reactivex.Flowable
 import javax.inject.Inject
@@ -26,5 +28,8 @@ class ShowRepository @Inject constructor(
         scraperManager.scrape(URLs.SCHEDULE)
     }
 
-    fun getShowsForDay(day: Day): Flowable<List<ShowEntity>> = showDao.allShowsForDay(day)
+    fun getShowsForDay(day: Day, quarter: Quarter, year: Int): Flowable<List<ShowEntity>> {
+        val (timeStart, timeEnd) = TimeHelper.makeDayRange(day)
+        return showDao.allShowsInTimeRange(timeStart, timeEnd, quarter, year)
+    }
 }

@@ -4,7 +4,6 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import fho.kdvs.model.Day
 import fho.kdvs.model.Quarter
 import fho.kdvs.model.database.daos.BroadcastDao
 import fho.kdvs.model.database.daos.ShowDao
@@ -12,7 +11,11 @@ import fho.kdvs.model.database.daos.TrackDao
 import fho.kdvs.model.database.entities.BroadcastEntity
 import fho.kdvs.model.database.entities.ShowEntity
 import fho.kdvs.model.database.entities.TrackEntity
-import java.util.*
+import fho.kdvs.util.TimeHelper
+import org.threeten.bp.Instant
+import org.threeten.bp.LocalDate
+import org.threeten.bp.OffsetDateTime
+import org.threeten.bp.ZoneOffset
 
 @Database(
     entities = [ShowEntity::class, BroadcastEntity::class, TrackEntity::class],
@@ -20,8 +23,8 @@ import java.util.*
     exportSchema = false
 )
 @TypeConverters(
-    DateTypeConverter::class,
-    DayTypeConverter::class,
+    OffsetDateTimeTypeConverter::class,
+    LocalDateTypeConverter::class,
     QuarterTypeConverter::class
 )
 abstract class KdvsDatabase : RoomDatabase() {
@@ -31,29 +34,32 @@ abstract class KdvsDatabase : RoomDatabase() {
     abstract fun trackDao(): TrackDao
 }
 
-class DateTypeConverter {
+/** Type converter for show times. Uses Epoch seconds internally. */
+class OffsetDateTimeTypeConverter {
 
     @TypeConverter
-    fun toDate(value: Long?): Date? = value?.let { Date(it) }
+    fun toOffsetDateTime(value: Long?): OffsetDateTime? =
+        value?.let { Instant.ofEpochSecond(it).atOffset(ZoneOffset.UTC) }
 
     @TypeConverter
-    fun toLong(value: Date?): Long? = value?.time
+    fun toLong(date: OffsetDateTime?): Long? = date?.toEpochSecond()
 }
 
-class DayTypeConverter {
+/** Type converter for broadcast times. Uses strings internally. */
+class LocalDateTypeConverter {
 
     @TypeConverter
-    fun toInt(value: Day?): Int? = value?.value
+    fun toLocalDate(value: String?): LocalDate? = value?.let { LocalDate.parse(it, TimeHelper.dateFormatter) }
 
     @TypeConverter
-    fun toDay(value: Int?): Day? = value?.let { Day.fromInt(value) }
+    fun toString(date: LocalDate?): String? = TimeHelper.dateFormatter.format(date)
 }
 
 class QuarterTypeConverter {
 
     @TypeConverter
-    fun toInt(value: Quarter?): Int? = value?.value
+    fun toInt(value: Quarter?): Int? = value?.ordinal
 
     @TypeConverter
-    fun toQuarter(value: Int?): Quarter? = value?.let { Quarter.fromInt(value) }
+    fun toQuarter(value: Int?): Quarter? = value?.let { Quarter.values()[value] }
 }

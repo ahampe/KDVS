@@ -2,10 +2,13 @@ package fho.kdvs
 
 import android.util.Log
 import android.util.Log.INFO
+import com.jakewharton.threetenabp.AndroidThreeTen
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
 import fho.kdvs.injection.DaggerAppComponent
+import org.threeten.bp.zone.ZoneRulesProvider
 import timber.log.Timber
+import java.time.ZoneId
 
 class KdvsApp : DaggerApplication() {
 
@@ -15,6 +18,8 @@ class KdvsApp : DaggerApplication() {
 
     override fun onCreate() {
         super.onCreate()
+
+        AndroidThreeTen.init(this)
 
         // Timber
         if (BuildConfig.DEBUG) {

@@ -102,4 +102,7 @@ dependencies {
 
     // LiveDataReactiveStreams
     implementation "android.arch.lifecycle:reactivestreams:1.1.1"
+
+    // JSR-310 Android backport
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.1.1'
 }

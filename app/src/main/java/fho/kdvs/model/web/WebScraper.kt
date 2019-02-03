@@ -2,6 +2,7 @@ package fho.kdvs.model.web
 
 import androidx.annotation.VisibleForTesting
 import fho.kdvs.extensions.enumValueOrDefault
+import fho.kdvs.extensions.listOfNulls
 import fho.kdvs.extensions.parseHtml
 import fho.kdvs.model.Day
 import fho.kdvs.model.Quarter
@@ -9,13 +10,13 @@ import fho.kdvs.model.database.KdvsDatabase
 import fho.kdvs.model.database.entities.BroadcastEntity
 import fho.kdvs.model.database.entities.ShowEntity
 import fho.kdvs.model.database.entities.TrackEntity
+import fho.kdvs.util.TimeHelper
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -47,10 +48,10 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
 
     private fun scrapeSchedule(document: Document) = launch {
         val heading = document.select("h1.muted-title")?.firstOrNull()?.parseHtml()
-        val title = """(\w+) .*(\d{2,4})""".toRegex()
+        val title = """(\w+)\s.*(\d{2,4})""".toRegex()
             .find(heading.orEmpty())?.groupValues
 
-        val quarter = title?.getOrNull(1) ?: "Fall"
+        val quarter = title?.getOrNull(1)?.toUpperCase() ?: "FALL"
 
         // The schedule page is inconsistent about year numbering
         val year = title?.getOrNull(2)?.toInt()
@@ -63,9 +64,9 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
 
         scheduleChildren.forEach { element ->
             when (element.tagName()) {
-                "h2" -> day = element.html()
+                "h2" -> day = element.html().toUpperCase()
                 "div" -> {
-                    val imageHref = """background-image: url\((.*)\)""".toRegex()
+                    val imageHref = """background-image:\s*url\((.*)\)""".toRegex()
                         .find(element.attributes().html())
                         ?.groupValues?.getOrNull(1)?.replace("&quot;", "")
 
@@ -76,12 +77,26 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
                         .map { Pair(it.groups[1]!!.value.toInt(), it.groups[2]!!.value) }
                         .unzip()
 
-                    val showTimeCaptures = parseTime(element.select(".time").first().html().trim())
+                    val showTimeCaptures = parseTime(element.select(".time").first().html().trim())?.drop(1)
 
-                    val timeStart = getTimeStart(showTimeCaptures)
-                    val timeEnd = getTimeEnd(showTimeCaptures)
-                    val dayOfWeekStart = enumValueOrDefault(day.toUpperCase(), Day.SUNDAY)
-                    val dayOfWeekEnd = if (timeEnd < timeStart) Day.getNextDay(dayOfWeekStart) else dayOfWeekStart
+                    val (startTime, startAmpm, endTime, endAmpm) = showTimeCaptures ?: listOfNulls(4)
+
+                    val timeStart = makeTime(
+                        time = startTime,
+                        ampm = startAmpm,
+                        day = enumValueOrDefault(day, Day.SUNDAY)
+                    )
+
+                    var timeEnd = makeTime(
+                        time = endTime,
+                        ampm = endAmpm,
+                        day = enumValueOrDefault(day, Day.SUNDAY)
+                    )
+
+                    // Special case where show extends to or beyond midnight: add a day to timeEnd
+                    if (timeEnd != null && timeStart != null && timeEnd < timeStart) {
+                        timeEnd = TimeHelper.addDay(timeEnd)
+                    }
 
                     for ((name, id) in names.zip(ids)) {
                         val showEntity = ShowEntity(
@@ -90,9 +105,7 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
                             defaultImageHref = imageHref,
                             timeStart = timeStart,
                             timeEnd = timeEnd,
-                            dayOfWeekStart = dayOfWeekStart,
-                            dayOfWeekEnd = dayOfWeekEnd,
-                            quarter = enumValueOrDefault(quarter.toUpperCase(), Quarter.FALL),
+                            quarter = enumValueOrDefault(quarter, Quarter.FALL),
                             year = year
                         )
 
@@ -126,17 +139,20 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
                     .find(row.toString())
                     ?.groupValues?.getOrNull(1)?.toInt()
 
-                val date = SimpleDateFormat("MM/dd/yyyy")
-                    .parse(
-                        "[0-9]+/[0-9]+/[0-9]+".toRegex()
-                            .find(row?.select("td")?.firstOrNull()?.parseHtml().orEmpty())
-                            ?.groupValues?.firstOrNull()
-                    )
+                val dateCaptures = """(\d+)/(\d+)/(\d+)""".toRegex()
+                    .find(row?.select("td")?.firstOrNull()?.parseHtml().orEmpty())
+                    ?.groupValues?.drop(1)
+
+                val (month, day, year) = dateCaptures ?: listOfNulls(3)
 
                 val broadcastData = BroadcastEntity(
                     broadcastId = brId ?: 0,
                     showId = showId,
-                    date = date
+                    date = TimeHelper.makeLocalDate(
+                        "${year?.padStart(4, '0')}" +
+                                "-${month?.padStart(2, '0')}" +
+                                "-${day?.padStart(2, '0')}"
+                    )
                 )
 
                 db.broadcastDao().insert(broadcastData)
@@ -227,36 +243,14 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
 //region Helper Methods
 private fun parseTime(dateString: String?): List<String>? {
     // e.g. "10:30AM - 12:00PM"
-    return "([0-9]+):([0-9][0-9])([AP])M - ([0-9]+):([0-9][0-9])([AP])M".toRegex()
+    return """([0-9]{1,2}:[0-9]{2})\s?([AP]M)\s?-\s?([0-9]{1,2}:[0-9]{2})\s?([AP]M)""".toRegex()
         .find(dateString.orEmpty())
         ?.groupValues
 }
 
-private fun isPMStart(captures: List<String>?): Boolean {
-    return captures?.getOrNull(3) == "P"
-}
+private fun makeTime(time: String?, ampm: String?, day: Day?): OffsetDateTime? {
+    if (time == null || ampm == null || day == null) return null
 
-private fun isPMEnd(captures: List<String>?): Boolean {
-    return captures?.getOrNull(6) == "P"
-}
-
-private fun getTimeStart(captures: List<String>?): Date {
-    val isPMStart = isPMStart(captures)
-    val startHour = captures?.getOrNull(1)?.toInt()
-        ?.let { num -> num % 12 + (if (isPMStart) 12 else 0) }
-    val startMinute = captures?.getOrNull(2)?.toIntOrNull()
-
-    val formatter = SimpleDateFormat("HH:mm")
-    return formatter.parse(startHour.toString() + ':' + startMinute.toString())
-}
-
-private fun getTimeEnd(captures: List<String>?): Date {
-    val isPMEnd = isPMEnd(captures)
-    val endHour = captures?.getOrNull(4)?.toInt()
-        ?.let { num -> num % 12 + (if (isPMEnd) 12 else 0) }
-    val endMinute = captures?.getOrNull(5)?.toIntOrNull()
-
-    val formatter = SimpleDateFormat("HH:mm")
-    return formatter.parse(endHour.toString() + ':' + endMinute.toString())
+    return TimeHelper.makeWeekTime12h("$time $ampm", day)
 }
 //endregion

@@ -19,6 +19,7 @@ import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.databinding.CellShowBinding
 import fho.kdvs.model.Day
+import fho.kdvs.model.Quarter
 import fho.kdvs.model.database.entities.ShowEntity
 import fho.kdvs.ui.BindingRecyclerViewAdapter
 import fho.kdvs.ui.BindingViewHolder
@@ -27,13 +28,12 @@ import fho.kdvs.viewmodel.KdvsViewModelFactory
 import fho.kdvs.viewmodel.ScheduleViewModel
 import kotlinx.android.synthetic.main.cell_day_column.view.*
 import timber.log.Timber
-import java.time.DayOfWeek
 import java.util.*
 import javax.inject.Inject
 
 class ScheduleFragment : DaggerFragment() {
     @Inject
-    lateinit var viewModelFactory: KdvsViewModelFactory
+    lateinit var vmFactory: KdvsViewModelFactory
 
     private lateinit var viewModel: ScheduleViewModel
 
@@ -44,7 +44,7 @@ class ScheduleFragment : DaggerFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel = ViewModelProviders.of(this, viewModelFactory)
+        viewModel = ViewModelProviders.of(this, vmFactory)
             .get(ScheduleViewModel::class.java)
             .also {
                 it.fetchShows()
@@ -66,7 +66,7 @@ class ScheduleFragment : DaggerFragment() {
 
         val snapHelper = PagerSnapHelper()
 
-        val weekData = Day.values().map { day -> DayInfo(day) }
+        val weekData = Day.values().map { day -> DayInfo(day, Quarter.WINTER, 2019) }
 
         weekRecyclerView.apply {
             adapter = WeekViewAdapter(weekData)
@@ -105,9 +105,9 @@ class ScheduleFragment : DaggerFragment() {
         weekRecyclerView.layoutManager?.scrollToPosition(today)
     }
 
-    inner class DayInfo(day: Day) {
+    inner class DayInfo(day: Day, quarter: Quarter, year: Int) {
         val dayName = day.name
-        val showsLiveData: LiveData<List<ShowEntity>> = viewModel.getShowsForDay(day)
+        val showsLiveData: LiveData<List<ShowEntity>> = viewModel.getShowsForDay(day, quarter, year)
     }
 
     inner class WeekViewAdapter(private val days: List<ScheduleFragment.DayInfo>) :
