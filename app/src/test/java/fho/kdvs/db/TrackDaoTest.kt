@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteConstraintException
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fho.kdvs.DbTestUtils
+import junit.framework.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,7 +34,7 @@ class TrackDaoTest : DatabaseTest() {
 
         val trackDb = db.trackDao().getAll()
         assert(trackDb.contains(track))
-        assert(trackDb.size == 1)
+        assertEquals(1, trackDb.size)
     }
 
     @Test
@@ -47,7 +48,7 @@ class TrackDaoTest : DatabaseTest() {
         }
 
         val tracksDb = db.trackDao().getAll()
-        assert(tracksDb.size == tracks.size)
+        assertEquals(tracks.size, tracksDb.size)
         tracks.forEach {
             assert(tracksDb.contains(it))
         }
@@ -64,7 +65,7 @@ class TrackDaoTest : DatabaseTest() {
             .filter { !it.airbreak }
         val tracksDb = db.trackDao().getTracksByShow(1888)
 
-        assert(tracksDb.size == tracks.size)
+        assertEquals(tracks.size, tracksDb.size)
         tracks.forEach {
             assert(tracksDb.contains(it))
         }
@@ -79,7 +80,7 @@ class TrackDaoTest : DatabaseTest() {
         val tracks = DbTestUtils.createTracks().filter { it.artist == "Dolly Parton" }
         val tracksDb = db.trackDao().getTracksByArtist("Dolly Parton")
 
-        assert(tracksDb.size == tracks.size)
+        assertEquals(tracks.size, tracksDb.size)
         tracks.forEach {
             assert(tracksDb.contains(it))
         }
@@ -94,7 +95,7 @@ class TrackDaoTest : DatabaseTest() {
         val tracks = DbTestUtils.createTracks().filter { it.album == "Blue Smoke" }
         val tracksDb = db.trackDao().getTracksByAlbum("Blue Smoke")
 
-        assert(tracksDb.size == tracks.size)
+        assertEquals(tracks.size, tracksDb.size)
         tracks.forEach {
             assert(tracksDb.contains(it))
         }
@@ -109,7 +110,7 @@ class TrackDaoTest : DatabaseTest() {
         val tracks = DbTestUtils.createTracks().filter { it.artist == "Dolly Parton" && it.album == "Blue Smoke"}
         val tracksDb = db.trackDao().getTracksByArtistAlbum("Dolly Parton", "Blue Smoke")
 
-        assert(tracksDb.size == tracks.size)
+        assertEquals(tracks.size, tracksDb.size)
         tracks.forEach {
             assert(tracksDb.contains(it))
         }
@@ -124,7 +125,7 @@ class TrackDaoTest : DatabaseTest() {
         val tracks = DbTestUtils.createTracks().filter { it.label == "Waterbug" }
         val tracksDb = db.trackDao().getTracksByLabel("Waterbug")
 
-        assert(tracksDb.size == tracks.size)
+        assertEquals(tracks.size, tracksDb.size)
         tracks.forEach {
             assert(tracksDb.contains(it))
         }
@@ -143,7 +144,7 @@ class TrackDaoTest : DatabaseTest() {
         } catch (e: SQLiteConstraintException) {
         }
 
-        assert(db.trackDao().getTracksForBroadcast(trackDb?.broadcastId).isEmpty())
+        assertEquals(0, db.trackDao().getTracksForBroadcast(trackDb?.broadcastId).size)
     }
 
     // Helper functions

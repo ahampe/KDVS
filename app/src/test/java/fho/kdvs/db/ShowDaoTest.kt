@@ -44,9 +44,23 @@ class ShowDaoTest : DatabaseTest() {
         val show = DbTestUtils.createShows().first()
         showDao.insert(show)
 
-        val shows = showDao.getAll()
-        assertTrue(shows.contains(show))
-        assertEquals(1, shows.size)
+        val showsDb = showDao.getAll()
+        assertTrue(showsDb.contains(show))
+        assertEquals(1, showsDb.size)
+    }
+
+    @Test
+    fun insert_multiple() {
+        val shows = DbTestUtils.createShows()
+        shows.forEach {
+            showDao.insert(it)
+        }
+
+        val showsDb = showDao.getAll()
+        assertEquals(shows.size, showsDb.size)
+        shows.forEach {
+            assertTrue(showsDb.contains(it))
+        }
     }
 
     @Test
@@ -65,6 +79,49 @@ class ShowDaoTest : DatabaseTest() {
         shows.forEach {
             assert(showsDb.contains(it))
         }
+    }
+
+    @Test
+    fun delete_show() {
+        val shows = DbTestUtils.createShows()
+        shows.forEach {
+            showDao.insert(it)
+        }
+
+        showDao.deleteShow(shows.first().id)
+        val showsDb = showDao.getAll()
+        assertEquals("delete show failed",0, showsDb.filter { it.id == shows.first().id }.size)
+        assertEquals("delete show failed", shows.size - 1, showsDb.size)
+    }
+
+    @Test
+    fun update_show_info() {
+        val host = "Varg"
+        val genre = "Prison MIDI"
+        val defaultDesc = "Let's find out"
+
+        insert_basic()
+
+        var showDb = showDao.getAll().first()
+        showDao.updateShowInfo(showDb.id, host, genre, defaultDesc)
+        showDb = showDao.getAll().first()
+
+        assertEquals("host not updated", host, showDb.host)
+        assertEquals("genre not updated", genre, showDb.genre)
+        assertEquals("defaultDesc not updated", defaultDesc, showDb.defaultDesc)
+    }
+
+    @Test
+    fun update_show_default_imagehref() {
+        val imageHref = "www.test.com/image.png"
+
+        insert_basic()
+
+        var showDb = showDao.getAll().first()
+        showDao.updateShowDefaultImageHref(showDb.id, imageHref)
+        showDb = showDao.getAll().first()
+
+        assertEquals("image not updated", imageHref, showDb.defaultImageHref)
     }
 
     @Test

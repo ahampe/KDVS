@@ -36,9 +36,7 @@ interface TrackDao {
     @Query("SELECT * from trackData WHERE label like :label")
     fun getTracksByLabel(label: String?): List<TrackEntity>
 
-    /*
-        To-do: fuzzy search for music metadata?
-     */
+    //TODO: fuzzy search for music metadata?
 
     @Insert(onConflict = REPLACE)
     fun insert(trackEntity: TrackEntity)

@@ -31,9 +31,9 @@ class BroadcastDaoTest : DatabaseTest() {
         val broadcast = DbTestUtils.createBroadcasts().first()
         db.broadcastDao().insert(broadcast)
 
-        val broadcasts = db.broadcastDao().getAll()
-        assert(broadcasts.contains(broadcast))
-        assert(broadcasts.size == 1)
+        val broadcastsDb = db.broadcastDao().getAll()
+        assertEquals(1, broadcastsDb.size)
+        assert(broadcastsDb.contains(broadcast))
     }
 
     @Test
@@ -45,7 +45,7 @@ class BroadcastDaoTest : DatabaseTest() {
         }
 
         val broadcastsDb = db.broadcastDao().getAll()
-        assert(broadcastsDb.size == broadcasts.size)
+        assertEquals(broadcasts.size, broadcastsDb.size)
         broadcasts.forEach {
             assert(broadcastsDb.contains(it))
         }
@@ -57,9 +57,9 @@ class BroadcastDaoTest : DatabaseTest() {
         val broadcast = DbTestUtils.createBroadcasts().first()
         insert_basic()
 
-        val broadcasts = db.broadcastDao().getBroadcastsForShow(1888)
-        assert(broadcasts.contains(broadcast))
-        assert(broadcasts.size == 1)
+        val broadcastsDb = db.broadcastDao().getBroadcastsForShow(1888)
+        assertEquals(1, broadcastsDb.size)
+        assert(broadcastsDb.contains(broadcast))
     }
 
     @Test
@@ -69,9 +69,9 @@ class BroadcastDaoTest : DatabaseTest() {
         insertTracks()
         val broadcast = DbTestUtils.createBroadcasts().first()
 
-        val broadcasts = db.broadcastDao().getBroadcastsByArtist("Dolly Parton")
-        assert(broadcasts.contains(broadcast))
-        assert(broadcasts.size == 1)
+        val broadcastsDb = db.broadcastDao().getBroadcastsByArtist("Dolly Parton")
+        assertEquals(1, broadcastsDb.size)
+        assert(broadcastsDb.contains(broadcast))
     }
 
     @Test
@@ -81,9 +81,9 @@ class BroadcastDaoTest : DatabaseTest() {
         insertTracks()
         val broadcast = DbTestUtils.createBroadcasts().first()
 
-        val broadcasts = db.broadcastDao().getBroadcastsByAlbum("Blue Smoke")
-        assert(broadcasts.contains(broadcast))
-        assert(broadcasts.size == 1)
+        val broadcastsDb = db.broadcastDao().getBroadcastsByAlbum("Blue Smoke")
+        assertEquals(1, broadcastsDb.size)
+        assert(broadcastsDb.contains(broadcast))
     }
 
     @Test
@@ -93,9 +93,9 @@ class BroadcastDaoTest : DatabaseTest() {
         insertTracks()
         val broadcast = DbTestUtils.createBroadcasts().first()
 
-        val broadcasts = db.broadcastDao().getBroadcastsByArtistAlbum("Dolly Parton", "Blue Smoke")
-        assert(broadcasts.contains(broadcast))
-        assert(broadcasts.size == 1)
+        val broadcastsDb = db.broadcastDao().getBroadcastsByArtistAlbum("Dolly Parton", "Blue Smoke")
+        assertEquals(1, broadcastsDb.size)
+        assert(broadcastsDb.contains(broadcast))
     }
 
     @Test
@@ -105,9 +105,9 @@ class BroadcastDaoTest : DatabaseTest() {
         insertTracks()
         val broadcast = DbTestUtils.createBroadcasts().first()
 
-        val broadcasts = db.broadcastDao().getBroadcastsByLabel("Waterbug")
-        assert(broadcasts.contains(broadcast))
-        assert(broadcasts.size == 1)
+        val broadcastsDb = db.broadcastDao().getBroadcastsByLabel("Waterbug")
+        assertEquals(1, broadcastsDb.size)
+        assert(broadcastsDb.contains(broadcast))
     }
 
     @Test
@@ -116,12 +116,10 @@ class BroadcastDaoTest : DatabaseTest() {
         val broadcast = DbTestUtils.createBroadcasts().first()
         insert_basic()
 
-        val broadcasts = db.broadcastDao().getAll()
-        assert(broadcasts.contains(broadcast))
-        assert(broadcasts.size == 1)
-
         try {
             db.broadcastDao().deleteBroadcast(broadcast.broadcastId)
+            val broadcastsDb = db.broadcastDao().getAll()
+            assertEquals(0, broadcastsDb.size)
         } catch (e: SQLiteConstraintException) {
         }
     }
@@ -132,12 +130,10 @@ class BroadcastDaoTest : DatabaseTest() {
         val broadcast = DbTestUtils.createBroadcasts().first()
         insert_basic()
 
-        val broadcasts = db.broadcastDao().getAll()
-        assert(broadcasts.contains(broadcast))
-        assert(broadcasts.size == 1)
-
         try {
             db.broadcastDao().deleteBroadcastsForShow(broadcast.showId)
+            val broadcastsDb = db.broadcastDao().getAll()
+            assertEquals(0, broadcastsDb.size)
         } catch (e: SQLiteConstraintException) {
         }
     }
