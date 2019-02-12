@@ -18,7 +18,7 @@ package fho.kdvs.services
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
-import fho.kdvs.extensions.*
+import fho.kdvs.global.extensions.*
 
 /**
  * Represents a tree of media that's used by [MusicService.onLoadChildren].

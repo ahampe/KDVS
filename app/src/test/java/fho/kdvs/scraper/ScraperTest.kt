@@ -1,10 +1,10 @@
 package fho.kdvs.scraper
 
-import fho.kdvs.model.database.KdvsDatabase
-import fho.kdvs.model.database.daos.BroadcastDao
-import fho.kdvs.model.database.daos.ShowDao
-import fho.kdvs.model.database.daos.TrackDao
-import fho.kdvs.model.web.WebScraperManager
+import fho.kdvs.global.database.BroadcastDao
+import fho.kdvs.global.database.KdvsDatabase
+import fho.kdvs.global.database.ShowDao
+import fho.kdvs.global.database.TrackDao
+import fho.kdvs.global.web.WebScraperManager
 import org.junit.Before
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock

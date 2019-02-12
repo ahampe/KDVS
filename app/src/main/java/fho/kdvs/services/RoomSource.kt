@@ -27,10 +27,7 @@ import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import fho.kdvs.R
-import fho.kdvs.extensions.*
-import fho.kdvs.services.AbstractMusicSource
-import fho.kdvs.services.STATE_INITIALIZED
-import fho.kdvs.services.STATE_INITIALIZING
+import fho.kdvs.global.extensions.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.URL

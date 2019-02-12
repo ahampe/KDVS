@@ -157,7 +157,7 @@ class BroadcastDaoTest : DatabaseTest() {
         assertEquals("Should have 1 broadcast", updatedBroadcasts.size, 1)
     }
 
-    // Helper function that inserts a show that will serve as the parent of broadcasts in these tests
+    // Helper function that inserts a show that will serve as the parent of broadcastsLiveData in these tests
     private fun insertShow() {
         val show = DbTestUtils.createShows().first()
         db.showDao().insert(show)

@@ -2,9 +2,9 @@ package fho.kdvs.scraper
 
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
-import fho.kdvs.model.database.entities.BroadcastEntity
-import fho.kdvs.model.database.entities.TrackEntity
-import fho.kdvs.util.TimeHelper
+import fho.kdvs.global.database.BroadcastEntity
+import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.util.TimeHelper
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before

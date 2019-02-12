@@ -1,11 +1,11 @@
 package fho.kdvs
 
-import fho.kdvs.model.Day
-import fho.kdvs.model.Quarter
-import fho.kdvs.model.database.entities.BroadcastEntity
-import fho.kdvs.model.database.entities.ShowEntity
-import fho.kdvs.model.database.entities.TrackEntity
-import fho.kdvs.util.TimeHelper
+import fho.kdvs.global.database.BroadcastEntity
+import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.enums.Day
+import fho.kdvs.global.enums.Quarter
+import fho.kdvs.global.util.TimeHelper
 
 object MockObjects {
     val scheduleShows: List<ShowEntity> by lazy {
@@ -227,7 +227,6 @@ object MockObjects {
 
     val playlist = listOf(
         TrackEntity(
-            trackId = 0,
             broadcastId = 51742,
             position = 0,
             artist = "Focus",
@@ -236,7 +235,6 @@ object MockObjects {
             label = "EMI"
         ),
         TrackEntity(
-            trackId = 0,
             broadcastId = 51742,
             position = 1,
             artist = "PFM",
@@ -246,13 +244,11 @@ object MockObjects {
             comment = "English lang. version of Per un amico"
         ),
         TrackEntity(
-            trackId = 0,
             broadcastId = 51742,
             position = 2,
             airbreak = true
         ),
         TrackEntity(
-            trackId = 0,
             broadcastId = 51742,
             position = 3,
             artist = "Pete Sinfield",
@@ -262,13 +258,11 @@ object MockObjects {
             comment = "ELP, PFM Lyrici"
         ),
         TrackEntity(
-            trackId = 0,
             broadcastId = 51742,
             position = 4,
             airbreak = true
         ),
         TrackEntity(
-            trackId = 0,
             broadcastId = 51742,
             position = 5,
             artist = "Eden in Progress",

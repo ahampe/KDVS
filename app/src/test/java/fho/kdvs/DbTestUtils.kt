@@ -1,13 +1,11 @@
 package fho.kdvs
 
-import fho.kdvs.model.Day
-import fho.kdvs.model.Quarter
-import fho.kdvs.model.database.entities.BroadcastEntity
-import fho.kdvs.model.database.entities.ShowEntity
-import fho.kdvs.model.database.entities.TrackEntity
-import fho.kdvs.util.TimeHelper
-import org.threeten.bp.Instant
-import org.threeten.bp.ZoneOffset
+import fho.kdvs.global.database.BroadcastEntity
+import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.enums.Day
+import fho.kdvs.global.enums.Quarter
+import fho.kdvs.global.util.TimeHelper
 
 object DbTestUtils {
     fun createShows() = listOf(
