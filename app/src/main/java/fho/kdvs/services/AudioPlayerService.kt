@@ -18,14 +18,15 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
-import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.audio.AudioAttributes
+import com.google.android.exoplayer2.ExoPlaybackException
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
-import fho.kdvs.R
-import fho.kdvs.global.extensions.flag
+import dagger.android.AndroidInjection
+import timber.log.Timber
+import javax.inject.Inject
 
 class AudioPlayerService : MediaBrowserServiceCompat() {
     private lateinit var mediaSession: MediaSessionCompat
@@ -33,35 +34,26 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
     private lateinit var becomingNoisyReceiver: BecomingNoisyReceiver
     private lateinit var notificationManager: NotificationManagerCompat
     private lateinit var notificationBuilder: NotificationBuilder
-    private lateinit var mediaSource: MusicSource // TODO redefine
     private lateinit var mediaSessionConnector: MediaSessionConnector
+
+    @Inject
+    lateinit var playbackPreparer: KdvsPlaybackPreparer
+
+    @Inject
+    lateinit var exoPlayer: ExoPlayer
 
     private var isForegroundService = false
 
-    private val audioAttrs = AudioAttributes.Builder()
-        .setContentType(C.CONTENT_TYPE_MUSIC)
-        .setUsage(C.USAGE_MEDIA)
-        .build()
-
-    /**
-     * This must be `by lazy` because the source won't initially be ready.
-     * See [MusicService.onLoadChildren] to see where it's accessed (and first
-     * constructed).
-     */
-    private val browseTree: BrowseTree by lazy {
-        BrowseTree(mediaSource)
-    }
-
-    // Wrap a SimpleExoPlayer with a decorator to handle audio focus for us.
-    private val exoPlayer: ExoPlayer by lazy {
-        ExoPlayerFactory.newSimpleInstance(this).apply {
-            setAudioAttributes(audioAttrs, true)
-        }
-    }
-
     override fun onCreate() {
         super.onCreate()
+        AndroidInjection.inject(this)
 
+        exoPlayer.addListener(object : Player.EventListener {
+            override fun onPlayerError(error: ExoPlaybackException?) {
+                // TODO
+                Timber.d("Player error: $error")
+            }
+        })
         // Build a PendingIntent that can be used to launch the UI.
         val sessionIntent = packageManager?.getLaunchIntentForPackage(packageName)
         val sessionActivityPendingIntent = PendingIntent.getActivity(this, 0, sessionIntent, 0)
@@ -96,23 +88,8 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
         becomingNoisyReceiver =
             BecomingNoisyReceiver(context = this, sessionToken = mediaSession.sessionToken)
 
-        // TODO
-//        mediaSource = RoomSource(context = this, source = remoteJsonSource)
-
         // ExoPlayer will manage the MediaSession for us.
         mediaSessionConnector = MediaSessionConnector(mediaSession).also {
-            // Produces DataSource instances through which media data is loaded.
-            val dataSourceFactory = DefaultDataSourceFactory(
-                this, Util.getUserAgent(this, resources.getString(R.string.app_name)), null
-            )
-
-            // Create the PlaybackPreparer of the media session connector.
-            val playbackPreparer = KdvsPlaybackPreparer(
-                mediaSource,
-                exoPlayer,
-                dataSourceFactory
-            )
-
             it.setPlayer(exoPlayer, playbackPreparer)
             it.setQueueNavigator(KdvsQueueNavigator(mediaSession))
         }
@@ -152,8 +129,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
         clientUid: Int,
         rootHints: Bundle?
     ): BrowserRoot? {
-
-        return BrowserRoot(BROWSABLE_ROOT, null)
+        return BrowserRoot("/", null)
     }
 
     /**
@@ -164,30 +140,8 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
     override fun onLoadChildren(
         parentMediaId: String,
         result: MediaBrowserServiceCompat.Result<List<MediaItem>>
-    ) {
+    ) = result.sendResult(emptyList())
 
-        // If the media source is ready, the results will be set synchronously here.
-        val resultsSent = mediaSource.whenReady { successfullyInitialized ->
-            if (successfullyInitialized) {
-                val children = browseTree[parentMediaId]?.map { item ->
-                    MediaItem(item.description, item.flag)
-                }
-                result.sendResult(children)
-            } else {
-                result.sendError(null)
-            }
-        }
-
-        // If the results are not ready, the service must "detach" the results before
-        // the method returns. After the source is ready, the lambda above will run,
-        // and the caller will be notified that the results are ready.
-        //
-        // See [MediaItemFragmentViewModel.subscriptionCallback] for how this is passed to the
-        // UI/displayed in the [RecyclerView].
-        if (!resultsSent) {
-            result.detach()
-        }
-    }
 
     /**
      * Removes the [NOW_PLAYING_NOTIFICATION] notification.
@@ -226,6 +180,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
             state?.let { updateNotification(it) }
         }
 
+        // TODO will need to update notification for live stream when show changes
         private fun updateNotification(state: PlaybackStateCompat) {
             val updatedState = state.state
             if (mediaController.metadata == null) {

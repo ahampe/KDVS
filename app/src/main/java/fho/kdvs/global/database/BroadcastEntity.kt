@@ -21,6 +21,5 @@ data class BroadcastEntity(
     @ColumnInfo(name = "showId") val showId: Int = 0,
     @ColumnInfo(name = "date") val date: LocalDate? = null,
     @ColumnInfo(name = "description") var description: String? = null,
-    @ColumnInfo(name = "imageHref") var imageHref: String? = null,
-    @ColumnInfo(name = "playlistUrl") var playlistUrl: String? = null
+    @ColumnInfo(name = "imageHref") var imageHref: String? = null
 )

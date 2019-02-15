@@ -16,30 +16,84 @@
 
 package fho.kdvs.services
 
+import android.app.Application
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.ResultReceiver
+import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import androidx.core.content.res.ResourcesCompat
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
-import com.google.android.exoplayer2.upstream.DataSource
-import fho.kdvs.global.extensions.album
-import fho.kdvs.global.extensions.id
+import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.util.Util
+import fho.kdvs.R
+import fho.kdvs.global.database.BroadcastDao
+import fho.kdvs.global.database.ShowDao
+import fho.kdvs.global.extensions.albumArt
+import fho.kdvs.global.extensions.from
 import fho.kdvs.global.extensions.toMediaSource
-import fho.kdvs.global.extensions.trackNumber
-import timber.log.Timber
+import fho.kdvs.global.util.URLs
+import kotlinx.coroutines.*
+import java.lang.Exception
+import java.net.URI
+import java.net.URL
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Class to bridge KDVS to the ExoPlayer MediaSession extension.
+ * Playback preparation is handled using coroutines for background work.
  */
-class KdvsPlaybackPreparer(
-    private val musicSource: MusicSource,
+@Singleton
+class KdvsPlaybackPreparer @Inject constructor(
+    application: Application,
     private val exoPlayer: ExoPlayer,
-    private val dataSourceFactory: DataSource.Factory
-) : MediaSessionConnector.PlaybackPreparer {
+    private val showDao: ShowDao,
+    private val broadcastDao: BroadcastDao
+) : MediaSessionConnector.PlaybackPreparer, CoroutineScope {
+
+    // Use this to track and cancel the child job. There should only be one job present at a time.
+    private var job: Job? = null
+
+    private val parentJob = Job()
+    override val coroutineContext: CoroutineContext
+        get() = parentJob + Dispatchers.IO
+
+    private val dataSourceFactory = DefaultDataSourceFactory(
+        application, Util.getUserAgent(application, application.resources.getString(R.string.app_name)), null
+    )
+
+    private val requestOptions = RequestOptions()
+        .centerCrop()
+        .error(R.drawable.show_placeholder)
+        .fallback(R.drawable.show_placeholder)
+        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+
+    private val glide = Glide.with(application).applyDefaultRequestOptions(requestOptions)
+
+    private val defaultArt: Bitmap by lazy {
+        glide.asBitmap()
+            .load(R.drawable.show_placeholder)
+            .submit(NOTIFICATION_LARGE_ICON_SIZE, NOTIFICATION_LARGE_ICON_SIZE)
+            .get()
+    }
+
+    private val liveDescriptionCompat: MediaDescriptionCompat by lazy {
+        MediaDescriptionCompat.Builder()
+            .setTitle(application.resources.getString(R.string.kdvs))
+            .setSubtitle(application.resources.getString(R.string.live))
+            .setIconBitmap(defaultArt)
+            .build()
+    }
 
     /**
      * KDVS supports preparing (and playing) from search, as well as media ID, so those
@@ -56,36 +110,22 @@ class KdvsPlaybackPreparer(
     override fun onPrepare() = Unit
 
     /**
-     * Handles callbacks to both [MediaSessionCompat.Callback.onPrepareFromMediaId]
-     * *AND* [MediaSessionCompat.Callback.onPlayFromMediaId] when using [MediaSessionConnector].
-     * This is done with the expectation that "play" is just "prepare" + "play".
-     *
-     * If your app needs to do something special for either 'prepare' or 'play', it's possible
-     * to check [ExoPlayer.getPlayWhenReady]. If this returns `true`, then it's
-     * [MediaSessionCompat.Callback.onPlayFromMediaId], otherwise it's
-     * [MediaSessionCompat.Callback.onPrepareFromMediaId].
+     * Here, [mediaId] is either the live stream URL or is a broadcast ID string.
+     * If preparing a broadcast, a bundle containing the show ID int should be sent as well, to populate the correct metadata.
      */
     override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
-        musicSource.whenReady {
-            val itemToPlay: MediaMetadataCompat? = musicSource.find { item ->
-                item.id == mediaId
-            }
-            if (itemToPlay == null) {
-                Timber.w("Content not found: MediaID=$mediaId")
+        job?.cancel()
 
-                // TODO: Notify caller of the error.
-            } else {
-                val metadataList = buildPlaylist(itemToPlay)
-                val mediaSource = metadataList.toMediaSource(dataSourceFactory)
+        job = if (mediaId in URLs.liveStream) {
+            // Just play KDVS live
+            prepareLive(mediaId)
+        } else {
+            // Play a past broadcast
+            if (extras?.containsKey(SHOW_ID) == false) return
+            val showId = extras?.getInt(SHOW_ID) ?: return
+            val broadcastId = mediaId?.toIntOrNull() ?: return
 
-                // Since the playlist was probably based on some ordering (such as tracks
-                // on an album), find which window index to play first so that the song the
-                // user actually wants to hear plays first.
-                val initialWindowIndex = metadataList.indexOf(itemToPlay)
-
-                exoPlayer.prepare(mediaSource)
-                exoPlayer.seekTo(initialWindowIndex, 0)
-            }
+            prepareBroadcast(broadcastId, showId)
         }
     }
 
@@ -105,14 +145,46 @@ class KdvsPlaybackPreparer(
         cb: ResultReceiver?
     ) = Unit
 
-    /**
-     * Builds a playlist based on a [MediaMetadataCompat].
-     *
-     * TODO: Change this
-     *
-     * @param item Item to base the playlist on.
-     * @return a [List] of [MediaMetadataCompat] objects representing a playlist.
-     */
-    private fun buildPlaylist(item: MediaMetadataCompat): List<MediaMetadataCompat> =
-        musicSource.filter { it.album == item.album }.sortedBy { it.trackNumber }
+    private fun prepareLive(streamUrl: String?) = launch {
+        val liveSource = ExtractorMediaSource.Factory(dataSourceFactory)
+            .setTag(liveDescriptionCompat)
+            .createMediaSource(Uri.parse(streamUrl))
+
+        withContext(Dispatchers.Main) {
+            exoPlayer.prepare(liveSource)
+        }
+    }
+
+    private fun prepareBroadcast(broadcastId: Int, showId: Int) = launch {
+        val show = showDao.getShowById(showId)
+        val broadcast = broadcastDao.getBroadcastById(broadcastId)
+
+        // TODO glide seems to crash here despite the applied request options for fallback / error
+        val art = try {
+            glide.asBitmap()
+                .load(broadcast.imageHref)
+                .submit(NOTIFICATION_LARGE_ICON_SIZE, NOTIFICATION_LARGE_ICON_SIZE)
+                .get()
+        } catch (e: Exception) {
+            defaultArt
+        }
+
+        val broadcastMetadata = MediaMetadataCompat.Builder()
+            .from(broadcast, show)
+            .apply { albumArt = art }
+            .build()
+
+        val mediaSource = broadcastMetadata.toMediaSource(dataSourceFactory)
+
+        withContext(Dispatchers.Main) {
+            exoPlayer.prepare(mediaSource)
+        }
+    }
+
+    companion object {
+        /** bundle key for show ID int */
+        const val SHOW_ID = "SHOW_ID"
+        private const val NOTIFICATION_LARGE_ICON_SIZE = 144 // px
+    }
 }
+
