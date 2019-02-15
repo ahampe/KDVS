@@ -31,12 +31,10 @@ class WeekViewAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val day = days[position % 7]
 
-        val childAdapter = TimeSlotViewAdapter().apply {
+        val childAdapter = TimeSlotViewAdapter { clickData ->
             // Here is where we navigate to the ShowDetailsFragment
-            clickHandler = {
-                Timber.d("clicked ${it.item.names.joinToString()}")
-                fragment.viewModel.onClickTimeSlot(fragment.findNavController(), it.item)
-            }
+            Timber.d("clicked ${clickData.item.names.joinToString()}")
+            fragment.viewModel.onClickTimeSlot(fragment.findNavController(), clickData.item)
         }
 
         val childLayoutManager = LinearLayoutManager(holder.recyclerView.context, RecyclerView.VERTICAL, false)

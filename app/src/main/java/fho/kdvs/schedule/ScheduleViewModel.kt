@@ -27,7 +27,7 @@ class ScheduleViewModel @Inject constructor(
     fun fetchShows() = showRepository.fetchShows()
 
     fun getShowsForDay(day: Day, quarter: Quarter, year: Int): LiveData<List<TimeSlot>> =
-        showRepository.getShowsForDay(day, quarter, year)
+        showRepository.getShowTimeSlotsForDay(day, quarter, year)
             .sample(500L, TimeUnit.MILLISECONDS, true)
             .toLiveData()
 

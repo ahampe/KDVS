@@ -15,6 +15,9 @@ interface BroadcastDao {
     @Query("SELECT * from broadcastData WHERE showId = :showId ORDER BY date DESC")
     fun broadcastsForShowLiveData(showId: Int): LiveData<List<BroadcastEntity>>
 
+    @Query("SELECT * from broadcastData WHERE broadcastId = :broadcastId LIMIT 1")
+    fun broadcastById(broadcastId: Int): LiveData<BroadcastEntity>
+
     @Query("SELECT * from broadcastData WHERE showId = :showId ORDER BY date DESC")
     fun getBroadcastsForShow(showId: Int?): List<BroadcastEntity>
 

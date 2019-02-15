@@ -12,11 +12,10 @@ abstract class BindingViewHolder<T>(itemView: View) : RecyclerView.ViewHolder(it
 
 /** [ListAdapter] subclass for use with view binding.  */
 abstract class BindingRecyclerViewAdapter<T, VH : BindingViewHolder<T>>(
-    diffCallback: DiffUtil.ItemCallback<T>
+    onClick: (ClickData<T>) -> Unit,
+diffCallback: DiffUtil.ItemCallback<T>
 ) : ListAdapter<T, VH>(diffCallback), ClickableRecyclerViewAdapter<T> {
-    override var clickHandler: (ClickData<T>) -> Unit = {
-        throw NotImplementedError("Should define clickHandler for this adapter")
-    }
+    override val clickHandler: (ClickData<T>) -> Unit = onClick
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val item = getItem(position)
@@ -27,7 +26,7 @@ abstract class BindingRecyclerViewAdapter<T, VH : BindingViewHolder<T>>(
 data class ClickData<T>(val view: View, val item: T)
 
 interface ClickableRecyclerViewAdapter<T> {
-    var clickHandler: (ClickData<T>) -> Unit
+    val clickHandler: (ClickData<T>) -> Unit
 
     fun makeOnClickListener(item: T): View.OnClickListener {
         return View.OnClickListener { clickHandler(ClickData(it, item)) }

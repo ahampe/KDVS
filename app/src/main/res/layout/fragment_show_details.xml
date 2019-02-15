@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -31,22 +32,68 @@
 
         <TextView
             android:id="@+id/showTitle"
-            style="@style/TextAppearance.MaterialComponents.Headline5"
+            style="@style/TextAppearance.MaterialComponents.Headline4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:maxLines="1"
             android:text="@{vm.show.name}"
+            app:autoSizeTextType="uniform"
             app:layout_constraintBottom_toBottomOf="@id/showDetailImage"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/show_details_pane"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_medium"
+            app:layout_constraintTop_toBottomOf="@id/showDetailImage">
+
+            <TextView
+                android:id="@+id/hostsText"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_medium"
+                android:text="@{vm.show.host}"
+                tools:text="DJ Host &amp; DJ Other Host" />
+
+            <TextView
+                android:id="@+id/showDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_medium"
+                android:text="@{vm.show.defaultDesc}"
+                tools:text="This is a description of a show on KDVS. How fascinating." />
+
+            <TextView
+                android:id="@+id/genreText"
+                style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_medium"
+                android:text="@{@string/genre_template(vm.show.genre)}"
+                tools:text="Genre: Music and such" />
+
+            <TextView
+                android:id="@+id/past_playlists_textview"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:text="@string/past_playlists" />
+
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/broadcastRecycler"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/showDetailImage" />
+            app:layout_constraintTop_toBottomOf="@id/show_details_pane" />
+
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
-
 
 </layout>

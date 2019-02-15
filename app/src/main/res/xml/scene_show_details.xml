@@ -26,11 +26,11 @@
         </Constraint>
 
         <Constraint
-            android:id="@id/title"
+            android:id="@id/showTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginBottom="24dp"
+            android:layout_marginStart="@dimen/spacing_medium"
+            android:layout_marginEnd="@dimen/spacing_medium"
             android:scaleX="1.0"
             android:scaleY="1.0"
             app:layout_constraintBottom_toBottomOf="@id/showDetailImage"
@@ -49,10 +49,10 @@
     <ConstraintSet android:id="@+id/collapsed">
         <Constraint
             android:id="@id/showDetailImage"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/showTitle"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintStart_toStartOf="parent">
             <CustomAttribute
                 app:attributeName="imageAlpha"
                 app:customIntegerValue="0" />
@@ -61,14 +61,13 @@
         <Constraint
             android:id="@id/showTitle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginBottom="0dp"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_marginStart="@dimen/spacing_medium"
+            android:layout_marginEnd="@dimen/spacing_medium"
             android:scaleX="0.625"
             android:scaleY="0.625"
-            app:layout_constraintBottom_toBottomOf="@id/showDetailImage"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/showDetailImage" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Constraint
             android:id="@id/showTitleBackground"

@@ -28,6 +28,9 @@ object TimeHelper {
      */
     val dateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
+    /** For displaying broadcast LocalDates in the UI. */
+    val uiDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")
+
     /** A 12-hour time formatter, used for displaying show times (which are in UTC) in the UI. */
     val showTimeFormatter: DateTimeFormatter = DateTimeFormatter
         .ofPattern("hh:mm a", Locale.US)

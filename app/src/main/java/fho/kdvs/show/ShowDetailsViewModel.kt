@@ -3,6 +3,7 @@ package fho.kdvs.show
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.navigation.NavController
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
@@ -22,6 +23,12 @@ class ShowDetailsViewModel @Inject constructor(
         fetchBroadcasts(showId)
         show = showRepository.showById(showId)
         broadcastsLiveData = broadcastRepository.broadcastsForShow(showId)
+    }
+
+    fun onClickBroadcast(navController: NavController, broadcast: BroadcastEntity) {
+        val navAction = ShowDetailsFragmentDirections
+            .actionShowDetailsFragmentToBroadcastDetailsFragment(broadcast.broadcastId)
+        navController.navigate(navAction)
     }
 
     private fun fetchBroadcasts(showId: Int) {
