@@ -26,7 +26,7 @@
             glideHref="@{vm.broadcast.imageHref}"
             android:layout_width="match_parent"
             android:layout_height="@dimen/expanded_toolbar_height"
-            android:background="@color/colorPrimaryDark" />
+            android:background="@android:color/black" />
 
         <ImageView
             android:id="@+id/broadcast_header_background"
@@ -54,6 +54,7 @@
             android:id="@+id/broadcast_details_pane"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:orientation="vertical"
             app:layout_constraintTop_toBottomOf="@id/broadcast_detail_image">
 
@@ -72,6 +73,31 @@
                 android:layout_height="wrap_content"
                 android:text="@{vm.broadcast.descr}"
                 tools:text="The broadcast" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tracks_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/broadcast_details_pane">
+
+            <TextView
+                style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/artist" />
+
+            <TextView
+                style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/song" />
+
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -79,7 +105,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/broadcast_details_pane" />
+            app:layout_constraintTop_toBottomOf="@id/tracks_header" />
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
 </layout>

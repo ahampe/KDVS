@@ -30,4 +30,6 @@
     <string name="past_playlists">Past Playlists:</string>
     <string name="hosts">Hosts:</string>
     <string name="genre_template">Genre: %1$s</string>
+    <string name="artist">Artist</string>
+    <string name="song">Song</string>
 </resources>

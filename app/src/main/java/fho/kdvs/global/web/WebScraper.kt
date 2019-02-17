@@ -183,6 +183,9 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
 
             db.broadcastDao().updateBroadcast(broadcastId, desc.trim(), imageHref?.trim())
 
+            // Because tracks have auto-generated IDs, we have to clear any already scraped tracks to avoid dupes
+            db.trackDao().deleteByBroadcast(broadcastId)
+
             // filter out empty playlists
             val tracks = select("table.show-tracks-table tbody tr").filter { t ->
                 t.children().count() != 1 ||

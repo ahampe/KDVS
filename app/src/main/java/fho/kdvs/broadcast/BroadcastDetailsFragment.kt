@@ -6,18 +6,22 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.databinding.FragmentBroadcastDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.util.TimeHelper
+import kotlinx.android.synthetic.main.fragment_broadcast_details.*
 import timber.log.Timber
 import javax.inject.Inject
 
 class BroadcastDetailsFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
-
     private lateinit var viewModel: BroadcastDetailsViewModel
+
+    private lateinit var tracksAdapter: BroadcastTracksAdapter
 
     private val broadcastId: Int by lazy {
         arguments?.let { BroadcastDetailsFragmentArgs.fromBundle(it) }?.broadcastId
@@ -51,16 +55,22 @@ class BroadcastDetailsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        tracksAdapter = BroadcastTracksAdapter {
+            Timber.d("Clicked ${it.item}")
+        }
+
+        trackRecycler.apply {
+            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            adapter = tracksAdapter
+        }
+
         subscribeToViewModel()
     }
 
     private fun subscribeToViewModel() {
-        viewModel.broadcast.observe(this, Observer {
-            Timber.d("Got broadcast: $it")
-        })
-
-        viewModel.tracks.observe(this, Observer {
-            Timber.d("Got tracks: $it")
+        viewModel.tracks.observe(this, Observer { tracks ->
+            Timber.d("Got tracks: $tracks")
+            tracksAdapter.onTracksChanged(tracks)
         })
     }
 }

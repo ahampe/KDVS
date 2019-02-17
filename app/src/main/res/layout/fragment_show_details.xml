@@ -21,7 +21,7 @@
             glideHref="@{vm.show.defaultImageHref}"
             android:layout_width="match_parent"
             android:layout_height="@dimen/expanded_toolbar_height"
-            android:background="@color/colorPrimaryDark" />
+            android:background="@android:color/black" />
 
         <ImageView
             android:id="@+id/show_header_background"
