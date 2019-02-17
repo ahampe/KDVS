@@ -18,7 +18,7 @@ import org.threeten.bp.LocalDate
 )
 data class BroadcastEntity(
     @PrimaryKey(autoGenerate = false) val broadcastId: Int,
-    @ColumnInfo(name = "showId") var showId: Int? = 0,
+    @ColumnInfo(name = "showId") var showId: Int = 0,
     @ColumnInfo(name = "descr") var descr: String? = null,
     @ColumnInfo(name = "date") var date: LocalDate? = null,
     @ColumnInfo(name = "imageHref") var imageHref: String? = null

@@ -39,10 +39,9 @@ class ShowDetailsFragment : DaggerFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        Timber.d("Initializing")
         val binding = FragmentShowDetailsBinding.inflate(inflater, container, false)
             .apply { vm = viewModel }
-        binding.setLifecycleOwner(this)
+        binding.lifecycleOwner = this
         return binding.root
     }
 

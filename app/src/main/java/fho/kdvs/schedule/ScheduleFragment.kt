@@ -18,7 +18,6 @@ import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
-import fho.kdvs.global.extensions.optInt
 import kotlinx.android.synthetic.main.fragment_schedule.*
 import org.threeten.bp.LocalDate
 import timber.log.Timber
@@ -178,6 +177,7 @@ class ScheduleFragment : DaggerFragment() {
             // When new quarter-years happen (which should only happen when a new quarter starts), update the spinner
             allQuarterYearsLiveData.observe(fragment, Observer { quarterYears ->
                 configureQuarterSpinner(quarterYears)
+                configureWeekView()
             })
         }
     }

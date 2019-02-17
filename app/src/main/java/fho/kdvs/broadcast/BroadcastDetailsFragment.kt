@@ -24,12 +24,17 @@ class BroadcastDetailsFragment : DaggerFragment() {
             ?: throw IllegalArgumentException("Should have passed a broadcastId to BroadcastDetailsFragment")
     }
 
+    private val showId: Int by lazy {
+        arguments?.let { BroadcastDetailsFragmentArgs.fromBundle(it) }?.showId
+            ?: throw IllegalArgumentException("Should have passed a showId to BroadcastDetailsFragment")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         viewModel = ViewModelProviders.of(this, vmFactory)
             .get(BroadcastDetailsViewModel::class.java)
-            .also { it.initialize(broadcastId) }
+            .also { it.initialize(showId, broadcastId) }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -39,6 +44,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
             dateFormatter = TimeHelper.uiDateFormatter
         }
 
+        binding.lifecycleOwner = this
         return binding.root
     }
 

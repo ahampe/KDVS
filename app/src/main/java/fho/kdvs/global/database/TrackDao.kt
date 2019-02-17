@@ -1,16 +1,16 @@
 package fho.kdvs.global.database
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
+import io.reactivex.Flowable
 
 @Dao
 interface TrackDao {
 
     @Query("SELECT * from trackData WHERE broadcastId = :broadcastId ORDER BY position")
-    fun tracksForBroadcast(broadcastId: Int?): LiveData<List<TrackEntity>>
+    fun allTracksForBroadcast(broadcastId: Int?): Flowable<List<TrackEntity>>
 
     @Query("SELECT * from trackData")
     fun getAll(): List<TrackEntity>

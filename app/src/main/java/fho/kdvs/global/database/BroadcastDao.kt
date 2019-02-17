@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
+import io.reactivex.Flowable
 
 @Dao
 interface BroadcastDao {
@@ -13,7 +14,7 @@ interface BroadcastDao {
     fun getAll(): List<BroadcastEntity>
 
     @Query("SELECT * from broadcastData WHERE showId = :showId ORDER BY date DESC")
-    fun broadcastsForShowLiveData(showId: Int): LiveData<List<BroadcastEntity>>
+    fun allBroadcastsForShow(showId: Int): Flowable<List<BroadcastEntity>>
 
     @Query("SELECT * from broadcastData WHERE broadcastId = :broadcastId LIMIT 1")
     fun broadcastById(broadcastId: Int): LiveData<BroadcastEntity>

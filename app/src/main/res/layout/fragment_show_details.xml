@@ -15,32 +15,34 @@
         android:layout_height="match_parent"
         app:layoutDescription="@xml/scene_show_details">
 
+        <!--header region-->
         <ImageView
-            android:id="@+id/showDetailImage"
+            android:id="@+id/show_detail_image"
             glideHref="@{vm.show.defaultImageHref}"
             android:layout_width="match_parent"
             android:layout_height="@dimen/expanded_toolbar_height"
             android:background="@color/colorPrimaryDark" />
 
         <ImageView
-            android:id="@+id/showTitleBackground"
+            android:id="@+id/show_header_background"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="@color/colorPrimary50a"
-            app:layout_constraintBottom_toBottomOf="@id/showTitle"
-            app:layout_constraintTop_toTopOf="@id/showTitle" />
+            app:layout_constraintBottom_toBottomOf="@id/show_title"
+            app:layout_constraintTop_toTopOf="@id/show_title" />
 
         <TextView
-            android:id="@+id/showTitle"
+            android:id="@+id/show_title"
             style="@style/TextAppearance.MaterialComponents.Headline4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:text="@{vm.show.name}"
             app:autoSizeTextType="uniform"
-            app:layout_constraintBottom_toBottomOf="@id/showDetailImage"
+            app:layout_constraintBottom_toBottomOf="@id/show_detail_image"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+        <!--end header region-->
 
         <LinearLayout
             android:id="@+id/show_details_pane"
@@ -48,10 +50,10 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="@dimen/spacing_medium"
-            app:layout_constraintTop_toBottomOf="@id/showDetailImage">
+            app:layout_constraintTop_toBottomOf="@id/show_detail_image">
 
             <TextView
-                android:id="@+id/hostsText"
+                android:id="@+id/show_hosts"
                 style="@style/TextAppearance.MaterialComponents.Headline6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -60,7 +62,7 @@
                 tools:text="DJ Host &amp; DJ Other Host" />
 
             <TextView
-                android:id="@+id/showDescription"
+                android:id="@+id/show_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_medium"
@@ -68,7 +70,7 @@
                 tools:text="This is a description of a show on KDVS. How fascinating." />
 
             <TextView
-                android:id="@+id/genreText"
+                android:id="@+id/show_genre"
                 style="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -77,13 +79,12 @@
                 tools:text="Genre: Music and such" />
 
             <TextView
-                android:id="@+id/past_playlists_textview"
+                android:id="@+id/show_past_playlists"
                 style="@style/TextAppearance.MaterialComponents.Headline6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_medium"
                 android:text="@string/past_playlists" />
-
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView

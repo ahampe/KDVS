@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="fho.kdvs.broadcast.BroadcastDetailsFragment">
 
@@ -14,14 +15,71 @@
             type="org.threeten.bp.format.DateTimeFormatter" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.motion.widget.MotionLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        app:layoutDescription="@xml/scene_broadcast_details">
+
+        <!--header region-->
+        <ImageView
+            android:id="@+id/broadcast_detail_image"
+            glideHref="@{vm.broadcast.imageHref}"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/expanded_toolbar_height"
+            android:background="@color/colorPrimaryDark" />
+
+        <ImageView
+            android:id="@+id/broadcast_header_background"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/colorPrimary50a"
+            app:layout_constraintBottom_toBottomOf="@id/broadcast_date"
+            app:layout_constraintTop_toTopOf="@id/broadcast_date" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/broadcast_date"
+            style="@style/TextAppearance.MaterialComponents.Headline5"
+            dateFormatter="@{dateFormatter}"
+            localDate="@{vm.broadcast.date}"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{vm.broadcast.date != null ? dateFormatter.format(vm.broadcast.date) : ``}" />
-    </LinearLayout>
+            android:maxLines="1"
+            app:layout_constraintBottom_toBottomOf="@id/broadcast_detail_image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Jan 01 2019" />
+        <!--end header region-->
+
+        <LinearLayout
+            android:id="@+id/broadcast_details_pane"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/broadcast_detail_image">
+
+            <TextView
+                android:id="@+id/broadcast_parent_show"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{vm.show.name}"
+                tools:text="The Music Show" />
+
+            <TextView
+                android:id="@+id/broadcast_descr"
+                style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{vm.broadcast.descr}"
+                tools:text="The broadcast" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/trackRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/broadcast_details_pane" />
+
+    </androidx.constraintlayout.motion.widget.MotionLayout>
 </layout>
