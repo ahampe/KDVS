@@ -66,9 +66,9 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
             when (element.tagName()) {
                 "h2" -> day = element.html().toUpperCase()
                 "div" -> {
-                    val imageHref = """background-image:\s*url\((.*)\)""".toRegex()
+                    val imageHref = """background-image:\s*url\(&quot;(.*)&quot;\)""".toRegex()
                         .find(element.attributes().html())
-                        ?.groupValues?.getOrNull(1)?.replace("&quot;", "")
+                        ?.groupValues?.getOrNull(1)
 
                     // Assumes that a time-slot can have arbitrarily many alternating shows
                     val (ids, names) = "<a href=\"https://kdvs.org/past-playlists/([0-9]+)\">(.*)</a>".toRegex()
@@ -125,8 +125,9 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
 
         val hostNode = document.select("p.dj-name").firstOrNull()
         val host = if (hostNode == null) "" else hostNode.parseHtml()
-        val defaultDesc = if (hostNode?.nextElementSibling()?.tagName() == "h3") ""
-        else (hostNode?.nextElementSibling()?.parseHtml())
+        val defaultDesc =
+            if (hostNode?.nextElementSibling()?.tagName() == "h3") "" else (hostNode?.nextElementSibling()?.parseHtml())
+
         val genreHeaderNode = document.select("div.grid_6 h3:contains(Genre)")?.firstOrNull()
         val genre = if (genreHeaderNode == null) "" else genreHeaderNode.nextElementSibling()?.parseHtml()
 
@@ -149,11 +150,7 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
                 val broadcastData = BroadcastEntity(
                     broadcastId = brId ?: 0,
                     showId = showId,
-                    date = TimeHelper.makeLocalDate(
-                        "${year?.padStart(4, '0')}" +
-                                "-${month?.padStart(2, '0')}" +
-                                "-${day?.padStart(2, '0')}"
-                    )
+                    date = TimeHelper.makeLocalDate(year, month, day)
                 )
 
                 db.broadcastDao().insert(broadcastData)
@@ -181,7 +178,9 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
                 .find(imageElement?.attributes()?.html().orEmpty())
                 ?.groupValues?.getOrNull(1)?.replace("&quot;", "")
 
-            db.broadcastDao().updateBroadcast(broadcastId, desc.trim(), imageHref?.trim())
+            val playlistUrl = select("a[href^=http://kdvs.org/m3u]")?.firstOrNull()?.attr("href")
+
+            db.broadcastDao().updateBroadcast(broadcastId, desc.trim(), imageHref?.trim(), playlistUrl)
 
             // Because tracks have auto-generated IDs, we have to clear any already scraped tracks to avoid dupes
             db.trackDao().deleteByBroadcast(broadcastId)

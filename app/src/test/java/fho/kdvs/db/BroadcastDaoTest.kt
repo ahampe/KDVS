@@ -148,10 +148,10 @@ class BroadcastDaoTest : DatabaseTest() {
         assertTrue("Could not find broadcast: $broadcast", broadcasts.contains(broadcast))
         assertEquals("Should have 1 broadcast", broadcasts.size, 1)
 
-        broadcast.descr = "Updated descr"
+        broadcast.description = "Updated description"
         broadcast.imageHref = "https://i.kym-cdn.com/photos/images/original/001/356/199/dd9.png"
 
-        db.broadcastDao().updateBroadcast(broadcast.broadcastId, broadcast.descr, broadcast.imageHref)
+        db.broadcastDao().updateBroadcast(broadcast.broadcastId, broadcast.description, broadcast.imageHref, broadcast.playlistUrl)
         val updatedBroadcasts = db.broadcastDao().getAll()
         assertTrue("Could not find broadcast: $broadcast", updatedBroadcasts.contains(broadcast))
         assertEquals("Should have 1 broadcast", updatedBroadcasts.size, 1)

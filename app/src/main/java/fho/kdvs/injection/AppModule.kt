@@ -9,6 +9,7 @@ import fho.kdvs.global.database.BroadcastDao
 import fho.kdvs.global.database.KdvsDatabase
 import fho.kdvs.global.database.ShowDao
 import fho.kdvs.global.database.TrackDao
+import timber.log.Timber
 import javax.inject.Singleton
 
 @Module(includes = [ViewModelModule::class])
@@ -16,13 +17,23 @@ class AppModule {
     @Provides
     fun provideApplication(app: KdvsApp): Application = app
 
-    // TODO don't fallback to destructive migration in production
     @Singleton
     @Provides
-    fun provideDb(app: Application): KdvsDatabase =
-        Room.databaseBuilder(app, KdvsDatabase::class.java, "kdvs.db")
-            .fallbackToDestructiveMigration()
-            .build()
+    fun provideDb(app: Application): KdvsDatabase {
+        val db = KdvsDatabase.buildDevelopmentDatabase(app)
+
+        // Delete and rebuild the database if there's a schema change so that we don't have to bump versions or uninstall
+        try {
+            db.openHelper.readableDatabase
+        } catch (ise: IllegalStateException) {
+            Timber.e("Detected a schema modification.  Deleting the database file...")
+            db.close()
+            KdvsDatabase.deleteDatabaseFile(app)
+        }
+
+        return if (db.isOpen) db else KdvsDatabase.buildDevelopmentDatabase(app)
+    }
+
 
     @Singleton
     @Provides

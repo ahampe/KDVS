@@ -67,12 +67,18 @@
                 tools:text="The Music Show" />
 
             <TextView
-                android:id="@+id/broadcast_descr"
+                android:id="@+id/broadcast_description"
                 style="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{vm.broadcast.descr}"
+                android:text="@{vm.broadcast.description}"
                 tools:text="The broadcast" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{() -> vm.onPlayBroadcast()}"
+                android:text="@string/play" />
 
         </LinearLayout>
 

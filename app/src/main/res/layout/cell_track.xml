@@ -10,10 +10,11 @@
     </data>
 
     <LinearLayout
-        airBreak="@{track.airbreak}"
         trackPosition="@{track.position}"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_small"
+        android:layout_marginBottom="@dimen/spacing_small"
         android:orientation="horizontal">
 
         <TextView
@@ -32,25 +33,25 @@
 
         <!--TODO these fields should only display in an expanded view-->
         <!--<TextView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_weight="1"-->
-            <!--android:text="@{track.album}"-->
-            <!--tools:text="The Album" />-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="1"-->
+        <!--android:text="@{track.album}"-->
+        <!--tools:text="The Album" />-->
 
         <!--<TextView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_weight="1"-->
-            <!--android:text="@{track.label}"-->
-            <!--tools:text="The Label" />-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="1"-->
+        <!--android:text="@{track.label}"-->
+        <!--tools:text="The Label" />-->
 
         <!--<TextView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_weight="1"-->
-            <!--android:text="@{track.comment}"-->
-            <!--tools:text="The Comments" />-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="1"-->
+        <!--android:text="@{track.comment}"-->
+        <!--tools:text="The Comments" />-->
 
     </LinearLayout>
 

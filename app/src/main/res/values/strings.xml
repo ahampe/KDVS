@@ -32,4 +32,6 @@
     <string name="genre_template">Genre: %1$s</string>
     <string name="artist">Artist</string>
     <string name="song">Song</string>
+    <string name="airbreak">Airbreak</string>
+    <string name="play">Play</string>
 </resources>

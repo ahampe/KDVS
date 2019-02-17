@@ -9,7 +9,6 @@ import io.reactivex.Flowable
 
 @Dao
 interface BroadcastDao {
-
     @Query("SELECT * from broadcastData")
     fun getAll(): List<BroadcastEntity>
 
@@ -23,26 +22,30 @@ interface BroadcastDao {
     fun getBroadcastsForShow(showId: Int?): List<BroadcastEntity>
 
     @Query(
-        "SELECT DISTINCT b.* from broadcastData b inner join trackData t on t.broadcastId = b.broadcastId " +
-                "WHERE t.artist = :artist"
+        """SELECT DISTINCT b.* from broadcastData b
+            inner join trackData t on t.broadcastId = b.broadcastId
+            WHERE t.artist = :artist"""
     )
     fun getBroadcastsByArtist(artist: String?): List<BroadcastEntity>
 
     @Query(
-        "SELECT DISTINCT b.* from broadcastData b inner join trackData t on t.broadcastId = b.broadcastId " +
-                "WHERE t.album = :album"
+        """SELECT DISTINCT b.* from broadcastData b
+            inner join trackData t on t.broadcastId = b.broadcastId
+            WHERE t.album = :album"""
     )
     fun getBroadcastsByAlbum(album: String?): List<BroadcastEntity>
 
     @Query(
-        "SELECT DISTINCT b.* from broadcastData b inner join trackData t on t.broadcastId = b.broadcastId " +
-                "WHERE t.artist = :artist AND t.album = :album"
+        """SELECT DISTINCT b.* from broadcastData b
+            inner join trackData t on t.broadcastId = b.broadcastId
+            WHERE t.artist = :artist AND t.album = :album"""
     )
     fun getBroadcastsByArtistAlbum(artist: String?, album: String?): List<BroadcastEntity>
 
     @Query(
-        "SELECT DISTINCT b.* from broadcastData b inner join trackData t on t.broadcastId = b.broadcastId " +
-                "WHERE t.label = :label"
+        """SELECT DISTINCT b.* from broadcastData b
+            inner join trackData t on t.broadcastId = b.broadcastId
+            WHERE t.label = :label"""
     )
     fun getBroadcastsByLabel(label: String?): List<BroadcastEntity>
 
@@ -58,6 +61,10 @@ interface BroadcastDao {
     @Query("DELETE from broadcastData WHERE showId = :showId")
     fun deleteBroadcastsForShow(showId: Int?)
 
-    @Query("UPDATE broadcastData SET descr = :descr, imageHref = :imageHref WHERE broadcastId = :broadcastId")
-    fun updateBroadcast(broadcastId: Int?, descr: String?, imageHref: String?)
+    @Query(
+        """UPDATE broadcastData
+        SET description = :description, imageHref = :imageHref, playlistUrl = :playlistUrl
+        WHERE broadcastId = :broadcastId"""
+    )
+    fun updateBroadcast(broadcastId: Int?, description: String?, imageHref: String?, playlistUrl: String?)
 }

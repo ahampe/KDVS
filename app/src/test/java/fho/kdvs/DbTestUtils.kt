@@ -39,16 +39,18 @@ object DbTestUtils {
         BroadcastEntity(
             broadcastId = 290,
             showId = 1888,
-            descr = "A stompin' good time with Blind Lemon",
+            description = "A stompin' good time with Blind Lemon",
             date = TimeHelper.makeLocalDate("1943-01-01"),
-            imageHref = "http://www.leadbelly.com/blindlemon.jpg"
+            imageHref = "http://www.leadbelly.com/blindlemon.jpg",
+            playlistUrl = ""
         ),
         BroadcastEntity(
             broadcastId = 291,
             showId = 1888,
-            descr = "The Great Machine",
+            description = "The Great Machine",
             date = TimeHelper.makeLocalDate("1943-01-08"),
-            imageHref = "http://sfprod.shikadi.net/pic/timss.png"
+            imageHref = "http://sfprod.shikadi.net/pic/timss.png",
+            playlistUrl = ""
         )
     )
 
