@@ -4,9 +4,13 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
+import io.reactivex.Flowable
 
 @Dao
 interface TrackDao {
+
+    @Query("SELECT * from trackData WHERE broadcastId = :broadcastId ORDER BY position")
+    fun allTracksForBroadcast(broadcastId: Int?): Flowable<List<TrackEntity>>
 
     @Query("SELECT * from trackData")
     fun getAll(): List<TrackEntity>

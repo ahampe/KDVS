@@ -1,6 +1,8 @@
 package fho.kdvs.show
 
+import androidx.lifecycle.LiveData
 import fho.kdvs.global.database.ShowDao
+import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.preferences.KdvsPreferences
@@ -19,15 +21,21 @@ class ShowRepository @Inject constructor(
     private val scraperManager: WebScraperManager,
     private val kdvsPreferences: KdvsPreferences
 ) {
-    fun showById(showId: Int) =
+    /** Fetches a [LiveData] that will wrap the show matching the provided ID. */
+    fun showById(showId: Int): LiveData<ShowEntity> =
         showDao.showById(showId)
 
+    /** Call when refreshing or initializing schedule views to fetch the most recent data. */
     fun fetchShows() {
         // TODO check last scrape time (SharedPrefs)
         scraperManager.scrape(URLs.SCHEDULE)
     }
 
-    fun getShowsForDay(day: Day, quarter: Quarter, year: Int): Flowable<List<TimeSlot>> {
+    /**
+     * Given the day of week, quarter, and year, finds all shows that begin or end on that day,
+     * and transforms them into [TimeSlot]s.
+     */
+    fun getShowTimeSlotsForDay(day: Day, quarter: Quarter, year: Int): Flowable<List<TimeSlot>> {
         val (timeStart, timeEnd) = TimeHelper.makeDayRange(day)
         return showDao.allShowsInTimeRange(timeStart, timeEnd, quarter, year)
             .observeOn(Schedulers.io())

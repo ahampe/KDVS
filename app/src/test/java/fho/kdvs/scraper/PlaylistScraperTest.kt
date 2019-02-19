@@ -24,11 +24,12 @@ class PlaylistScraperTest : ScraperTest() {
 
         `when`(
             broadcastDao.updateBroadcast(
-                TestUtils.any(), TestUtils.any(), TestUtils.any()
+                TestUtils.any(), TestUtils.any(), TestUtils.any(), TestUtils.any()
             )
         ).thenAnswer {
-            scrapedBroadcast.descr = it.getArgument(1)
+            scrapedBroadcast.description = it.getArgument(1)
             scrapedBroadcast.imageHref = it.getArgument(2)
+            scrapedBroadcast.playlistUrl = it.getArgument(3)
             assertEquals(scrapedBroadcast.broadcastId, it.getArgument(0))
         }
 
@@ -51,8 +52,9 @@ class PlaylistScraperTest : ScraperTest() {
             broadcastId = 51742,
             showId = 5361,
             date = TimeHelper.makeLocalDate("2019-01-12"),
-            descr = "I opened the Prog basket and was delighted to find some of my favorite prog ingredients. ELP, PFM, Triumvrat, and IQ will combine to get the project started. I will try to spice these up with new music from Dilemma and Eden in Progress. And, as usual, an Improbably Proggy trak to throw into the mix from Alice Cooper. Questions, comments and suggestions to rockshurewood@gmail.com.",
-            imageHref = "http://www.sevenwondersofwashingtonstate.com/uploads/4/7/4/6/47460045/3719499_orig.jpg"
+            description = "I opened the Prog basket and was delighted to find some of my favorite prog ingredients. ELP, PFM, Triumvrat, and IQ will combine to get the project started. I will try to spice these up with new music from Dilemma and Eden in Progress. And, as usual, an Improbably Proggy trak to throw into the mix from Alice Cooper. Questions, comments and suggestions to rockshurewood@gmail.com.",
+            imageHref = "http://www.sevenwondersofwashingtonstate.com/uploads/4/7/4/6/47460045/3719499_orig.jpg",
+            playlistUrl = "http://kdvs.org/m3u.php?show_date=2019-01-12&show_id=5361&show_name=Prog+Rock+Palace&kbps=320"
         )
 
         val html = TestUtils.loadFromResource("playlist-51742.html")

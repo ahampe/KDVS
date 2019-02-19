@@ -28,6 +28,9 @@ object TimeHelper {
      */
     val dateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
+    /** For displaying broadcast LocalDates in the UI. */
+    val uiDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")
+
     /** A 12-hour time formatter, used for displaying show times (which are in UTC) in the UI. */
     val showTimeFormatter: DateTimeFormatter = DateTimeFormatter
         .ofPattern("hh:mm a", Locale.US)
@@ -99,22 +102,17 @@ object TimeHelper {
     // endregion
 
     // region Local Dates (for Broadcast entities)
-    /**
-     * Creates a date given the month, day, and year as 1-based ints.
-     * If year is fewer than 4 digits, 2000 is added to it.
-     */
-//    fun makeLocalDate(month: Int, day: Int, year: Int): OffsetDateTime {
-//        val m = month.toString().padStart(2, '0')
-//        val d = day.toString().padStart(2, '0')
-//        val y = (if (year < 1000) year + 2000 else year)
-//            .toString().padStart(4, '0')
-//
-//        return makeLocalDate("$y-$m-$d")
-//    }
-
     /** Creates a date given a string in [dateFormatter]'s format. */
     fun makeLocalDate(ymd: String): LocalDate {
         return LocalDate.parse(ymd, dateFormatter)
+    }
+
+    fun makeLocalDate(y: String?, m: String?, d: String?): LocalDate {
+        return TimeHelper.makeLocalDate(
+            "${y?.padStart(4, '0')}" +
+                    "-${m?.padStart(2, '0')}" +
+                    "-${d?.padStart(2, '0')}"
+        )
     }
     // endregion
 

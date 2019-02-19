@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
+import fho.kdvs.broadcast.BroadcastDetailsViewModel
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.schedule.ScheduleViewModel
@@ -26,7 +27,12 @@ abstract class ViewModelModule {
     @Binds
     @IntoMap
     @ViewModelKey(ShowDetailsViewModel::class)
-    abstract fun bindShowDetailsViewModel(showDetailsViewModel: ShowDetailsViewModel): ViewModel
+    abstract fun bindDetailsViewModel(showDetailsViewModel: ShowDetailsViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(BroadcastDetailsViewModel::class)
+    abstract fun bindBroadcastDetailsViewModel(broadcastDetailsViewModel: BroadcastDetailsViewModel): ViewModel
 
     @Binds
     abstract fun bindViewModelFactory(factory: KdvsViewModelFactory): ViewModelProvider.Factory

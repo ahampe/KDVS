@@ -6,9 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.databinding.FragmentShowDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
+import kotlinx.android.synthetic.main.fragment_show_details.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -17,6 +21,8 @@ class ShowDetailsFragment : DaggerFragment() {
     lateinit var vmFactory: KdvsViewModelFactory
 
     private lateinit var viewModel: ShowDetailsViewModel
+
+    private lateinit var broadcastListAdapter: ShowBroadcastsAdapter
 
     // Retrieves the show ID from the arguments bundle. Throws an exception if it doesn't exist.
     private val showId: Int by lazy {
@@ -33,27 +39,32 @@ class ShowDetailsFragment : DaggerFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        Timber.d("Initializing")
         val binding = FragmentShowDetailsBinding.inflate(inflater, container, false)
             .apply { vm = viewModel }
-        binding.setLifecycleOwner(this)
+        binding.lifecycleOwner = this
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        broadcastListAdapter = ShowBroadcastsAdapter {
+            Timber.d("clicked ${it.item}")
+            viewModel.onClickBroadcast(findNavController(), it.item)
+        }
+
+        broadcastRecycler.run {
+            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            adapter = broadcastListAdapter
+        }
+
         subscribeToViewModel()
     }
 
     private fun subscribeToViewModel() {
-        viewModel.broadcastsLiveData.observe(this, Observer {
-            Timber.d("got broadcasts: $it")
-            configureBroadcastList()
+        viewModel.broadcastsLiveData.observe(this, Observer { broadcasts ->
+            Timber.d("got broadcasts: $broadcasts")
+            broadcastListAdapter.onBroadcastsChanged(broadcasts)
         })
-    }
-
-    private fun configureBroadcastList() {
-
     }
 }

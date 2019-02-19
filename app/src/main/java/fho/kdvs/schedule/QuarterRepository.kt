@@ -14,27 +14,19 @@ class QuarterRepository @Inject constructor(showDao: ShowDao, private val prefer
     /** [LiveData] that observes all [QuarterYear]s, with the most recent first. */
     val allQuarterYearsLiveData: LiveData<List<QuarterYear>> by lazy { allQuarterYears.toLiveData() }
 
-    /** The most recent [QuarterYear] scraped. Updates with each call to to scrape the schedule grid. */
-    var currentQuarterYear: QuarterYear? = null
-        private set
-
     /** [LiveData] that observes the selected [QuarterYear]. */
     val selectedQuarterYearLiveData: LiveData<QuarterYear> get() = _selectedQuarterYearLiveData
+
+    // Fetches distinct quarter-years from the shows table, most recent first
+    private val allQuarterYears =
+        showDao.allDistinctQuarterYears()
+            .filter { !it.isEmpty() }
+            .distinctUntilChanged()
 
     /** [LiveData] that observes the currently selected [QuarterYear] */
     private val _selectedQuarterYearLiveData = MutableLiveData<QuarterYear>().apply {
         preferences.selectedQuarterYear?.let { postValue(it) }
     }
-
-    // Fetches distinct quarter-years from the shows table, most recent first
-    private val allQuarterYears = showDao.allDistinctQuarterYears().distinctUntilChanged()
-
-    // For convenience, maintain a field for the current QuarterYear
-    private val _currentQuarterYear = allQuarterYears
-        .filter { !it.isEmpty() }
-        .map { quarterYears -> quarterYears.first() }
-        .distinctUntilChanged()
-        .doOnNext { currentQuarterYear = it }
 
     /** Called whenever the user selects a new [QuarterYear] */
     fun selectQuarterYear(quarterYear: QuarterYear) {
