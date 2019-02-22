@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProviders
+import com.google.android.exoplayer2.ExoPlayer
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.databinding.FragmentHomeBinding
@@ -17,6 +18,9 @@ import javax.inject.Inject
 class HomeFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
+
+    @Inject
+    lateinit var exoPlayer: ExoPlayer
 
     private lateinit var viewModel: SharedViewModel
 
@@ -33,7 +37,7 @@ class HomeFragment : DaggerFragment() {
         )
         val view = binding.root
 
-        binding.setLifecycleOwner(requireActivity())
+        binding.lifecycleOwner = requireActivity()
         binding.viewModel = viewModel
 
         return view
@@ -41,6 +45,6 @@ class HomeFragment : DaggerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        exoPlayerView.player = viewModel.exoPlayer
+        exoPlayerView.player = exoPlayer
     }
 }

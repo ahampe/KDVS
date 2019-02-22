@@ -25,6 +25,10 @@ import android.support.v4.media.MediaMetadataCompat
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
+import fho.kdvs.global.database.BroadcastEntity
+import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.util.TimeHelper
+import fho.kdvs.global.util.URLs
 
 /**
  * Useful extensions for [MediaMetadataCompat].
@@ -90,8 +94,8 @@ inline val MediaMetadataCompat.displayIcon
 inline val MediaMetadataCompat.displayIconUri
     get() = Uri.parse(this.getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI))
 
-inline val MediaMetadataCompat.mediaUri
-    get() = Uri.parse(this.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI))
+inline val MediaMetadataCompat.mediaUri: Uri?
+    get() = getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)?.let { Uri.parse(it) }
 
 inline val MediaMetadataCompat.downloadStatus
     get() = getLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS)
@@ -268,10 +272,42 @@ fun List<MediaMetadataCompat>.toMediaSource(
 ): ConcatenatingMediaSource {
 
     val concatenatingMediaSource = ConcatenatingMediaSource()
-    forEach {
-        concatenatingMediaSource.addMediaSource(it.toMediaSource(dataSourceFactory))
+    forEach { metadata ->
+        if (metadata.mediaUri != null) {
+            concatenatingMediaSource.addMediaSource(metadata.toMediaSource(dataSourceFactory))
+        }
     }
     return concatenatingMediaSource
+}
+
+fun MediaMetadataCompat.Builder.from(
+    broadcast: BroadcastEntity,
+    show: ShowEntity
+): MediaMetadataCompat.Builder {
+    id = broadcast.broadcastId.toString()
+
+    title = if (broadcast.date != null) TimeHelper.uiDateFormatter.format(broadcast.date) else ""
+    artist = show.name
+    album = show.host
+    genre = show.genre
+    mediaUri = URLs.playlistForBroadcast(broadcast)
+    albumArtUri = broadcast.imageHref
+    trackNumber = 1
+    trackCount = 1
+    flag = MediaItem.FLAG_PLAYABLE
+
+    // To make things easier for *displaying* these, set the display properties as well.
+    displayTitle = if (broadcast.date != null) TimeHelper.uiDateFormatter.format(broadcast.date) else ""
+    displaySubtitle = show.name
+    displayDescription = show.host
+    displayIconUri = broadcast.imageHref
+
+    // Add downloadStatus to force the creation of an "extras" bundle in the resulting
+    // MediaMetadataCompat object. This is needed to send accurate metadata to the
+    // media session during updates.
+    downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
+
+    return this
 }
 
 /**

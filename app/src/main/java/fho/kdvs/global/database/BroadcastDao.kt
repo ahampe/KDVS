@@ -18,6 +18,9 @@ interface BroadcastDao {
     @Query("SELECT * from broadcastData WHERE broadcastId = :broadcastId LIMIT 1")
     fun broadcastById(broadcastId: Int): LiveData<BroadcastEntity>
 
+    @Query("SELECT * from broadcastData WHERE broadcastId = :broadcastId LIMIT 1")
+    fun getBroadcastById(broadcastId: Int): BroadcastEntity
+
     @Query("SELECT * from broadcastData WHERE showId = :showId ORDER BY date DESC")
     fun getBroadcastsForShow(showId: Int?): List<BroadcastEntity>
 
@@ -63,8 +66,8 @@ interface BroadcastDao {
 
     @Query(
         """UPDATE broadcastData
-        SET description = :description, imageHref = :imageHref, playlistUrl = :playlistUrl
+        SET description = :description, imageHref = :imageHref
         WHERE broadcastId = :broadcastId"""
     )
-    fun updateBroadcast(broadcastId: Int?, description: String?, imageHref: String?, playlistUrl: String?)
+    fun updateBroadcast(broadcastId: Int?, description: String?, imageHref: String?)
 }

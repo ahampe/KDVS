@@ -17,6 +17,8 @@ import org.jsoup.nodes.Document
 import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -178,9 +180,10 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
                 .find(imageElement?.attributes()?.html().orEmpty())
                 ?.groupValues?.getOrNull(1)?.replace("&quot;", "")
 
-            val playlistUrl = select("a[href^=http://kdvs.org/m3u]")?.firstOrNull()?.attr("href")
+            db.broadcastDao().updateBroadcast(broadcastId, desc.trim(), imageHref?.trim())
 
-            db.broadcastDao().updateBroadcast(broadcastId, desc.trim(), imageHref?.trim(), playlistUrl)
+            // Because tracks have auto-generated IDs, we have to clear any already scraped tracks to avoid dupes
+            db.trackDao().deleteByBroadcast(broadcastId)
 
             // Because tracks have auto-generated IDs, we have to clear any already scraped tracks to avoid dupes
             db.trackDao().deleteByBroadcast(broadcastId)
