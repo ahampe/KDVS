@@ -1,10 +1,11 @@
-package fho.kdvs.global.database
+package fho.kdvs.model.database.daos
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
+import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.schedule.QuarterYear
 import io.reactivex.Flowable
@@ -12,28 +13,11 @@ import org.threeten.bp.OffsetDateTime
 
 @Dao
 interface ShowDao {
-
-    // region Flowables
-
     @Query("SELECT * from showData")
     fun allShows(): Flowable<List<ShowEntity>>
 
     @Query("SELECT DISTINCT quarter, year from showData ORDER BY year DESC, quarter DESC")
     fun allDistinctQuarterYears(): Flowable<List<QuarterYear>>
-
-    @Query(
-        """SELECT * from showData
-            WHERE (timeEnd > :timeStart AND timeStart < :timeEnd OR
-            timeEnd < timeStart AND (timeEnd > :timeStart OR timeStart < :timeEnd))
-            AND quarter = :quarter AND year = :year
-            ORDER BY timeStart"""
-    )
-    fun allShowsInTimeRange(
-        timeStart: OffsetDateTime,
-        timeEnd: OffsetDateTime,
-        quarter: Quarter,
-        year: Int
-    ): Flowable<List<ShowEntity>>
 
     @Query("SELECT * from showData WHERE id = :id LIMIT 1")
     fun showById(id: Int): LiveData<ShowEntity>
@@ -57,6 +41,20 @@ interface ShowDao {
 
     @Query("SELECT DISTINCT host from showData ORDER BY host")
     fun getDistinctHosts(): List<String>
+
+    @Query(
+        """SELECT * from showData
+            WHERE (timeEnd > :timeStart AND timeStart < :timeEnd OR
+            timeEnd < timeStart AND (timeEnd > :timeStart OR timeStart < :timeEnd))
+            AND quarter = :quarter AND year = :year
+            ORDER BY timeStart, quarter, year"""
+    )
+    fun allShowsInTimeRange(
+        timeStart: OffsetDateTime,
+        timeEnd: OffsetDateTime,
+        quarter: Quarter,
+        year: Int
+    ): Flowable<List<ShowEntity>>
 
     @Query(
         """SELECT * from showData
