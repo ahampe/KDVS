@@ -21,7 +21,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
     lateinit var vmFactory: KdvsViewModelFactory
     private lateinit var viewModel: BroadcastDetailsViewModel
 
-    private lateinit var tracksAdapter: BroadcastTracksAdapter
+    private var tracksAdapter: BroadcastTracksAdapter? = null
 
     private val broadcastId: Int by lazy {
         arguments?.let { BroadcastDetailsFragmentArgs.fromBundle(it) }?.broadcastId
@@ -39,6 +39,8 @@ class BroadcastDetailsFragment : DaggerFragment() {
         viewModel = ViewModelProviders.of(this, vmFactory)
             .get(BroadcastDetailsViewModel::class.java)
             .also { it.initialize(showId, broadcastId) }
+
+        subscribeToViewModel()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -63,14 +65,12 @@ class BroadcastDetailsFragment : DaggerFragment() {
             layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             adapter = tracksAdapter
         }
-
-        subscribeToViewModel()
     }
 
     private fun subscribeToViewModel() {
         viewModel.tracks.observe(this, Observer { tracks ->
             Timber.d("Got tracks: $tracks")
-            tracksAdapter.onTracksChanged(tracks)
+            tracksAdapter?.onTracksChanged(tracks)
         })
     }
 }

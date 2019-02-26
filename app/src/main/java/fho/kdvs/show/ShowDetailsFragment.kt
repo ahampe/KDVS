@@ -22,7 +22,7 @@ class ShowDetailsFragment : DaggerFragment() {
 
     private lateinit var viewModel: ShowDetailsViewModel
 
-    private lateinit var broadcastListAdapter: ShowBroadcastsAdapter
+    private var broadcastListAdapter: ShowBroadcastsAdapter? = null
 
     // Retrieves the show ID from the arguments bundle. Throws an exception if it doesn't exist.
     private val showId: Int by lazy {
@@ -36,6 +36,8 @@ class ShowDetailsFragment : DaggerFragment() {
         viewModel = ViewModelProviders.of(this, vmFactory)
             .get(ShowDetailsViewModel::class.java)
             .also { it.initialize(showId) }
+
+        subscribeToViewModel()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -57,14 +59,12 @@ class ShowDetailsFragment : DaggerFragment() {
             layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             adapter = broadcastListAdapter
         }
-
-        subscribeToViewModel()
     }
 
     private fun subscribeToViewModel() {
         viewModel.broadcastsLiveData.observe(this, Observer { broadcasts ->
             Timber.d("got broadcasts: $broadcasts")
-            broadcastListAdapter.onBroadcastsChanged(broadcasts)
+            broadcastListAdapter?.onBroadcastsChanged(broadcasts)
         })
     }
 }
