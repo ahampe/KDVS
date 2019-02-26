@@ -6,6 +6,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import io.reactivex.Flowable
+import io.reactivex.Maybe
+import io.reactivex.Single
 
 @Dao
 interface BroadcastDao {
@@ -14,6 +16,9 @@ interface BroadcastDao {
 
     @Query("SELECT * from broadcastData WHERE showId = :showId ORDER BY date DESC")
     fun allBroadcastsForShow(showId: Int): Flowable<List<BroadcastEntity>>
+
+    @Query("SELECT * from broadcastData WHERE showId = :showId ORDER BY date DESC LIMIT 1")
+    fun getLatestBroadcastForShow(showId: Int): BroadcastEntity?
 
     @Query("SELECT * from broadcastData WHERE broadcastId = :broadcastId LIMIT 1")
     fun broadcastById(broadcastId: Int): LiveData<BroadcastEntity>

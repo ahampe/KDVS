@@ -4,8 +4,8 @@
     <data>
 
         <variable
-            name="timeslot"
-            type="fho.kdvs.schedule.TimeSlot" />
+            name="show"
+            type="fho.kdvs.global.database.ShowEntity" />
 
         <variable
             name="clickListener"
@@ -22,18 +22,20 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:padding="8dp">
 
             <ImageView
                 android:id="@+id/showImage"
-                glideHref="@{timeslot.imageHref}"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
+                android:layout_height="0dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="16dp"
                 android:adjustViewBounds="true"
+                app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:background="@drawable/show_placeholder" />
+                tools:src="@drawable/show_placeholder" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -45,10 +47,10 @@
 
                 <TextView
                     android:id="@+id/showName"
-                    showNames="@{timeslot.names}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/black"
+                    android:text="@{show.name}"
+                    android:textColor="@color/colorPrimaryDark"
                     android:textSize="30sp"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
@@ -57,15 +59,15 @@
 
                 <TextView
                     android:id="@+id/showTime"
-                    timeEnd="@{timeslot.timeEnd}"
-                    timeStart="@{timeslot.timeStart}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/colorPrimaryDark"
                     android:textSize="16sp"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/showName"
+                    app:timeEnd="@{show.timeEnd}"
+                    app:timeStart="@{show.timeStart}"
                     tools:text="00:00 AM - 02:00 PM" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>

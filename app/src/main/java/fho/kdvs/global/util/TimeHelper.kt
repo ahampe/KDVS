@@ -3,6 +3,7 @@ package fho.kdvs.global.util
 import fho.kdvs.global.enums.Day
 import org.threeten.bp.*
 import org.threeten.bp.format.DateTimeFormatter
+import java.lang.Math.abs
 import java.util.*
 
 /**
@@ -71,11 +72,26 @@ object TimeHelper {
     }
 
     /**
+     * Creates a date relative to epoch with an [OffsetDateTime] variable
+     * The date generated with this method will fall within the week defined in [TimeHelper].
+     */
+    fun makeEpochRelativeTime(time: OffsetDateTime): OffsetDateTime {
+        return makeDay(time.dayOfWeek.value - 1)
+            .plusHours(time.hour.toLong())
+            .plusMinutes(time.minute.toLong())
+            .plusSeconds(time.second.toLong())
+    }
+
+    /**
      * Creates a date given the hour and minute as Ints as well as a [Day].
      * The date generated with this method will fall within the week defined in [TimeHelper].
      */
     fun makeWeekTime(hour: Int, minute: Int, day: Day): OffsetDateTime {
         return makeWeekTime24h("$hour:$minute", day)
+    }
+
+    fun getTimeDifferenceInMs(a: OffsetDateTime, b: OffsetDateTime) : Int {
+        return abs(a.second - b.second) * 1000
     }
 
     /**
@@ -97,7 +113,7 @@ object TimeHelper {
     /** Creates a day that is [DAY_OFFSET] + [ordinal] days from epoch start. */
     private fun makeDay(ordinal: Int) = OffsetDateTime
         .ofInstant(Instant.EPOCH, UTC_ID)
-        .plusDays(DAY_OFFSET + ordinal.toLong() - 1)
+        .plusDays(DAY_OFFSET + ordinal.toLong())
 
     // endregion
 

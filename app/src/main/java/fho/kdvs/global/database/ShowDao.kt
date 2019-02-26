@@ -12,31 +12,17 @@ import org.threeten.bp.OffsetDateTime
 
 @Dao
 interface ShowDao {
-
-    // region Flowables
-
     @Query("SELECT * from showData")
     fun allShows(): Flowable<List<ShowEntity>>
 
     @Query("SELECT DISTINCT quarter, year from showData ORDER BY year DESC, quarter DESC")
     fun allDistinctQuarterYears(): Flowable<List<QuarterYear>>
 
-    @Query(
-        """SELECT * from showData
-            WHERE (timeEnd > :timeStart AND timeStart < :timeEnd OR
-            timeEnd < timeStart AND (timeEnd > :timeStart OR timeStart < :timeEnd))
-            AND quarter = :quarter AND year = :year
-            ORDER BY timeStart"""
-    )
-    fun allShowsInTimeRange(
-        timeStart: OffsetDateTime,
-        timeEnd: OffsetDateTime,
-        quarter: Quarter,
-        year: Int
-    ): Flowable<List<ShowEntity>>
-
     @Query("SELECT * from showData WHERE id = :id LIMIT 1")
     fun showById(id: Int): LiveData<ShowEntity>
+
+    @Query("SELECT DISTINCT quarter, year from showData ORDER BY year DESC, quarter DESC LIMIT 1")
+    fun currentQuarterYear(): LiveData<QuarterYear>
 
     //endregion
 
@@ -65,12 +51,34 @@ interface ShowDao {
             AND quarter = :quarter AND year = :year
             ORDER BY timeStart, quarter, year"""
     )
+    fun allShowsInTimeRange(
+        timeStart: OffsetDateTime,
+        timeEnd: OffsetDateTime,
+        quarter: Quarter,
+        year: Int
+    ): Flowable<List<ShowEntity>>
+
+    @Query(
+        """SELECT * from showData
+            WHERE (timeEnd > :timeStart AND timeStart < :timeEnd OR
+            timeEnd < timeStart AND (timeEnd > :timeStart OR timeStart < :timeEnd))
+            AND quarter = :quarter AND year = :year
+            ORDER BY timeStart, quarter, year"""
+    )
     fun getShowsInTimeRange(
         timeStart: OffsetDateTime,
         timeEnd: OffsetDateTime,
         quarter: Quarter,
         year: Int
     ): List<ShowEntity>
+
+    @Query(
+        """SELECT * from showData
+        WHERE (timeStart < :time AND timeEnd > :time OR
+        timeEnd < timeStart AND (timeEnd > :time OR timeStart < :time))
+        AND quarter = :quarter AND year = :year"""
+    )
+    fun getShowsAtTime(time: OffsetDateTime, quarter: Quarter, year: Int): List<ShowEntity>
 
     @Query(
         """SELECT DISTINCT s.* from showData s

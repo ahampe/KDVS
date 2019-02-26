@@ -2,12 +2,15 @@ package fho.kdvs.global
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.extensions.id
 import fho.kdvs.global.extensions.isPlayEnabled
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
 import fho.kdvs.global.util.URLs
 import fho.kdvs.services.MediaSessionConnection
+import fho.kdvs.show.ShowRepository
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -15,18 +18,18 @@ import javax.inject.Inject
  * Use this for data that will be consumed in many places. */
 class SharedViewModel @Inject constructor(
     application: Application,
+    private val showRepository: ShowRepository,
     private val mediaSessionConnection: MediaSessionConnection
 ) : AndroidViewModel(application) {
 
+    val currentShow: LiveData<ShowEntity>
+        get() = showRepository.playingShowLiveData
+
+    fun updateLiveShows() = showRepository.updateLiveShows()
+
+    fun fetchShows() = showRepository.fetchShows()
+
     // region playback
-
-    fun changeToWmnf() {
-        prepareLivePlayback(URLs.WMNF)
-    }
-
-    fun changeToWfmu() {
-        prepareLivePlayback(URLs.WFMU)
-    }
 
     fun changeToKdvsMp3() {
         prepareLivePlayback(URLs.LIVE_MP3)
