@@ -12,9 +12,16 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.databinding.FragmentBroadcastDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
+import fho.kdvs.global.database.BroadcastEntity
+import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.util.TimeHelper
+import fho.kdvs.global.util.URLs
+import fho.kdvs.R
 import kotlinx.android.synthetic.main.fragment_broadcast_details.*
+import org.jetbrains.anko.doAsync
 import timber.log.Timber
+import java.net.HttpURLConnection
+import java.net.URL
 import javax.inject.Inject
 
 class BroadcastDetailsFragment : DaggerFragment() {
@@ -69,9 +76,44 @@ class BroadcastDetailsFragment : DaggerFragment() {
     }
 
     private fun subscribeToViewModel() {
+        viewModel.broadcast.observe(this, Observer { broadcast ->
+            Timber.d("Got broadcast: $broadcast")
+            setPlayButton(broadcast)
+        })
+
         viewModel.tracks.observe(this, Observer { tracks ->
             Timber.d("Got tracks: $tracks")
             tracksAdapter?.onTracksChanged(tracks)
+            setTracksHeaders(tracks)
         })
+    }
+
+    private fun isConnectionAvailable(broadcast: BroadcastEntity): Boolean{
+        val streamUrl = URLs.playlistForBroadcast(broadcast)
+        val con = URL(streamUrl).openConnection() as HttpURLConnection
+        var response = HttpURLConnection.HTTP_BAD_REQUEST
+
+        doAsync {
+            con.connectTimeout = 5000
+            con.connect()
+            response = con.responseCode
+        }
+
+        return (response == HttpURLConnection.HTTP_OK)
+    }
+
+    private fun setTracksHeaders(tracks: List<TrackEntity>) {
+        if (tracks.isEmpty()) {
+            artist_header.text = resources.getText(R.string.no_tracks)
+            song_header.text = ""
+        } else {
+            artist_header.text = resources.getText(R.string.artist_header)
+            song_header.text = resources.getText(R.string.song_header)
+        }
+    }
+
+    private fun setPlayButton(broadcast: BroadcastEntity) {
+        if (isConnectionAvailable(broadcast))
+            archive_playButton.visibility = View.VISIBLE
     }
 }

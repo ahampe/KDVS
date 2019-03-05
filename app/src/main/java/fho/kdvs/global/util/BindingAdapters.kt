@@ -4,7 +4,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.exoplayer2.ui.PlayerView
 import fho.kdvs.R
@@ -17,13 +17,13 @@ import org.threeten.bp.format.DateTimeFormatter
 @BindingAdapter("glideHref")
 fun loadImageWithGlide(view: ImageView, imageHref: String?) {
     Glide.with(view)
-        .applyDefaultRequestOptions(
-            RequestOptions()
-                .apply(RequestOptions.centerCropTransform())
-                .error(R.drawable.show_placeholder)
-        )
+        .asBitmap()
         .load(imageHref)
-        .transition(DrawableTransitionOptions.withCrossFade())
+        .transition(BitmapTransitionOptions.withCrossFade())
+        .apply(RequestOptions()
+            .apply(RequestOptions.centerCropTransform())
+            .error(R.drawable.show_placeholder)
+        )
         .into(view)
 }
 

@@ -7,9 +7,11 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.R
+import fho.kdvs.global.extensions.MyDividerItemDecoration
 import kotlinx.android.synthetic.main.cell_day_column.view.*
 import timber.log.Timber
 
@@ -48,6 +50,9 @@ class WeekViewAdapter(
         holder.recyclerView.apply {
             adapter = childAdapter
             layoutManager = childLayoutManager
+
+            val dividerItemDecoration = MyDividerItemDecoration(context.getDrawable(R.drawable.timeslot_divider))
+            addItemDecoration(dividerItemDecoration)
         }
 
         day.timeSlotsLiveData.observe(fragment, Observer { timeslots ->

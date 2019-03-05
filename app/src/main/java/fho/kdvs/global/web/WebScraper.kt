@@ -96,6 +96,8 @@ class WebScraperManager @Inject constructor(
 
         val scheduleChildren = document.select("div.schedule-list > *")
 
+        var imageHrefs = mutableSetOf<String?>()
+
         scheduleChildren.forEach { element ->
             when (element.tagName()) {
                 "h2" -> day = element.html().toUpperCase()
@@ -104,7 +106,13 @@ class WebScraperManager @Inject constructor(
                         .find(element.attributes().html())
                         ?.groupValues?.getOrNull(1)
 
-                    if (imageHref == URLs.SHOW_IMAGE_PLACEHOLDER) imageHref = null
+                    // Force placeholder if duplicate image (because of kdvs.org schedule bug)
+                    // exclude recurring media shows (e.g. Democracy Now)
+                    // TODO: programmatic placeholder reference?
+                    if (imageHref in imageHrefs && !imageHref!!.contains("library.kdvs.org/media"))
+                        imageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg"
+                    else
+                        imageHrefs.add(imageHref)
 
                     // Assumes that a time-slot can have arbitrarily many alternating shows
                     val (ids, names) = "<a href=\"https://kdvs.org/past-playlists/([0-9]+)\">(.*)</a>".toRegex()
@@ -255,6 +263,8 @@ class WebScraperManager @Inject constructor(
                         !t.html().toUpperCase().contains("EMPTY PLAYLIST")
             }
             tracks.forEachIndexed { index, element ->
+                val brId = broadcastId ?: return@forEachIndexed
+
                 val trackEntity: TrackEntity
                 if (element.select("td.airbreak").isNotEmpty()) {
                     trackEntity =

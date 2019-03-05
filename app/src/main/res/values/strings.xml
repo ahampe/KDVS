@@ -37,4 +37,8 @@
     <string name="live">Live</string>
     <string name="live_template">Live %1$s</string>
     <string name="now_playing">Now Playing:</string>
+    <string name="no_tracks">No tracks available.</string>
+    <string name="artist_header">Artist</string>
+    <string name="song_header">Song</string>
+    <string name="timeslot_desc">Show image</string>
 </resources>
