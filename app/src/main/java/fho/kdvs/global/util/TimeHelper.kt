@@ -91,7 +91,11 @@ object TimeHelper {
     }
 
     fun getTimeDifferenceInMs(a: OffsetDateTime, b: OffsetDateTime) : Int {
-        return abs(a.second - b.second) * 1000
+        return abs(b.second - a.second) * 1000
+    }
+
+    fun getTimeDifferenceInHalfHours(a: OffsetDateTime?, b: OffsetDateTime?) : Int {
+        return abs(b.minute - a.minute) / 30
     }
 
     /**

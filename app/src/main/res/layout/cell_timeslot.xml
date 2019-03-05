@@ -10,13 +10,17 @@
         <variable
             name="clickListener"
             type="android.view.View.OnClickListener" />
+
+        <variable
+            name="heightMultiplier"
+            type="int" />
     </data>
 
     <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@{heightMultiplier * dimens/timeslot_halfhour_height}"
         android:onClick="@{clickListener}"
         android:padding="16dp">
 

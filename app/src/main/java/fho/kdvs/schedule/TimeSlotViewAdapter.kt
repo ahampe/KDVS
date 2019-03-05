@@ -7,6 +7,7 @@ import fho.kdvs.databinding.CellTimeslotBinding
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
+import fho.kdvs.global.util.TimeHelper
 
 /** Adapter for a single timeslot card. */
 class TimeSlotViewAdapter(onClick: (ClickData<TimeSlot>) -> Unit) :
@@ -20,10 +21,12 @@ class TimeSlotViewAdapter(onClick: (ClickData<TimeSlot>) -> Unit) :
 
     class ViewHolder(private val binding: CellTimeslotBinding) : BindingViewHolder<TimeSlot>(binding.root) {
         override fun bind(listener: View.OnClickListener, item: TimeSlot) {
+
             // TODO set height in binding based on show duration
             binding.apply {
                 clickListener = listener
                 timeslot = item
+                heightMultiplier = TimeHelper.getTimeDifferenceInHalfHours(item.timeStart, item.timeEnd)
             }
         }
     }
