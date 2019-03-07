@@ -3,6 +3,7 @@ package fho.kdvs.schedule
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.BindingAdapter
 import fho.kdvs.databinding.CellTimeslotBinding
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
@@ -21,12 +22,9 @@ class TimeSlotViewAdapter(onClick: (ClickData<TimeSlot>) -> Unit) :
 
     class ViewHolder(private val binding: CellTimeslotBinding) : BindingViewHolder<TimeSlot>(binding.root) {
         override fun bind(listener: View.OnClickListener, item: TimeSlot) {
-
-            // TODO set height in binding based on show duration
             binding.apply {
                 clickListener = listener
                 timeslot = item
-                heightMultiplier = TimeHelper.getTimeDifferenceInHalfHours(item.timeStart, item.timeEnd)
             }
         }
     }

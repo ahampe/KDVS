@@ -3,6 +3,7 @@ package fho.kdvs.global.util
 import fho.kdvs.global.enums.Day
 import org.threeten.bp.*
 import org.threeten.bp.format.DateTimeFormatter
+import org.threeten.bp.temporal.ChronoUnit
 import java.lang.Math.abs
 import java.util.*
 
@@ -90,12 +91,12 @@ object TimeHelper {
         return makeWeekTime24h("$hour:$minute", day)
     }
 
-    fun getTimeDifferenceInMs(a: OffsetDateTime, b: OffsetDateTime) : Int {
-        return abs(b.second - a.second) * 1000
+    fun getTimeDifferenceInMs(a: OffsetDateTime, b: OffsetDateTime) : Long {
+        return abs(ChronoUnit.SECONDS.between(b, a)) * 1000
     }
 
-    fun getTimeDifferenceInHalfHours(a: OffsetDateTime?, b: OffsetDateTime?) : Int {
-        return abs(b.minute - a.minute) / 30
+    fun getTimeDifferenceInHalfHours(a: OffsetDateTime, b: OffsetDateTime) : Int {
+        return (abs(ChronoUnit.MINUTES.between(b, a)) / 30).toInt()
     }
 
     /**

@@ -8,19 +8,22 @@
             type="fho.kdvs.schedule.TimeSlot" />
 
         <variable
+            name="timeslotHeight"
+            type="int" />
+
+        <variable
             name="clickListener"
             type="android.view.View.OnClickListener" />
 
-        <variable
-            name="heightMultiplier"
-            type="int" />
+        <import type="fho.kdvs.global.util.TimeHelper" />
     </data>
 
     <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="@{heightMultiplier * dimens/timeslot_halfhour_height}"
+        timeslotHeight="@{(timeslotHeight)TimeHelper.getTimeDifferenceInHalfHours(timeslot.timeStart, timeslot.timeEnd)}"
+        android:layout_height="@dimen/timeslot_halfhour_height"
         android:onClick="@{clickListener}"
         android:padding="16dp">
 
@@ -33,15 +36,16 @@
                 android:id="@+id/showImage"
                 glideHref="@{timeslot.imageHref}"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
+                android:layout_height="match_parent"
                 android:adjustViewBounds="true"
+                android:alpha="0.5"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:background="@drawable/show_placeholder" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/timeslot_halfhour_height"
                 android:background="@color/colorPrimary50a"
                 android:orientation="vertical"
                 android:padding="8dp"
@@ -52,7 +56,7 @@
                     showNames="@{timeslot.names}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/black"
+                    android:textColor="@android:color/white"
                     android:textSize="30sp"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
