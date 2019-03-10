@@ -27,10 +27,16 @@ class KdvsPreferences @Inject constructor(application: Application) {
         // choice of mp3, ogg, aac
         STREAM_URL,
 
-        // last date/time of scrape
-        LAST_SCRAPE,
+        // last date/time of schedule scrape
+        LAST_SCHEDULE_SCRAPE,
 
-        // scrape frequency (5, 15, 30, 60 minutes?)
+        // last date/time of show scrape (concat with show ID)
+        LAST_SHOW_SCRAPE,
+
+        // last date/time of broadcast scrape (concat with broadcast ID)
+        LAST_BROADCAST_SCRAPE,
+
+        // scrape frequency (5, 15, 30, 60 minutes in seconds)
         SCRAPE_FREQUENCY,
 
         // to persist user's selection of quarter (internally a String) and year (an Int)
@@ -44,8 +50,31 @@ class KdvsPreferences @Inject constructor(application: Application) {
 
     var streamUrl: String? by StringPreference(Key.STREAM_URL)
 
-    var lastScrapeDate: Long? by LongPreference(Key.LAST_SCRAPE)
+    var lastScheduleScrape: Long? by LongPreference(Key.LAST_SCHEDULE_SCRAPE)
 
+    fun getLastShowScrape(showId: String): Long? {
+        val pref by LongPreference(Key.LAST_SHOW_SCRAPE, showId)
+        return pref
+    }
+
+    fun setLastShowScrape(showId: String, value: Long) {
+        var pref by LongPreference(Key.LAST_SHOW_SCRAPE, showId)
+        // lint complains about this, but it is not aware that the setter delegate has an important side effect
+        pref = value
+    }
+
+    fun getLastBroadcastScrape(broadcastId: String): Long? {
+        val pref by LongPreference(Key.LAST_BROADCAST_SCRAPE, broadcastId)
+        return pref
+    }
+
+    fun setLastBroadcastScrape(broadcastId: String, value : Long) {
+        var pref by LongPreference(Key.LAST_BROADCAST_SCRAPE, broadcastId)
+        // lint complains about this, but it is not aware that the setter delegate has an important side effect
+        pref = value
+    }
+
+    /** Frequency of any type of scrape, in minutes. */
     var scrapeFrequency: Long? by LongPreference(Key.SCRAPE_FREQUENCY)
 
     /** Convenience property to get the selected [QuarterYear] */
@@ -76,38 +105,44 @@ class KdvsPreferences @Inject constructor(application: Application) {
     fun clearAll() = preferences.edit().clear().apply()
 
     // region property delegates
-    inner class StringPreference(key: Key) : QuickPreference<String>(key) {
+    inner class StringPreference(key: Key, suffix: String = "") : QuickPreference<String>(key, suffix) {
         override fun getValue(thisRef: Any?, property: KProperty<*>): String? =
-            preferences.getString(key.name, null)
+            preferences.getString(key.name + suffix, null)
     }
 
-    inner class BooleanPreference(key: Key) : QuickPreference<Boolean>(key) {
-        override fun getValue(thisRef: Any?, property: KProperty<*>): Boolean? = preferences.optBoolean(key.name)
+    inner class BooleanPreference(key: Key, suffix: String = "") : QuickPreference<Boolean>(key, suffix) {
+        override fun getValue(thisRef: Any?, property: KProperty<*>): Boolean? =
+            preferences.optBoolean(key.name + suffix)
     }
 
-    inner class IntPreference(key: Key) : QuickPreference<Int>(key) {
-        override fun getValue(thisRef: Any?, property: KProperty<*>): Int? = preferences.optInt(key.name)
+    inner class IntPreference(key: Key, suffix: String = "") : QuickPreference<Int>(key, suffix) {
+        override fun getValue(thisRef: Any?, property: KProperty<*>): Int? =
+            preferences.optInt(key.name + suffix)
     }
 
-    inner class LongPreference(key: Key) : QuickPreference<Long>(key) {
-        override fun getValue(thisRef: Any?, property: KProperty<*>): Long? = preferences.optLong(key.name)
+    inner class LongPreference(key: Key, suffix: String = "") : QuickPreference<Long>(key, suffix) {
+        override fun getValue(thisRef: Any?, property: KProperty<*>): Long? =
+            preferences.optLong(key.name + suffix)
     }
 
     abstract inner class QuickPreference<T>(
-        internal val key: Key
+        internal val key: Key,
+        internal val suffix: String
     ) : ReadWriteProperty<Any?, T?> {
 
         override fun setValue(thisRef: Any?, property: KProperty<*>, value: T?) {
+            val fullKey = key.name + suffix
+
             if (value == null) {
-                preferences.edit().remove(key.name).apply()
+                preferences.edit().remove(fullKey).apply()
             } else {
                 preferences.edit().apply {
                     when (value) {
-                        is String -> putString(key.name, value)
-                        is Boolean -> putBoolean(key.name, value)
-                        is Long -> putLong(key.name, value)
-                        is Int -> putInt(key.name, value)
-                        is Float -> putFloat(key.name, value)
+                        is String -> putString(fullKey, value)
+                        is Boolean -> putBoolean(fullKey, value)
+                        is Long -> putLong(fullKey, value)
+                        is Int -> putInt(fullKey, value)
+                        is Float -> putFloat(fullKey, value)
                         else -> return
                     }
                 }.apply()

@@ -6,73 +6,93 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import io.reactivex.Flowable
-import io.reactivex.Maybe
-import io.reactivex.Single
+import org.threeten.bp.LocalDate
 
 @Dao
-interface BroadcastDao {
+abstract class BroadcastDao {
     @Query("SELECT * from broadcastData")
-    fun getAll(): List<BroadcastEntity>
+    abstract fun getAll(): List<BroadcastEntity>
 
     @Query("SELECT * from broadcastData WHERE showId = :showId ORDER BY date DESC")
-    fun allBroadcastsForShow(showId: Int): Flowable<List<BroadcastEntity>>
+    abstract fun allBroadcastsForShow(showId: Int): Flowable<List<BroadcastEntity>>
 
     @Query("SELECT * from broadcastData WHERE showId = :showId ORDER BY date DESC LIMIT 1")
-    fun getLatestBroadcastForShow(showId: Int): BroadcastEntity?
+    abstract fun latestBroadcastForShow(showId: Int): LiveData<BroadcastEntity>
+
+    @Query("SELECT * from broadcastData WHERE showId = :showId ORDER BY date DESC LIMIT 1")
+    abstract fun getLatestBroadcastForShow(showId: Int): BroadcastEntity?
 
     @Query("SELECT * from broadcastData WHERE broadcastId = :broadcastId LIMIT 1")
-    fun broadcastById(broadcastId: Int): LiveData<BroadcastEntity>
+    abstract fun broadcastById(broadcastId: Int): LiveData<BroadcastEntity>
 
     @Query("SELECT * from broadcastData WHERE broadcastId = :broadcastId LIMIT 1")
-    fun getBroadcastById(broadcastId: Int): BroadcastEntity
+    abstract fun getBroadcastById(broadcastId: Int): BroadcastEntity?
 
     @Query("SELECT * from broadcastData WHERE showId = :showId ORDER BY date DESC")
-    fun getBroadcastsForShow(showId: Int?): List<BroadcastEntity>
+    abstract fun getBroadcastsForShow(showId: Int?): List<BroadcastEntity>
 
     @Query(
         """SELECT DISTINCT b.* from broadcastData b
             inner join trackData t on t.broadcastId = b.broadcastId
             WHERE t.artist = :artist"""
     )
-    fun getBroadcastsByArtist(artist: String?): List<BroadcastEntity>
+    abstract fun getBroadcastsByArtist(artist: String?): List<BroadcastEntity>
 
     @Query(
         """SELECT DISTINCT b.* from broadcastData b
             inner join trackData t on t.broadcastId = b.broadcastId
             WHERE t.album = :album"""
     )
-    fun getBroadcastsByAlbum(album: String?): List<BroadcastEntity>
+    abstract fun getBroadcastsByAlbum(album: String?): List<BroadcastEntity>
 
     @Query(
         """SELECT DISTINCT b.* from broadcastData b
             inner join trackData t on t.broadcastId = b.broadcastId
             WHERE t.artist = :artist AND t.album = :album"""
     )
-    fun getBroadcastsByArtistAlbum(artist: String?, album: String?): List<BroadcastEntity>
+    abstract fun getBroadcastsByArtistAlbum(artist: String?, album: String?): List<BroadcastEntity>
 
     @Query(
         """SELECT DISTINCT b.* from broadcastData b
             inner join trackData t on t.broadcastId = b.broadcastId
             WHERE t.label = :label"""
     )
-    fun getBroadcastsByLabel(label: String?): List<BroadcastEntity>
+    abstract fun getBroadcastsByLabel(label: String?): List<BroadcastEntity>
 
     @Insert(onConflict = REPLACE)
-    fun insert(broadcastEntity: BroadcastEntity)
+    abstract fun insert(broadcastEntity: BroadcastEntity)
 
     @Query("DELETE from broadcastData")
-    fun deleteAll()
+    abstract fun deleteAll()
 
     @Query("DELETE from broadcastData WHERE broadcastId = :broadcastId")
-    fun deleteBroadcast(broadcastId: Int?)
+    abstract fun deleteBroadcast(broadcastId: Int?)
 
     @Query("DELETE from broadcastData WHERE showId = :showId")
-    fun deleteBroadcastsForShow(showId: Int?)
+    abstract fun deleteBroadcastsForShow(showId: Int?)
 
+    /** Updates a broadcast from information only visible from the show details page. */
+    @Query(
+        """UPDATE broadcastData
+        SET showId = :showId, date = :date
+        WHERE broadcastId = :broadcastId
+    """
+    )
+    abstract fun updateBroadcastInfo(broadcastId: Int, showId: Int, date: LocalDate?)
+
+    /** Updates a broadcast with info retrieved from its details page. */
     @Query(
         """UPDATE broadcastData
         SET description = :description, imageHref = :imageHref
         WHERE broadcastId = :broadcastId"""
     )
-    fun updateBroadcast(broadcastId: Int?, description: String?, imageHref: String?)
+    abstract fun updateBroadcastDetails(broadcastId: Int?, description: String?, imageHref: String?)
+
+    fun updateOrInsert(broadcast: BroadcastEntity) {
+        if (getBroadcastById(broadcast.broadcastId) != null) {
+            updateBroadcastInfo(broadcast.broadcastId, broadcast.showId, broadcast.date)
+        } else {
+            insert(broadcast)
+        }
+    }
 }

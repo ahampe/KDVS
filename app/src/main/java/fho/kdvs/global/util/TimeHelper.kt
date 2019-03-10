@@ -19,10 +19,6 @@ object TimeHelper {
     private val UTC_ID = ZoneId.of("UTC")
     private val UTC_OFFSET = ZoneOffset.UTC
 
-    // TODO might not use
-//    private val LOCAL_ID = ZoneId.of("America/Los_Angeles")
-//    private val LOCAL_RULES = LOCAL_ID.rules
-
     /**
      * Formatter that will be used for parsing broadcast datetimes.
      * Uses local date time pattern, e.g., '2011-12-03'
@@ -37,15 +33,9 @@ object TimeHelper {
         .ofPattern("hh:mm a", Locale.US)
         .withZone(UTC_ID)
 
-    // TODO maybe delete
-    /** Formatter that will be used throughout the app for parsing show times with the day of month. */
-    private val dayTimeFormatter = DateTimeFormatter
-        .ofPattern("d HH:mm", Locale.US)
-        .withZone(UTC_ID)
-
     // region Week Times (for Show entities)
-    /** Offset in days from Jan 1 1970. Necessary because we want the week to begin on Sunday. */
-    private const val DAY_OFFSET = 4
+    /** Offset in days from Jan 1 1970. Necessary because we want the week to begin on Sunday, Jan 4. */
+    private const val DAY_OFFSET = 3
 
     // private helpers for converting between 12 and 24 hour times
     private val time12h = DateTimeFormatter.ofPattern("h:mm a", Locale.US)
@@ -66,7 +56,7 @@ object TimeHelper {
      */
     fun makeWeekTime24h(time: String, day: Day): OffsetDateTime {
         val paddedTime = time.padStart(5, '0')
-        val dayOfMonth = (day.ordinal + DAY_OFFSET).toString().padStart(2, '0')
+        val dayOfMonth = (day.ordinal + DAY_OFFSET + 1).toString().padStart(2, '0')
         return LocalDateTime.parse("1970-01-${dayOfMonth}T$paddedTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME)
             .atOffset(UTC_OFFSET)
     }
@@ -76,22 +66,10 @@ object TimeHelper {
      * The date generated with this method will fall within the week defined in [TimeHelper].
      */
     fun makeEpochRelativeTime(time: OffsetDateTime): OffsetDateTime {
-        return makeDay(time.dayOfWeek.value - 1)
+        return makeDay(time.dayOfWeek.value % 7)
             .plusHours(time.hour.toLong())
             .plusMinutes(time.minute.toLong())
             .plusSeconds(time.second.toLong())
-    }
-
-    /**
-     * Creates a date given the hour and minute as Ints as well as a [Day].
-     * The date generated with this method will fall within the week defined in [TimeHelper].
-     */
-    fun makeWeekTime(hour: Int, minute: Int, day: Day): OffsetDateTime {
-        return makeWeekTime24h("$hour:$minute", day)
-    }
-
-    fun getTimeDifferenceInMs(a: OffsetDateTime, b: OffsetDateTime) : Int {
-        return abs(a.second - b.second) * 1000
     }
 
     /**

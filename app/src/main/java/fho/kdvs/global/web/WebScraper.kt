@@ -9,7 +9,9 @@ import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.enums.enumValueOrDefault
 import fho.kdvs.global.extensions.listOfNulls
+import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
+import fho.kdvs.global.util.URLs
 import fho.kdvs.schedule.QuarterYear
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,11 +28,18 @@ import kotlin.coroutines.CoroutineContext
 
 /** This class will handle the scraping for each web page and will insert items into the database one by one. */
 @Singleton
-class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : CoroutineScope {
+class WebScraperManager @Inject constructor(
+    private val db: KdvsDatabase,
+    private val kdvsPreferences: KdvsPreferences
+) : CoroutineScope {
+
     private val job = Job()
 
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.IO
+
+    /** A map of the currently running jobs. */
+    private val urlMap = mutableMapOf<String, Job>()
 
     /**
      * Launches a coroutine that will scrape either the schedule grid, a show's details page, or a broadcast's details page.
@@ -39,10 +48,20 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
      * This should be the preferred method for scraping in general, unless a background process needs the result of a scrape call.
      * In that case, [scrapeBlocking] should be used.
      */
-    fun scrape(url: String): Job? = launch { scrapeBlocking(url) }
+    fun scrape(url: String): Job? {
+        if (urlMap[url]?.isActive == true) {
+            Timber.d("Already scraping url $url; exiting...")
+            return null
+        }
+
+        return launch { scrapeBlocking(url) }.also {
+            urlMap[url] = it
+        }
+    }
 
     /** Runs a blocking version of [scrape] and returns a [ScrapeData]. This should not be called from the main thread. */
     fun scrapeBlocking(url: String): ScrapeData? = try {
+        Timber.d("Scraping: $url")
         val document = Jsoup.connect(url).get()
 
         when {
@@ -54,6 +73,8 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
     } catch (e: Throwable) {
         Timber.d("Error while trying to connect: $e") // TODO reflect error in UI
         null
+    } finally {
+        urlMap.remove(url)
     }
 
     private fun scrapeSchedule(document: Document): ScheduleScrapeData {
@@ -79,9 +100,11 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
             when (element.tagName()) {
                 "h2" -> day = element.html().toUpperCase()
                 "div" -> {
-                    val imageHref = """background-image:\s*url\(&quot;(.*)&quot;\)""".toRegex()
+                    var imageHref = """background-image:\s*url\(&quot;(.*)&quot;\)""".toRegex()
                         .find(element.attributes().html())
                         ?.groupValues?.getOrNull(1)
+
+                    if (imageHref == URLs.SHOW_IMAGE_PLACEHOLDER) imageHref = null
 
                     // Assumes that a time-slot can have arbitrarily many alternating shows
                     val (ids, names) = "<a href=\"https://kdvs.org/past-playlists/([0-9]+)\">(.*)</a>".toRegex()
@@ -122,13 +145,17 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
                             year = year
                         )
 
-                        db.showDao().insert(showEntity)
                         showsScraped.add(showEntity)
                     }
                 }
             }
         }
 
+        showsScraped.forEach { show ->
+            db.showDao().updateOrInsert(show)
+        }
+
+        kdvsPreferences.lastScheduleScrape = OffsetDateTime.now().toEpochSecond()
         return ScheduleScrapeData(QuarterYear(quarter, year), showsScraped)
     }
 
@@ -146,7 +173,7 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
         val genreHeaderNode = document.select("div.grid_6 h3:contains(Genre)")?.firstOrNull()
         val genre = if (genreHeaderNode == null) "" else genreHeaderNode.nextElementSibling()?.parseHtml()
 
-        db.showDao().updateShowInfo(showId, host, genre, defaultDesc)
+        db.showDao().updateShowDetails(showId, host, genre, defaultDesc)
 
         val broadcastsScraped = mutableListOf<BroadcastEntity>()
 
@@ -170,11 +197,15 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
                     date = TimeHelper.makeLocalDate(year, month, day)
                 )
 
-                db.broadcastDao().insert(broadcastData)
                 broadcastsScraped.add(broadcastData)
             }
         }
 
+        broadcastsScraped.forEach { broadcast ->
+            db.broadcastDao().updateOrInsert(broadcast)
+        }
+
+        kdvsPreferences.setLastShowScrape(showId.toString(), OffsetDateTime.now().toEpochSecond())
         return ShowScrapeData(broadcastsScraped)
     }
 
@@ -182,7 +213,7 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
         val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
 
         val broadcastId = "kdvs.org/playlist-details/([0-9]+)".toRegex()
-            .find(url.orEmpty())?.groupValues?.getOrNull(1)?.toInt()
+            .find(url.orEmpty())?.groupValues?.getOrNull(1)?.toInt() ?: return null
 
         val tracksScraped = mutableListOf<TrackEntity>()
 
@@ -196,11 +227,24 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
             }
 
             val imageElement = select("div.showcase-image")?.firstOrNull()
-            val imageHref = """"background-image: url\('(.*)'\)""".toRegex()
+            var imageHref = """"background-image: url\('(.*)'\)""".toRegex()
                 .find(imageElement?.attributes()?.html().orEmpty())
-                ?.groupValues?.getOrNull(1)?.replace("&quot;", "")
+                ?.groupValues?.getOrNull(1)?.trim()?.replace("&quot;", "")
 
-            db.broadcastDao().updateBroadcast(broadcastId, desc.trim(), imageHref?.trim())
+            if (imageHref == URLs.SHOW_IMAGE_PLACEHOLDER) imageHref = null
+
+            db.broadcastDao().updateBroadcastDetails(broadcastId, desc.trim(), imageHref)
+
+            // If the show doesn't have an imageHref, and this is the most recent broadcast, set it
+            val showId = db.broadcastDao().getBroadcastById(broadcastId)?.showId
+            if (showId != null && imageHref != null &&
+                broadcastId == db.broadcastDao().getLatestBroadcastForShow(showId)?.broadcastId
+            ) {
+                val showHref = db.showDao().getShowById(showId)?.defaultImageHref
+                if (showHref.isNullOrEmpty()) {
+                    db.showDao().updateShowDefaultImageHref(showId, imageHref)
+                }
+            }
 
             // Because tracks have auto-generated IDs, we have to clear any already scraped tracks to avoid dupes
             db.trackDao().deleteByBroadcast(broadcastId)
@@ -211,12 +255,10 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
                         !t.html().toUpperCase().contains("EMPTY PLAYLIST")
             }
             tracks.forEachIndexed { index, element ->
-                val brId = broadcastId ?: return@forEachIndexed
-
                 val trackEntity: TrackEntity
                 if (element.select("td.airbreak").isNotEmpty()) {
                     trackEntity =
-                        TrackEntity(broadcastId = brId, position = index, airbreak = true)
+                        TrackEntity(broadcastId = broadcastId, position = index, airbreak = true)
                 } else {
                     val artist = element?.select("td")?.getOrNull(0)?.parseHtml()
                     val song = element?.select("td")?.getOrNull(1)?.parseHtml()
@@ -225,7 +267,7 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
                     val comment = element?.select("td")?.getOrNull(4)?.parseHtml()
 
                     trackEntity = TrackEntity(
-                        broadcastId = brId,
+                        broadcastId = broadcastId,
                         position = index,
                         artist = artist,
                         song = song,
@@ -240,6 +282,7 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
             }
         }
 
+        kdvsPreferences.setLastBroadcastScrape(broadcastId.toString(), OffsetDateTime.now().toEpochSecond())
         return PlaylistScrapeData(tracksScraped)
     }
 
@@ -264,6 +307,10 @@ class WebScraperManager @Inject constructor(private val db: KdvsDatabase) : Coro
         scrapePlaylist(document)
     }
 
+    companion object {
+        private const val MINUTE_IN_SECONDS = 60L
+        const val DEFAULT_SCRAPE_FREQ = 15L * MINUTE_IN_SECONDS
+    }
 }
 
 //region Helper Methods

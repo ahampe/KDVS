@@ -23,7 +23,7 @@ class PlaylistScraperTest : ScraperTest() {
         super.setup()
 
         `when`(
-            broadcastDao.updateBroadcast(
+            broadcastDao.updateBroadcastDetails(
                 TestUtils.any(), TestUtils.any(), TestUtils.any()
             )
         ).thenAnswer {

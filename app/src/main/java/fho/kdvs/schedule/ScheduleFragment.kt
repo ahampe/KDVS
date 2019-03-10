@@ -55,50 +55,13 @@ class ScheduleFragment : DaggerFragment() {
         weekLayoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             .also { weekRecyclerView.layoutManager = it }
 
-        // Listen for changes to the quarter-year
-        quarterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val newQuarterYear = parent?.adapter?.getItem(position) as? QuarterYear ?: return
-                Timber.d("Selected $newQuarterYear")
-                viewModel.selectQuarterYear(newQuarterYear)
-            }
-        }
-
         // Scroll to today, only when the fragment is first created
         // TODO this could be done with a custom layout manager, without the ugly boolean
         if (scrollingToToday) {
             weekLayoutManager?.scrollToPosition(LocalDate.now().dayOfWeek.value)
             scrollingToToday = false
         }
-
-        // TODO doesn't work... need to scroll when the adapter is ready
-        // Scroll to the same approximate location in the inner recycler
-//        val dayStartPos = savedInstanceState?.optInt(DAY_SCROLL_POS)
-//        dayStartPos?.let {
-//            val todayViewHolder = weekRecyclerView.findViewHolderForAdapterPosition(weekStartPos) as? ViewHolder
-//            val todayLayoutManager = todayViewHolder?.recyclerView?.layoutManager as? LinearLayoutManager
-//
-//            todayLayoutManager?.scrollToPosition(dayStartPos)
-//        }
     }
-
-//    override fun onSaveInstanceState(outState: Bundle) {
-//        // get position within Week Recycler
-//        val posInWeek = weekLayoutManager?.findFirstVisibleItemPosition() ?: return
-//
-//        // save position within Day Recycler TODO get this to work
-//        val currentViewHolder =
-//            weekRecyclerView?.findViewHolderForAdapterPosition(posInWeek) as? WeekViewAdapter.ViewHolder
-//        val currentLayoutManager = currentViewHolder?.recyclerView?.layoutManager as? LinearLayoutManager
-//        val posInDay = currentLayoutManager?.findFirstVisibleItemPosition()
-//        if (posInDay != null && posInDay != RecyclerView.NO_POSITION) {
-//            outState.putInt(DAY_SCROLL_POS, posInDay)
-//        }
-//
-//        super.onSaveInstanceState(outState)
-//    }
 
     /** Reconfigures the week recycler view. Use when the quarter-year changes or the fragment is recreated. */
     private fun configureWeekView() {
@@ -146,21 +109,6 @@ class ScheduleFragment : DaggerFragment() {
         })
     }
 
-    /** Reconfigures the quarter picker. Automatically invoked when the list of quarters changes. */
-    private fun configureQuarterSpinner(quarterYears: List<QuarterYear>) {
-        // No use showing the spinner if there's 0 or 1 quarters
-        if (quarterYears.size <= 1) {
-            quarterSpinner.visibility = View.GONE
-            return
-        } else {
-            quarterSpinner.visibility = View.VISIBLE
-        }
-
-        quarterSpinner.adapter = ArrayAdapter<QuarterYear>(
-            requireContext(), android.R.layout.simple_spinner_dropdown_item, quarterYears
-        )
-    }
-
     /** This is where any [LiveData] in the ViewModel should be hooked up to [Observer]s. */
     private fun subscribeToViewModel() {
         val fragment = this
@@ -172,8 +120,7 @@ class ScheduleFragment : DaggerFragment() {
             })
 
             // When new quarter-years happen (which should only happen when a new quarter starts), update the spinner
-            allQuarterYearsLiveData.observe(fragment, Observer { quarterYears ->
-                configureQuarterSpinner(quarterYears)
+            allQuarterYearsLiveData.observe(fragment, Observer {
                 configureWeekView()
             })
         }
@@ -183,11 +130,5 @@ class ScheduleFragment : DaggerFragment() {
     inner class DayInfo(day: Day, quarter: Quarter, year: Int) {
         val dayName = day.name
         val timeSlotsLiveData: LiveData<List<TimeSlot>> = viewModel.getShowsForDay(day, quarter, year)
-    }
-
-    companion object {
-        // saved instance state keys:
-        const val WEEK_SCROLL_POS = "WEEK_SCROLL_POS"
-        const val DAY_SCROLL_POS = "DAY_SCROLL_POS"
     }
 }

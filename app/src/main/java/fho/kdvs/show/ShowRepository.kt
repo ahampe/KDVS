@@ -1,8 +1,11 @@
 package fho.kdvs.show
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import fho.kdvs.broadcast.BroadcastRepository
+import fho.kdvs.global.BaseRepository
+import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowDao
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.enums.Day
@@ -10,68 +13,84 @@ import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
-import fho.kdvs.global.web.ScheduleScrapeData
 import fho.kdvs.global.web.WebScraperManager
 import fho.kdvs.schedule.TimeSlot
+import fho.kdvs.services.KdvsPlaybackPreparer
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.threeten.bp.DayOfWeek
-import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
-import org.threeten.bp.temporal.ChronoUnit
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.coroutines.CoroutineContext
 
 @Singleton
 class ShowRepository @Inject constructor(
     private val showDao: ShowDao,
     private val scraperManager: WebScraperManager,
     private val broadcastRepository: BroadcastRepository,
+    private val playbackPreparer: KdvsPlaybackPreparer,
     private val kdvsPreferences: KdvsPreferences
-) : CoroutineScope {
+) : BaseRepository() {
 
-    private val job = Job()
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO + job
+    /**
+     * [MutableLiveData] listening for the currently playing show.
+     * Whenever the value is set, a request to scrape its details is sent to [BroadcastRepository].
+     */
+    val playingShowLiveData = object : MutableLiveData<ShowEntity>() {
+        override fun setValue(value: ShowEntity?) {
+            value?.let { broadcastRepository.scrapeShow(it.id.toString()) }
+            super.setValue(value)
+        }
+    }
 
-    val playingShowLiveData = MutableLiveData<ShowEntity>()
+    /** [MutableLiveData] listening for the show immediately following the current one. */
     val nextShowLiveData = MutableLiveData<ShowEntity>()
 
-    /** Asynchronously updates the [playingShowLiveData] and [nextShowLiveData] based on the current time. */
-    fun updateLiveShows(): Job = launch {
-        val scheduleTime = TimeHelper.makeEpochRelativeTime(OffsetDateTime.now())
+    /** A [MediatorLiveData] which merges the live show and live broadcast. */
+    private val liveStreamLiveData = MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>()
+        .apply {
+            var broadcast: BroadcastEntity? = null
+            var show: ShowEntity? = null
 
-        // If we have the next show, we can use its value to update the live show
-        val upcomingShow = nextShowLiveData.value
-        val currentShow = (if (upcomingShow != null) {
-            val nextShowStart = upcomingShow.timeStart ?: OffsetDateTime.MAX
+            addSource(playingShowLiveData) { showEntity ->
+                show = showEntity
+                postValue(Pair(showEntity, broadcast))
+            }
 
-            // If the next show hasn't started yet, don't update and exit early
-            if (scheduleTime < nextShowStart) return@launch
+            addSource(broadcastRepository.liveBroadcastLiveData) { broadcastEntity ->
+                broadcast = broadcastEntity
+                val showEntity = show ?: return@addSource
+                postValue(Pair(showEntity, broadcastEntity))
+            }
+        }
 
-            // Special case when it's Saturday night and the next show starts Sunday morning:
-            if (scheduleTime.dayOfWeek == DayOfWeek.SATURDAY && nextShowStart.dayOfWeek == DayOfWeek.SUNDAY) return@launch
+    init {
+        liveStreamLiveData.observeForever { (show, broadcast) ->
+            Timber.d("updating metadata for ${show.name} ${broadcast?.date}")
+            playbackPreparer.changeLiveMetadata(show, broadcast, isLiveNow.value ?: false)
+        }
+    }
 
-            // If we've reached this point, we can safely update the playingShow
-            upcomingShow
+    /** Runs a schedule scrape if it hasn't been fetched recently. */
+    fun scrapeSchedule() = launch {
+        val now = OffsetDateTime.now().toEpochSecond()
+        val lastScrape = kdvsPreferences.lastScheduleScrape ?: 0L
+        val scrapeFreq = kdvsPreferences.scrapeFrequency ?: WebScraperManager.DEFAULT_SCRAPE_FREQ
+
+        if (now - lastScrape > scrapeFreq) {
+            forceScrapeSchedule()?.join()
         } else {
-            // Have to determine current show from database
-            getShowAtTime(scheduleTime)
-        }) ?: return@launch
-
-        playingShowLiveData.postValue(currentShow)
+            Timber.d("Schedule has already been scraped recently; skipping")
+        }
     }
 
-    /** Call when refreshing or initializing schedule views to fetch the most recent data. */
-    fun fetchShows() {
-        // TODO check last scrape time (SharedPrefs)
-        scraperManager.scrape(URLs.SCHEDULE)
-    }
+    /**
+     * Runs a schedule scrape without checking when it was last performed.
+     * The only acceptable public usage of this method is when user explicitly refreshes.
+     */
+    fun forceScrapeSchedule(): Job? = scraperManager.scrape(URLs.SCHEDULE)
 
     /** Fetches a [LiveData] that will wrap the show matching the provided ID. */
     fun showById(showId: Int): LiveData<ShowEntity> =
@@ -92,57 +111,5 @@ class ShowRepository @Inject constructor(
                         TimeSlot(showGroup)
                     }
             }
-    }
-
-    private suspend fun getShowAtTime(time: OffsetDateTime): ShowEntity? {
-        // ensure that the quarter and year we're using are up to date, as well as the shows
-        val scrapeData = scraperManager.scrapeBlocking(URLs.SCHEDULE) as? ScheduleScrapeData ?: return null
-        val quarter = scrapeData.quarterYear.quarter
-        val year = scrapeData.quarterYear.year
-
-        val allShowsAtTime = showDao.getShowsAtTime(time, quarter, year)
-        if (allShowsAtTime.isEmpty()) return null
-
-        if (allShowsAtTime.size == 1) {
-            // easy case where only one show exists in this time slot
-            return allShowsAtTime.first()
-        }
-
-        // If there are more than two shows in this TimeSlot, we need to find which one is scheduled this week.
-        // First we need to scrape each show for the most recent broadcast, and wait for each to complete
-        val jobs = mutableListOf<Job?>()
-        allShowsAtTime.forEach { show ->
-            jobs += broadcastRepository.fetchBroadcastsForShow(show.id.toString())
-        }
-        jobs.forEach { it?.join() }
-
-        // Now get the most recent broadcasts, if they exist
-        val latestBroadcasts = allShowsAtTime.mapNotNull { show ->
-            broadcastRepository.getLatestBroadcastForShow(show.id)
-        }
-
-        return when (latestBroadcasts.size) {
-            0 -> {
-                // If we have no broadcasts to work with, just assume that one of the shows is the current one
-                allShowsAtTime.first()
-            }
-            1 -> {
-                // If only one show has broadcasts at this point, it is probably the current one
-                allShowsAtTime.find { it.id == latestBroadcasts.first().showId }
-            }
-            else -> {
-                // First attempt to match the broadcast dates with the current date
-                // Even if the dates don't match exactly, they will be equal by (difference in weeks) % (number of shows in timeslot)
-                val n = allShowsAtTime.size
-                val now = LocalDate.now()
-
-                val matchingBroadcast = latestBroadcasts.filter { it.date != null }
-                    .find { ChronoUnit.WEEKS.between(it.date, now) % n == 0L }
-
-                val matchingShow = allShowsAtTime.find { it.id == matchingBroadcast?.showId }
-
-                matchingShow ?: allShowsAtTime.first()
-            }
-        }
     }
 }

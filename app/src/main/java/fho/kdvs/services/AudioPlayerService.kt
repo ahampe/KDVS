@@ -93,6 +93,11 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
             it.setPlayer(exoPlayer, playbackPreparer)
             it.setQueueNavigator(KdvsQueueNavigator(mediaSession))
         }
+
+        //
+        playbackPreparer.streamMetadataChangedLiveData.observeForever {  metadata ->
+            mediaSession.setMetadata(metadata)
+        }
     }
 
     /**

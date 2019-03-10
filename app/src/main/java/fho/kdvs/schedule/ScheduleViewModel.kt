@@ -18,17 +18,16 @@ import javax.inject.Inject
  */
 class ScheduleViewModel @Inject constructor(
     private val showRepository: ShowRepository,
-    private val preferences: KdvsPreferences,
     private val quarterRepository: QuarterRepository,
     application: Application
 ) : AndroidViewModel(application) {
 
     /** Signals the [ShowRepository] to scrape the schedule grid. */
-    fun fetchShows() = showRepository.fetchShows()
+    fun fetchShows() = showRepository.scrapeSchedule()
 
     fun getShowsForDay(day: Day, quarter: Quarter, year: Int): LiveData<List<TimeSlot>> =
         showRepository.getShowTimeSlotsForDay(day, quarter, year)
-            .sample(500L, TimeUnit.MILLISECONDS, true)
+            .debounce (100L, TimeUnit.MILLISECONDS)
             .toLiveData()
 
     /** All quarter-years in the database. */

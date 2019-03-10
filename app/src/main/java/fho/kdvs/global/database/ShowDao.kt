@@ -11,38 +11,41 @@ import io.reactivex.Flowable
 import org.threeten.bp.OffsetDateTime
 
 @Dao
-interface ShowDao {
+abstract class ShowDao {
     @Query("SELECT * from showData")
-    fun allShows(): Flowable<List<ShowEntity>>
+    abstract fun allShows(): Flowable<List<ShowEntity>>
 
     @Query("SELECT DISTINCT quarter, year from showData ORDER BY year DESC, quarter DESC")
-    fun allDistinctQuarterYears(): Flowable<List<QuarterYear>>
+    abstract fun allDistinctQuarterYears(): Flowable<List<QuarterYear>>
 
     @Query("SELECT * from showData WHERE id = :id LIMIT 1")
-    fun showById(id: Int): LiveData<ShowEntity>
+    abstract fun showById(id: Int): LiveData<ShowEntity>
 
     @Query("SELECT DISTINCT quarter, year from showData ORDER BY year DESC, quarter DESC LIMIT 1")
-    fun currentQuarterYear(): LiveData<QuarterYear>
+    abstract fun currentQuarterYear(): LiveData<QuarterYear>
 
     //endregion
 
     @Query("SELECT * from showData")
-    fun getAll(): List<ShowEntity>
+    abstract fun getAll(): List<ShowEntity>
 
     @Query("SELECT * from showData WHERE id = :id LIMIT 1")
-    fun getShowById(id: Int): ShowEntity
+    abstract fun getShowById(id: Int): ShowEntity?
 
     @Query("SELECT * from showData WHERE genre = :genre")
-    fun getShowsByGenre(genre: String): List<ShowEntity>
+    abstract fun getShowsByGenre(genre: String): List<ShowEntity>
 
     @Query("SELECT genre from showData ORDER BY genre")
-    fun getGenres(): List<String>
+    abstract fun getGenres(): List<String>
+
+    @Query("SELECT DISTINCT quarter, year from showData ORDER BY year DESC, quarter DESC LIMIT 1")
+    abstract fun getCurrentQuarterYear(): QuarterYear?
 
     @Query("SELECT DISTINCT genre from showData ORDER BY genre")
-    fun getDistinctGenres(): List<String>
+    abstract fun getDistinctGenres(): List<String>
 
     @Query("SELECT DISTINCT host from showData ORDER BY host")
-    fun getDistinctHosts(): List<String>
+    abstract fun getDistinctHosts(): List<String>
 
     @Query(
         """SELECT * from showData
@@ -51,7 +54,7 @@ interface ShowDao {
             AND quarter = :quarter AND year = :year
             ORDER BY timeStart, quarter, year"""
     )
-    fun allShowsInTimeRange(
+    abstract fun allShowsInTimeRange(
         timeStart: OffsetDateTime,
         timeEnd: OffsetDateTime,
         quarter: Quarter,
@@ -65,7 +68,7 @@ interface ShowDao {
             AND quarter = :quarter AND year = :year
             ORDER BY timeStart, quarter, year"""
     )
-    fun getShowsInTimeRange(
+    abstract fun getShowsInTimeRange(
         timeStart: OffsetDateTime,
         timeEnd: OffsetDateTime,
         quarter: Quarter,
@@ -78,48 +81,82 @@ interface ShowDao {
         timeEnd < timeStart AND (timeEnd > :time OR timeStart < :time))
         AND quarter = :quarter AND year = :year"""
     )
-    fun getShowsAtTime(time: OffsetDateTime, quarter: Quarter, year: Int): List<ShowEntity>
+    abstract fun getShowsAtTime(time: OffsetDateTime, quarter: Quarter, year: Int): List<ShowEntity>
 
     @Query(
         """SELECT DISTINCT s.* from showData s
             inner join broadcastData b on b.showId = s.id inner join trackData t on t.broadcastId = b.broadcastId
             WHERE t.artist = :artist"""
     )
-    fun getShowsByArtist(artist: String?): List<ShowEntity>
+    abstract fun getShowsByArtist(artist: String?): List<ShowEntity>
 
     @Query(
         """SELECT DISTINCT s.* from showData s
             inner join broadcastData b on b.showId = s.id inner join trackData t on t.broadcastId = b.broadcastId
             WHERE t.album = :album"""
     )
-    fun getShowsByAlbum(album: String?): List<ShowEntity>
+    abstract fun getShowsByAlbum(album: String?): List<ShowEntity>
 
     @Query(
         """SELECT DISTINCT s.* from showData s
             inner join broadcastData b on b.showId = s.id inner join trackData t on t.broadcastId = b.broadcastId
             WHERE t.artist = :artist AND t.album = :album"""
     )
-    fun getShowsByArtistAlbum(artist: String?, album: String?): List<ShowEntity>
+    abstract fun getShowsByArtistAlbum(artist: String?, album: String?): List<ShowEntity>
 
     @Query(
         """SELECT DISTINCT s.* from showData s
             inner join broadcastData b on b.showId = s.id inner join trackData t on t.broadcastId = b.broadcastId
             WHERE t.label = :label"""
     )
-    fun getShowsByLabel(label: String?): List<ShowEntity>
+    abstract fun getShowsByLabel(label: String?): List<ShowEntity>
 
     @Insert(onConflict = REPLACE)
-    fun insert(showEntity: ShowEntity)
+    abstract fun insert(showEntity: ShowEntity)
 
     @Query("DELETE from showData WHERE id = :id")
-    fun deleteShow(id: Int?)
+    abstract fun deleteShow(id: Int)
 
     @Query("DELETE from showData")
-    fun deleteAll()
+    abstract fun deleteAll()
 
+    /** Updates a show from information only visible on the schedule grid. */
+    @Query(
+        """UPDATE showData
+            SET name = :name, timeStart = :timeStart, timeEnd = :timeEnd, quarter = :quarter, year = :year
+            WHERE id = :id"""
+    )
+    abstract fun updateShowInfo(
+        id: Int,
+        name: String?,
+        timeStart: OffsetDateTime?,
+        timeEnd: OffsetDateTime?,
+        quarter: Quarter?,
+        year: Int?
+    )
+
+    /** Updates a show from information pulled from its details page. */
     @Query("UPDATE showData SET host = :host, genre = :genre, defaultDesc = :defaultDesc WHERE id = :id")
-    fun updateShowInfo(id: Int?, host: String?, genre: String?, defaultDesc: String?)
+    abstract fun updateShowDetails(id: Int, host: String?, genre: String?, defaultDesc: String?)
 
     @Query("UPDATE showData SET defaultImageHref = :defaultImageHref WHERE id = :id")
-    fun updateShowDefaultImageHref(id: Int?, defaultImageHref: String?)
+    abstract fun updateShowDefaultImageHref(id: Int, defaultImageHref: String?)
+
+    fun updateOrInsert(show: ShowEntity) {
+        if (getShowById(show.id) != null) {
+            updateShowInfo(
+                show.id,
+                show.name,
+                show.timeStart,
+                show.timeEnd,
+                show.quarter,
+                show.year
+            )
+
+            // we don't want to override any existing image hrefs if we didn't find one this time
+            show.defaultImageHref?.let { updateShowDefaultImageHref(show.id, it) }
+        } else {
+            insert(show)
+        }
+    }
 }

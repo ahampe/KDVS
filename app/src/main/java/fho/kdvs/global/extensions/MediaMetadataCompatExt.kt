@@ -17,6 +17,7 @@
 package fho.kdvs.global.extensions
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.support.v4.media.MediaBrowserCompat.MediaItem
@@ -25,6 +26,7 @@ import android.support.v4.media.MediaMetadataCompat
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
+import fho.kdvs.R
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.util.TimeHelper
@@ -286,27 +288,58 @@ fun MediaMetadataCompat.Builder.from(
 ): MediaMetadataCompat.Builder {
     id = broadcast.broadcastId.toString()
 
-    title = if (broadcast.date != null) TimeHelper.uiDateFormatter.format(broadcast.date) else ""
+    val fullTitle = if (broadcast.date != null) TimeHelper.uiDateFormatter.format(broadcast.date) else ""
+    title = fullTitle
     artist = show.name
     album = show.host
     genre = show.genre
     mediaUri = URLs.playlistForBroadcast(broadcast)
-    albumArtUri = broadcast.imageHref
-    trackNumber = 1
+    albumArtUri = broadcast.imageHref ?: show.defaultImageHref
+    trackNumber = 1 // TODO
     trackCount = 1
     flag = MediaItem.FLAG_PLAYABLE
 
     // To make things easier for *displaying* these, set the display properties as well.
-    displayTitle = if (broadcast.date != null) TimeHelper.uiDateFormatter.format(broadcast.date) else ""
+    displayTitle = fullTitle
     displaySubtitle = show.name
     displayDescription = show.host
-    displayIconUri = broadcast.imageHref
+    displayIconUri = broadcast.imageHref ?: show.defaultImageHref
 
     // Add downloadStatus to force the creation of an "extras" bundle in the resulting
     // MediaMetadataCompat object. This is needed to send accurate metadata to the
     // media session during updates.
     downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
 
+    return this
+}
+
+fun MediaMetadataCompat.Builder.fromLive(
+    broadcast: BroadcastEntity?,
+    show: ShowEntity,
+    context: Context
+): MediaMetadataCompat.Builder {
+    // Don't set the id; this should be the current live URL
+
+    val fullTitle = context.resources.getString(R.string.live)
+    title = fullTitle
+    artist = show.name
+    album = show.host
+    genre = show.genre
+    albumArtUri = broadcast?.imageHref ?: show.defaultImageHref
+    trackNumber = 1
+    trackCount = 1
+    flag = MediaItem.FLAG_PLAYABLE
+
+    // To make things easier for *displaying* these, set the display properties as well.
+    displayTitle = fullTitle
+    displaySubtitle = show.name
+    displayDescription = show.host
+    displayIconUri = broadcast?.imageHref ?: show.defaultImageHref
+
+    // Add downloadStatus to force the creation of an "extras" bundle in the resulting
+    // MediaMetadataCompat object. This is needed to send accurate metadata to the
+    // media session during updates.
+    downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
     return this
 }
 

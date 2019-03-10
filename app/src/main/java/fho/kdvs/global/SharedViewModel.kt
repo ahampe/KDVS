@@ -3,12 +3,15 @@ package fho.kdvs.global
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import fho.kdvs.broadcast.BroadcastRepository
+import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.extensions.id
 import fho.kdvs.global.extensions.isPlayEnabled
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
 import fho.kdvs.global.util.URLs
+import fho.kdvs.services.LiveShowUpdater
 import fho.kdvs.services.MediaSessionConnection
 import fho.kdvs.show.ShowRepository
 import timber.log.Timber
@@ -19,15 +22,25 @@ import javax.inject.Inject
 class SharedViewModel @Inject constructor(
     application: Application,
     private val showRepository: ShowRepository,
+    private val broadcastRepository: BroadcastRepository,
+    private val liveShowUpdater: LiveShowUpdater,
     private val mediaSessionConnection: MediaSessionConnection
-) : AndroidViewModel(application) {
+) : BaseViewModel(application) {
 
     val currentShow: LiveData<ShowEntity>
         get() = showRepository.playingShowLiveData
 
-    fun updateLiveShows() = showRepository.updateLiveShows()
+    val nextShow: LiveData<ShowEntity>
+        get() = showRepository.nextShowLiveData
 
-    fun fetchShows() = showRepository.fetchShows()
+    val currentBroadcast: LiveData<BroadcastEntity>
+        get() = broadcastRepository.liveBroadcastLiveData
+
+    val isLiveNow: LiveData<Boolean> = showRepository.isLiveNow
+
+    fun updateLiveShows() = liveShowUpdater.beginUpdating()
+
+    fun fetchShows() = showRepository.scrapeSchedule()
 
     // region playback
 
@@ -43,24 +56,24 @@ class SharedViewModel @Inject constructor(
         prepareLivePlayback(URLs.LIVE_OGG)
     }
 
-    private fun prepareLivePlayback(urlString: String) {
+    private fun prepareLivePlayback(streamUrl: String) {
         val nowPlaying = mediaSessionConnection.nowPlaying.value
-        val transportControls = mediaSessionConnection.transportControls
+        val transportControls = mediaSessionConnection.transportControls ?: return
 
         val isPrepared = mediaSessionConnection.playbackState.value?.isPrepared ?: false
 
-        if (isPrepared && urlString == nowPlaying?.id) {
+        if (isPrepared && streamUrl == nowPlaying?.id) {
             mediaSessionConnection.playbackState.value?.let { playbackState ->
                 when {
                     playbackState.isPlaying -> transportControls.pause()
                     playbackState.isPlayEnabled -> transportControls.play()
                     else -> {
-                        Timber.w("Playable item clicked but neither play nor pause are enabled! (mediaId=$urlString)")
+                        Timber.w("Playable item clicked but neither play nor pause are enabled! (mediaId=$streamUrl)")
                     }
                 }
             }
         } else {
-            transportControls.playFromMediaId(urlString, null)
+            transportControls.playFromMediaId(streamUrl, null)
         }
     }
 
