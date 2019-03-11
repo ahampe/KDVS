@@ -89,7 +89,11 @@ class ShowRepository @Inject constructor(
                 showsList.groupBy { show -> Pair(show.timeStart, show.timeEnd) }
                     .map { map ->
                         val showGroup = map.value
-                        TimeSlot(showGroup)
+                        val isFirstHalfOrEntireSegment = ((showGroup.firstOrNull()?.timeStart?.dayOfWeek
+                                == showGroup.firstOrNull()?.timeEnd?.dayOfWeek)
+                                || (showGroup.firstOrNull()?.timeStart?.dayOfWeek.toString().capitalize()
+                                == day.toString().capitalize()))
+                        TimeSlot(showGroup, isFirstHalfOrEntireSegment)
                     }
             }
     }

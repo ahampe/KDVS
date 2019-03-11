@@ -35,4 +35,5 @@
     <string name="airbreak">Airbreak</string>
     <string name="play">Play</string>
     <string name="live">Live</string>
+    <string name="timeslot_desc">Show image</string>
 </resources>

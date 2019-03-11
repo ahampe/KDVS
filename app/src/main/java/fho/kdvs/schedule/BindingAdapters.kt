@@ -27,8 +27,8 @@ fun makeShowNames(view: TextView, showNames: List<String>) {
     }
 }
 
-@BindingAdapter("android:layout_height")
-fun setTimeslotHeight(view: CardView, height: Int){
+@BindingAdapter("timeslotHeight")
+fun makeTimeslotHeight(view: CardView, height: Int){
     view.layoutParams.height = (
         height * view.context.resources.getDimension(R.dimen.timeslot_halfhour_height)
     ).toInt()

@@ -1,10 +1,12 @@
 package fho.kdvs.global.util
 
 import fho.kdvs.global.enums.Day
+import fho.kdvs.schedule.TimeSlot
 import org.threeten.bp.*
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.temporal.ChronoUnit
 import java.lang.Math.abs
+import java.lang.Math.min
 import java.util.*
 
 /**
@@ -46,7 +48,7 @@ object TimeHelper {
 
     // region Week Times (for Show entities)
     /** Offset in days from Jan 1 1970. Necessary because we want the week to begin on Sunday. */
-    private const val DAY_OFFSET = 4
+    private const val DAY_OFFSET = 3
 
     // private helpers for converting between 12 and 24 hour times
     private val time12h = DateTimeFormatter.ofPattern("h:mm a", Locale.US)
@@ -67,7 +69,7 @@ object TimeHelper {
      */
     fun makeWeekTime24h(time: String, day: Day): OffsetDateTime {
         val paddedTime = time.padStart(5, '0')
-        val dayOfMonth = (day.ordinal + DAY_OFFSET).toString().padStart(2, '0')
+        val dayOfMonth = (day.ordinal + DAY_OFFSET + 1).toString().padStart(2, '0')
         return LocalDateTime.parse("1970-01-${dayOfMonth}T$paddedTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME)
             .atOffset(UTC_OFFSET)
     }
@@ -77,7 +79,7 @@ object TimeHelper {
      * The date generated with this method will fall within the week defined in [TimeHelper].
      */
     fun makeEpochRelativeTime(time: OffsetDateTime): OffsetDateTime {
-        return makeDay(time.dayOfWeek.value - 1)
+        return makeDay(time.dayOfWeek.value)
             .plusHours(time.hour.toLong())
             .plusMinutes(time.minute.toLong())
             .plusSeconds(time.second.toLong())
@@ -95,8 +97,31 @@ object TimeHelper {
         return abs(ChronoUnit.SECONDS.between(b, a)) * 1000
     }
 
-    fun getTimeDifferenceInHalfHours(a: OffsetDateTime, b: OffsetDateTime) : Int {
-        return (abs(ChronoUnit.MINUTES.between(b, a)) / 30).toInt()
+    /**
+     * Gets difference in 30-min intervals between two show times.
+     * Only counts time before midnight for the first half of a time interval spread across two days, and
+     * the time after midnight for the second half.
+     * Assumes a show can be across at most two days.
+     * Assumes b > a.
+     */
+    @JvmStatic
+    fun getTimeDifferenceInHalfHoursPerDay(a: OffsetDateTime, b: OffsetDateTime, timeslot: TimeSlot) : Int {
+        val isFirstHalfOrEntireSegment = timeslot.isFirstHalfOrEntireSegment
+
+        val midnight = if (isFirstHalfOrEntireSegment) {
+            val nextDay = a.plusDays(1)
+            OffsetDateTime.of(nextDay.year, nextDay.monthValue, nextDay.dayOfMonth, 0, 0,0,
+                0, nextDay.offset)
+        } else {
+            OffsetDateTime.of(b.year, b.monthValue, b.dayOfMonth, 0, 0,0, 0, b.offset)
+        }
+
+        return if (isFirstHalfOrEntireSegment){
+            val min = if (b < midnight) b else midnight
+            (abs(ChronoUnit.MINUTES.between(min, a)) / 30).toInt()
+        } else {
+            (abs(ChronoUnit.MINUTES.between(b, midnight)) / 30).toInt()
+        }
     }
 
     /**
