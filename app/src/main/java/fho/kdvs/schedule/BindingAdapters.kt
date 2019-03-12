@@ -1,9 +1,15 @@
 package fho.kdvs.schedule
 
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
+import com.bumptech.glide.request.RequestOptions
 import fho.kdvs.R
+import fho.kdvs.global.extensions.BitmapColorRequestListener
 import fho.kdvs.global.util.TimeHelper
 import org.threeten.bp.OffsetDateTime
 
@@ -33,3 +39,22 @@ fun makeTimeslotHeight(view: CardView, height: Int){
         height * view.context.resources.getDimension(R.dimen.timeslot_halfhour_height)
     ).toInt()
 }
+
+@BindingAdapter("timeslotGlideHref")
+fun loadImageWithGlideAndSetParentBackground(view: ImageView, imageHref: String?) {
+    val parent = view.parent as ConstraintLayout
+    Glide.with(view)
+        .asBitmap()
+        .load(imageHref)
+        .transition(BitmapTransitionOptions.withCrossFade())
+        .apply(
+            RequestOptions()
+                .apply(RequestOptions.centerCropTransform())
+                .error(R.drawable.show_placeholder)
+        )
+        .listener(
+            BitmapColorRequestListener(view.context, parent, imageHref ?: "")
+        )
+        .into(view)
+}
+
