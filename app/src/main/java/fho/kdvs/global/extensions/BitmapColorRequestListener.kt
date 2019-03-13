@@ -2,7 +2,9 @@ package fho.kdvs.global.extensions
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.drawable.GradientDrawable
 import android.view.View
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
@@ -14,7 +16,7 @@ import fho.kdvs.global.util.SeedHelper
 
 
 class BitmapColorRequestListener(
-    val context: Context,
+    val view: View,
     val viewToColor: View,
     val seedStr: String
 ) : RequestListener<Bitmap> {
@@ -37,18 +39,21 @@ class BitmapColorRequestListener(
         if (resource != null) { // TODO: cleanup, remove redundancy
             // set placeholder timeslots to independent random colors
             // TODO: determine programmatically?
-            val isPlaceholder = seedStr.contains(context.getString(R.string.timeslot_placeholder))
+            val isPlaceholder = seedStr.contains(view.context.getString(R.string.timeslot_placeholder))
             val seed = if (isPlaceholder) Math.random().toLong() else SeedHelper.getSeedFromStr(seedStr)
-
-            val randomMatColor = ColorHelper.getRandomMatColor(500, context, seed)
+            var colorVal = ColorHelper.getRandomMatColor(500, view.context, seed)
 
             if (ColorHelper.isGrayscaleImage(resource)) {
-                viewToColor.setBackgroundColor(randomMatColor)
-            }
-            else {
+                viewToColor.setBackgroundColor(colorVal)
+            } else {
                 val p = Palette.from(resource).generate()
-                viewToColor.setBackgroundColor(p.getDarkMutedColor(randomMatColor))
+                colorVal = p.getMutedColor(colorVal)
+                viewToColor.setBackgroundColor(p.getMutedColor(colorVal))
             }
+
+            val backgroundColors = intArrayOf(colorVal, 0xaa000000.toChar().toInt())
+            val gradientDrawable = GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, backgroundColors)
+            view.foreground = gradientDrawable
         }
 
         return false

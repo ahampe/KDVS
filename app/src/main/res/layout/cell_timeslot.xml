@@ -36,7 +36,6 @@
 
             <ImageView
                     android:id="@+id/showImage"
-                    android:src="@drawable/transparent_gradient_shape"
                     timeslotGlideHref="@{timeslot.imageHref}"
                     android:layout_width="@dimen/timeslot_image"
                     android:layout_height="@dimen/timeslot_image"
