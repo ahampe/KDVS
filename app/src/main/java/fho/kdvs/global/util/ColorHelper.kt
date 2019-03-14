@@ -46,11 +46,4 @@ object ColorHelper {
 
         return returnColor
     }
-
-/*    fun getColorFromId(id: Int, context: Context): Color {
-        var default = ResourcesCompat.getColor(context.resources, R.color.colorAccent, context.theme)
-        val colors = context.resources.obtainTypedArray(arrayId)
-        val index = (random.nextDouble() * colors.length()).toInt()
-        return colors.getColor(index, default)
-    }*/
 }

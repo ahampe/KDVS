@@ -50,7 +50,7 @@ class BitmapColorRequestListener(
                 colorVal = p.getMutedColor(colorVal)
                 viewToColor.setBackgroundColor(p.getMutedColor(colorVal))
             }
-
+            //TODO: replace with resource
             val backgroundColors = intArrayOf(colorVal, 0xaa000000.toChar().toInt())
             val gradientDrawable = GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, backgroundColors)
             view.foreground = gradientDrawable
