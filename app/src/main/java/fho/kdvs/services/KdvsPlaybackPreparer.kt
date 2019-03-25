@@ -24,7 +24,8 @@ import android.os.ResultReceiver
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
@@ -36,15 +37,15 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import fho.kdvs.R
 import fho.kdvs.global.database.BroadcastDao
+import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowDao
-import fho.kdvs.global.extensions.albumArt
-import fho.kdvs.global.extensions.from
-import fho.kdvs.global.extensions.toMediaSource
+import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.extensions.*
 import fho.kdvs.global.util.URLs
+import fho.kdvs.global.util.UiEvent
+import fho.kdvs.global.util.UiEventLiveData
 import kotlinx.coroutines.*
 import java.lang.Exception
-import java.net.URI
-import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -55,11 +56,17 @@ import kotlin.coroutines.CoroutineContext
  */
 @Singleton
 class KdvsPlaybackPreparer @Inject constructor(
-    application: Application,
+    private val application: Application,
     private val exoPlayer: ExoPlayer,
     private val showDao: ShowDao,
     private val broadcastDao: BroadcastDao
 ) : MediaSessionConnector.PlaybackPreparer, CoroutineScope {
+
+    /** This LiveData will be triggered whenever the live show changes. */
+    internal val streamMetadataChangedLiveData: LiveData<MediaMetadataCompat>
+        get() = _streamMetadataChangedLiveData
+
+    private val _streamMetadataChangedLiveData = MutableLiveData<MediaMetadataCompat>()
 
     // Use this to track and cancel the child job. There should only be one job present at a time.
     private var job: Job? = null
@@ -87,12 +94,44 @@ class KdvsPlaybackPreparer @Inject constructor(
             .get()
     }
 
-    private val liveDescriptionCompat: MediaDescriptionCompat by lazy {
-        MediaDescriptionCompat.Builder()
+    private val liveDescriptionTemplate: MediaDescriptionCompat.Builder
+        get() = MediaDescriptionCompat.Builder()
             .setTitle(application.resources.getString(R.string.kdvs))
             .setSubtitle(application.resources.getString(R.string.live))
             .setIconBitmap(defaultArt)
+
+    private var liveMetaData: MediaMetadataCompat? = null
+
+    /** Maintain a reference to the current live stream so that we can update the metadata later */
+    private var currentLiveStreamUrl: Uri? = null
+
+    /**
+     * Updates the metadata of the live stream from the current [show] and an optional current [broadcast].
+     * This will track changes to the live status, but will not update the notification unless [isLiveNow] is true.
+     */
+    fun changeLiveMetadata(show: ShowEntity, broadcast: BroadcastEntity?, isLiveNow: Boolean) = launch {
+        // TODO glide seems to crash here despite the applied request options for fallback / error
+        val art = try {
+            glide.asBitmap()
+                .load(broadcast?.imageHref ?: show.defaultImageHref)
+                .submit(NOTIFICATION_LARGE_ICON_SIZE, NOTIFICATION_LARGE_ICON_SIZE)
+                .get()
+        } catch (e: Exception) {
+            defaultArt
+        }
+
+        val newMetadata = MediaMetadataCompat.Builder()
+            .fromLive(broadcast, show, application)
+            .apply {
+                id = currentLiveStreamUrl.toString()
+                albumArt = art
+            }
             .build()
+
+        liveMetaData = newMetadata
+        if (isLiveNow) {
+            _streamMetadataChangedLiveData.postValue(newMetadata)
+        }
     }
 
     /**
@@ -116,7 +155,7 @@ class KdvsPlaybackPreparer @Inject constructor(
     override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
         job?.cancel()
 
-        job = if (mediaId in URLs.liveStream) {
+        job = if (mediaId != null && mediaId in URLs.liveStreamUrls) {
             // Just play KDVS live
             prepareLive(mediaId)
         } else {
@@ -135,9 +174,7 @@ class KdvsPlaybackPreparer @Inject constructor(
     override fun onPrepareFromSearch(query: String?, extras: Bundle?) = Unit
 
     override fun onPrepareFromUri(uri: Uri?, extras: Bundle?) = Unit
-
     override fun getCommands(): Array<String>? = null
-
     override fun onCommand(
         player: Player?,
         command: String?,
@@ -145,19 +182,28 @@ class KdvsPlaybackPreparer @Inject constructor(
         cb: ResultReceiver?
     ) = Unit
 
-    private fun prepareLive(streamUrl: String?) = launch {
+    private fun prepareLive(streamUrl: String) = launch {
+        // get the live show description if it's already there, or fall back to the template
+        val liveDescription = liveMetaData?.description
+            ?: liveDescriptionTemplate.setMediaId(streamUrl).build()
+
+        val streamUri = Uri.parse(streamUrl)
+
         val liveSource = ExtractorMediaSource.Factory(dataSourceFactory)
-            .setTag(liveDescriptionCompat)
-            .createMediaSource(Uri.parse(streamUrl))
+            .setTag(liveDescription)
+            .createMediaSource(streamUri)
+
+        currentLiveStreamUrl = streamUri
 
         withContext(Dispatchers.Main) {
             exoPlayer.prepare(liveSource)
         }
     }
 
+    /** Prepares playback for a past broadcast. */
     private fun prepareBroadcast(broadcastId: Int, showId: Int) = launch {
-        val show = showDao.getShowById(showId)
-        val broadcast = broadcastDao.getBroadcastById(broadcastId)
+        val show = showDao.getShowById(showId) ?: return@launch
+        val broadcast = broadcastDao.getBroadcastById(broadcastId) ?: return@launch
 
         // TODO glide seems to crash here despite the applied request options for fallback / error
         val art = try {

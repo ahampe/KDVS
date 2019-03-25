@@ -19,9 +19,9 @@ package fho.kdvs.injection
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import fho.kdvs.broadcast.BroadcastDetailsFragment
-import fho.kdvs.home.HomeFragment
 import fho.kdvs.schedule.ScheduleFragment
 import fho.kdvs.show.ShowDetailsFragment
+import fho.kdvs.home.HomeFragment
 
 @Suppress("unused")
 @Module

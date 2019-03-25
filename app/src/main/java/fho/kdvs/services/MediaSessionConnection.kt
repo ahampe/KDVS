@@ -25,6 +25,8 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.media.MediaBrowserServiceCompat
+import fho.kdvs.global.extensions.id
+import fho.kdvs.global.util.URLs
 import fho.kdvs.services.MediaSessionConnection.MediaBrowserConnectionCallback
 
 /**
@@ -52,11 +54,17 @@ class MediaSessionConnection(context: Context, serviceComponent: ComponentName) 
     val playbackState = MutableLiveData<PlaybackStateCompat>()
         .apply { postValue(EMPTY_PLAYBACK_STATE) }
 
+    /**
+     * Whether or not playback is currently on a live stream URL.
+     */
+    val isLiveNow = MutableLiveData<Boolean>()
+        .apply { postValue(false) }
+
     val nowPlaying = MutableLiveData<MediaMetadataCompat>()
         .apply { postValue(NOTHING_PLAYING) }
 
-    val transportControls: MediaControllerCompat.TransportControls
-        get() = mediaController.transportControls
+    val transportControls: MediaControllerCompat.TransportControls?
+        get() = mediaController?.transportControls
 
     private val mediaBrowserConnectionCallback = MediaBrowserConnectionCallback(context)
 
@@ -64,18 +72,9 @@ class MediaSessionConnection(context: Context, serviceComponent: ComponentName) 
         context,
         serviceComponent,
         mediaBrowserConnectionCallback, null
-    )
-        .apply { connect() }
+    ).apply { connect() }
 
-    private lateinit var mediaController: MediaControllerCompat
-
-    fun subscribe(parentId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
-        mediaBrowser.subscribe(parentId, callback)
-    }
-
-    fun unsubscribe(parentId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
-        mediaBrowser.unsubscribe(parentId, callback)
-    }
+    private var mediaController: MediaControllerCompat? = null
 
     private inner class MediaBrowserConnectionCallback(private val context: Context) :
         MediaBrowserCompat.ConnectionCallback() {
@@ -114,7 +113,9 @@ class MediaSessionConnection(context: Context, serviceComponent: ComponentName) 
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-            nowPlaying.postValue(metadata ?: NOTHING_PLAYING)
+            val md = metadata ?: NOTHING_PLAYING
+            isLiveNow.postValue(URLs.liveStreamUrls.contains(md.id))
+            nowPlaying.postValue(md)
         }
 
         override fun onQueueChanged(queue: MutableList<MediaSessionCompat.QueueItem>?) {

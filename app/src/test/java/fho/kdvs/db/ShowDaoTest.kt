@@ -103,7 +103,7 @@ class ShowDaoTest : DatabaseTest() {
         insert_basic()
 
         var showDb = showDao.getAll().first()
-        showDao.updateShowInfo(showDb.id, host, genre, defaultDesc)
+        showDao.updateShowDetails(showDb.id, host, genre, defaultDesc)
         showDb = showDao.getAll().first()
 
         assertEquals("host not updated", host, showDb.host)

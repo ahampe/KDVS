@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".home.HomeFragment">
@@ -7,7 +8,7 @@
     <data>
 
         <variable
-            name="viewModel"
+            name="vm"
             type="fho.kdvs.global.SharedViewModel" />
     </data>
 
@@ -16,61 +17,27 @@
         android:layout_height="match_parent">
 
         <Button
+            android:id="@+id/go_live"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="@{() -> viewModel.changeToWmnf()}"
-            android:text="WMNF"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/kdvs_button"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <Button
-            android:id="@+id/kdvs_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="@{() -> viewModel.changeToKdvsMp3()}"
-            android:text="KDVS mp3"
+            android:onClick="@{() -> vm.changeToKdvsOgg()}"
+            android:text="Go Live"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="@{() -> viewModel.changeToWfmu()}"
-            android:text="WFMU"
-            app:layout_constraintLeft_toRightOf="@id/kdvs_button"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="@{() -> viewModel.changeToKdvsAac()}"
-            android:text="KDVS aac"
-            app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/kdvs_button"
-            app:layout_constraintTop_toBottomOf="@id/kdvs_button" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="@{() -> viewModel.changeToKdvsOgg()}"
-            android:text="KDVS ogg"
-            app:layout_constraintLeft_toRightOf="@id/kdvs_button"
-            app:layout_constraintRight_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/kdvs_button" />
 
         <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/exoPlayerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             app:hide_on_touch="false"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:use_artwork="false">
+            app:layout_constraintTop_toBottomOf="@id/go_live"
+            app:use_artwork="true">
+
+            <!--TODO next show-->
+
 
         </com.google.android.exoplayer2.ui.PlayerView>
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

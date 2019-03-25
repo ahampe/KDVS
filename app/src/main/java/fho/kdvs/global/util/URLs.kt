@@ -7,9 +7,12 @@ object URLs {
     const val LIVE_AAC = "http://archives.kdvs.org:8000/kdvs32ogg"
     const val LIVE_OGG = "http://archives.kdvs.org:8000/stream"
 
-    val liveStream = listOf(LIVE_AAC, LIVE_MP3, LIVE_OGG)
+    /** A list of all KDVS live URLs. */
+    val liveStreamUrls = listOf(LIVE_AAC, LIVE_MP3, LIVE_OGG)
 
     const val SCHEDULE = "https://kdvs.org/programming/schedule-grid/"
+
+    const val SHOW_IMAGE_PLACEHOLDER = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg"
 
     fun showDetails(id: String) = "https://kdvs.org/past-playlists/$id/"
 

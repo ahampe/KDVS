@@ -7,5 +7,10 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <!-- Bottom navigation view height, per Material guidelines. -->
+    <dimen name="bottom_nav_height">56dp</dimen>
+    <dimen name="double_bottom_nav">112dp</dimen>
+    <dimen name="bottom_sheet_preview_height">@dimen/bottom_nav_height</dimen>
+
     <dimen name="expanded_toolbar_height">200dp</dimen>
 </resources>
