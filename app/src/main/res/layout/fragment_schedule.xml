@@ -3,23 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:orientation="vertical"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="fho.kdvs.schedule.ScheduleFragment">
-
-    <Spinner
-        android:id="@+id/quarterSpinner"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/weekRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:nestedScrollingEnabled="false" />
+        android:nestedScrollingEnabled="true" />
 
 </LinearLayout>

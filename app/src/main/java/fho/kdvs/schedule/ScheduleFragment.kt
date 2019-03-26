@@ -29,8 +29,7 @@ class ScheduleFragment : DaggerFragment() {
     lateinit var viewModel: ScheduleViewModel
 
     // Outer horizontal RecyclerView. Holds a vertical RecyclerView for each day of week.
-    private lateinit var weekRecyclerView: RecyclerView
-    private lateinit var weekLayoutManager: LinearLayoutManager
+    private var weekLayoutManager: LinearLayoutManager? = null
 
     // Simple flag for scrolling to today's date. This will only be done once, after the fragment is created.
     private var scrollingToToday = true
@@ -41,65 +40,27 @@ class ScheduleFragment : DaggerFragment() {
         viewModel = ViewModelProviders.of(this, vmFactory)
             .get(ScheduleViewModel::class.java)
             .also { it.fetchShows() }
+
+        subscribeToViewModel()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_schedule, container, false)
-
-        weekRecyclerView = view.findViewById(R.id.weekRecyclerView)
-        weekLayoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        weekRecyclerView.layoutManager = weekLayoutManager
-
-        return view
+        return inflater.inflate(R.layout.fragment_schedule, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        subscribeToViewModel()
-
-        // Listen for changes to the quarter-year
-        quarterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val newQuarterYear = parent?.adapter?.getItem(position) as? QuarterYear ?: return
-                Timber.d("Selected $newQuarterYear")
-                viewModel.selectQuarterYear(newQuarterYear)
-            }
-        }
+        // Configure the layout manager and keep a reference to it
+        weekLayoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            .also { weekRecyclerView.layoutManager = it }
 
         // Scroll to today, only when the fragment is first created
+        // TODO this could be done with a custom layout manager, without the ugly boolean
         if (scrollingToToday) {
-            weekLayoutManager.scrollToPosition(LocalDate.now().dayOfWeek.value)
+            weekLayoutManager?.scrollToPosition(LocalDate.now().dayOfWeek.value)
             scrollingToToday = false
         }
-
-        // TODO doesn't work... need to scroll when the adapter is ready
-        // Scroll to the same approximate location in the inner recycler
-//        val dayStartPos = savedInstanceState?.optInt(DAY_SCROLL_POS)
-//        dayStartPos?.let {
-//            val todayViewHolder = weekRecyclerView.findViewHolderForAdapterPosition(weekStartPos) as? ViewHolder
-//            val todayLayoutManager = todayViewHolder?.recyclerView?.layoutManager as? LinearLayoutManager
-//
-//            todayLayoutManager?.scrollToPosition(dayStartPos)
-//        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        // get position within Week Recycler
-        val posInWeek = weekLayoutManager.findFirstVisibleItemPosition()
-
-        // save position within Day Recycler TODO get this to work
-        val currentViewHolder =
-            weekRecyclerView.findViewHolderForAdapterPosition(posInWeek) as? WeekViewAdapter.ViewHolder
-        val currentLayoutManager = currentViewHolder?.recyclerView?.layoutManager as? LinearLayoutManager
-        val posInDay = currentLayoutManager?.findFirstVisibleItemPosition()
-        if (posInDay != null && posInDay != RecyclerView.NO_POSITION) {
-            outState.putInt(DAY_SCROLL_POS, posInDay)
-        }
-
-        super.onSaveInstanceState(outState)
     }
 
     /** Reconfigures the week recycler view. Use when the quarter-year changes or the fragment is recreated. */
@@ -112,29 +73,28 @@ class ScheduleFragment : DaggerFragment() {
 
         val snapHelper = PagerSnapHelper()
 
-        weekRecyclerView.run {
+        weekRecyclerView?.run {
             adapter = WeekViewAdapter(this@ScheduleFragment, weekData)
             setHasFixedSize(true)
 
-            // explicitly clear the onFling listener; the new snapHelper will replace it
+            // explicitly clear the onFling and onScroll listeners; the new snapHelper will replace them
             onFlingListener = null
-            snapHelper.attachToRecyclerView(this)
-
             clearOnScrollListeners()
+            snapHelper.attachToRecyclerView(this)
         }
 
-        weekRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        weekRecyclerView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             /** Allows looped scrolling */
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                val firstVisiblePos = weekLayoutManager.findFirstVisibleItemPosition()
+                val firstVisiblePos = weekLayoutManager?.findFirstVisibleItemPosition()
                 if (firstVisiblePos == 8) {
-                    weekLayoutManager.scrollToPosition(1)
+                    weekLayoutManager?.scrollToPosition(1)
                 }
 
-                val firstCompletelyVisiblePos = weekLayoutManager.findFirstCompletelyVisibleItemPosition()
+                val firstCompletelyVisiblePos = weekLayoutManager?.findFirstCompletelyVisibleItemPosition()
                 if (firstCompletelyVisiblePos == 0) {
-                    weekLayoutManager.scrollToPosition(7)
+                    weekLayoutManager?.scrollToPosition(7)
                 }
             }
 
@@ -149,21 +109,6 @@ class ScheduleFragment : DaggerFragment() {
         })
     }
 
-    /** Reconfigures the quarter picker. Automatically invoked when the list of quarters changes. */
-    private fun configureQuarterSpinner(quarterYears: List<QuarterYear>) {
-        // No use showing the spinner if there's 0 or 1 quarters
-        if (quarterYears.size <= 1) {
-            quarterSpinner.visibility = View.GONE
-            return
-        } else {
-            quarterSpinner.visibility = View.VISIBLE
-        }
-
-        quarterSpinner.adapter = ArrayAdapter<QuarterYear>(
-            requireContext(), android.R.layout.simple_spinner_dropdown_item, quarterYears
-        )
-    }
-
     /** This is where any [LiveData] in the ViewModel should be hooked up to [Observer]s. */
     private fun subscribeToViewModel() {
         val fragment = this
@@ -175,8 +120,7 @@ class ScheduleFragment : DaggerFragment() {
             })
 
             // When new quarter-years happen (which should only happen when a new quarter starts), update the spinner
-            allQuarterYearsLiveData.observe(fragment, Observer { quarterYears ->
-                configureQuarterSpinner(quarterYears)
+            allQuarterYearsLiveData.observe(fragment, Observer {
                 configureWeekView()
             })
         }
@@ -186,11 +130,5 @@ class ScheduleFragment : DaggerFragment() {
     inner class DayInfo(day: Day, quarter: Quarter, year: Int) {
         val dayName = day.name
         val timeSlotsLiveData: LiveData<List<TimeSlot>> = viewModel.getShowsForDay(day, quarter, year)
-    }
-
-    companion object {
-        // saved instance state keys:
-        const val WEEK_SCROLL_POS = "WEEK_SCROLL_POS"
-        const val DAY_SCROLL_POS = "DAY_SCROLL_POS"
     }
 }

@@ -41,16 +41,14 @@ object DbTestUtils {
             showId = 1888,
             description = "A stompin' good time with Blind Lemon",
             date = TimeHelper.makeLocalDate("1943-01-01"),
-            imageHref = "http://www.leadbelly.com/blindlemon.jpg",
-            playlistUrl = ""
+            imageHref = "http://www.leadbelly.com/blindlemon.jpg"
         ),
         BroadcastEntity(
             broadcastId = 291,
             showId = 1888,
             description = "The Great Machine",
             date = TimeHelper.makeLocalDate("1943-01-08"),
-            imageHref = "http://sfprod.shikadi.net/pic/timss.png",
-            playlistUrl = ""
+            imageHref = "http://sfprod.shikadi.net/pic/timss.png"
         )
     )
 

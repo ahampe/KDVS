@@ -32,6 +32,6 @@ class ShowDetailsViewModel @Inject constructor(
     }
 
     private fun fetchBroadcasts(showId: Int) {
-        broadcastRepository.fetchBroadcastsForShow(showId.toString())
+        broadcastRepository.scrapeShow(showId.toString())
     }
 }

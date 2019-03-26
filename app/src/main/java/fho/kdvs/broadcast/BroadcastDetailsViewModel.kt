@@ -16,7 +16,6 @@ class BroadcastDetailsViewModel @Inject constructor(
     private val showRepository: ShowRepository,
     private val broadcastRepository: BroadcastRepository,
     private val trackRepository: TrackRepository,
-    private val mediaSessionConnection: MediaSessionConnection,
     application: Application
 ) : AndroidViewModel(application) {
 
@@ -35,11 +34,11 @@ class BroadcastDetailsViewModel @Inject constructor(
     fun onPlayBroadcast() {
         val toPlay = broadcast.value ?: return
         val showId = show.value?.id ?: return
-        mediaSessionConnection.transportControls.playFromMediaId(toPlay.broadcastId.toString(),
-            Bundle().apply { putInt("SHOW_ID", showId) })
+
+        broadcastRepository.playPastBroadcast(toPlay, showId)
     }
 
     private fun fetchTracks(broadcastId: Int) {
-        trackRepository.fetchTracksForBroadcast(broadcastId.toString())
+        trackRepository.scrapePlaylist(broadcastId.toString())
     }
 }

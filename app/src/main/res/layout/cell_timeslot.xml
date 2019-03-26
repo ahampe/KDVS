@@ -12,8 +12,7 @@
             type="android.view.View.OnClickListener" />
     </data>
 
-    <androidx.cardview.widget.CardView
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
@@ -27,13 +26,14 @@
             android:padding="8dp">
 
             <ImageView
-                glideHref="@{timeslot.imageHref}"
                 android:id="@+id/showImage"
+                glideHref="@{timeslot.imageHref}"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:adjustViewBounds="true"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:background="@drawable/show_placeholder" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -44,8 +44,8 @@
                 app:layout_constraintBottom_toBottomOf="parent">
 
                 <TextView
-                    showNames="@{timeslot.names}"
                     android:id="@+id/showName"
+                    showNames="@{timeslot.names}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@android:color/black"
@@ -56,9 +56,9 @@
                     tools:text="Show Name" />
 
                 <TextView
+                    android:id="@+id/showTime"
                     timeEnd="@{timeslot.timeEnd}"
                     timeStart="@{timeslot.timeStart}"
-                    android:id="@+id/showTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@android:color/black"

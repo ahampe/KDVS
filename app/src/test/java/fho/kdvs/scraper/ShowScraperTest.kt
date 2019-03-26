@@ -20,7 +20,7 @@ class ShowScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        `when`(showDao.updateShowInfo(TestUtils.any(), TestUtils.any(), TestUtils.any(), TestUtils.any())).thenAnswer {
+        `when`(showDao.updateShowDetails(TestUtils.any(), TestUtils.any(), TestUtils.any(), TestUtils.any())).thenAnswer {
             val show = ShowEntity(
                 id = it.getArgument(0),
                 host = it.getArgument(1),
