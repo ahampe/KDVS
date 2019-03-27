@@ -12,11 +12,7 @@ import fho.kdvs.databinding.FragmentHomeBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_home.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 class HomeFragment : DaggerFragment() {
     @Inject
@@ -26,6 +22,7 @@ class HomeFragment : DaggerFragment() {
     lateinit var exoPlayer: ExoPlayer
 
     private lateinit var viewModel: SharedViewModel
+    private lateinit var binding: FragmentHomeBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +34,7 @@ class HomeFragment : DaggerFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = FragmentHomeBinding.inflate(inflater, container, false).apply {
+        binding = FragmentHomeBinding.inflate(inflater, container, false).apply {
             lifecycleOwner = this@HomeFragment
             vm = viewModel
         }
@@ -50,18 +47,24 @@ class HomeFragment : DaggerFragment() {
         exoPlayerView.player = exoPlayer
     }
 
+    /*
+     * Consult #1:
+     * https://proandroiddev.com/5-common-mistakes-when-using-architecture-components-403e9899f4cb
+     */
     private fun subscribeToViewModel() {
-//        viewModel.currentShow.observe(this, Observer { show ->
-//
-//        })
-//
-//        viewModel.nextShow.observe(this, Observer { show ->
-//
-//        })
-//
-//        viewModel.currentBroadcast.observe(this, Observer { broadcast ->
-//
-//        })
+        viewModel.currentShow.observe(this, Observer { show ->
+            binding.currentShow = show
+            binding.executePendingBindings()
+        })
+
+        viewModel.nextShow.observe(this, Observer { show ->
+            binding.nextShow = show
+            binding.executePendingBindings()
+        })
+
+        viewModel.currentBroadcast.observe(this, Observer { broadcast ->
+
+        })
     }
 }
 

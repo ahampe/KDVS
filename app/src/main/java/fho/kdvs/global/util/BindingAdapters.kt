@@ -38,5 +38,5 @@ fun updateNextLiveShow(view: TextView, nextShow: ShowEntity, isStreamingLive: Bo
     if (!isStreamingLive) return
 
     // TODO
-
 }
+

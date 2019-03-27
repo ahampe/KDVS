@@ -27,6 +27,9 @@ class SharedViewModel @Inject constructor(
     private val mediaSessionConnection: MediaSessionConnection
 ) : BaseViewModel(application) {
 
+    val nowPlaying: LiveData<ShowEntity>
+        get() = showRepository.playingShowLiveData
+
     val currentShow: LiveData<ShowEntity>
         get() = showRepository.playingShowLiveData
 

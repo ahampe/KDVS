@@ -78,7 +78,7 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     private fun subscribeToViewModel() {
-        viewModel.currentShow.observe(this, Observer { show ->
+        viewModel.nowPlaying.observe(this, Observer { show ->
             if (viewModel.isLiveNow.value == true) {
                 nowPlayingView.apply {
                     setCurrentShowTitle(show.name)
