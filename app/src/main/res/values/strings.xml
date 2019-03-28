@@ -37,4 +37,5 @@
     <string name="live">Live</string>
     <string name="live_template">Live %1$s</string>
     <string name="now_playing">Now Playing:</string>
+    <string name="up_next">UP NEXT:</string>
 </resources>

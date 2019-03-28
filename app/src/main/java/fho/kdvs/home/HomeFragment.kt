@@ -55,6 +55,7 @@ class HomeFragment : DaggerFragment() {
         viewModel.currentShow.observe(this, Observer { show ->
             binding.currentShow = show
             binding.executePendingBindings()
+            showName.isSelected = true
         })
 
         viewModel.nextShow.observe(this, Observer { show ->

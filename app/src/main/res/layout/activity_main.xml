@@ -38,7 +38,8 @@
             android:layout_gravity="bottom"
             android:background="?android:attr/windowBackground"
             app:layout_behavior="fho.kdvs.global.behavior.BottomNavigationBehavior"
-            app:menu="@menu/navigation" />
+            app:menu="@menu/navigation"
+            app:labelVisibilityMode="unlabeled"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.constraintlayout.motion.widget.MotionLayout>
