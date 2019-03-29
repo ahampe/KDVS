@@ -29,16 +29,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/go_live"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="@{() -> vm.changeToKdvsOgg()}"
-            android:text="Go Live"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <TextView
             android:id="@+id/nextShowTitle"
             android:layout_width="wrap_content"
@@ -52,7 +42,7 @@
             style="@style/TextAppearance.MaterialComponents.Overline"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/go_live"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="UP NEXT:" />
 
         <TextView
@@ -74,7 +64,7 @@
             glideHref="@{currentShow.defaultImageHref}"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="@dimen/spacing_medium"
+            android:layout_marginTop="@dimen/spacing_large"
             android:layout_marginHorizontal="@dimen/home_image_horizontal_margin"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
@@ -84,10 +74,10 @@
             tools:src="@drawable/show_placeholder" />
 
         <LinearLayout
-            android:id="@+id/showDesc"
+            android:id="@+id/showInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_marginTop="@dimen/spacing_med_large"
             android:orientation="vertical"
             app:layout_constraintTop_toBottomOf="@id/showImage">
 
@@ -131,13 +121,11 @@
         <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/exoPlayerView"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="64dp"
-            app:hide_on_touch="false"
-            app:layout_constraintHorizontal_bias="0.0"
+            android:layout_height="80dp"
+            android:layout_marginTop="@dimen/spacing_large"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/showDesc"
+            app:layout_constraintTop_toBottomOf="@id/showInfo"
             app:use_artwork="true">
 
             <!--TODO next show-->

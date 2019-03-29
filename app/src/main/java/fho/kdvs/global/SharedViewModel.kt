@@ -1,6 +1,7 @@
 package fho.kdvs.global
 
 import android.app.Application
+import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import fho.kdvs.broadcast.BroadcastRepository
@@ -57,6 +58,25 @@ class SharedViewModel @Inject constructor(
 
     fun changeToKdvsOgg() {
         prepareLivePlayback(URLs.LIVE_OGG)
+    }
+
+    fun playOrPausePlayback() {
+        if (mediaSessionConnection.playbackState.value?.isPrepared == false)
+            changeToKdvsOgg()
+        
+        val transportControls = mediaSessionConnection.transportControls ?: return
+        mediaSessionConnection.playbackState.value?.let { playbackState ->
+            if (playbackState.isPlaying)
+                transportControls.pause()
+            else
+                transportControls.play()
+        }
+    }
+
+    fun stopPlayback() {
+        val transportControls = mediaSessionConnection.transportControls ?: return
+        mediaSessionConnection.playbackState.value?.let { playbackState ->
+            if (playbackState.isPlaying) transportControls.stop() }
     }
 
     private fun prepareLivePlayback(streamUrl: String) {

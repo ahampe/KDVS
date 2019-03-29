@@ -7,10 +7,13 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.Player
 import dagger.android.support.DaggerFragment
 import fho.kdvs.databinding.FragmentHomeBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
+import fho.kdvs.R
+import kotlinx.android.synthetic.main.exo_playback_control_view.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import javax.inject.Inject
 
@@ -45,12 +48,10 @@ class HomeFragment : DaggerFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         exoPlayerView.player = exoPlayer
+
+        initExoPlayer()
     }
 
-    /*
-     * Consult #1:
-     * https://proandroiddev.com/5-common-mistakes-when-using-architecture-components-403e9899f4cb
-     */
     private fun subscribeToViewModel() {
         viewModel.currentShow.observe(this, Observer { show ->
             binding.currentShow = show
@@ -66,6 +67,32 @@ class HomeFragment : DaggerFragment() {
         viewModel.currentBroadcast.observe(this, Observer { broadcast ->
 
         })
+    }
+
+    // TODO: refactor exoPlayer functions to be activity-wide
+    // TODO: fix glitch with exoPlayer disappearing
+    private fun initExoPlayer() {
+        exoTimeBar.visibility = View.GONE
+
+        exoPlayerView.player.addListener(object: Player.EventListener {
+            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                if (playWhenReady && playbackState == Player.STATE_READY) { // stream is playing
+                    exo_play_pause.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp)
+                } else if (playWhenReady) { // idle, buffering, or ended
+                    exo_play_pause.setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
+                } else { // paused
+                    exo_play_pause.setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
+                }
+            }
+        })
+
+        initExoPlayerButtons()
+    }
+
+    private fun initExoPlayerButtons() {
+        exo_stop.setOnClickListener { viewModel.stopPlayback() }
+        exo_play_pause.setOnClickListener { viewModel.playOrPausePlayback() }
+        exo_live.setOnClickListener { viewModel.changeToKdvsOgg() }
     }
 }
 

@@ -2,6 +2,7 @@
     <dimen name="spacing_xsmall">2dp</dimen>
     <dimen name="spacing_small">4dp</dimen>
     <dimen name="spacing_medium">8dp</dimen>
+    <dimen name="spacing_med_large">12dp</dimen>
     <dimen name="spacing_large">16dp</dimen>
 
     <!-- Default screen margins, per the Android Design guidelines. -->
