@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import dagger.android.support.DaggerFragment
@@ -15,6 +16,7 @@ import fho.kdvs.global.SharedViewModel
 import fho.kdvs.R
 import kotlinx.android.synthetic.main.exo_playback_control_view.*
 import kotlinx.android.synthetic.main.fragment_home.*
+import timber.log.Timber
 import javax.inject.Inject
 
 class HomeFragment : DaggerFragment() {
@@ -48,7 +50,6 @@ class HomeFragment : DaggerFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         exoPlayerView.player = exoPlayer
-
         initExoPlayer()
     }
 
@@ -62,10 +63,20 @@ class HomeFragment : DaggerFragment() {
         viewModel.nextShow.observe(this, Observer { show ->
             binding.nextShow = show
             binding.executePendingBindings()
+
+            // redirect to show details view
+            nextShowName.setOnClickListener {
+                Timber.d("clicked ${show.name}")
+                viewModel.onClickNextShow(this.findNavController(), show)
+            }
         })
 
         viewModel.currentBroadcast.observe(this, Observer { broadcast ->
-
+            // redirect to broadcast view
+            showImage.setOnClickListener {
+                Timber.d("clicked ${nextShowName.text}")
+                viewModel.onClickShowImage(this.findNavController(), broadcast)
+            }
         })
     }
 

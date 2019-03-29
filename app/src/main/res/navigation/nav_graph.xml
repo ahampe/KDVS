@@ -8,7 +8,24 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="fho.kdvs.home.HomeFragment"
-        android:label="HomeFragment" />
+        android:label="HomeFragment">
+        <argument
+            android:name="broadcastId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_homeFragment_to_broadcastDetailsFragment"
+            app:destination="@id/broadcastDetailsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+        <argument
+            android:name="showId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_homeFragment_to_showDetailsFragment"
+            app:destination="@id/showDetailsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
     <fragment
         android:id="@+id/scheduleFragment"
         android:name="fho.kdvs.schedule.ScheduleFragment"

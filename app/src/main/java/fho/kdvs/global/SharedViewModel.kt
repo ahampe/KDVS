@@ -4,6 +4,7 @@ import android.app.Application
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.navigation.NavController
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
@@ -12,6 +13,7 @@ import fho.kdvs.global.extensions.isPlayEnabled
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
 import fho.kdvs.global.util.URLs
+import fho.kdvs.home.HomeFragmentDirections
 import fho.kdvs.services.LiveShowUpdater
 import fho.kdvs.services.MediaSessionConnection
 import fho.kdvs.show.ShowRepository
@@ -63,7 +65,7 @@ class SharedViewModel @Inject constructor(
     fun playOrPausePlayback() {
         if (mediaSessionConnection.playbackState.value?.isPrepared == false)
             changeToKdvsOgg()
-        
+
         val transportControls = mediaSessionConnection.transportControls ?: return
         mediaSessionConnection.playbackState.value?.let { playbackState ->
             if (playbackState.isPlaying)
@@ -98,6 +100,18 @@ class SharedViewModel @Inject constructor(
         } else {
             transportControls.playFromMediaId(streamUrl, null)
         }
+    }
+
+    fun onClickNextShow(navController: NavController, show: ShowEntity) {
+        val navAction = HomeFragmentDirections
+            .actionHomeFragmentToShowDetailsFragment(show.id)
+        navController.navigate(navAction)
+    }
+
+    fun onClickShowImage(navController: NavController, broadcast: BroadcastEntity) {
+        val navAction = HomeFragmentDirections
+            .actionHomeFragmentToBroadcastDetailsFragment(broadcast.showId, broadcast.broadcastId)
+        navController.navigate(navAction)
     }
 
     // endregion
