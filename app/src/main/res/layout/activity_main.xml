@@ -26,7 +26,7 @@
         <include
             layout="@layout/view_now_playing"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             app:behavior_hideable="false"
             app:behavior_peekHeight="@dimen/double_bottom_nav"
             app:layout_behavior="@string/bottom_sheet_behavior" />
