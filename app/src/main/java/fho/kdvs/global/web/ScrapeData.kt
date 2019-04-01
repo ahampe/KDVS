@@ -1,8 +1,6 @@
 package fho.kdvs.global.web
 
-import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.database.*
 import fho.kdvs.schedule.QuarterYear
 
 /**
@@ -16,4 +14,6 @@ sealed class ScrapeData
 data class ScheduleScrapeData(val quarterYear: QuarterYear, val shows: List<ShowEntity>) : ScrapeData()
 data class ShowScrapeData(val broadcasts: List<BroadcastEntity>) : ScrapeData()
 data class PlaylistScrapeData(val tracks: List<TrackEntity>) : ScrapeData()
+data class TopMusicScrapeData(val topMusicItems: List<TopMusicEntity>) : ScrapeData()
+data class ContactScrapeData(val contacts: List<ContactEntity>) : ScrapeData()
 

@@ -1,10 +1,7 @@
 package fho.kdvs.global.web
 
 import androidx.annotation.VisibleForTesting
-import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.KdvsDatabase
-import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.database.*
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.enums.enumValueOrDefault
@@ -22,6 +19,7 @@ import org.jsoup.nodes.Document
 import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 import java.io.File
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -286,6 +284,94 @@ class WebScraperManager @Inject constructor(
         return PlaylistScrapeData(tracksScraped)
     }
 
+    private fun scrapeTopMusic(document: Document) : TopMusicScrapeData? {
+        val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
+
+        val isNewAdd = url?.toLowerCase()?.contains("adds")
+
+        val topMusicItemsScraped = mutableListOf<TopMusicEntity>()
+
+        document?.run {
+            val dates = select("h2.top-title")
+            dates.forEach { element ->
+                val dateCaptures = parseDate(element.toString())
+                val month = dateCaptures?.getOrNull(1)?.toInt()?.minus(1)
+                val day = dateCaptures?.getOrNull(2)?.toInt()
+                val year = dateCaptures?.getOrNull(3)?.toInt()
+                var calendar = Calendar.getInstance()
+                calendar.set(year ?: 0, month ?: 0, day ?: 0)
+                val date = calendar.time
+
+                val albums = element.nextElementSibling().select("li")
+
+                albums.forEachIndexed{ index, element ->
+                    val captures = "(.+)<br>.*>(.+)<.*>.*\\((.+)\\)".toRegex()
+                        .find(element.html())
+                        ?.groupValues
+                    val artist = captures?.getOrNull(1)?.toString()
+                    val album = captures?.getOrNull(2)?.toString()
+                    val label = captures?.getOrNull(3)?.toString()
+
+                    if (captures != null){
+                        topMusicItemsScraped?.add(TopMusicEntity(
+                            artist = artist,
+                            album = album,
+                            label = label,
+                            weekOf = date,
+                            position = index + 1,
+                            isNewAdd = isNewAdd
+                        ))
+                    }
+                }
+
+                topMusicItemsScraped.forEach { topMusic ->
+                    db.topMusicDao().insert(topMusic)
+                }
+            }
+        }
+
+        return TopMusicScrapeData(topMusicItemsScraped)
+    }
+
+    private fun ContactPageScraper(document: Document) : ContactScrapeData? {
+        val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
+
+        val contactsScraped = mutableListOf<ContactEntity>()
+
+        document.run {
+            val staff = select("table.contact-table tbody tr")
+            staff.forEach { element ->
+                val positionCell = element.select("td").getOrNull(0)
+                val positionCaptures = ".*<b>([\\w&\\s]+)<br>.*</b>.*</span>([\\w&\\s]+).*<br>.*<a href.*>([\\w@\\.]+)</a>.*".toRegex()
+                    .find(positionCell?.html() ?: "")
+                    ?.groupValues
+
+                val name = positionCaptures?.getOrNull(1).toString().trim()
+                val position = positionCaptures?.getOrNull(2).toString().trim()
+                val email = positionCaptures?.getOrNull(3).toString().trim()
+                val duties = element.select("td").getOrNull(1)?.html()?.trim()
+                val officeHours = element.select("td").getOrNull(2)?.html()
+                    ?.replace("<br>", "\n")
+                    ?.trim()
+
+                contactsScraped?.add(ContactEntity(
+                    name = name,
+                    position = position,
+                    email = email,
+                    duties = duties,
+                    officeHours = officeHours
+                ))
+            }
+
+
+            contactsScraped.forEach { contact ->
+                db.contactDao().insert(contact)
+            }
+        }
+
+        return ContactScrapeData(contactsScraped)
+    }
+
     // Helper function for scraping a mock schedule html file
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun scrapeSchedule(file: File) {
@@ -314,6 +400,12 @@ class WebScraperManager @Inject constructor(
 }
 
 //region Helper Methods
+private fun parseDate(dateString: String?): List<String>? {
+    return "([0-9]+)/([0-9]+)/([0-9]+)".toRegex()
+        .find(dateString.orEmpty())
+        ?.groupValues
+}
+
 private fun parseTime(dateString: String?): List<String>? {
     // e.g. "10:30AM - 12:00PM"
     return """([0-9]{1,2}:[0-9]{2})\s?([AP]M)\s?-\s?([0-9]{1,2}:[0-9]{2})\s?([AP]M)""".toRegex()
