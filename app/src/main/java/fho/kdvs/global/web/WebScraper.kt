@@ -333,7 +333,7 @@ class WebScraperManager @Inject constructor(
         return TopMusicScrapeData(topMusicItemsScraped)
     }
 
-    private fun ContactPageScraper(document: Document) : ContactScrapeData? {
+    private fun scrapeContacts(document: Document) : ContactScrapeData? {
         val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
 
         val contactsScraped = mutableListOf<ContactEntity>()
@@ -386,11 +386,25 @@ class WebScraperManager @Inject constructor(
         scrapeShow(document)
     }
 
-    // Helper function for scraping a mock show html file
+    // Helper function for scraping a mock playlist html file
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun scrapePlaylist(file: File) {
         val document = Jsoup.parse(file, "UTF-8", "")
         scrapePlaylist(document)
+    }
+
+    // Helper function for scraping a mock contacts html file
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    fun scrapeTopMusic(file: File) {
+        val document = Jsoup.parse(file, "UTF-8", "")
+        scrapeTopMusic(document)
+    }
+
+    // Helper function for scraping a mock contacts html file
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    fun scrapeContacts(file: File) {
+        val document = Jsoup.parse(file, "UTF-8", "")
+        scrapeContacts(document)
     }
 
     companion object {
