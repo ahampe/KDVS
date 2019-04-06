@@ -12,7 +12,15 @@ object URLs {
 
     const val SCHEDULE = "https://kdvs.org/programming/schedule-grid/"
 
+    const val NEWS = "https://kdvs.org/category/kdvs-news/"
+
+    const val CONTACT = "https://kdvs.org/about/contact/"
+
     const val SHOW_IMAGE_PLACEHOLDER = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg"
+
+    const val TOP_ADDS = "https://kdvs.org/programming/top-5-adds/"
+
+    const val TOP_ALBUMS = "https://kdvs.org/programming/top-30/"
 
     fun showDetails(id: String) = "https://kdvs.org/past-playlists/$id/"
 

@@ -6,27 +6,11 @@
     tools:context=".home.HomeFragment">
 
     <data>
-
-        <variable
-            name="currentShow"
-            type="fho.kdvs.global.database.ShowEntity" />
-
-        <variable
-            name="nextShow"
-            type="fho.kdvs.global.database.ShowEntity" />
-
-        <variable
-            name="clickListener"
-            type="android.view.View.OnClickListener" />
-
-        <variable
-            name="vm"
-            type="fho.kdvs.global.SharedViewModel" />
-
         <import type="org.threeten.bp.OffsetDateTime" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -34,101 +18,101 @@
             android:id="@+id/go_live"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/spacing_large"
             android:onClick="@{() -> vm.changeToKdvsOgg()}"
-            android:text="Go Live"
+            android:text="Go Live!"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" />         <!-- TODO: Replace this?-->
 
-        <TextView
-            android:id="@+id/nextShowName"
-            android:layout_width="wrap_content"
-            android:layout_height="22dp"
-            android:text='@{String.format("Up Next: %s", nextShow.name ?? "")}'
-            android:textColor="@android:color/white"
-            android:textSize="10sp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/go_live"
-            tools:text="Up Next: Show Name" />
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/currentShowCard"
+        <LinearLayout
+            android:id="@+id/news"
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="@{clickListener}"
-            app:layout_constraintTop_toBottomOf="@id/nextShowName"
-            android:padding="16dp">
+            android:layout_marginLeft="@dimen/spacing_large"
+            app:layout_constraintTop_toBottomOf="go_live">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <TextView
+                android:id="@+id/newsHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="News"
+                style="@style/TextAppearance.MaterialComponents.Headline4"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/newsArticles"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="8dp">
+                android:layout_marginLeft="@dimen/spacing_large"/>
+        </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/showImage"
-                    glideHref="@{currentShow.defaultImageHref}"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:src="@drawable/show_placeholder" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/colorPrimary50a"
-                    android:orientation="vertical"
-                    android:padding="8dp"
-                    app:layout_constraintBottom_toBottomOf="parent">
-
-                    <TextView
-                        android:id="@+id/showName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text='@{currentShow.name ?? ""}'
-                        android:textColor="@color/colorPrimaryDark"
-                        android:textSize="30sp"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:text="Show Name" />
-
-                    <TextView
-                        android:id="@+id/showTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/colorPrimaryDark"
-                        android:textSize="16sp"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/showName"
-                        app:timeEnd="@{currentShow.timeEnd ?? OffsetDateTime.now()}"
-                        app:timeStart="@{currentShow.timeStart ?? OffsetDateTime.now()}"
-                        tools:text="00:00 AM - 02:00 PM" />
-                </LinearLayout>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
-
-        <com.google.android.exoplayer2.ui.PlayerView
-            android:id="@+id/exoPlayerView"
+        <LinearLayout
+            android:id="@+id/topAlbums"
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:hide_on_touch="false"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/currentShowCard"
-            app:use_artwork="true"
-            tools:layout_editor_absoluteX="0dp">
+            android:layout_marginLeft="@dimen/spacing_large"
+            app:layout_constraintTop_toBottomOf="news">
 
-            <!--TODO next show-->
+            <TextView
+                android:id="@+id/topAlbumsHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Top Albums"
+                style="@style/TextAppearance.MaterialComponents.Headline4"/>
 
-        </com.google.android.exoplayer2.ui.PlayerView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/albums"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/spacing_large"/>
+        </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:id="@+id/topAdds"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/spacing_large"
+            app:layout_constraintTop_toBottomOf="topAlbums">
 
+            <TextView
+                android:id="@+id/topAddsHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Top Adds"
+                style="@style/TextAppearance.MaterialComponents.Headline4"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/adds"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/spacing_large"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/contact"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/spacing_large"
+            app:layout_constraintTop_toBottomOf="topAdds">
+
+            <TextView
+                android:id="@+id/contactHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Contact"
+                style="@style/TextAppearance.MaterialComponents.Headline4"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/contacts"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/spacing_large"/>
+        </LinearLayout>
+
+    </LinearLayout>
 
 </layout>

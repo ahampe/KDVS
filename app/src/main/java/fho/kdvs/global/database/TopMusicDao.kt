@@ -2,16 +2,17 @@ package fho.kdvs.global.database
 
 import androidx.room.Insert
 import androidx.room.Query
+import io.reactivex.Flowable
 
 interface TopMusicDao {
     @Query("SELECT * from topMusicData")
-    fun getAll(): List<TopMusicEntity>
+    fun getAll(): Flowable<List<TopMusicEntity>>
 
     @Query("SELECT * from topMusicData where isNewAdd = 1 order by weekOf desc limit 1")
-    fun getMostRecentTopAdds(): List<TopMusicEntity>
+    fun getMostRecentTopAdds(): Flowable<List<TopMusicEntity>>
 
     @Query("SELECT * from topMusicData where isNewAdd = 0 order by weekOf desc limit 1")
-    fun getMostRecentTopAlbums(): List<TopMusicEntity>
+    fun getMostRecentTopAlbums(): Flowable<List<TopMusicEntity>>
 
     @Insert
     fun insert(topMusicEntity: TopMusicEntity)

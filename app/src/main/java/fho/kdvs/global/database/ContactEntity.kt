@@ -3,7 +3,11 @@ package fho.kdvs.global.database
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import fho.kdvs.schedule.QuarterYear
 
+/**
+ * Contacts page may change on a quarterly basis.
+ */
 @Entity(tableName = "contactData")
 data class ContactEntity (
     @PrimaryKey(autoGenerate = true) var contactId: Int = 0,

@@ -1,6 +1,7 @@
 package fho.kdvs
 
 import fho.kdvs.global.database.BroadcastEntity
+import fho.kdvs.global.database.NewsEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.enums.Day
@@ -224,6 +225,41 @@ object MockObjects {
             )
         )
     }
+
+    val news = listOf(
+        NewsEntity(
+            title = "Queer Quollaboration – PA Show Highlight",
+            author = "PUBLIC AFFAIRS",
+            body = "<div><b>Show: </b>Queer Quollaboration</div>\n" +
+                    "<div><b>Host: </b>Graham</div>\n" +
+                    "<div><b>Show Description: </b>Featuring interviews with people involved in local and regional efforts to advocate and support the LGBTQ community. Topics discussed: gender norms, queer activism, mental and sexual health, queer youth, queer politics, coming out, LGBT history and so much more!</div>\n" +
+                    "<div><b>Contact Info: </b><a href=\"mailto:geeverett@ucdavis.edu\" target=\"_blank\" rel=\"noopener\">geeverett@ucdavis.edu</a></div>... \t\t\t\t\t\t\n" +
+                    "\t\t\t\t\t\t</div>",
+            date = TimeHelper.makeLocalDate("2018-11-07"),
+            articleHref = "https://kdvs.org/queer-quollaboration-pa-show-highlight/",
+            imageHrefs = null
+        ),
+        NewsEntity(
+            title = "Fundraiser Week",
+            author = "PUBLIC AFFAIRS",
+            body = "\n" +
+                    "\t\t\t\t\t\t\n" +
+                    "\t\t\t\t\t\t\n" +
+                    "\t\t\t\t\t\tMake sure to tune into our Public Affairs programs that air every week from 8:00AM-9:30AM and 4:30PM-6:00PM!... \t\t\t\t\t\t\n" +
+                    "\t\t\t\t\t\t",
+            date = TimeHelper.makeLocalDate("2018-11-06"),
+            articleHref = "https://kdvs.org/fundraiser-week/",
+            imageHrefs = null
+        ),
+        NewsEntity(
+            title = "UC Davis Makes Forbe’s List for Number of Women in STEM",
+            author = "GENERAL MANAGER",
+            body = "UCD was ranked #1 on Forbe’s list as the most highly valued degree for women in Science, Technology, Engineering, and Mathematics (STEM). Our spring reporter, Myah Daniels, discusses the UC Davis grant program ADVANCE, which encourages women to establish careers in science and engineering; and interviews students in the program. (Image: ucdavis.edu)",
+            date = TimeHelper.makeLocalDate("2016-09-11"),
+            articleHref = "https://kdvs.org/uc-davis-makes-forbes-list-for-number-of-women-in-stem/",
+            imageHrefs = listOf("https://kdvs.org/wp-content/uploads/2016/09/rose-hong-truong-uc-davis-best-women-stem.jpg")
+        )
+    )
 
     val playlist = listOf(
         TrackEntity(

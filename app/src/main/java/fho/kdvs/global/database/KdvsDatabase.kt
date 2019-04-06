@@ -26,8 +26,9 @@ abstract class KdvsDatabase : RoomDatabase() {
     abstract fun showDao(): ShowDao
     abstract fun broadcastDao(): BroadcastDao
     abstract fun trackDao(): TrackDao
-    abstract fun contactDao(): ContactDao
     abstract fun topMusicDao(): TopMusicDao
+    abstract fun contactDao(): ContactDao
+    abstract fun newsDao(): NewsDao
 
     companion object {
         private const val FILE_NAME = "kdvs.db"

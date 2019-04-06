@@ -16,6 +16,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 import java.io.File
@@ -298,9 +299,7 @@ class WebScraperManager @Inject constructor(
                 val month = dateCaptures?.getOrNull(1)?.toInt()?.minus(1)
                 val day = dateCaptures?.getOrNull(2)?.toInt()
                 val year = dateCaptures?.getOrNull(3)?.toInt()
-                var calendar = Calendar.getInstance()
-                calendar.set(year ?: 0, month ?: 0, day ?: 0)
-                val date = calendar.time
+                val date = LocalDate.of(year ?: 0, month ?: 0, day ?: 0)
 
                 val albums = element.nextElementSibling().select("li")
 
@@ -334,8 +333,6 @@ class WebScraperManager @Inject constructor(
     }
 
     private fun scrapeContacts(document: Document) : ContactScrapeData? {
-        val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
-
         val contactsScraped = mutableListOf<ContactEntity>()
 
         document.run {
@@ -372,6 +369,87 @@ class WebScraperManager @Inject constructor(
         return ContactScrapeData(contactsScraped)
     }
 
+    private fun scrapeNews(document: Document) : NewsScrapeData? {
+        val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
+
+        val articlesScraped = mutableListOf<NewsEntity>()
+
+        lateinit var lastDateScraped: LocalDate
+
+        document.run {
+            val articles = select("article")
+            articles.forEach { element ->
+                val aCell = element.select("h2 a")
+                val articleHref = aCell.attr("href")
+                val title = aCell.attr("title")
+
+                val titleDiv = element.select("div .post-meta").first()
+                val author = titleDiv.select("span").first().html()
+
+                val dateCaptures = parseDate(titleDiv.html())
+                val month = dateCaptures?.getOrNull(1)?.toInt()?.minus(1)
+                val day = dateCaptures?.getOrNull(2)?.toInt()
+                val year = dateCaptures?.getOrNull(3)?.toInt()
+                val date = LocalDate.of(year ?: 0, month ?: 0, day ?: 0)
+                lastDateScraped = date
+
+                val mainBodyDiv = element.select("div .post-content")
+                val imageHrefs = mutableListOf<String>()
+                val images = mainBodyDiv.select("img")
+                images.forEach {
+                    if (it.attr("srcset").isNotEmpty()){
+                        val url = "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)\n"
+                            .toRegex()
+                            .find(it.attr("srcset"))
+                            ?.groupValues
+                            ?.last()
+                            .toString()
+
+                        if (url.isNotEmpty())
+                            imageHrefs.add(url)
+                    }
+                }
+
+                val bodyDiv = mainBodyDiv.select("div .excerpt, div .entry-content")
+                val body = bodyDiv.select("div:not(:has(img)), p:not(:has(img))")
+                    .joinToString("\\n")
+                    .trim()
+
+                articlesScraped?.add(NewsEntity(
+                    title = title,
+                    author = author,
+                    body = body,
+                    date = date,
+                    articleHref = articleHref,
+                    imageHrefs = imageHrefs
+                ))
+            }
+
+
+            articlesScraped.forEach { article ->
+                db.newsDao().insert(article)
+            }
+
+            // if the last article on the page is within the past 3 months, scrape the next page as well
+            // TODO: do this on a quarterly basis?
+            if (LocalDate.now().minusMonths(3) <= lastDateScraped)
+            {
+                val currentPage = "page/([0-9]+)".toRegex()
+                    .find(url.toString())
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?: "1"
+
+                val newsUrl = "page/([0-9]+)".toRegex()
+                    .replace(url.toString(), "")
+
+                scrapeBlocking(newsUrl + "page/" + (currentPage.toInt() + 1).toString())
+            }
+        }
+
+        return NewsScrapeData(articlesScraped)
+    }
+
     // Helper function for scraping a mock schedule html file
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun scrapeSchedule(file: File) {
@@ -405,6 +483,13 @@ class WebScraperManager @Inject constructor(
     fun scrapeContacts(file: File) {
         val document = Jsoup.parse(file, "UTF-8", "")
         scrapeContacts(document)
+    }
+
+    // Helper function for scraping a mock news html file
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    fun scrapeNews(file: File) {
+        val document = Jsoup.parse(file, "UTF-8", "")
+        scrapeNews(document)
     }
 
     companion object {

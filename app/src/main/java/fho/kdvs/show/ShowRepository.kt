@@ -90,7 +90,7 @@ class ShowRepository @Inject constructor(
      * Runs a schedule scrape without checking when it was last performed.
      * The only acceptable public usage of this method is when user explicitly refreshes.
      */
-    fun forceScrapeSchedule(): Job? = scraperManager.scrape(URLs.SCHEDULE)
+    private fun forceScrapeSchedule(): Job? = scraperManager.scrape(URLs.SCHEDULE)
 
     /** Fetches a [LiveData] that will wrap the show matching the provided ID. */
     fun showById(showId: Int): LiveData<ShowEntity> =
