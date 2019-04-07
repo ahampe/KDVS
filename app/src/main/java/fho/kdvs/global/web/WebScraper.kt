@@ -16,8 +16,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.threeten.bp.LocalDate
-import org.threeten.bp.OffsetDateTime
+import org.threeten.bp.*
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
@@ -378,10 +377,10 @@ class WebScraperManager @Inject constructor(
             articles.forEach { element ->
                 val aCell = element.select("h2 a")
                 val articleHref = aCell.attr("href")
-                val title = aCell.attr("title")
+                val title = aCell.getOrNull(0).parseHtml()
 
-                val titleDiv = element.select("div .post-meta").first()
-                val author = titleDiv.select("span").first().parseHtml()
+                val titleDiv = element.select("div.post-meta").first()
+                val author = titleDiv.select("span").firstOrNull().parseHtml()
 
                 val dateCaptures = parseDate(titleDiv.parseHtml())
                 val month = dateCaptures?.getOrNull(1)?.toInt()
@@ -390,27 +389,29 @@ class WebScraperManager @Inject constructor(
                 val date = LocalDate.of(year ?: 0, month ?: 0, day ?: 0)
                 lastDateScraped = date
 
-                val mainBodyDiv = element.select("div .post-content")
+                val mainBodyDiv = element.select("div.post-content, div.entry-content")
                 val imageHrefs = mutableListOf<String>()
                 val images = mainBodyDiv.select("img")
                 images.forEach {
-                    if (it.attr("srcset").isNotEmpty()){
-                        val url = "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)\n"
+                    val srcset = it.attr("srcset")
+                    if (srcset.isNotEmpty()){
+                        val url = "https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)"
                             .toRegex()
-                            .find(it.attr("srcset"))
+                            .findAll(srcset)
+                            .lastOrNull()
                             ?.groupValues
-                            ?.last()
-                            .toString()
+                            ?.firstOrNull()
 
-                        if (url.isNotEmpty())
+                        if (url != null)
                             imageHrefs.add(url)
                     }
                 }
 
-                val bodyDiv = mainBodyDiv.select("div .excerpt, div .entry-content")
-                val body = bodyDiv.select("div:not(:has(img)), p:not(:has(img))")
-                    .joinToString("\\n")
-                    .trim()
+                val body = mainBodyDiv.select("div.excerpt, div.entry-content")
+                    .map { it.parseHtml() }
+                    .joinToString("\n")
+                    ?.replace("<br>", "\n")
+                    ?.processHtml()
 
                 articlesScraped?.add(NewsEntity(
                     title = title,
@@ -418,7 +419,7 @@ class WebScraperManager @Inject constructor(
                     body = body,
                     date = date,
                     articleHref = articleHref,
-                    imageHrefs = imageHrefs
+                    imageHrefs = if (imageHrefs.size > 0) imageHrefs else null
                 ))
             }
 
@@ -429,7 +430,7 @@ class WebScraperManager @Inject constructor(
 
             // if the last article on the page is within the past 3 months, scrape the next page as well
             // TODO: do this on a quarterly basis?
-            if (LocalDate.now().minusMonths(3) <= lastDateScraped)
+            if (LocalDateTime.now(Clock.systemUTC()).minusMonths(3) <= lastDateScraped.atTime(0, 0))
             {
                 val currentPage = "page/([0-9]+)".toRegex()
                     .find(url.toString())
