@@ -20,7 +20,6 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 import java.io.File
-import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -65,8 +64,11 @@ class WebScraperManager @Inject constructor(
 
         when {
             url.contains("schedule-grid") -> scrapeSchedule(document)
-            url.contains("past-playlists") -> scrapeShow(document)
-            url.contains("playlist-details") -> scrapePlaylist(document)
+            url.contains("past-playlists") -> scrapeShow(document, url)
+            url.contains("playlist-details") -> scrapePlaylist(document, url)
+            url.contains("contacts") -> scrapeContacts(document)
+            url.contains("news") -> scrapeNews(document, url)
+            url.contains("top-") -> scrapeTopMusic(document, url)
             else -> throw Exception("Invalid url: $url")
         }
     } catch (e: Throwable) {
@@ -97,7 +99,7 @@ class WebScraperManager @Inject constructor(
 
         scheduleChildren.forEach { element ->
             when (element.tagName()) {
-                "h2" -> day = element.html().toUpperCase()
+                "h2" -> day = element.parseHtml()?.toUpperCase() ?: ""
                 "div" -> {
                     var imageHref = """background-image:\s*url\(&quot;(.*)&quot;\)""".toRegex()
                         .find(element.attributes().html())
@@ -112,7 +114,7 @@ class WebScraperManager @Inject constructor(
                         .map { Pair(it.groups[1]!!.value.toInt(), it.groups[2]!!.value) }
                         .unzip()
 
-                    val showTimeCaptures = parseTime(element.select(".time").first().html().trim())?.drop(1)
+                    val showTimeCaptures = parseTime(element.select(".time").first().parseHtml()?.trim())?.drop(1)
 
                     val (startTime, startAmpm, endTime, endAmpm) = showTimeCaptures ?: listOfNulls(4)
 
@@ -158,9 +160,7 @@ class WebScraperManager @Inject constructor(
         return ScheduleScrapeData(QuarterYear(quarter, year), showsScraped)
     }
 
-    private fun scrapeShow(document: Document): ShowScrapeData? {
-        val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
-
+    private fun scrapeShow(document: Document, url: String?): ShowScrapeData? {
         val showId = "kdvs.org/past-playlists/([0-9]+)".toRegex()
             .find(url.orEmpty())?.groupValues?.getOrNull(1)?.toInt() ?: return null
 
@@ -208,9 +208,7 @@ class WebScraperManager @Inject constructor(
         return ShowScrapeData(broadcastsScraped)
     }
 
-    private fun scrapePlaylist(document: Document): PlaylistScrapeData? {
-        val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
-
+    private fun scrapePlaylist(document: Document, url: String?): PlaylistScrapeData? {
         val broadcastId = "kdvs.org/playlist-details/([0-9]+)".toRegex()
             .find(url.orEmpty())?.groupValues?.getOrNull(1)?.toInt() ?: return null
 
@@ -285,10 +283,8 @@ class WebScraperManager @Inject constructor(
         return PlaylistScrapeData(tracksScraped)
     }
 
-    private fun scrapeTopMusic(document: Document) : TopMusicScrapeData? {
-        val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
-
-        val isNewAdd = url?.toLowerCase()?.contains("adds")
+    private fun scrapeTopMusic(document: Document, url: String?) : TopMusicScrapeData? {
+        val isNewAdd = url?.toLowerCase()?.contains("adds") ?: false
 
         val topMusicItemsScraped = mutableListOf<TopMusicEntity>()
 
@@ -296,7 +292,7 @@ class WebScraperManager @Inject constructor(
             val dates = select("h2.top-title")
             dates.forEach { element ->
                 val dateCaptures = parseDate(element.toString())
-                val month = dateCaptures?.getOrNull(1)?.toInt()?.minus(1)
+                val month = dateCaptures?.getOrNull(1)?.toInt()
                 val day = dateCaptures?.getOrNull(2)?.toInt()
                 val year = dateCaptures?.getOrNull(3)?.toInt()
                 val date = LocalDate.of(year ?: 0, month ?: 0, day ?: 0)
@@ -338,18 +334,22 @@ class WebScraperManager @Inject constructor(
         document.run {
             val staff = select("table.contact-table tbody tr")
             staff.forEach { element ->
-                val positionCell = element.select("td").getOrNull(0)
-                val positionCaptures = ".*<b>([\\w&\\s]+)<br>.*</b>.*</span>([\\w&\\s]+).*<br>.*<a href.*>([\\w@\\.]+)</a>.*".toRegex()
-                    .find(positionCell?.html() ?: "")
+                val positionCell = element.select("td")
+                    .getOrNull(0)
+                    ?.parseHtml()
+                    ?.replace("<br>","\n")
+                    .processHtml()
+                val positionCaptures = """^(.+)\n(.+)\n(.+)$""".toRegex()
+                    .find(positionCell ?: "")
                     ?.groupValues
 
-                val name = positionCaptures?.getOrNull(1).toString().trim()
-                val position = positionCaptures?.getOrNull(2).toString().trim()
-                val email = positionCaptures?.getOrNull(3).toString().trim()
-                val duties = element.select("td").getOrNull(1)?.html()?.trim()
+                val name = positionCaptures?.getOrNull(1).toString().processHtml()
+                val position = positionCaptures?.getOrNull(2).toString().processHtml()
+                val email = positionCaptures?.getOrNull(3).toString().processHtml()
+                val duties = element.select("td").getOrNull(1)?.html()?.processHtml()
                 val officeHours = element.select("td").getOrNull(2)?.html()
                     ?.replace("<br>", "\n")
-                    ?.trim()
+                    ?.processHtml()
 
                 contactsScraped?.add(ContactEntity(
                     name = name,
@@ -360,7 +360,6 @@ class WebScraperManager @Inject constructor(
                 ))
             }
 
-
             contactsScraped.forEach { contact ->
                 db.contactDao().insert(contact)
             }
@@ -369,9 +368,7 @@ class WebScraperManager @Inject constructor(
         return ContactScrapeData(contactsScraped)
     }
 
-    private fun scrapeNews(document: Document) : NewsScrapeData? {
-        val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
-
+    private fun scrapeNews(document: Document, url: String?) : NewsScrapeData? {
         val articlesScraped = mutableListOf<NewsEntity>()
 
         lateinit var lastDateScraped: LocalDate
@@ -384,10 +381,10 @@ class WebScraperManager @Inject constructor(
                 val title = aCell.attr("title")
 
                 val titleDiv = element.select("div .post-meta").first()
-                val author = titleDiv.select("span").first().html()
+                val author = titleDiv.select("span").first().parseHtml()
 
-                val dateCaptures = parseDate(titleDiv.html())
-                val month = dateCaptures?.getOrNull(1)?.toInt()?.minus(1)
+                val dateCaptures = parseDate(titleDiv.parseHtml())
+                val month = dateCaptures?.getOrNull(1)?.toInt()
                 val day = dateCaptures?.getOrNull(2)?.toInt()
                 val year = dateCaptures?.getOrNull(3)?.toInt()
                 val date = LocalDate.of(year ?: 0, month ?: 0, day ?: 0)
@@ -461,21 +458,25 @@ class WebScraperManager @Inject constructor(
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun scrapeShow(file: File) {
         val document = Jsoup.parse(file, "UTF-8", "")
-        scrapeShow(document)
+        val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
+        scrapeShow(document, url)
     }
 
     // Helper function for scraping a mock playlist html file
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun scrapePlaylist(file: File) {
         val document = Jsoup.parse(file, "UTF-8", "")
-        scrapePlaylist(document)
+        val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
+        scrapePlaylist(document, url)
     }
 
     // Helper function for scraping a mock contacts html file
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun scrapeTopMusic(file: File) {
         val document = Jsoup.parse(file, "UTF-8", "")
-        scrapeTopMusic(document)
+        val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
+            ?: document.select("link[rel='canonical']").attr("href")
+        scrapeTopMusic(document, url)
     }
 
     // Helper function for scraping a mock contacts html file
@@ -489,7 +490,8 @@ class WebScraperManager @Inject constructor(
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun scrapeNews(file: File) {
         val document = Jsoup.parse(file, "UTF-8", "")
-        scrapeNews(document)
+        val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
+        scrapeNews(document, url)
     }
 
     companion object {
@@ -516,5 +518,19 @@ private fun makeTime(time: String?, ampm: String?, day: Day?): OffsetDateTime? {
     if (time == null || ampm == null || day == null) return null
 
     return TimeHelper.makeWeekTime12h("$time $ampm", day)
+}
+
+/** Strip HTML tags from a string. */
+private fun String?.stripHtml(): String? {
+    if (this == null) return null
+
+    return this?.replace("<[^>]*>".toRegex(), "")
+}
+
+/** Strip html tags, trim, remove inner-string spaces near newlines */
+private fun String?.processHtml(): String? {
+    if (this == null) return null
+    
+    return this?.stripHtml()?.trim()?.replace("""\s*\n\s*""".toRegex(),"\n")
 }
 //endregion

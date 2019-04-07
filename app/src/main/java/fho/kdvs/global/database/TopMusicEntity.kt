@@ -13,5 +13,5 @@ data class TopMusicEntity(
     @ColumnInfo(name = "artist") var artist: String? = null,
     @ColumnInfo(name = "album") var album: String? = null,
     @ColumnInfo(name = "label") var label: String? = null,
-    @ColumnInfo(name = "isNewAdd") var isNewAdd: Boolean? = null
+    @ColumnInfo(name = "isNewAdd") var isNewAdd: Boolean = false
 )

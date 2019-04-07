@@ -1,9 +1,6 @@
 package fho.kdvs
 
-import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.NewsEntity
-import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.database.*
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.util.TimeHelper
@@ -226,6 +223,41 @@ object MockObjects {
         )
     }
 
+    val contacts: List<ContactEntity> by lazy {
+        listOf(
+            ContactEntity(
+                name = "Jacob Engel",
+                position = "General Manager",
+                email = "gm@kdvs.org",
+                duties = "Daily running of the station, FCC regulation, budget, community relations, and general overseeing",
+                officeHours = "Wednesday 2:30-5pm\n" +
+                        "Friday 12-3pm"
+            ),
+            ContactEntity(
+                name = "Tania Quintana & Jay Lounds",
+                position = "Co-Programming Directors",
+                email = "programming@kdvs.org",
+                duties = "Scheduling, training, compliance with FCC protocol, and quality control",
+                officeHours = "(Tania):\n" +
+                        "Monday 2-4pm\n" +
+                        "Thursday 12-2pm\n" +
+                        "(Jay):\n" +
+                        "Thursday 2-3pm\n" +
+                        "Friday 1-4pm"
+            ),
+            ContactEntity(
+                name = "Grace Swan-Streepy & Desmond Chu",
+                position = "Co-Events Directors",
+                email = "events@kdvs.org",
+                duties = "KDVS Presents booking and cross-promotion",
+                officeHours = "(Grace):\n"+
+                        "By Appointment\n"+
+                    "(Desmond):\n"+
+                    "By Appointment"
+            )
+        )
+    }
+
     val news = listOf(
         NewsEntity(
             title = "Queer Quollaboration – PA Show Highlight",
@@ -305,6 +337,60 @@ object MockObjects {
             song = "The Witness",
             album = "From a single",
             label = "self released"
+        )
+    )
+
+    val topAdds = listOf(
+        TopMusicEntity(
+            weekOf = TimeHelper.makeLocalDate("2019-03-25"),
+            position = 1,
+            artist = "Cavemen",
+            album = "Lowlife EP",
+            label = "Slovenly",
+            isNewAdd = true
+        ),
+        TopMusicEntity(
+            weekOf = TimeHelper.makeLocalDate("2019-03-25"),
+            position = 3,
+            artist = "Is In Unsamble",
+            album = "Is The Belly/In The Belly",
+            label = "Gilgongo",
+            isNewAdd = true
+        ),
+        TopMusicEntity(
+            weekOf = TimeHelper.makeLocalDate("2019-02-25"),
+            position = 1,
+            artist = "The Grundybergs",
+            album = "Playing Baseball With Walt Whitman",
+            label = "Self-Released",
+            isNewAdd = true
+        )
+    )
+
+    val topAlbums = listOf(
+        TopMusicEntity(
+            weekOf = TimeHelper.makeLocalDate("2019-04-01"),
+            position = 19,
+            artist = "Ibibio Sound Machine",
+            album = "Doko Mien",
+            label = "Merge",
+            isNewAdd = false
+        ),
+        TopMusicEntity(
+            weekOf = TimeHelper.makeLocalDate("2019-03-25"),
+            position = 8,
+            artist = "Fruit Bats & Vetiver",
+            album = "In Real Life (Live at Spacebomb Studios)",
+            label = "Spacebomb",
+            isNewAdd = false
+        ),
+        TopMusicEntity(
+            weekOf = TimeHelper.makeLocalDate("2019-03-04"),
+            position = 8,
+            artist = "The Real Kids",
+            album = "The Kids 1974 Demos - The Real Kids 1977/1978 demos/live",
+            label = "Crypt",
+            isNewAdd = false
         )
     )
 }

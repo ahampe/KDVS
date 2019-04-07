@@ -6,6 +6,10 @@
     tools:context=".home.HomeFragment">
 
     <data>
+        <variable
+            name="vm"
+            type="fho.kdvs.global.SharedViewModel" />
+
         <import type="org.threeten.bp.OffsetDateTime" />
     </data>
 
@@ -22,16 +26,14 @@
             android:onClick="@{() -> vm.changeToKdvsOgg()}"
             android:text="Go Live!"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />         <!-- TODO: Replace this?-->
+            app:layout_constraintRight_toRightOf="parent"/>         <!-- TODO: Replace this?-->
 
         <LinearLayout
             android:id="@+id/news"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/spacing_large"
-            app:layout_constraintTop_toBottomOf="go_live">
+            android:layout_marginLeft="@dimen/spacing_large">
 
             <TextView
                 android:id="@+id/newsHeader"
@@ -52,8 +54,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/spacing_large"
-            app:layout_constraintTop_toBottomOf="news">
+            android:layout_marginLeft="@dimen/spacing_large">
 
             <TextView
                 android:id="@+id/topAlbumsHeader"
@@ -74,8 +75,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/spacing_large"
-            app:layout_constraintTop_toBottomOf="topAlbums">
+            android:layout_marginLeft="@dimen/spacing_large">
 
             <TextView
                 android:id="@+id/topAddsHeader"
@@ -96,8 +96,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/spacing_large"
-            app:layout_constraintTop_toBottomOf="topAdds">
+            android:layout_marginLeft="@dimen/spacing_large">
 
             <TextView
                 android:id="@+id/contactHeader"

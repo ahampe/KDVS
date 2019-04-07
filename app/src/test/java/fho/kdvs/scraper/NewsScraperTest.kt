@@ -10,7 +10,7 @@ import org.mockito.Mockito.`when`
 
 class NewsScraperTest : ScraperTest() {
     private val scrapedArticles = mutableListOf<NewsEntity>()
-    private var expectedArticles = mutableListOf<NewsEntity>()
+    private lateinit var expectedArticles: List<NewsEntity>
 
     @Before
     override fun setup() {
@@ -26,14 +26,12 @@ class NewsScraperTest : ScraperTest() {
     fun scrapeNews_fromFile() {
         expectedArticles = MockObjects.news
 
-        val html = TestUtils.loadFromResource("Category Archive for _News_ _ KDVS.html")
+        val html = TestUtils.loadFromResource("News.html")
         scraperManager.scrapeNews(html)
 
         expectedArticles.forEach { article ->
             assertTrue("Expected to find article ${article.title}",
-                scrapedArticles.map { a -> a.title }.contains(article.title))
-            assertTrue("Expected to find article with body ${article.body}",
-                scrapedArticles.map{ a -> a.body }.contains(article.body))
+                scrapedArticles.contains(article))
         }
     }
 }

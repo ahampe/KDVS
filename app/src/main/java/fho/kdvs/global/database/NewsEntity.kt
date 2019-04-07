@@ -2,10 +2,12 @@ package fho.kdvs.global.database
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import org.threeten.bp.LocalDate
 
-@Entity(tableName = "contactData")
+@Entity(tableName = "newsData")
 data class NewsEntity (
+    @PrimaryKey(autoGenerate = true) val newsId: Int = 0,
     @ColumnInfo(name = "title") var title: String? = null,
     @ColumnInfo(name = "author") var author: String? = null,
     @ColumnInfo(name = "body") var body: String? = null,

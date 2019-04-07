@@ -17,7 +17,7 @@ import kotlin.reflect.KProperty
  * It's assumed that setting a value to null means the preference should be cleared.
  */
 @Singleton
-class KdvsPreferences @Inject constructor(application: Application) {
+open class KdvsPreferences @Inject constructor(application: Application) {
 
     companion object {
         const val FILE_NAME = "fho.kdvs.model.kdvspreferences"

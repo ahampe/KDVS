@@ -1,22 +1,24 @@
 package fho.kdvs.global.database
 
+import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import io.reactivex.Flowable
 
-interface TopMusicDao {
+@Dao
+abstract class TopMusicDao {
     @Query("SELECT * from topMusicData")
-    fun getAll(): Flowable<List<TopMusicEntity>>
+    abstract fun getAll(): Flowable<List<TopMusicEntity>>
 
     @Query("SELECT * from topMusicData where isNewAdd = 1 order by weekOf desc limit 1")
-    fun getMostRecentTopAdds(): Flowable<List<TopMusicEntity>>
+    abstract fun getMostRecentTopAdds(): Flowable<List<TopMusicEntity>>
 
     @Query("SELECT * from topMusicData where isNewAdd = 0 order by weekOf desc limit 1")
-    fun getMostRecentTopAlbums(): Flowable<List<TopMusicEntity>>
+    abstract fun getMostRecentTopAlbums(): Flowable<List<TopMusicEntity>>
 
     @Insert
-    fun insert(topMusicEntity: TopMusicEntity)
+    abstract fun insert(topMusicEntity: TopMusicEntity)
 
     @Query("DELETE from topMusicData")
-    fun deleteAll()
+    abstract fun deleteAll()
 }
