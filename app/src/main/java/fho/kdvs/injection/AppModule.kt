@@ -8,10 +8,7 @@ import com.google.android.exoplayer2.audio.AudioAttributes
 import dagger.Module
 import dagger.Provides
 import fho.kdvs.global.KdvsApp
-import fho.kdvs.global.database.BroadcastDao
-import fho.kdvs.global.database.KdvsDatabase
-import fho.kdvs.global.database.ShowDao
-import fho.kdvs.global.database.TrackDao
+import fho.kdvs.global.database.*
 import timber.log.Timber
 import javax.inject.Singleton
 
@@ -60,4 +57,16 @@ class AppModule {
     @Singleton
     @Provides
     fun provideTrackDao(db: KdvsDatabase): TrackDao = db.trackDao()
+
+    @Singleton
+    @Provides
+    fun provideNewsDao(db: KdvsDatabase): NewsDao = db.newsDao()
+
+    @Singleton
+    @Provides
+    fun provideTopMusicDao(db: KdvsDatabase): TopMusicDao = db.topMusicDao()
+
+    @Singleton
+    @Provides
+    fun provideContactDao(db: KdvsDatabase): ContactDao = db.contactDao()
 }

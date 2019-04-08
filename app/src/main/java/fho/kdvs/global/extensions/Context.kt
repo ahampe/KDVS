@@ -8,5 +8,5 @@ fun Context.isConnectedToInternet(): Boolean {
 
     val activeNetwork = cm.activeNetworkInfo
 
-    return activeNetwork != null && activeNetwork.isConnectedOrConnecting
+    return activeNetwork != null && activeNetwork.isConnected
 }

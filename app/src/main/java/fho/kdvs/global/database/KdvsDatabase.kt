@@ -10,10 +10,6 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
 import org.threeten.bp.ZoneOffset
 import java.io.File
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import java.util.*
-
 
 @Database(
     entities = [ShowEntity::class, BroadcastEntity::class, TrackEntity::class, ContactEntity::class, NewsEntity::class, TopMusicEntity::class],
@@ -23,8 +19,7 @@ import java.util.*
 @TypeConverters(
     OffsetDateTimeTypeConverter::class,
     LocalDateTypeConverter::class,
-    QuarterTypeConverter::class,
-    ListStringTypeConverter::class
+    QuarterTypeConverter::class
 )
 abstract class KdvsDatabase : RoomDatabase() {
 
@@ -91,25 +86,4 @@ class QuarterTypeConverter {
 
     @TypeConverter
     fun toQuarter(value: Int?): Quarter? = value?.let { Quarter.values()[value] }
-}
-
-/** Type converter for list of strings. Uses strings internally */
-// TODO: Make this Any instead of String?
-class ListStringTypeConverter {
-
-    @TypeConverter
-    fun stringToObjectList(data: String?): List<String> {
-        if (data == null) {
-            return Collections.emptyList()
-        }
-
-        val listType = object: TypeToken<List<String>>(){}.type
-
-        return Gson().fromJson(data, listType)
-    }
-
-    @TypeConverter
-    fun objectListToString(objects: List<String>): String {
-        return Gson().toJson(objects)
-    }
 }

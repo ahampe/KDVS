@@ -287,7 +287,7 @@ class WebScraperManager @Inject constructor(
 
         val topMusicItemsScraped = mutableListOf<TopMusicEntity>()
 
-        document?.run {
+        document.run {
             val dates = select("h2.top-title")
             dates.forEach { element ->
                 val dateCaptures = parseDate(element.toString())
@@ -298,7 +298,7 @@ class WebScraperManager @Inject constructor(
 
                 val albums = element.nextElementSibling().select("li")
 
-                albums.forEachIndexed{ index, element ->
+                albums.forEachIndexed{ index, _ ->
                     val captures = "(.+)<br>.*>(.+)<.*>.*\\((.+)\\)".toRegex()
                         .find(element.html())
                         ?.groupValues
@@ -307,7 +307,7 @@ class WebScraperManager @Inject constructor(
                     val label = captures?.getOrNull(3)?.toString()
 
                     if (captures != null){
-                        topMusicItemsScraped?.add(TopMusicEntity(
+                        topMusicItemsScraped.add(TopMusicEntity(
                             artist = artist,
                             album = album,
                             label = label,
@@ -350,7 +350,7 @@ class WebScraperManager @Inject constructor(
                     ?.replace("<br>", "\n")
                     ?.processHtml()
 
-                contactsScraped?.add(ContactEntity(
+                contactsScraped.add(ContactEntity(
                     name = name,
                     position = position,
                     email = email,
@@ -390,36 +390,33 @@ class WebScraperManager @Inject constructor(
                 lastDateScraped = date
 
                 val mainBodyDiv = element.select("div.post-content, div.entry-content")
-                val imageHrefs = mutableListOf<String>()
-                val images = mainBodyDiv.select("img")
-                images.forEach {
-                    val srcset = it.attr("srcset")
+                var imageHref: String? = null
+                val image = mainBodyDiv.select("img").firstOrNull()
+                if (image != null){
+                    val srcset = image.attr("srcset")
                     if (srcset.isNotEmpty()){
-                        val url = "https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)"
+                        imageHref = "https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)"
                             .toRegex()
                             .findAll(srcset)
                             .lastOrNull()
                             ?.groupValues
                             ?.firstOrNull()
-
-                        if (url != null)
-                            imageHrefs.add(url)
                     }
                 }
 
                 val body = mainBodyDiv.select("div.excerpt, div.entry-content")
                     .map { it.parseHtml() }
                     .joinToString("\n")
-                    ?.replace("<br>", "\n")
-                    ?.processHtml()
+                    .replace("<br>", "\n")
+                    .processHtml()
 
-                articlesScraped?.add(NewsEntity(
+                articlesScraped.add(NewsEntity(
                     title = title,
                     author = author,
                     body = body,
                     date = date,
                     articleHref = articleHref,
-                    imageHrefs = if (imageHrefs.size > 0) imageHrefs else null
+                    imageHref = imageHref
                 ))
             }
 
@@ -525,13 +522,13 @@ private fun makeTime(time: String?, ampm: String?, day: Day?): OffsetDateTime? {
 private fun String?.stripHtml(): String? {
     if (this == null) return null
 
-    return this?.replace("<[^>]*>".toRegex(), "")
+    return this.replace("<[^>]*>".toRegex(), "")
 }
 
 /** Strip html tags, trim, remove inner-string spaces near newlines */
 private fun String?.processHtml(): String? {
     if (this == null) return null
     
-    return this?.stripHtml()?.trim()?.replace("""\s*\n\s*""".toRegex(),"\n")
+    return this.stripHtml()?.trim()?.replace("""\s*\n\s*""".toRegex(),"\n")
 }
 //endregion

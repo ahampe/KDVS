@@ -1,12 +1,12 @@
 package fho.kdvs.show
 
+import androidx.lifecycle.LiveData
 import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.NewsDao
 import fho.kdvs.global.database.NewsEntity
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
-import io.reactivex.Flowable
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
@@ -41,9 +41,9 @@ class NewsRepository @Inject constructor(
      */
     fun forceScrapeNews(): Job? = scraperManager.scrape(URLs.NEWS)
 
-    fun getAllNews(): Flowable<List<NewsEntity>> =
+    fun getAllNews(): LiveData<List<NewsEntity>> =
         newsDao.getAll()
 
-    fun getAllNewsPastDate(date: LocalDate): Flowable<List<NewsEntity>> =
+    fun getAllNewsPastDate(date: LocalDate): LiveData<List<NewsEntity>> =
         newsDao.getAllNewsPastDate(date)
 }

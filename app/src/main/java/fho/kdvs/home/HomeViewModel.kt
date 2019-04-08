@@ -1,4 +1,4 @@
-package fho.kdvs.schedule
+package fho.kdvs.home
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -9,7 +9,6 @@ import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.show.ContactRepository
 import fho.kdvs.show.NewsRepository
 import fho.kdvs.show.TopMusicRepository
-import io.reactivex.Flowable
 import org.threeten.bp.OffsetDateTime
 import javax.inject.Inject
 
@@ -23,10 +22,12 @@ class HomeViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
 
-    lateinit var newsArticles: Flowable<List<NewsEntity>>
-    lateinit var topMusicAdds: Flowable<List<TopMusicEntity>>
-    lateinit var topMusicAlbums: Flowable<List<TopMusicEntity>>
-    lateinit var contacts: Flowable<List<ContactEntity>>
+    // The news page will be updated with news articles at indeterminate (probably infrequent) intervals
+    // but other pages will be weekly / quarterly, in monolithic updates
+    lateinit var newsArticles: LiveData<List<NewsEntity>>
+    lateinit var topMusicAdds: LiveData<List<TopMusicEntity>>
+    lateinit var topMusicAlbums: LiveData<List<TopMusicEntity>>
+    lateinit var contacts: LiveData<List<ContactEntity>>
 
     fun fetchHomeData() {
         fetchNewsArticles()
@@ -48,9 +49,8 @@ class HomeViewModel @Inject constructor(
     /** Signals the [TopMusic Repository] to scrape the top music pages. */
     private fun fetchTopMusicItems() = topMusicRepository.scrapeTopMusic()
 
-    /** Signals the [Contact Repository] to scrape the top music pages. */
+    /** Signals the [Contact Repository] to scrape the contact page. */
     private fun fetchContacts() = contactRepository.scrapeContact()
-
 
     /**
      * Called when a news article is clicked.

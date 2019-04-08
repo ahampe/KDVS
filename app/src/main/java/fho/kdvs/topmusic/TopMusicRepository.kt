@@ -1,5 +1,6 @@
 package fho.kdvs.show
 
+import androidx.lifecycle.LiveData
 import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.preferences.KdvsPreferences
@@ -55,13 +56,13 @@ class TopMusicRepository @Inject constructor(
      * Runs a topMusic scrape without checking when it was last performed.
      * The only acceptable public usage of this method is when user explicitly refreshes.
      */
-    fun forceScrapeTopAdds(): Job? = scraperManager.scrape(URLs.TOP_ADDS)
+    private fun forceScrapeTopAdds(): Job? = scraperManager.scrape(URLs.TOP_ADDS)
 
-    fun forceScrapeTopAlbums(): Job? = scraperManager.scrape(URLs.TOP_ALBUMS)
+    private fun forceScrapeTopAlbums(): Job? = scraperManager.scrape(URLs.TOP_ALBUMS)
 
-    fun getMostRecentTopAdds(): Flowable<List<TopMusicEntity>> =
+    fun getMostRecentTopAdds(): LiveData<List<TopMusicEntity>> =
         topMusicDao.getMostRecentTopAdds()
 
-    fun getMostRecentTopAlbums(): Flowable<List<TopMusicEntity>> =
+    fun getMostRecentTopAlbums(): LiveData<List<TopMusicEntity>> =
         topMusicDao.getMostRecentTopAlbums()
 }

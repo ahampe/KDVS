@@ -1,13 +1,11 @@
 package fho.kdvs.broadcast
 
 import android.app.Application
-import android.os.Bundle
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TrackEntity
-import fho.kdvs.services.MediaSessionConnection
 import fho.kdvs.show.ShowRepository
 import fho.kdvs.track.TrackRepository
 import javax.inject.Inject

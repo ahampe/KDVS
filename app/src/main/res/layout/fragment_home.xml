@@ -7,8 +7,12 @@
 
     <data>
         <variable
-            name="vm"
+            name="sharedVm"
             type="fho.kdvs.global.SharedViewModel" />
+
+        <variable
+            name="broadcast"
+            type="fho.kdvs.global.database.BroadcastEntity" />
 
         <import type="org.threeten.bp.OffsetDateTime" />
     </data>
@@ -18,15 +22,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <!-- TODO: Replace this?-->
         <Button
             android:id="@+id/go_live"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/spacing_large"
-            android:onClick="@{() -> vm.changeToKdvsOgg()}"
+            android:onClick="@{() -> sharedVm.changeToKdvsOgg()}"
             android:text="Go Live!"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"/>         <!-- TODO: Replace this?-->
+            app:layout_constraintRight_toRightOf="parent"/>
 
         <LinearLayout
             android:id="@+id/news"
@@ -43,28 +48,7 @@
                 style="@style/TextAppearance.MaterialComponents.Headline4"/>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/newsArticles"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/spacing_large"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/topAlbums"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/spacing_large">
-
-            <TextView
-                android:id="@+id/topAlbumsHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Top Albums"
-                style="@style/TextAppearance.MaterialComponents.Headline4"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/albums"
+                android:id="@+id/newsRecycler"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="@dimen/spacing_large"/>
@@ -85,14 +69,35 @@
                 style="@style/TextAppearance.MaterialComponents.Headline4"/>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/adds"
+                android:id="@+id/topAddsRecycler"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="@dimen/spacing_large"/>
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/contact"
+            android:id="@+id/topAlbums"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/spacing_large">
+
+            <TextView
+                android:id="@+id/topAlbumsHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Top Albums"
+                style="@style/TextAppearance.MaterialComponents.Headline4"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/topAlbumsRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/spacing_large"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/contacts"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -106,7 +111,7 @@
                 style="@style/TextAppearance.MaterialComponents.Headline4"/>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/contacts"
+                android:id="@+id/contactsRecycler"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="@dimen/spacing_large"/>

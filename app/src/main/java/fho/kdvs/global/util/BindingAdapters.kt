@@ -1,7 +1,9 @@
 package fho.kdvs.global.util
 
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -30,6 +32,18 @@ fun loadImageWithGlide(view: ImageView, imageHref: String?) {
 @BindingAdapter("localDate", "dateFormatter")
 fun safeFormatDate(view: TextView, date: LocalDate?, dateFormatter: DateTimeFormatter) {
     view.text = date?.let { dateFormatter.format(it) } ?: ""
+}
+
+@BindingAdapter("trackPosition")
+fun alternateTrackBackground(layout: LinearLayout, position: Int?) {
+    val i = position ?: return
+
+    val color = when {
+        i % 2 == 0 -> ResourcesCompat.getColor(layout.resources, R.color.colorBlack50a, layout.context.theme)
+        else -> ResourcesCompat.getColor(layout.resources, R.color.colorPrimaryDark50a, layout.context.theme)
+    }
+
+    layout.setBackgroundColor(color)
 }
 
 @BindingAdapter("nextShow", "isStreamingLive")

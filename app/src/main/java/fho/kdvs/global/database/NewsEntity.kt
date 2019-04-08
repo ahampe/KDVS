@@ -13,5 +13,5 @@ data class NewsEntity (
     @ColumnInfo(name = "body") var body: String? = null,
     @ColumnInfo(name = "date") var date: LocalDate? = null,
     @ColumnInfo(name = "articleHref") var articleHref: String? = null,
-    @ColumnInfo(name = "imageHrefs") var imageHrefs: List<String>? = null
+    @ColumnInfo(name = "imageHref") var imageHref: String? = null
 )

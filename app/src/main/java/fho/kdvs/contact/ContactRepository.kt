@@ -1,11 +1,12 @@
 package fho.kdvs.show
 
+import androidx.lifecycle.LiveData
 import fho.kdvs.global.BaseRepository
-import fho.kdvs.global.database.*
+import fho.kdvs.global.database.ContactDao
+import fho.kdvs.global.database.ContactEntity
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
-import io.reactivex.Flowable
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.threeten.bp.OffsetDateTime
@@ -40,6 +41,6 @@ class ContactRepository @Inject constructor(
      */
     fun forceScrapeContact(): Job? = scraperManager.scrape(URLs.CONTACT)
 
-    fun getContacts(): Flowable<List<ContactEntity>> =
+    fun getContacts(): LiveData<List<ContactEntity>> =
         contactDao.getAll()
 }

@@ -8,6 +8,7 @@ import dagger.multibindings.IntoMap
 import fho.kdvs.broadcast.BroadcastDetailsViewModel
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
+import fho.kdvs.home.HomeViewModel
 import fho.kdvs.schedule.ScheduleViewModel
 import fho.kdvs.show.ShowDetailsViewModel
 
@@ -18,6 +19,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(SharedViewModel::class)
     abstract fun bindKdvsViewModel(sharedViewModel: SharedViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(HomeViewModel::class)
+    abstract fun bindHomeViewModel(homeViewModel: HomeViewModel): ViewModel
 
     @Binds
     @IntoMap
