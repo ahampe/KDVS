@@ -65,7 +65,7 @@ class WebScraperManager @Inject constructor(
             url.contains("schedule-grid") -> scrapeSchedule(document)
             url.contains("past-playlists") -> scrapeShow(document, url)
             url.contains("playlist-details") -> scrapePlaylist(document, url)
-            url.contains("contacts") -> scrapeContacts(document)
+            url.contains("contact") -> scrapeContacts(document)
             url.contains("news") -> scrapeNews(document, url)
             url.contains("top-") -> scrapeTopMusic(document, url)
             else -> throw Exception("Invalid url: $url")
@@ -297,29 +297,30 @@ class WebScraperManager @Inject constructor(
                 val date = LocalDate.of(year ?: 0, month ?: 0, day ?: 0)
 
                 val albums = element.nextElementSibling().select("li")
+                if (albums.size >= 5){ // ignore blank lists
+                    albums.forEachIndexed{ index, elm ->
+                        val captures = "(.+)<br>.*>(.+)<.*>.*\\((.+)\\)".toRegex()
+                            .find(elm.html())
+                            ?.groupValues
+                        val artist = captures?.getOrNull(1)?.toString()
+                        val album = captures?.getOrNull(2)?.toString()
+                        val label = captures?.getOrNull(3)?.toString()
 
-                albums.forEachIndexed{ index, _ ->
-                    val captures = "(.+)<br>.*>(.+)<.*>.*\\((.+)\\)".toRegex()
-                        .find(element.html())
-                        ?.groupValues
-                    val artist = captures?.getOrNull(1)?.toString()
-                    val album = captures?.getOrNull(2)?.toString()
-                    val label = captures?.getOrNull(3)?.toString()
-
-                    if (captures != null){
-                        topMusicItemsScraped.add(TopMusicEntity(
-                            artist = artist,
-                            album = album,
-                            label = label,
-                            weekOf = date,
-                            position = index + 1,
-                            isNewAdd = isNewAdd
-                        ))
+                        if (captures != null){
+                            topMusicItemsScraped.add(TopMusicEntity(
+                                artist = artist,
+                                album = album,
+                                label = label,
+                                weekOf = date,
+                                position = index + 1,
+                                isNewAdd = isNewAdd
+                            ))
+                        }
                     }
-                }
 
-                topMusicItemsScraped.forEach { topMusic ->
-                    db.topMusicDao().insert(topMusic)
+                    topMusicItemsScraped.forEach { topMusic ->
+                        db.topMusicDao().insert(topMusic)
+                    }
                 }
             }
         }
@@ -419,7 +420,6 @@ class WebScraperManager @Inject constructor(
                     imageHref = imageHref
                 ))
             }
-
 
             articlesScraped.forEach { article ->
                 db.newsDao().insert(article)

@@ -20,14 +20,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@{topMusic.artist}"
-            tools:text="The Artist" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@{topMusic.album}"
-            tools:text="The Album" />
+            position="@{topMusic.position}"
+            artist="@{topMusic.artist}"
+            album="@{topMusic.album}"
+            tools:text="1. Artist - Album" />
 
     </LinearLayout>
 

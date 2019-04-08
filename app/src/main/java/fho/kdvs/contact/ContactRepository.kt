@@ -39,7 +39,7 @@ class ContactRepository @Inject constructor(
      * Runs a contacts scrape without checking when it was last performed.
      * The only acceptable public usage of this method is when user explicitly refreshes.
      */
-    fun forceScrapeContact(): Job? = scraperManager.scrape(URLs.CONTACT)
+    private fun forceScrapeContact(): Job? = scraperManager.scrape(URLs.CONTACT)
 
     fun getContacts(): LiveData<List<ContactEntity>> =
         contactDao.getAll()

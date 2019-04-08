@@ -31,15 +31,13 @@ class HomeViewModel @Inject constructor(
 
     fun fetchHomeData() {
         fetchNewsArticles()
-        newsArticles = newsRepository.getAllNewsPastDate(
-            OffsetDateTime.now().minusMonths(3).toLocalDate())
-        // TODO: Make this a preference?
-
         fetchTopMusicItems()
+        fetchContacts()
+
+        newsArticles = newsRepository.getAllNewsPastDate(
+            OffsetDateTime.now().minusMonths(6).toLocalDate()) // TODO: Make this a preference?
         topMusicAdds = topMusicRepository.getMostRecentTopAdds()
         topMusicAlbums = topMusicRepository.getMostRecentTopAlbums()
-
-        fetchContacts()
         contacts = contactRepository.getContacts()
     }
 

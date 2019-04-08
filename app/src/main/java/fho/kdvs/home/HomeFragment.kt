@@ -105,7 +105,7 @@ class HomeFragment : DaggerFragment() {
 
         viewModel.topMusicAlbums.observe(this, Observer { albums ->
             Timber.d("Got albums: $albums")
-            topAddsAdapter?.onTopAlbumsChanged(albums)
+            topAlbumsAdapter?.onTopAlbumsChanged(albums)
         })
 
         viewModel.contacts.observe(this, Observer { contacts ->

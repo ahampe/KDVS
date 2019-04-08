@@ -9,114 +9,114 @@
         <variable
             name="sharedVm"
             type="fho.kdvs.global.SharedViewModel" />
-
-        <variable
-            name="broadcast"
-            type="fho.kdvs.global.database.BroadcastEntity" />
-
-        <import type="org.threeten.bp.OffsetDateTime" />
     </data>
 
-    <LinearLayout
-        android:orientation="vertical"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- TODO: Replace this?-->
-        <Button
-            android:id="@+id/go_live"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/spacing_large"
-            android:onClick="@{() -> sharedVm.changeToKdvsOgg()}"
-            android:text="Go Live!"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"/>
-
         <LinearLayout
-            android:id="@+id/news"
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/spacing_large">
+            android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/newsHeader"
+            <!-- TODO: Replace this?-->
+            <Button
+                android:id="@+id/go_live"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/spacing_large"
+                android:onClick="@{() -> sharedVm.changeToKdvsOgg()}"
+                android:text="Go Live!"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"/>
+
+            <LinearLayout
+                android:id="@+id/news"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="News"
-                style="@style/TextAppearance.MaterialComponents.Headline4"/>
+                android:layout_marginLeft="@dimen/spacing_large">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/newsRecycler"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/spacing_large"/>
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/newsHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="News"
+                    style="@style/TextAppearance.MaterialComponents.Headline4"/>
 
-        <LinearLayout
-            android:id="@+id/topAdds"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/spacing_large">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/newsRecycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/spacing_large"/>
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/topAddsHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Top Adds"
-                style="@style/TextAppearance.MaterialComponents.Headline4"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/topAddsRecycler"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/spacing_large"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/topAlbums"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/spacing_large">
-
-            <TextView
-                android:id="@+id/topAlbumsHeader"
+            <LinearLayout
+                android:id="@+id/topAdds"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Top Albums"
-                style="@style/TextAppearance.MaterialComponents.Headline4"/>
+                android:layout_marginLeft="@dimen/spacing_large">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/topAlbumsRecycler"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/spacing_large"/>
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/topAddsHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Top Adds"
+                    style="@style/TextAppearance.MaterialComponents.Headline4"/>
 
-        <LinearLayout
-            android:id="@+id/contacts"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/spacing_large">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/topAddsRecycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/spacing_large"/>
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/contactHeader"
+            <LinearLayout
+                android:id="@+id/topAlbums"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Contact"
-                style="@style/TextAppearance.MaterialComponents.Headline4"/>
+                android:layout_marginLeft="@dimen/spacing_large">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/contactsRecycler"
+                <TextView
+                    android:id="@+id/topAlbumsHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Top Albums"
+                    style="@style/TextAppearance.MaterialComponents.Headline4"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/topAlbumsRecycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/spacing_large"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/contacts"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/spacing_large"/>
-        </LinearLayout>
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/spacing_large">
 
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/contactHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Contact"
+                    style="@style/TextAppearance.MaterialComponents.Headline4"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/contactsRecycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/spacing_large"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
 
 </layout>

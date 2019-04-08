@@ -10,10 +10,10 @@ abstract class TopMusicDao {
     @Query("SELECT * from topMusicData")
     abstract fun getAll(): LiveData<List<TopMusicEntity>>
 
-    @Query("SELECT * from topMusicData where isNewAdd = 1 order by weekOf desc limit 1")
+    @Query("SELECT * from topMusicData where isNewAdd = 1 order by weekOf desc limit 5")
     abstract fun getMostRecentTopAdds(): LiveData<List<TopMusicEntity>>
 
-    @Query("SELECT * from topMusicData where isNewAdd = 0 order by weekOf desc limit 1")
+    @Query("SELECT * from topMusicData where isNewAdd = 0 order by weekOf desc limit 30")
     abstract fun getMostRecentTopAlbums(): LiveData<List<TopMusicEntity>>
 
     @Insert
