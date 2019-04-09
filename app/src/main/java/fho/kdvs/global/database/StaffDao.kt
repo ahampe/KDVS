@@ -5,12 +5,12 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 @Dao
-interface ContactDao {
+interface StaffDao {
     @Query("SELECT * from contactData")
-    fun getAll(): LiveData<List<ContactEntity>>
+    fun getAll(): LiveData<List<StaffEntity>>
 
     @Insert
-    fun insert(contactEntity: ContactEntity)
+    fun insert(staffEntity: StaffEntity)
 
     @Query("DELETE from contactData")
     fun deleteAll()

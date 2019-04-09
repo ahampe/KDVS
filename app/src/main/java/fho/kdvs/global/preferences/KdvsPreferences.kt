@@ -39,7 +39,7 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         // last date/time of news scrape (concat with page num)
         LAST_NEWS_SCRAPE,
 
-        // last date/time of contacts scrape
+        // last date/time of staff scrape
         LAST_CONTACTS_SCRAPE,
 
         // last date/time of top five adds scrape

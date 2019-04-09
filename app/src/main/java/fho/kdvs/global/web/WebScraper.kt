@@ -329,7 +329,7 @@ class WebScraperManager @Inject constructor(
     }
 
     private fun scrapeContacts(document: Document) : ContactScrapeData? {
-        val contactsScraped = mutableListOf<ContactEntity>()
+        val contactsScraped = mutableListOf<StaffEntity>()
 
         document.run {
             val staff = select("table.contact-table tbody tr")
@@ -343,15 +343,20 @@ class WebScraperManager @Inject constructor(
                     .find(positionCell ?: "")
                     ?.groupValues
 
-                val name = positionCaptures?.getOrNull(1).toString().processHtml()
+                val name = positionCaptures?.getOrNull(1).toString()
+                    ?.replace("&", "&\n")
+                    .processHtml()
                 val position = positionCaptures?.getOrNull(2).toString().processHtml()
                 val email = positionCaptures?.getOrNull(3).toString().processHtml()
-                val duties = element.select("td").getOrNull(1)?.html()?.processHtml()
+                val duties = element.select("td")
+                    .getOrNull(1)
+                    ?.parseHtml()
+                    ?.processHtml()
                 val officeHours = element.select("td").getOrNull(2)?.html()
                     ?.replace("<br>", "\n")
                     ?.processHtml()
 
-                contactsScraped.add(ContactEntity(
+                contactsScraped.add(StaffEntity(
                     name = name,
                     position = position,
                     email = email,
@@ -359,6 +364,8 @@ class WebScraperManager @Inject constructor(
                     officeHours = officeHours
                 ))
             }
+
+            db.contactDao().deleteAll()
 
             contactsScraped.forEach { contact ->
                 db.contactDao().insert(contact)
@@ -422,12 +429,13 @@ class WebScraperManager @Inject constructor(
             }
 
             articlesScraped.forEach { article ->
+                db.newsDao().deleteByTitleAndDate(article.title, article.date)
                 db.newsDao().insert(article)
             }
 
-            // if the last article on the page is within the past 3 months, scrape the next page as well
+            // if the last article on the page is within the past 6 months, scrape the next page as well
             // TODO: do this on a quarterly basis?
-            if (LocalDateTime.now(Clock.systemUTC()).minusMonths(3) <= lastDateScraped.atTime(0, 0))
+            if (LocalDateTime.now(Clock.systemUTC()).minusMonths(6) <= lastDateScraped.atTime(0, 0))
             {
                 val currentPage = "page/([0-9]+)".toRegex()
                     .find(url.toString())
@@ -468,7 +476,7 @@ class WebScraperManager @Inject constructor(
         scrapePlaylist(document, url)
     }
 
-    // Helper function for scraping a mock contacts html file
+    // Helper function for scraping a mock staff html file
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun scrapeTopMusic(file: File) {
         val document = Jsoup.parse(file, "UTF-8", "")
@@ -477,7 +485,7 @@ class WebScraperManager @Inject constructor(
         scrapeTopMusic(document, url)
     }
 
-    // Helper function for scraping a mock contacts html file
+    // Helper function for scraping a mock staff html file
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun scrapeContacts(file: File) {
         val document = Jsoup.parse(file, "UTF-8", "")

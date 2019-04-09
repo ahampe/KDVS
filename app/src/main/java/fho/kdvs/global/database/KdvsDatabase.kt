@@ -12,7 +12,7 @@ import org.threeten.bp.ZoneOffset
 import java.io.File
 
 @Database(
-    entities = [ShowEntity::class, BroadcastEntity::class, TrackEntity::class, ContactEntity::class, NewsEntity::class, TopMusicEntity::class],
+    entities = [ShowEntity::class, BroadcastEntity::class, TrackEntity::class, StaffEntity::class, NewsEntity::class, TopMusicEntity::class],
     version = 1,
     exportSchema = false
 )
@@ -27,7 +27,7 @@ abstract class KdvsDatabase : RoomDatabase() {
     abstract fun broadcastDao(): BroadcastDao
     abstract fun trackDao(): TrackDao
     abstract fun topMusicDao(): TopMusicDao
-    abstract fun contactDao(): ContactDao
+    abstract fun contactDao(): StaffDao
     abstract fun newsDao(): NewsDao
 
     companion object {

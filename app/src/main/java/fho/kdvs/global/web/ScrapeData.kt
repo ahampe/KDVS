@@ -15,6 +15,6 @@ data class ScheduleScrapeData(val quarterYear: QuarterYear, val shows: List<Show
 data class ShowScrapeData(val broadcasts: List<BroadcastEntity>) : ScrapeData()
 data class PlaylistScrapeData(val tracks: List<TrackEntity>) : ScrapeData()
 data class TopMusicScrapeData(val topMusicItems: List<TopMusicEntity>) : ScrapeData()
-data class ContactScrapeData(val contacts: List<ContactEntity>) : ScrapeData()
+data class ContactScrapeData(val staff: List<StaffEntity>) : ScrapeData()
 data class NewsScrapeData(val news: List<NewsEntity>) : ScrapeData()
 

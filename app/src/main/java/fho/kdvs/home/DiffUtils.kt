@@ -1,7 +1,7 @@
 package fho.kdvs.home
 
 import androidx.recyclerview.widget.DiffUtil
-import fho.kdvs.global.database.ContactEntity
+import fho.kdvs.global.database.StaffEntity
 import fho.kdvs.global.database.NewsEntity
 import fho.kdvs.global.database.TopMusicEntity
 
@@ -21,10 +21,10 @@ class TopMusicDiffCallback : DiffUtil.ItemCallback<TopMusicEntity>() {
         oldItem == newItem
 }
 
-class ContactDiffCallback : DiffUtil.ItemCallback<ContactEntity>() {
-    override fun areItemsTheSame(oldItem: ContactEntity, newItem: ContactEntity): Boolean =
+class ContactDiffCallback : DiffUtil.ItemCallback<StaffEntity>() {
+    override fun areItemsTheSame(oldItem: StaffEntity, newItem: StaffEntity): Boolean =
         oldItem.name == newItem.name && oldItem.position == newItem.position
 
-    override fun areContentsTheSame(oldItem: ContactEntity, newItem: ContactEntity): Boolean =
+    override fun areContentsTheSame(oldItem: StaffEntity, newItem: StaffEntity): Boolean =
         oldItem == newItem
 }

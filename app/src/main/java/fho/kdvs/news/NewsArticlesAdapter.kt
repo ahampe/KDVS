@@ -14,6 +14,14 @@ import fho.kdvs.home.NewsDiffCallback
 class NewsArticlesAdapter(onClick: (ClickData<NewsEntity>) -> Unit) :
     BindingRecyclerViewAdapter<NewsEntity, BindingViewHolder<NewsEntity>>(onClick, NewsDiffCallback()){
 
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BindingViewHolder<NewsEntity> {
         val inflater = LayoutInflater.from(parent.context)
         val binding = fho.kdvs.databinding.CellArticleBinding.inflate(inflater, parent, false)

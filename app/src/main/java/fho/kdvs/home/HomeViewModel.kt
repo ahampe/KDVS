@@ -3,7 +3,7 @@ package fho.kdvs.home
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import fho.kdvs.global.database.ContactEntity
+import fho.kdvs.global.database.StaffEntity
 import fho.kdvs.global.database.NewsEntity
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.show.ContactRepository
@@ -27,7 +27,7 @@ class HomeViewModel @Inject constructor(
     lateinit var newsArticles: LiveData<List<NewsEntity>>
     lateinit var topMusicAdds: LiveData<List<TopMusicEntity>>
     lateinit var topMusicAlbums: LiveData<List<TopMusicEntity>>
-    lateinit var contacts: LiveData<List<ContactEntity>>
+    lateinit var contacts: LiveData<List<StaffEntity>>
 
     fun fetchHomeData() {
         fetchNewsArticles()

@@ -25,5 +25,10 @@ fun loadImageWithGlideIfPresent(view: ImageView, imageHref: String?) {
 
 @BindingAdapter("position", "artist", "album")
 fun bindTopMusicCell(view: TextView, position: Int, artist: String, album: String) {
-    view.text = position.toString() + ". " + artist + " - " + album
+    view.text = view.context.resources.getString(
+        R.string.top_music_item,
+        position,
+        artist,
+        album
+    )
 }

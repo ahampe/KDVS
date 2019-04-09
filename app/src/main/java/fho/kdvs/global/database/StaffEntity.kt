@@ -9,7 +9,7 @@ import fho.kdvs.schedule.QuarterYear
  * Contacts page may change on a quarterly basis.
  */
 @Entity(tableName = "contactData")
-data class ContactEntity (
+data class StaffEntity (
     @PrimaryKey(autoGenerate = true) var contactId: Int = 0,
     @ColumnInfo(name = "name") var name: String? = null,
     @ColumnInfo(name = "position") var position: String? = null,

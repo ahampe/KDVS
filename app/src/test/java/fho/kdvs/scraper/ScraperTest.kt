@@ -16,7 +16,7 @@ open class ScraperTest {
     internal lateinit var broadcastDao: BroadcastDao
     internal lateinit var trackDao: TrackDao
     internal lateinit var newsDao: NewsDao
-    internal lateinit var contactDao: ContactDao
+    internal lateinit var staffDao: StaffDao
     internal lateinit var topMusicDao: TopMusicDao
 
     @Before
@@ -27,14 +27,14 @@ open class ScraperTest {
         broadcastDao = mock(BroadcastDao::class.java)
         trackDao = mock(TrackDao::class.java)
         newsDao = mock(NewsDao::class.java)
-        contactDao = mock(ContactDao::class.java)
+        staffDao = mock(StaffDao::class.java)
         topMusicDao = mock(TopMusicDao::class.java)
 
         `when`(db.showDao()).thenReturn(showDao)
         `when`(db.broadcastDao()).thenReturn(broadcastDao)
         `when`(db.trackDao()).thenReturn(trackDao)
         `when`(db.newsDao()).thenReturn(newsDao)
-        `when`(db.contactDao()).thenReturn(contactDao)
+        `when`(db.contactDao()).thenReturn(staffDao)
         `when`(db.topMusicDao()).thenReturn(topMusicDao)
 
         scraperManager = WebScraperManager(db, preferences)

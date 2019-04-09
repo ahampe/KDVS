@@ -17,6 +17,9 @@ interface NewsDao {
     @Insert
     fun insert(newsEntity: NewsEntity)
 
+    @Query("DELETE from newsData where title == :title and date == :date")
+    fun deleteByTitleAndDate(title: String?, date: LocalDate?)
+
     @Query("DELETE from newsData")
     fun deleteAll()
 }

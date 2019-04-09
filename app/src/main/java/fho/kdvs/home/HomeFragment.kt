@@ -109,7 +109,7 @@ class HomeFragment : DaggerFragment() {
         })
 
         viewModel.contacts.observe(this, Observer { contacts ->
-            Timber.d("Got contacts: $contacts")
+            Timber.d("Got staff: $contacts")
             contactsAdapter?.onContactsChanged(contacts)
         })
     }

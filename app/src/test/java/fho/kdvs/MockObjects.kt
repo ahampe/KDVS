@@ -223,9 +223,9 @@ object MockObjects {
         )
     }
 
-    val contacts: List<ContactEntity> by lazy {
+    val staffMembers: List<StaffEntity> by lazy {
         listOf(
-            ContactEntity(
+            StaffEntity(
                 name = "Jacob Engel",
                 position = "General Manager",
                 email = "gm@kdvs.org",
@@ -233,7 +233,7 @@ object MockObjects {
                 officeHours = "Wednesday 2:30-5pm\n" +
                         "Friday 12-3pm"
             ),
-            ContactEntity(
+            StaffEntity(
                 name = "Tania Quintana & Jay Lounds",
                 position = "Co-Programming Directors",
                 email = "programming@kdvs.org",
@@ -245,7 +245,7 @@ object MockObjects {
                         "Thursday 2-3pm\n" +
                         "Friday 1-4pm"
             ),
-            ContactEntity(
+            StaffEntity(
                 name = "Grace Swan-Streepy & Desmond Chu",
                 position = "Co-Events Directors",
                 email = "events@kdvs.org",
@@ -270,7 +270,7 @@ object MockObjects {
                     "...",
             date = TimeHelper.makeLocalDate("2018-11-07"),
             articleHref = "https://kdvs.org/queer-quollaboration-pa-show-highlight/",
-            imageHrefs = null
+            imageHref = null
         ),
         NewsEntity(
             title = "Fundraiser Week",
@@ -278,7 +278,7 @@ object MockObjects {
             body = "Make sure to tune into our Public Affairs programs that air every week from 8:00AM-9:30AM and 4:30PM-6:00PM!...",
             date = TimeHelper.makeLocalDate("2018-11-06"),
             articleHref = "https://kdvs.org/fundraiser-week/",
-            imageHrefs = null
+            imageHref = null
         ),
         NewsEntity(
             title = "UC Davis Makes Forbe’s List for Number of Women in STEM",
@@ -286,7 +286,7 @@ object MockObjects {
             body = "UCD was ranked #1 on Forbe’s list as the most highly valued degree for women in Science, Technology, Engineering, and Mathematics (STEM). Our spring reporter, Myah Daniels, discusses the UC Davis grant program ADVANCE, which encourages women to establish careers in science and engineering; and interviews students in the program. (Image: ucdavis.edu)",
             date = TimeHelper.makeLocalDate("2016-09-11"),
             articleHref = "https://kdvs.org/uc-davis-makes-forbes-list-for-number-of-women-in-stem/",
-            imageHrefs = mutableListOf("https://kdvs.org/wp-content/uploads/2016/09/rose-hong-truong-uc-davis-best-women-stem.jpg")
+            imageHref = "https://kdvs.org/wp-content/uploads/2016/09/rose-hong-truong-uc-davis-best-women-stem.jpg"
         )
     )
 
