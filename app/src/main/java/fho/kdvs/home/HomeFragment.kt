@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
+import fho.kdvs.R
 import fho.kdvs.databinding.FragmentHomeBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
@@ -19,6 +20,7 @@ import fho.kdvs.news.NewsArticlesAdapter
 import fho.kdvs.news.TopMusicAdapter
 import kotlinx.android.synthetic.main.fragment_home.*
 import timber.log.Timber
+import java.text.DecimalFormat
 import javax.inject.Inject
 
 class HomeFragment : DaggerFragment() {
@@ -48,7 +50,6 @@ class HomeFragment : DaggerFragment() {
 
         binding.apply {
             sharedVm = sharedViewModel
-            fundraiserEnt = viewModel.fundraiser.value
         }
 
         binding.lifecycleOwner = this
@@ -124,15 +125,43 @@ class HomeFragment : DaggerFragment() {
 
     private fun setFundraiserText(fundraiser: FundraiserEntity){
         val startMonthStr = TimeHelper.monthIntToStr(fundraiser.dateStart?.monthValue)
+            .toLowerCase()
+            .capitalize()
         val endMonthStr = TimeHelper.monthIntToStr(fundraiser.dateEnd?.monthValue)
+            .toLowerCase()
+            .capitalize()
         val dayStart = fundraiser.dateStart?.dayOfMonth.toString()
         val dayEnd = fundraiser.dateEnd?.dayOfMonth.toString()
         val year = fundraiser.dateStart?.year
 
         if (startMonthStr == endMonthStr)
-            fundraiserDates.text = "$startMonthStr $dayStart–$dayEnd, $year"
+            fundraiserDates.text = fundraiserDates.context.resources.getString(
+                R.string.fundraiser_dates_same_month,
+                startMonthStr,
+                dayStart,
+                dayEnd,
+                year
+            )
         else
-            fundraiserDates.text = "$startMonthStr $dayStart – $endMonthStr $dayEnd, $year"
+            fundraiserDates.text = fundraiserDates.context.resources.getString(
+                R.string.fundraiser_dates_diff_month,
+                startMonthStr,
+                dayStart,
+                endMonthStr,
+                dayEnd,
+                year
+            )
+
+        val goalStr = DecimalFormat(",###")
+            .format(fundraiser.goal?.toDouble())
+        var currentStr = DecimalFormat(",###")
+            .format(fundraiser.current?.toDouble())
+
+        fundraiserTotals.text = fundraiserTotals.context.resources.getString(
+            R.string.fundraiser_totals,
+            goalStr,
+            currentStr
+        )
     }
 }
 
