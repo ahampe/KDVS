@@ -1,5 +1,6 @@
 package fho.kdvs.home
 
+import android.opengl.Visibility
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +20,8 @@ import fho.kdvs.news.ContactsAdapter
 import fho.kdvs.news.NewsArticlesAdapter
 import fho.kdvs.news.TopMusicAdapter
 import kotlinx.android.synthetic.main.fragment_home.*
+import org.threeten.bp.LocalDate
+import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 import java.text.DecimalFormat
 import javax.inject.Inject
@@ -119,7 +122,14 @@ class HomeFragment : DaggerFragment() {
 
         viewModel.fundraiser.observe(this, Observer { fundraiser ->
             Timber.d("Got fundraiser: $fundraiser")
-            setFundraiserText(fundraiser)
+            val now = LocalDate.now()
+
+            // display fundraiser section within a two-month window
+            if (fundraiser.dateStart ?: now <= now.plusMonths(1) ||
+                fundraiser.dateEnd ?: now >= now.minusMonths(1)){
+                fundraiserSection.visibility = View.VISIBLE
+                setFundraiserText(fundraiser)
+            }
         })
     }
 
