@@ -390,4 +390,11 @@ object MockObjects {
             isNewAdd = false
         )
     )
+
+    val fundraiser = FundraiserEntity(
+        goal = 50000,
+        current = 47,
+        dateStart = TimeHelper.makeLocalDate("2019-04-22"),
+        dateEnd = TimeHelper.makeLocalDate("2019-04-28")
+    )
 }

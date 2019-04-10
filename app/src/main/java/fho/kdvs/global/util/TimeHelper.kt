@@ -110,5 +110,43 @@ object TimeHelper {
     }
     // endregion
 
+    // region String/Int Conversions
+    fun monthStrToInt(m: String?): Int {
+        return when (m?.toUpperCase()) {
+            "JANUARY" -> 1
+            "FEBRUARY" -> 2
+            "MARCH" -> 3
+            "APRIL" -> 4
+            "MAY" -> 5
+            "JUNE" -> 6
+            "JULY" -> 7
+            "AUGUST" -> 8
+            "SEPTEMBER" -> 9
+            "OCTOBER" -> 10
+            "NOVEMBER" -> 11
+            "DECEMBER" -> 12
+            else -> 0
+        }
+    }
+
+    fun monthIntToStr(m: Int?): String {
+        return when (m) {
+            1 -> "JANUARY"
+            2 -> "FEBRUARY"
+            3 -> "MARCH"
+            4 -> "APRIL"
+            5 -> "MAY"
+            6 -> "JUNE"
+            7 -> "JULY"
+            8 -> "AUGUST"
+            9 -> "SEPTEMBER"
+            10 -> "OCTOBER"
+            11 -> "NOVEMBER"
+            12 -> "DECEMBER"
+            else -> ""
+        }
+    }
+    // endregion
+
     // TODO arbitrary time range (may not need)
 }

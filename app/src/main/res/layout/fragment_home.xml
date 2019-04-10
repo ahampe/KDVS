@@ -9,6 +9,10 @@
         <variable
             name="sharedVm"
             type="fho.kdvs.global.SharedViewModel" />
+
+        <variable
+            name="fundraiserEnt"
+            type="fho.kdvs.global.database.FundraiserEntity" />
     </data>
 
     <ScrollView
@@ -31,6 +35,45 @@
                 android:text="Go Live!"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/fundraiser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/fundraiserHeader"
+                    style="@style/TextAppearance.MaterialComponents.Headline4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fundraiser" />
+
+                <TextView
+                    android:id="@+id/fundraiserDates"
+                    style="@style/TextAppearance.MaterialComponents.Headline5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginStart="@dimen/spacing_large"
+                    android:layout_marginEnd="@dimen/spacing_large"
+                    dateStart="@{fundraiserEnt.dateStart}"
+                    dateEnd="@{fundraiserEnt.dateEnd}"
+                    tools:text="April 22-28, 2019"/>
+
+                <TextView
+                    android:id="@+id/fundraiserTotals"
+                    style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginStart="@dimen/spacing_large"
+                    android:layout_marginEnd="@dimen/spacing_large"
+                    goal="@{fundraiserEnt.goal}"
+                    current="@{fundraiserEnt.current}"
+                    tools:text="Goal: $50,000\nCurrent: $1,324"/>
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/news"

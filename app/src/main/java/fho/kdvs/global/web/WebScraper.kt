@@ -68,6 +68,7 @@ class WebScraperManager @Inject constructor(
             url.contains("contact") -> scrapeContacts(document)
             url.contains("news") -> scrapeNews(document, url)
             url.contains("top-") -> scrapeTopMusic(document, url)
+            url.contains("fundraiser") -> scrapeFundraiser(document, url)
             else -> throw Exception("Invalid url: $url")
         }
     } catch (e: Throwable) {
@@ -453,6 +454,52 @@ class WebScraperManager @Inject constructor(
         return NewsScrapeData(articlesScraped)
     }
 
+    private fun scrapeFundraiser(document: Document, url: String?) : FundraiserScrapeData? {
+        lateinit var fundraiser: FundraiserEntity
+
+        document.run {
+            val info = select("div.hero-info").firstOrNull()
+
+            val dateCaptures = """(\w+)\s([0-9]+)-([0-9]+),\s([0-9][0-9][0-9][0-9])""".toRegex()
+                .find(info?.html().toString())
+                ?.groupValues
+
+            val dayStart = dateCaptures?.getOrNull(2)?.toInt()
+            val dayEnd = dateCaptures?.getOrNull(3)?.toInt()
+            val year = dateCaptures?.getOrNull(4)?.toInt()
+            val monthStr = dateCaptures?.getOrNull(1)
+            val month = TimeHelper.monthStrToInt(monthStr)
+
+            val dateStart = LocalDate.of(year ?: 0, month, dayStart ?: 0)
+            val dateEnd = LocalDate.of(year ?: 0, month, dayEnd ?: 0)
+
+            val moneyCaptures = """Goal[:\s$]*([\d,]+)\sCurrent[:\s$]*([\d,]+)""".toRegex()
+                .find(info?.select("p:not([class])")?.text() ?: "")
+                ?.groupValues
+            val goal = moneyCaptures
+                ?.getOrNull(1)
+                ?.replace(",", "")
+                ?.toInt()
+            val current = moneyCaptures
+                ?.getOrNull(2)
+                ?.replace(",", "")
+                ?.toInt()
+
+            if (dateCaptures != null) {
+                fundraiser = FundraiserEntity(
+                    goal = goal,
+                    current = current,
+                    dateStart = dateStart,
+                    dateEnd = dateEnd
+                )
+                db.fundraiserDao().deleteAll()
+                db.fundraiserDao().insert(fundraiser)
+            }
+        }
+
+        return FundraiserScrapeData(fundraiser)
+    }
+
     // Helper function for scraping a mock schedule html file
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun scrapeSchedule(file: File) {
@@ -498,6 +545,14 @@ class WebScraperManager @Inject constructor(
         val document = Jsoup.parse(file, "UTF-8", "")
         val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
         scrapeNews(document, url)
+    }
+
+    // Helper function for scraping a mock fundraiser html file
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    fun scrapeFundraiser(file: File) {
+        val document = Jsoup.parse(file, "UTF-8", "")
+        val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
+        scrapeFundraiser(document, url)
     }
 
     companion object {

@@ -22,6 +22,8 @@ object URLs {
 
     const val TOP_ALBUMS = "https://kdvs.org/programming/top-30/"
 
+    const val FUNDRAISER = "https://fundraiser.kdvs.org/"
+
     fun showDetails(id: String) = "https://kdvs.org/past-playlists/$id/"
 
     fun broadcastDetails(id: String) = "https://kdvs.org/playlist-details/$id/"

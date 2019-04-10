@@ -24,10 +24,14 @@
     <string name="duties">Duties</string>
     <string name="office_hours">Office Hours</string>
     <string name="news">Recent News</string>
+    <string name="fundraiser">Fundraiser</string>
     <string name="top_adds">Weekly Top Adds</string>
     <string name="top_albums">Weekly Top Albums</string>
     <string name="staff">Staff</string>
     <string name="toggle_desc">Hide</string>
+    <string name="fundraiser_dates_same_month">%1$s %2$s–%3$s, %4$d</string>
+    <string name="fundraiser_dates_diff_month">%1$s %2$s – %3$s %4$s, %5$d</string>
+    <string name="fundraiser_totals">Goal: \$%1$s\nCurrent: \$%2$s</string>
 
     <!-- Schedule -->
     <string name="sun">Sunday</string>

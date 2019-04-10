@@ -12,6 +12,8 @@ import dagger.android.support.DaggerFragment
 import fho.kdvs.databinding.FragmentHomeBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
+import fho.kdvs.global.database.FundraiserEntity
+import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.news.ContactsAdapter
 import fho.kdvs.news.NewsArticlesAdapter
 import fho.kdvs.news.TopMusicAdapter
@@ -46,6 +48,7 @@ class HomeFragment : DaggerFragment() {
 
         binding.apply {
             sharedVm = sharedViewModel
+            fundraiserEnt = viewModel.fundraiser.value
         }
 
         binding.lifecycleOwner = this
@@ -108,10 +111,28 @@ class HomeFragment : DaggerFragment() {
             topAlbumsAdapter?.onTopAlbumsChanged(albums)
         })
 
-        viewModel.contacts.observe(this, Observer { contacts ->
-            Timber.d("Got staff: $contacts")
-            contactsAdapter?.onContactsChanged(contacts)
+        viewModel.contacts.observe(this, Observer { staff ->
+            Timber.d("Got staff: $staff")
+            contactsAdapter?.onContactsChanged(staff)
         })
+
+        viewModel.fundraiser.observe(this, Observer { fundraiser ->
+            Timber.d("Got fundraiser: $fundraiser")
+            setFundraiserText(fundraiser)
+        })
+    }
+
+    private fun setFundraiserText(fundraiser: FundraiserEntity){
+        val startMonthStr = TimeHelper.monthIntToStr(fundraiser.dateStart?.monthValue)
+        val endMonthStr = TimeHelper.monthIntToStr(fundraiser.dateEnd?.monthValue)
+        val dayStart = fundraiser.dateStart?.dayOfMonth.toString()
+        val dayEnd = fundraiser.dateEnd?.dayOfMonth.toString()
+        val year = fundraiser.dateStart?.year
+
+        if (startMonthStr == endMonthStr)
+            fundraiserDates.text = "$startMonthStr $dayStart–$dayEnd, $year"
+        else
+            fundraiserDates.text = "$startMonthStr $dayStart – $endMonthStr $dayEnd, $year"
     }
 }
 

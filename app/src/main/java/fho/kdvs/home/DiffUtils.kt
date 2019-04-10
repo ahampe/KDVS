@@ -1,6 +1,7 @@
 package fho.kdvs.home
 
 import androidx.recyclerview.widget.DiffUtil
+import fho.kdvs.global.database.FundraiserEntity
 import fho.kdvs.global.database.StaffEntity
 import fho.kdvs.global.database.NewsEntity
 import fho.kdvs.global.database.TopMusicEntity
@@ -26,5 +27,13 @@ class ContactDiffCallback : DiffUtil.ItemCallback<StaffEntity>() {
         oldItem.name == newItem.name && oldItem.position == newItem.position
 
     override fun areContentsTheSame(oldItem: StaffEntity, newItem: StaffEntity): Boolean =
+        oldItem == newItem
+}
+
+class FundraiserDiffCallback : DiffUtil.ItemCallback<FundraiserEntity>() {
+    override fun areItemsTheSame(oldItem: FundraiserEntity, newItem: FundraiserEntity): Boolean =
+        oldItem.dateStart == newItem.dateStart && oldItem.dateEnd == newItem.dateEnd
+
+    override fun areContentsTheSame(oldItem: FundraiserEntity, newItem: FundraiserEntity): Boolean =
         oldItem == newItem
 }

@@ -3,10 +3,12 @@ package fho.kdvs.home
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import fho.kdvs.global.database.StaffEntity
+import fho.kdvs.global.database.FundraiserEntity
 import fho.kdvs.global.database.NewsEntity
+import fho.kdvs.global.database.StaffEntity
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.show.ContactRepository
+import fho.kdvs.show.FundraiserRepository
 import fho.kdvs.show.NewsRepository
 import fho.kdvs.show.TopMusicRepository
 import org.threeten.bp.OffsetDateTime
@@ -19,6 +21,7 @@ class HomeViewModel @Inject constructor(
     private val newsRepository: NewsRepository,
     private val topMusicRepository: TopMusicRepository,
     private val contactRepository: ContactRepository,
+    private val fundraiserRepository: FundraiserRepository,
     application: Application
 ) : AndroidViewModel(application) {
 
@@ -28,17 +31,20 @@ class HomeViewModel @Inject constructor(
     lateinit var topMusicAdds: LiveData<List<TopMusicEntity>>
     lateinit var topMusicAlbums: LiveData<List<TopMusicEntity>>
     lateinit var contacts: LiveData<List<StaffEntity>>
+    lateinit var fundraiser: LiveData<FundraiserEntity>
 
     fun fetchHomeData() {
         fetchNewsArticles()
         fetchTopMusicItems()
         fetchContacts()
+        fetchFundraiser()
 
         newsArticles = newsRepository.getAllNewsPastDate(
             OffsetDateTime.now().minusMonths(6).toLocalDate()) // TODO: Make this a preference?
         topMusicAdds = topMusicRepository.getMostRecentTopAdds()
         topMusicAlbums = topMusicRepository.getMostRecentTopAlbums()
         contacts = contactRepository.getContacts()
+        fundraiser = fundraiserRepository.getFundraiser()
     }
 
     /** Signals the [News Repository] to scrape the news page(s). */
@@ -50,6 +56,8 @@ class HomeViewModel @Inject constructor(
     /** Signals the [Contact Repository] to scrape the contact page. */
     private fun fetchContacts() = contactRepository.scrapeContact()
 
+    /** Signals the [Fundraiser Repository] to scrape the fundraiser page. */
+    private fun fetchFundraiser() = fundraiserRepository.scrapeFundraiser()
     /**
      * Called when a news article is clicked.
      * */

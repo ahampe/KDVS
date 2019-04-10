@@ -12,7 +12,8 @@ import org.threeten.bp.ZoneOffset
 import java.io.File
 
 @Database(
-    entities = [ShowEntity::class, BroadcastEntity::class, TrackEntity::class, StaffEntity::class, NewsEntity::class, TopMusicEntity::class],
+    entities = [ShowEntity::class, BroadcastEntity::class, TrackEntity::class, StaffEntity::class, NewsEntity::class,
+        TopMusicEntity::class, FundraiserEntity::class],
     version = 1,
     exportSchema = false
 )
@@ -29,6 +30,7 @@ abstract class KdvsDatabase : RoomDatabase() {
     abstract fun topMusicDao(): TopMusicDao
     abstract fun contactDao(): StaffDao
     abstract fun newsDao(): NewsDao
+    abstract fun fundraiserDao(): FundraiserDao
 
     companion object {
         private const val FILE_NAME = "kdvs.db"

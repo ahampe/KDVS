@@ -69,4 +69,8 @@ class AppModule {
     @Singleton
     @Provides
     fun provideContactDao(db: KdvsDatabase): StaffDao = db.contactDao()
+
+    @Singleton
+    @Provides
+    fun provideFundraiserDao(db: KdvsDatabase): FundraiserDao = db.fundraiserDao()
 }

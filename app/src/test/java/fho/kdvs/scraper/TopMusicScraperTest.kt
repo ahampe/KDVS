@@ -3,6 +3,7 @@ package fho.kdvs.scraper
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.TopMusicEntity
+import fho.kdvs.global.util.URLs
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test

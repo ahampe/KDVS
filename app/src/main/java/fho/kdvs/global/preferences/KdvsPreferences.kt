@@ -48,6 +48,9 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         // last date/time of top thirty albums scrape
         LAST_TOP_THIRTY_ALBUMS_SCRAPE,
 
+        // last date/time of fundraiser scrape
+        LAST_FUNDRAISER_SCRAPE,
+
         // scrape frequency (5, 15, 30, 60 minutes in seconds)
         SCRAPE_FREQUENCY,
 
@@ -71,6 +74,8 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     var lastTopFiveAddsScrape: Long? by LongPreference(Key.LAST_TOP_FIVE_ADDS_SCRAPE)
 
     var lastTopThirtyAlbumsScrape: Long? by LongPreference(Key.LAST_TOP_THIRTY_ALBUMS_SCRAPE)
+
+    var lastFundraiserScraper: Long? by LongPreference(Key.LAST_FUNDRAISER_SCRAPE)
 
     fun getLastShowScrape(showId: String): Long? {
         val pref by LongPreference(Key.LAST_SHOW_SCRAPE, showId)
