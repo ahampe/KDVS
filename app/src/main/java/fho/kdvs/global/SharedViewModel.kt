@@ -87,8 +87,7 @@ class SharedViewModel @Inject constructor(
     fun composeEmail(view: View, address: String?) {
         val intent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("mailto:") // only email apps should handle this
-            putExtra(Intent.EXTRA_EMAIL, address) // TODO: get address to pass in
-            putExtra(Intent.EXTRA_SUBJECT, "test")
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(address))
         }
         if (intent.resolveActivity(view.context.packageManager) != null) {
             startActivity(view.context, intent, null)
