@@ -28,7 +28,7 @@ abstract class KdvsDatabase : RoomDatabase() {
     abstract fun broadcastDao(): BroadcastDao
     abstract fun trackDao(): TrackDao
     abstract fun topMusicDao(): TopMusicDao
-    abstract fun contactDao(): StaffDao
+    abstract fun staffDao(): StaffDao
     abstract fun newsDao(): NewsDao
     abstract fun fundraiserDao(): FundraiserDao
 

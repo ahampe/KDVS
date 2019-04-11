@@ -4,8 +4,12 @@
     <data>
 
         <variable
-            name="contact"
+            name="staff"
             type="fho.kdvs.global.database.StaffEntity" />
+
+        <variable
+            name="vm"
+            type="fho.kdvs.global.SharedViewModel" />
     </data>
 
     <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -13,6 +17,9 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="@{(view) -> vm.composeEmail(view, staff.email)}"
         app:cardBackgroundColor="@android:color/transparent"
         app:cardElevation="0dp">
 
@@ -20,7 +27,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingLeft="@dimen/spacing_medium"
+            android:paddingStart="@dimen/spacing_medium"
+            android:paddingEnd="@dimen/spacing_medium"
             android:paddingTop="@dimen/spacing_medium"
             android:paddingBottom="@dimen/spacing_medium"
             app:layout_constraintBottom_toBottomOf="parent">
@@ -29,7 +37,7 @@
                 android:id="@+id/name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{contact.name}"
+                android:text="@{staff.name}"
                 style="@style/TextAppearance.MaterialComponents.Headline5"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -40,7 +48,7 @@
                 android:id="@+id/position"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{contact.position}"
+                android:text="@{staff.position}"
                 android:layout_marginTop="@dimen/spacing_small"
                 style="@style/TextAppearance.MaterialComponents.Subtitle1"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -48,25 +56,14 @@
                 tools:text="Position" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/contact"
-                android:layout_marginTop="@dimen/spacing_small"
-                android:textStyle="bold"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                android:layout_marginLeft="@dimen/spacing_large"
-                tools:text="Contact" />
-
-            <TextView
                 android:id="@+id/email"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{contact.email}"
+                android:text="@{staff.email}"
                 android:layout_marginTop="@dimen/spacing_small"
+                style="@style/TextAppearance.MaterialComponents.Subtitle1"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                android:layout_marginLeft="@dimen/spacing_extra_large"
                 tools:text="Email" />
 
             <TextView
@@ -77,18 +74,18 @@
                 android:textStyle="bold"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                android:layout_marginLeft="@dimen/spacing_large"
+                android:layout_marginStart="@dimen/spacing_large"
                 tools:text="Duties" />
 
             <TextView
                 android:id="@+id/duties"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{contact.duties}"
+                android:text="@{staff.duties}"
                 android:layout_marginTop="@dimen/spacing_small"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                android:layout_marginLeft="@dimen/spacing_extra_large"
+                android:layout_marginStart="@dimen/spacing_extra_large"
                 tools:text="Duties" />
 
             <TextView
@@ -99,19 +96,26 @@
                 android:textStyle="bold"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                android:layout_marginLeft="@dimen/spacing_large"
+                android:layout_marginStart="@dimen/spacing_large"
                 tools:text="Office Hours" />
 
             <TextView
                 android:id="@+id/officeHours"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{contact.officeHours}"
+                android:text="@{staff.officeHours}"
                 android:layout_marginTop="@dimen/spacing_small"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                android:layout_marginLeft="@dimen/spacing_extra_large"
+                android:layout_marginStart="@dimen/spacing_extra_large"
                 tools:text="Hours" />
+
+            <!--<Button-->
+                <!--android:id="@+id/contactButton"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+
+                <!--tools:text="Contact"/>-->
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </layout>

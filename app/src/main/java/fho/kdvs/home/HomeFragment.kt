@@ -1,6 +1,5 @@
 package fho.kdvs.home
 
-import android.opengl.Visibility
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,12 +15,12 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.FundraiserEntity
 import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.news.ContactsAdapter
+import fho.kdvs.global.util.URLs
 import fho.kdvs.news.NewsArticlesAdapter
+import fho.kdvs.news.StaffAdapter
 import fho.kdvs.news.TopMusicAdapter
 import kotlinx.android.synthetic.main.fragment_home.*
 import org.threeten.bp.LocalDate
-import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 import java.text.DecimalFormat
 import javax.inject.Inject
@@ -30,11 +29,12 @@ class HomeFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
     private lateinit var viewModel: HomeViewModel
+    private lateinit var sharedViewModel: SharedViewModel
 
     private var newsArticlesAdapter: NewsArticlesAdapter? = null
     private var topAddsAdapter: TopMusicAdapter? = null
     private var topAlbumsAdapter: TopMusicAdapter? = null
-    private var contactsAdapter: ContactsAdapter? = null
+    private var staffsAdapter: StaffAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,11 +48,12 @@ class HomeFragment : DaggerFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val sharedViewModel = ViewModelProviders.of(requireActivity(), vmFactory)
+        sharedViewModel = ViewModelProviders.of(requireActivity(), vmFactory)
             .get(SharedViewModel::class.java)
 
         binding.apply {
-            sharedVm = sharedViewModel
+            vm = sharedViewModel
+            urlObj = URLs
         }
 
         binding.lifecycleOwner = this
@@ -62,7 +63,7 @@ class HomeFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        newsArticlesAdapter = NewsArticlesAdapter {
+        newsArticlesAdapter = NewsArticlesAdapter(sharedViewModel) {
             Timber.d("Clicked ${it.item}")
         }
 
@@ -89,13 +90,13 @@ class HomeFragment : DaggerFragment() {
             adapter = topAlbumsAdapter
         }
         
-        contactsAdapter = ContactsAdapter {
+        staffsAdapter = StaffAdapter(sharedViewModel) {
             Timber.d("Clicked ${it.item}")
         }
 
-        contactsRecycler.apply {
+        staffsRecycler.apply {
             layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-            adapter = contactsAdapter
+            adapter = staffsAdapter
         }
     }
 
@@ -115,9 +116,9 @@ class HomeFragment : DaggerFragment() {
             topAlbumsAdapter?.onTopAlbumsChanged(albums)
         })
 
-        viewModel.contacts.observe(this, Observer { staff ->
+        viewModel.staff.observe(this, Observer { staff ->
             Timber.d("Got staff: $staff")
-            contactsAdapter?.onContactsChanged(staff)
+            staffsAdapter?.onStaffChanged(staff)
         })
 
         viewModel.fundraiser.observe(this, Observer { fundraiser ->

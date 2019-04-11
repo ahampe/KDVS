@@ -6,13 +6,18 @@
     tools:context=".home.HomeFragment">
 
     <data>
+
         <variable
-            name="sharedVm"
+            name="urlObj"
+            type="fho.kdvs.global.util.URLs"/>
+
+        <variable
+            name="vm"
             type="fho.kdvs.global.SharedViewModel" />
 
     </data>
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/spacing_extra_large">
@@ -20,7 +25,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:onClick="@{(view) -> vm.openBrowser(view, urlObj.FUNDRAISER)}">
 
             <!-- TODO: Replace this?-->
             <Button
@@ -28,7 +34,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_large"
-                android:onClick="@{() -> sharedVm.changeToKdvsOgg()}"
+                android:onClick="@{() -> vm.changeToKdvsOgg()}"
                 android:text="Go Live!"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent" />
@@ -146,14 +152,14 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/contactHeader"
+                    android:id="@+id/staffHeader"
                     style="@style/TextAppearance.MaterialComponents.Headline4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/staff" />
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/contactsRecycler"
+                    android:id="@+id/staffsRecycler"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:nestedScrollingEnabled="false"
@@ -161,6 +167,6 @@
                     android:layout_marginEnd="@dimen/spacing_large" />
             </LinearLayout>
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </layout>

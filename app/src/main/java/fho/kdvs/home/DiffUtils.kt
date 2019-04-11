@@ -22,7 +22,7 @@ class TopMusicDiffCallback : DiffUtil.ItemCallback<TopMusicEntity>() {
         oldItem == newItem
 }
 
-class ContactDiffCallback : DiffUtil.ItemCallback<StaffEntity>() {
+class StaffDiffCallback : DiffUtil.ItemCallback<StaffEntity>() {
     override fun areItemsTheSame(oldItem: StaffEntity, newItem: StaffEntity): Boolean =
         oldItem.name == newItem.name && oldItem.position == newItem.position
 

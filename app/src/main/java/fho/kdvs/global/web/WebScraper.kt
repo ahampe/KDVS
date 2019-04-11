@@ -65,7 +65,7 @@ class WebScraperManager @Inject constructor(
             url.contains("schedule-grid") -> scrapeSchedule(document)
             url.contains("past-playlists") -> scrapeShow(document, url)
             url.contains("playlist-details") -> scrapePlaylist(document, url)
-            url.contains("contact") -> scrapeContacts(document)
+            url.contains("contact") -> scrapeStaff(document)
             url.contains("news") -> scrapeNews(document, url)
             url.contains("top-") -> scrapeTopMusic(document, url)
             url.contains("fundraiser") -> scrapeFundraiser(document, url)
@@ -329,8 +329,8 @@ class WebScraperManager @Inject constructor(
         return TopMusicScrapeData(topMusicItemsScraped)
     }
 
-    private fun scrapeContacts(document: Document) : ContactScrapeData? {
-        val contactsScraped = mutableListOf<StaffEntity>()
+    private fun scrapeStaff(document: Document) : StaffScrapeData? {
+        val staffScraped = mutableListOf<StaffEntity>()
 
         document.run {
             val staff = select("table.contact-table tbody tr")
@@ -357,7 +357,7 @@ class WebScraperManager @Inject constructor(
                     ?.replace("<br>", "\n")
                     ?.processHtml()
 
-                contactsScraped.add(StaffEntity(
+                staffScraped.add(StaffEntity(
                     name = name,
                     position = position,
                     email = email,
@@ -366,14 +366,14 @@ class WebScraperManager @Inject constructor(
                 ))
             }
 
-            db.contactDao().deleteAll()
+            db.staffDao().deleteAll()
 
-            contactsScraped.forEach { contact ->
-                db.contactDao().insert(contact)
+            staffScraped.forEach { staff ->
+                db.staffDao().insert(staff)
             }
         }
 
-        return ContactScrapeData(contactsScraped)
+        return StaffScrapeData(staffScraped)
     }
 
     private fun scrapeNews(document: Document, url: String?) : NewsScrapeData? {
@@ -534,9 +534,9 @@ class WebScraperManager @Inject constructor(
 
     // Helper function for scraping a mock staff html file
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    fun scrapeContacts(file: File) {
+    fun scrapeStaff(file: File) {
         val document = Jsoup.parse(file, "UTF-8", "")
-        scrapeContacts(document)
+        scrapeStaff(document)
     }
 
     // Helper function for scraping a mock news html file

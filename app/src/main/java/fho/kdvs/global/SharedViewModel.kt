@@ -1,6 +1,10 @@
 package fho.kdvs.global
 
 import android.app.Application
+import android.content.Intent
+import android.net.Uri
+import android.view.View
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import fho.kdvs.broadcast.BroadcastRepository
@@ -77,6 +81,26 @@ class SharedViewModel @Inject constructor(
             }
         } else {
             transportControls.playFromMediaId(streamUrl, null)
+        }
+    }
+
+    fun composeEmail(view: View, address: String?) {
+        val intent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("mailto:") // only email apps should handle this
+            putExtra(Intent.EXTRA_EMAIL, address) // TODO: get address to pass in
+            putExtra(Intent.EXTRA_SUBJECT, "test")
+        }
+        if (intent.resolveActivity(view.context.packageManager) != null) {
+            startActivity(view.context, intent, null)
+        }
+    }
+
+    fun openBrowser(view: View, url: String?) {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = Uri.parse(url)
+        }
+        if (intent.resolveActivity(view.context.packageManager) != null) {
+            startActivity(view.context, intent, null)
         }
     }
 

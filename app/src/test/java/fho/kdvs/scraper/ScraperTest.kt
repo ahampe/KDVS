@@ -36,7 +36,7 @@ open class ScraperTest {
         `when`(db.broadcastDao()).thenReturn(broadcastDao)
         `when`(db.trackDao()).thenReturn(trackDao)
         `when`(db.newsDao()).thenReturn(newsDao)
-        `when`(db.contactDao()).thenReturn(staffDao)
+        `when`(db.staffDao()).thenReturn(staffDao)
         `when`(db.topMusicDao()).thenReturn(topMusicDao)
         `when`(db.fundraiserDao()).thenReturn(fundraiserDao)
 

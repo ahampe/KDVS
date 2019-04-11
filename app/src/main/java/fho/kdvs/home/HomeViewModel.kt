@@ -7,9 +7,9 @@ import fho.kdvs.global.database.FundraiserEntity
 import fho.kdvs.global.database.NewsEntity
 import fho.kdvs.global.database.StaffEntity
 import fho.kdvs.global.database.TopMusicEntity
-import fho.kdvs.show.ContactRepository
 import fho.kdvs.show.FundraiserRepository
 import fho.kdvs.show.NewsRepository
+import fho.kdvs.show.StaffRepository
 import fho.kdvs.show.TopMusicRepository
 import org.threeten.bp.OffsetDateTime
 import javax.inject.Inject
@@ -20,7 +20,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val newsRepository: NewsRepository,
     private val topMusicRepository: TopMusicRepository,
-    private val contactRepository: ContactRepository,
+    private val staffRepository: StaffRepository,
     private val fundraiserRepository: FundraiserRepository,
     application: Application
 ) : AndroidViewModel(application) {
@@ -30,20 +30,20 @@ class HomeViewModel @Inject constructor(
     lateinit var newsArticles: LiveData<List<NewsEntity>>
     lateinit var topMusicAdds: LiveData<List<TopMusicEntity>>
     lateinit var topMusicAlbums: LiveData<List<TopMusicEntity>>
-    lateinit var contacts: LiveData<List<StaffEntity>>
+    lateinit var staff: LiveData<List<StaffEntity>>
     lateinit var fundraiser: LiveData<FundraiserEntity>
 
     fun fetchHomeData() {
         fetchNewsArticles()
         fetchTopMusicItems()
-        fetchContacts()
+        fetchStaff()
         fetchFundraiser()
 
         newsArticles = newsRepository.getAllNewsPastDate(
             OffsetDateTime.now().minusMonths(6).toLocalDate()) // TODO: Make this a preference?
         topMusicAdds = topMusicRepository.getMostRecentTopAdds()
         topMusicAlbums = topMusicRepository.getMostRecentTopAlbums()
-        contacts = contactRepository.getContacts()
+        staff = staffRepository.getStaff()
         fundraiser = fundraiserRepository.getFundraiser()
     }
 
@@ -53,8 +53,8 @@ class HomeViewModel @Inject constructor(
     /** Signals the [TopMusic Repository] to scrape the top music pages. */
     private fun fetchTopMusicItems() = topMusicRepository.scrapeTopMusic()
 
-    /** Signals the [Contact Repository] to scrape the contact page. */
-    private fun fetchContacts() = contactRepository.scrapeContact()
+    /** Signals the [Staff Repository] to scrape the staff page. */
+    private fun fetchStaff() = staffRepository.scrapeStaff()
 
     /** Signals the [Fundraiser Repository] to scrape the fundraiser page. */
     private fun fetchFundraiser() = fundraiserRepository.scrapeFundraiser()

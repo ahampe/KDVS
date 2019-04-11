@@ -40,7 +40,7 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         LAST_NEWS_SCRAPE,
 
         // last date/time of staff scrape
-        LAST_CONTACTS_SCRAPE,
+        LAST_STAFF_SCRAPE,
 
         // last date/time of top five adds scrape
         LAST_TOP_FIVE_ADDS_SCRAPE,
@@ -69,7 +69,7 @@ open class KdvsPreferences @Inject constructor(application: Application) {
 
     var lastNewsScrape: Long? by LongPreference(Key.LAST_NEWS_SCRAPE)
 
-    var lastContactsScrape: Long? by LongPreference(Key.LAST_CONTACTS_SCRAPE)
+    var lastStaffScrape: Long? by LongPreference(Key.LAST_STAFF_SCRAPE)
 
     var lastTopFiveAddsScrape: Long? by LongPreference(Key.LAST_TOP_FIVE_ADDS_SCRAPE)
 

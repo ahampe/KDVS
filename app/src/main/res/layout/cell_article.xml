@@ -17,6 +17,10 @@
             name="dateFormatter"
             type="org.threeten.bp.format.DateTimeFormatter" />
 
+        <variable
+            name="vm"
+            type="fho.kdvs.global.SharedViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -26,7 +30,8 @@
         android:layout_marginBottom="@dimen/spacing_small"
         android:layout_marginLeft="@dimen/spacing_large"
         android:layout_marginRight="@dimen/spacing_large"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:onClick="@{(view) -> vm.openBrowser(view, article.articleHref)}">
 
         <TextView
             android:id="@+id/title"
