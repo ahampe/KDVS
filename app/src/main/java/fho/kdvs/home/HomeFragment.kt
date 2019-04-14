@@ -125,11 +125,14 @@ class HomeFragment : DaggerFragment() {
             Timber.d("Got fundraiser: $fundraiser")
             val now = LocalDate.now()
 
-            // display fundraiser section within a two-month window
-            if (fundraiser.dateStart ?: now <= now.plusMonths(1) ||
-                fundraiser.dateEnd ?: now >= now.minusMonths(1)){
-                fundraiserSection.visibility = View.VISIBLE
-                setFundraiserText(fundraiser)
+            // display fundraiser section only within a two-month window
+            if (fundraiser != null) {
+                if (fundraiser.dateStart ?: now > now.plusMonths(1) ||
+                    fundraiser.dateEnd ?: now < now.minusMonths(1)) {
+                    fundraiserSection.visibility = View.GONE
+                } else {
+                    setFundraiserText(fundraiser)
+                }
             }
         })
     }

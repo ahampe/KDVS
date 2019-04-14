@@ -10,20 +10,52 @@
     </data>
 
     <LinearLayout
-        trackPosition="@{topMusic.position}"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@{topMusic.artist}"
             position="@{topMusic.position}"
-            artist="@{topMusic.artist}"
-            album="@{topMusic.album}"
-            tools:text="1. Artist - Album" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            tools:text="01."/>
+
+        <Space
+            android:layout_width="@dimen/spacing_small"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{topMusic.artist}"
+            android:textStyle="bold"
+            tools:text="Testing Long Artist Name" />
+
+        <Space
+            android:layout_width="@dimen/spacing_small"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/top_music_artist_album_separator"
+            tools:text="-" />
+
+        <Space
+            android:layout_width="@dimen/spacing_small"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{topMusic.album}"
+            android:textStyle="italic"
+            tools:text="Long Album Name With Many Words" />
 
     </LinearLayout>
 

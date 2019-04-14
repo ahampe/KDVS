@@ -26,63 +26,91 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_small"
-        android:layout_marginBottom="@dimen/spacing_small"
-        android:layout_marginLeft="@dimen/spacing_large"
-        android:layout_marginRight="@dimen/spacing_large"
-        android:orientation="horizontal"
-        android:onClick="@{(view) -> vm.openBrowser(view, article.articleHref)}">
+        android:layout_marginBottom="@dimen/spacing_medium"
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/title"
-            style="@style/TextAppearance.MaterialComponents.Headline5"
+        <LinearLayout
+            android:id="@+id/articleInfoAndIcon"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@{article.title}"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Article Title" />
+            android:orientation="horizontal"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/date"
-            style="@style/TextAppearance.MaterialComponents.Subtitle1"
-            dateFormatter="@{dateFormatter}"
-            localDate="@{article.date}"
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/title"
+                    style="@style/TextAppearance.MaterialComponents.Headline6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@{article.title}"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Article Title" />
+
+                <TextView
+                    android:id="@+id/date"
+                    style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                    dateFormatter="@{dateFormatter}"
+                    localDate="@{article.date}"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/title"
+                    tools:text="01/04/2019" />
+
+                <TextView
+                    android:id="@+id/author"
+                    style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{article.author}"
+                    app:layout_constraintTop_toBottomOf="@id/date"
+                    tools:text="Example Person" />
+
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_open_in_browser_white_36dp"
+                android:onClick="@{(view) -> vm.openBrowser(view, article.articleHref)}"/>
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/title"
-            tools:text="01/04/2019" />
-
-        <TextView
-            android:id="@+id/author"
-            style="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@{article.author}"
-            app:layout_constraintTop_toBottomOf="@id/date"
-            tools:text="Example Person" />
-
-        <ImageView
-            android:id="@+id/articleImage"
-            glideHrefDefaultGone ="@{article.imageHref}"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:maxHeight="300dp"
-            android:adjustViewBounds="true"
+            android:orientation="vertical"
             android:layout_marginTop="@dimen/spacing_large"
-            app:layout_constraintTop_toBottomOf="@id/author"
-            tools:background="@drawable/show_placeholder" />
+            app:layout_constraintTop_toBottomOf="@id/articleInfoAndIcon">
 
-        <TextView
-            android:id="@+id/body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@{article.body}"
-            android:layout_marginTop="@dimen/spacing_large"
-            app:layout_constraintTop_toBottomOf="@id/articleImage"
-            tools:text="\tLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed maximus nunc sed pharetra facilisis. Nullam auctor metus varius luctus vehicula. Sed at volutpat enim. Cras varius nibh nec purus mattis, id tempus ligula suscipit. Pellentesque tempor sem ut erat facilisis imperdiet. Maecenas luctus leo nec tellus pellentesque, eu pretium augue scelerisque. Vivamus bibendum, ante sed congue bibendum, lorem elit accumsan massa, eget eleifend massa nisi vel mauris. Cras ut posuere magna. Praesent interdum lectus non velit hendrerit porttitor.\n
+            <ImageView
+                android:id="@+id/articleImage"
+                glideHrefDefaultGone="@{article.imageHref}"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:maxHeight="300dp"
+                android:adjustViewBounds="true"
+                android:layout_gravity="start"
+                android:layout_marginBottom="@dimen/spacing_large"
+                tools:src="@drawable/show_placeholder"/>
+
+            <TextView
+                android:id="@+id/body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@{article.body}"
+                app:layout_constraintTop_toBottomOf="@id/articleImage"
+                tools:text="\tLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed maximus nunc sed pharetra facilisis. Nullam auctor metus varius luctus vehicula. Sed at volutpat enim. Cras varius nibh nec purus mattis, id tempus ligula suscipit. Pellentesque tempor sem ut erat facilisis imperdiet. Maecenas luctus leo nec tellus pellentesque, eu pretium augue scelerisque. Vivamus bibendum, ante sed congue bibendum, lorem elit accumsan massa, eget eleifend massa nisi vel mauris. Cras ut posuere magna. Praesent interdum lectus non velit hendrerit porttitor.\n
 \tClass aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Proin non nibh vitae lorem iaculis pretium vel in nulla. Donec rutrum enim libero, quis tempor massa tincidunt nec. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla id blandit lectus, nec iaculis libero. Quisque malesuada pharetra nisl at euismod. Curabitur elit felis, ornare vel pulvinar id, semper id lectus." />
+
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

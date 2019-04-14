@@ -19,7 +19,6 @@
 
     <!-- Home -->
     <string name="now_playing">Now Playing:</string>
-    <string name="top_music_item">%1$d. %2$s - %3$s</string>
     <string name="contact">Contact</string>
     <string name="duties">Duties</string>
     <string name="office_hours">Office Hours</string>
@@ -27,8 +26,12 @@
     <string name="fundraiser">Fundraiser</string>
     <string name="top_adds">Weekly Top Adds</string>
     <string name="top_albums">Weekly Top Albums</string>
+    <string name="top_music_position">%1$s.</string>
+    <string name="top_music_artist_album_separator">-</string>
     <string name="staff">Staff</string>
+    <string name="staff_email_icon">email</string>
     <string name="toggle_desc">Hide</string>
+    <string name="fundraiser_link">Pledge</string>
     <string name="fundraiser_dates_same_month">%1$s %2$s–%3$s, %4$d</string>
     <string name="fundraiser_dates_diff_month">%1$s %2$s – %3$s %4$s, %5$d</string>
     <string name="fundraiser_totals">Goal: \$%1$s\nCurrent: \$%2$s</string>

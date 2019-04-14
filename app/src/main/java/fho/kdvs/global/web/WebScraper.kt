@@ -16,6 +16,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.parser.Parser
 import org.threeten.bp.*
 import timber.log.Timber
 import java.io.File
@@ -301,7 +302,7 @@ class WebScraperManager @Inject constructor(
                 if (albums.size >= 5){ // ignore blank lists
                     albums.forEachIndexed{ index, elm ->
                         val captures = "(.+)<br>.*>(.+)<.*>.*\\((.+)\\)".toRegex()
-                            .find(elm.html())
+                            .find(elm.parseHtml() ?: "")
                             ?.groupValues
                         val artist = captures?.getOrNull(1)?.toString()
                         val album = captures?.getOrNull(2)?.toString()
@@ -588,10 +589,13 @@ private fun String?.stripHtml(): String? {
     return this.replace("<[^>]*>".toRegex(), "")
 }
 
-/** Strip html tags, trim, remove inner-string spaces near newlines */
+/** Strip html tags, trim, remove inner-string spaces near newlines, unescape html */
 private fun String?.processHtml(): String? {
     if (this == null) return null
-    
-    return this.stripHtml()?.trim()?.replace("""\s*\n\s*""".toRegex(),"\n")
+
+    return Parser.unescapeEntities(this.stripHtml()
+        ?.trim()
+        ?.replace("""\s*\n\s*""".toRegex(),"\n"),
+        false)
 }
 //endregion

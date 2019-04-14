@@ -25,17 +25,16 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:onClick="@{(view) -> vm.openBrowser(view, urlObj.FUNDRAISER)}">
+            android:orientation="vertical">
 
             <!-- TODO: Replace this?-->
             <Button
                 android:id="@+id/go_live"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_large"
                 android:onClick="@{() -> vm.changeToKdvsOgg()}"
                 android:text="Go Live!"
+                android:layout_gravity="center_horizontal"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent" />
 
@@ -44,8 +43,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_large"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:layout_marginEnd="@dimen/spacing_large"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/fundraiserHeader"
@@ -54,25 +53,46 @@
                     android:layout_height="wrap_content"
                     android:text="@string/fundraiser" />
 
-                <TextView
-                    android:id="@+id/fundraiserDates"
-                    style="@style/TextAppearance.MaterialComponents.Headline5"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
-                    android:layout_marginStart="@dimen/spacing_large"
-                    android:layout_marginEnd="@dimen/spacing_large"
-                    tools:text="April 22-28, 2019"/>
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/fundraiserTotals"
-                    style="@style/TextAppearance.MaterialComponents.Subtitle1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
-                    android:layout_marginStart="@dimen/spacing_large"
-                    android:layout_marginEnd="@dimen/spacing_large"
-                    tools:text="Goal: $50,000\nCurrent: $1,324"/>
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:id="@+id/fundraiserDates"
+                            style="@style/TextAppearance.MaterialComponents.Headline6"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false"
+                            android:layout_marginStart="@dimen/spacing_large"
+                            android:layout_marginEnd="@dimen/spacing_large"
+                            tools:text="April 22-28, 2019"/>
+
+                        <TextView
+                            android:id="@+id/fundraiserTotals"
+                            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false"
+                            android:layout_marginStart="@dimen/spacing_large"
+                            android:layout_marginEnd="@dimen/spacing_large"
+                            tools:text="Goal: $50,000\nCurrent: $1,324"/>
+                    </LinearLayout>
+
+                    <ImageView
+                        android:contentDescription="@string/fundraiser_link"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_open_in_browser_white_36dp"
+                        android:onClick="@{(view) -> vm.openBrowser(view, urlObj.FUNDRAISER)}"/>
+
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout

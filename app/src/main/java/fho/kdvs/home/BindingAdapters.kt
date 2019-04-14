@@ -1,5 +1,6 @@
 package fho.kdvs.home
 
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
@@ -20,15 +21,19 @@ fun loadImageWithGlideIfPresent(view: ImageView, imageHref: String?) {
             .load(imageHref)
             .transition(DrawableTransitionOptions.withCrossFade())
             .into(view)
+
+        view.visibility = View.VISIBLE
     }
 }
 
-@BindingAdapter("position", "artist", "album")
-fun bindTopMusicCell(view: TextView, position: Int, artist: String, album: String) {
+@BindingAdapter("position")
+fun bindTopMusicPositionCell(view: TextView, position: Int) {
+    val adjustedPosition = if ((position % 10) == position)
+        "0$position"
+    else position.toString()
+
     view.text = view.context.resources.getString(
-        R.string.top_music_item,
-        position,
-        artist,
-        album
+        R.string.top_music_position,
+        adjustedPosition
     )
 }
