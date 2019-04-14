@@ -1,18 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     tools:context="fho.kdvs.schedule.ScheduleFragment">
 
+    <LinearLayout
+        android:id="@+id/dayAbbreviations"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_large"
+        android:layout_marginEnd="@dimen/spacing_large"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:layout_marginBottom="@dimen/spacing_medium"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/sun"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/sun"
+            android:gravity="center_horizontal"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            android:textColor="@color/colorPrimary"
+            tools:text="S"/>
+
+        <TextView
+            android:id="@+id/mon"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/mon"
+            android:gravity="center_horizontal"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            android:textColor="@color/colorPrimary"
+            tools:text="M"/>
+
+        <TextView
+            android:id="@+id/tues"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/tues"
+            android:gravity="center_horizontal"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            android:textColor="@color/colorPrimary"
+            tools:text="T"/>
+
+        <TextView
+            android:id="@+id/wed"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/wed"
+            android:gravity="center_horizontal"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            android:textColor="@color/colorPrimary"
+            tools:text="W"/>
+
+        <TextView
+            android:id="@+id/thurs"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/thurs"
+            android:gravity="center_horizontal"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            android:textColor="@color/colorPrimary"
+            tools:text="T"/>
+
+        <TextView
+            android:id="@+id/fri"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/fri"
+            android:gravity="center_horizontal"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            android:textColor="@color/colorPrimary"
+            tools:text="F"/>
+
+        <TextView
+            android:id="@+id/sat"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/sat"
+            android:gravity="center_horizontal"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            android:textColor="@color/colorPrimary"
+            tools:text="S"/>
+
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/weekRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:nestedScrollingEnabled="true" />
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="true"
+        app:layout_constraintTop_toBottomOf="@id/dayAbbreviations"/>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -23,7 +23,7 @@
                                        xmlns:tools="http://schemas.android.com/tools"
                                        android:layout_width="match_parent"
                                        timeslotHeight="@{TimeHelper.getTimeDifferenceInHalfHoursPerDay(timeslot.timeStart, timeslot.timeEnd, timeslot)}"
-                                       android:layout_height="100dp"
+                                       android:layout_height="@dimen/timeslot_hour_height"
                                        android:onClick="@{clickListener}"
                                        android:elevation="1dp"
                                        android:padding="4dp">
@@ -31,52 +31,55 @@
         <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="0dp"
                 tools:background="@color/colorBlack50a">
 
             <ImageView
-                    android:id="@+id/showImage"
-                    timeslotGlideHref="@{timeslot}"
-                    android:layout_width="@dimen/timeslot_image"
-                    android:layout_height="@dimen/timeslot_image"
-                    android:adjustViewBounds="true"
-                    android:scaleType="centerCrop"
-                    android:contentDescription="@string/timeslot_desc"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginRight="@dimen/timeslot_margin"
-                    tools:background="@drawable/show_placeholder"/>
+                android:id="@+id/showImage"
+                timeslotGlideHref="@{timeslot}"
+                android:layout_width="@dimen/timeslot_image"
+                android:layout_height="@dimen/timeslot_image"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/timeslot_desc"
+                android:layout_marginTop="@dimen/spacing_medium"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginEnd="@dimen/spacing_medium"
+                tools:background="@drawable/show_placeholder"/>
 
             <TextView
-                    android:id="@+id/showName"
-                    showNames="@{timeslot.names}"
-                    android:gravity="center"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/white"
-                    android:textSize="22sp"
-                    android:textAlignment="textStart"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintRight_toLeftOf="@+id/showImage"
-
-                    tools:text="Buried Alive in the Blues"/>
+                android:id="@+id/showName"
+                showNames="@{timeslot.names}"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:layout_marginStart="@dimen/spacing_medium"
+                android:layout_marginEnd="@dimen/spacing_medium"
+                android:ellipsize="end"
+                android:maxLines="1"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/showImage"
+                app:layout_constraintWidth_default="wrap"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                tools:text="Testing a Very Long Show Name For Ellipses"/>
 
             <TextView
-                    android:id="@+id/showTime"
-                    timeEnd="@{timeslot.timeEnd}"
-                    timeStart="@{timeslot.timeStart}"
-                    android:gravity="center"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/white"
-                    android:textSize="10sp"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/showName"
-                    app:layout_constraintRight_toLeftOf="@+id/showImage"
-                    tools:text="00:00 AM - 02:00 PM"/>
+                android:id="@+id/showTime"
+                timeEnd="@{timeslot.timeEnd}"
+                timeStart="@{timeslot.timeStart}"
+                android:gravity="left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:layout_marginStart="@dimen/spacing_medium"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/showName"
+                tools:text="00:00 AM - 02:00 PM"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 </layout>

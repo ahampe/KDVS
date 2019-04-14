@@ -43,8 +43,12 @@ fun makeTimeslotHeight(view: CardView, height: Int){
 
     // Hide image if it cannot fit on card
     val image = view.findViewById(R.id.showImage) as ImageView
-    if (image.height > view.layoutParams.height)
-        image.visibility = View.INVISIBLE
+    if (image.height > view.layoutParams.height) {
+        image.visibility = View.GONE
+        val times = view.findViewById(R.id.showTime) as TextView
+        times.visibility = View.GONE
+    }
+
 }
 
 @BindingAdapter("timeslotGlideHref")

@@ -18,13 +18,13 @@
     <string name="notification_pause">Pause</string>
 
     <!-- Schedule -->
-    <string name="sun">Sunday</string>
-    <string name="mon">Monday</string>
-    <string name="tues">Tuesday</string>
-    <string name="wed">Wednesday</string>
-    <string name="thurs">Thursday</string>
-    <string name="fri">Friday</string>
-    <string name="sat">Saturday</string>
+    <string name="sun">S</string>
+    <string name="mon">M</string>
+    <string name="tues">T</string>
+    <string name="wed">W</string>
+    <string name="thurs">T</string>
+    <string name="fri">F</string>
+    <string name="sat">S</string>
 
     <string name="show_time_range">%1$s - %2$s</string>
     <string name="past_playlists">Past Playlists:</string>
