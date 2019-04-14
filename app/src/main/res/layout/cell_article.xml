@@ -84,7 +84,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="@dimen/spacing_large"
+            android:layout_marginTop="@dimen/spacing_medium"
             app:layout_constraintTop_toBottomOf="@id/articleInfoAndIcon">
 
             <ImageView
@@ -97,7 +97,7 @@
                 android:maxHeight="300dp"
                 android:adjustViewBounds="true"
                 android:layout_gravity="start"
-                android:layout_marginBottom="@dimen/spacing_large"
+                android:layout_marginBottom="@dimen/spacing_medium"
                 tools:src="@drawable/show_placeholder"/>
 
             <TextView

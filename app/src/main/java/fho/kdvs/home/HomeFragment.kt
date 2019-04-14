@@ -101,6 +101,10 @@ class HomeFragment : DaggerFragment() {
     }
 
     private fun subscribeToViewModel() {
+        viewModel.currentShow.observe(this, Observer { show ->
+            Timber.d("Got currently playing show: $show")
+        })
+
         viewModel.newsArticles.observe(this, Observer { articles ->
             Timber.d("Got articles: $articles")
             newsArticlesAdapter?.onNewsChanged(articles)
@@ -131,21 +135,25 @@ class HomeFragment : DaggerFragment() {
                     fundraiser.dateEnd ?: now < now.minusMonths(1)) {
                     fundraiserSection.visibility = View.GONE
                 } else {
-                    setFundraiserText(fundraiser)
+                    setFundraiserView(fundraiser)
                 }
             }
         })
     }
 
-    private fun setFundraiserText(fundraiser: FundraiserEntity){
+    private fun setFundraiserView(fundraiser: FundraiserEntity){
         val startMonthStr = TimeHelper.monthIntToStr(fundraiser.dateStart?.monthValue)
             .toLowerCase()
             .capitalize()
         val endMonthStr = TimeHelper.monthIntToStr(fundraiser.dateEnd?.monthValue)
             .toLowerCase()
             .capitalize()
-        val dayStart = fundraiser.dateStart?.dayOfMonth.toString()
-        val dayEnd = fundraiser.dateEnd?.dayOfMonth.toString()
+        val dayStart = fundraiser.dateStart
+            ?.dayOfMonth
+            .toString()
+        val dayEnd = fundraiser.dateEnd
+            ?.dayOfMonth
+            .toString()
         val year = fundraiser.dateStart?.year
 
         if (startMonthStr == endMonthStr)
@@ -168,14 +176,21 @@ class HomeFragment : DaggerFragment() {
 
         val goalStr = DecimalFormat(",###")
             .format(fundraiser.goal?.toDouble())
-        var currentStr = DecimalFormat(",###")
+        val currentStr = DecimalFormat(",###")
             .format(fundraiser.current?.toDouble())
 
-        fundraiserTotals.text = fundraiserTotals.context.resources.getString(
-            R.string.fundraiser_totals,
-            goalStr,
+        fundraiserCurrent.text = fundraiserCurrent.context.resources.getString(
+            R.string.fundraiser_total,
             currentStr
         )
+
+        fundraiserGoal.text = fundraiserCurrent.context.resources.getString(
+            R.string.fundraiser_total,
+            goalStr
+        )
+
+        val progress = ((fundraiser.current ?: 0) / (fundraiser.goal ?: 1)) * 100
+        fundraiserProgress.progress = if (progress > 100) 100 else progress
     }
 }
 

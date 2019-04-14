@@ -3,14 +3,8 @@ package fho.kdvs.home
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import fho.kdvs.global.database.FundraiserEntity
-import fho.kdvs.global.database.NewsEntity
-import fho.kdvs.global.database.StaffEntity
-import fho.kdvs.global.database.TopMusicEntity
-import fho.kdvs.show.FundraiserRepository
-import fho.kdvs.show.NewsRepository
-import fho.kdvs.show.StaffRepository
-import fho.kdvs.show.TopMusicRepository
+import fho.kdvs.global.database.*
+import fho.kdvs.show.*
 import org.threeten.bp.OffsetDateTime
 import javax.inject.Inject
 
@@ -18,6 +12,7 @@ import javax.inject.Inject
  * [AndroidViewModel] for holding home-related data.
  */
 class HomeViewModel @Inject constructor(
+    private val showRepository: ShowRepository,
     private val newsRepository: NewsRepository,
     private val topMusicRepository: TopMusicRepository,
     private val staffRepository: StaffRepository,
@@ -27,6 +22,7 @@ class HomeViewModel @Inject constructor(
 
     // The news page will be updated with news articles at indeterminate (probably infrequent) intervals
     // but other pages will be weekly / quarterly, in monolithic updates
+    lateinit var currentShow: LiveData<ShowEntity>
     lateinit var newsArticles: LiveData<List<NewsEntity>>
     lateinit var topMusicAdds: LiveData<List<TopMusicEntity>>
     lateinit var topMusicAlbums: LiveData<List<TopMusicEntity>>
@@ -39,6 +35,7 @@ class HomeViewModel @Inject constructor(
         fetchStaff()
         fetchFundraiser()
 
+        currentShow = showRepository.playingShowLiveData
         newsArticles = newsRepository.getAllNewsPastDate(
             OffsetDateTime.now().minusMonths(6).toLocalDate()) // TODO: Make this a preference?
         topMusicAdds = topMusicRepository.getMostRecentTopAdds()
