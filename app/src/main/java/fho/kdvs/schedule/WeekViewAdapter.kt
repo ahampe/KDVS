@@ -53,8 +53,10 @@ class WeekViewAdapter(
             adapter = childAdapter
             layoutManager = childLayoutManager
 
-            val dividerItemDecoration = MyDividerItemDecoration(context.getDrawable(R.drawable.timeslot_divider))
-            addItemDecoration(dividerItemDecoration)
+            if (recyclerView.itemDecorationCount == 0){
+                val dividerItemDecoration = MyDividerItemDecoration(context.getDrawable(R.drawable.timeslot_divider))
+                addItemDecoration(dividerItemDecoration)
+            }
         }
 
         day.timeSlotsLiveData.observe(fragment, Observer { timeslots ->

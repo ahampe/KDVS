@@ -14,6 +14,7 @@ import fho.kdvs.global.extensions.BitmapColorRequestListener
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.cell_timeslot.view.*
 import org.threeten.bp.OffsetDateTime
+import timber.log.Timber
 
 @BindingAdapter("timeStart", "timeEnd")
 fun showTimeRange(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDateTime) {
@@ -44,6 +45,7 @@ fun makeTimeslotHeight(view: CardView, height: Int){
     // Hide image if it cannot fit on card
     val image = view.findViewById(R.id.showImage) as ImageView
     if (image.height > view.layoutParams.height) {
+        Timber.d("half-hour show ${view.showName.text} detected")
         image.visibility = View.GONE
         val times = view.findViewById(R.id.showTime) as TextView
         times.visibility = View.GONE
