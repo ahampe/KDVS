@@ -3,17 +3,12 @@ package fho.kdvs.schedule
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.R
-import fho.kdvs.global.enums.Day
 import fho.kdvs.global.extensions.MyDividerItemDecoration
 import kotlinx.android.synthetic.main.cell_day_column.view.*
 import timber.log.Timber
@@ -52,7 +47,7 @@ class WeekViewAdapter(
         holder.recyclerView.apply {
             adapter = childAdapter
             layoutManager = childLayoutManager
-
+            
             if (recyclerView.itemDecorationCount == 0){
                 val dividerItemDecoration = MyDividerItemDecoration(context.getDrawable(R.drawable.timeslot_divider))
                 addItemDecoration(dividerItemDecoration)

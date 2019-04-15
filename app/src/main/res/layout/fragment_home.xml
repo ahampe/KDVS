@@ -105,8 +105,8 @@
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/showName"
-                        app:timeEnd="@{currentShow.timeEnd ?? OffsetDateTime.now()}"
-                        app:timeStart="@{currentShow.timeStart ?? OffsetDateTime.now()}"
+                        timeEnd="@{currentShow.timeEnd ?? OffsetDateTime.now()}"
+                        timeStart="@{currentShow.timeStart ?? OffsetDateTime.now()}"
                         tools:text="00:00 AM - 02:00 PM" />
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>

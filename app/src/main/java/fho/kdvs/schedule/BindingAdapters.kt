@@ -15,6 +15,8 @@ import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.cell_timeslot.view.*
 import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
+import kotlin.math.floor
+import kotlin.math.max
 
 @BindingAdapter("timeStart", "timeEnd")
 fun showTimeRange(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDateTime) {
@@ -25,32 +27,31 @@ fun showTimeRange(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDate
     )
 }
 
-@BindingAdapter("showNames")
-fun makeShowNames(view: TextView, showNames: List<String>) {
+@BindingAdapter("showNames", "layoutHeight")
+fun makeShowNames(view: TextView, showNames: List<String>, numHalfHours: Int) {
     if (showNames.isEmpty()) return
 
-    if (showNames.size == 1) {
-        view.text = showNames.first()
-    } else {
-        view.text = showNames.joinToString("\n&\n")
-    }
+    val cardHeight = numHalfHours * view.context.resources.getDimension(R.dimen.timeslot_halfhour_height)
+
+    // find max number of showName lines to fit on card without breaking margins
+    view.maxLines = max(1,
+        floor((cardHeight - (2 * view.resources.getDimension(R.dimen.spacing_medium)))
+                / view.showName.height).toInt())
+    view.text = if (showNames.size == 1) showNames.first() else showNames.joinToString(" &\n")
 }
 
-@BindingAdapter("timeslotHeight")
-fun makeTimeslotHeight(view: CardView, height: Int){
+@BindingAdapter("timeslot", "timeslotHeight")
+fun makeTimeslotHeight(view: CardView, timeslot: TimeSlot, numHalfHours: Int){
     view.layoutParams.height = (
-        height * view.context.resources.getDimension(R.dimen.timeslot_halfhour_height)
+        numHalfHours * view.context.resources.getDimension(R.dimen.timeslot_halfhour_height)
     ).toInt()
 
     // Hide image if it cannot fit on card
-    val image = view.findViewById(R.id.showImage) as ImageView
+    val image = view.findViewById(R.id.timeSlotImage) as ImageView
     if (image.height > view.layoutParams.height) {
-        Timber.d("half-hour show ${view.showName.text} detected")
+        Timber.d("half-hour show ${timeslot.names.firstOrNull()} detected")
         image.visibility = View.GONE
-        val times = view.findViewById(R.id.showTime) as TextView
-        times.visibility = View.GONE
     }
-
 }
 
 @BindingAdapter("timeslotGlideHref")

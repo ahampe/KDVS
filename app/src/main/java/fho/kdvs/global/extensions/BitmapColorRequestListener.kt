@@ -31,8 +31,7 @@ class BitmapColorRequestListener(
 
     /**
      * Apply dynamic [Palette] coloration and alpha gradients. Placeholder [TimeSlot]s are assigned random color
-     * deterministically by their corresponding show names.
-     */
+     * deterministically by their corresponding show names. */
     override fun onResourceReady(
         resource: Bitmap?,
         model: Any,
@@ -51,11 +50,11 @@ class BitmapColorRequestListener(
 
         // set placeholder timeslots to independent random colors
         val isPlaceholder = (imageHref.contains(".*kdvs.org.*placeholder.*".toRegex()))
-               // || resource == (view.context.getDrawable(R.drawable.show_placeholder) as BitmapDrawable).bitmap
+           // || resource == (view.context.getDrawable(R.drawable.show_placeholder) as BitmapDrawable).bitmap // this produces glitches when shows aren't loaded in yet
         val seed = showName.hashCode().toLong() // use showName to generate random color
         var colorVal = ColorHelper.getRandomMatColor(500, view.context, seed) // TODO: make colortype dynamic?
 
-        if (!isPlaceholder) { // TODO: dynamic color for grayscale images?
+        if (!isPlaceholder) {
             val p = Palette.from(resource).generate()
             colorVal = p.getDarkVibrantColor(colorVal)
         }

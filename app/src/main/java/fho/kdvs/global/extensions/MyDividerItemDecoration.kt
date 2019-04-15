@@ -5,6 +5,7 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
+import fho.kdvs.R
 
 
 class MyDividerItemDecoration(private val divider: Drawable) : RecyclerView.ItemDecoration() {
@@ -28,6 +29,8 @@ class MyDividerItemDecoration(private val divider: Drawable) : RecyclerView.Item
 
             val dividerTop = child.bottom + params.bottomMargin
             val dividerBottom = dividerTop + divider.intrinsicHeight
+
+            // TODO: make divider draw on top of cards such that no additional spacing is added (for time grid logic)
 
             divider.setBounds(dividerLeft, dividerTop, dividerRight, dividerBottom)
             divider.draw(canvas)
