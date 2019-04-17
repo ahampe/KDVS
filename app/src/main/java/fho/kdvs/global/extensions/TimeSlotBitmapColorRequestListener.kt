@@ -8,6 +8,8 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.narayanacharya.waveview.WaveView
+import fho.kdvs.R
 import fho.kdvs.global.util.ColorHelper
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.schedule.TimeSlot
@@ -15,7 +17,7 @@ import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 
 
-class BitmapColorRequestListener(
+class TimeSlotBitmapColorRequestListener (
     private val view: View,
     private val viewToColor: View,
     private val timeslot: TimeSlot?
@@ -31,7 +33,8 @@ class BitmapColorRequestListener(
 
     /**
      * Apply dynamic [Palette] coloration and alpha gradients. Placeholder [TimeSlot]s are assigned random color
-     * deterministically by their corresponding show names. */
+     * deterministically by their corresponding show names.
+     * */
     override fun onResourceReady(
         resource: Bitmap?,
         model: Any,
@@ -41,15 +44,13 @@ class BitmapColorRequestListener(
     ): Boolean {
         if (resource == null) return false
 
-        // TODO: don't rely on static kdvs placeholder?
-
         val imageHref = timeslot?.imageHref ?: ""
         val showName = timeslot?.names?.first() ?: ""
         val scheduleTime = TimeHelper.makeEpochRelativeTime(OffsetDateTime.now())
         val isCurrentShow = (scheduleTime >= timeslot?.timeStart) && (scheduleTime < timeslot?.timeEnd)
 
         // set placeholder timeslots to independent random colors
-        val isPlaceholder = (imageHref.contains(".*kdvs.org.*placeholder.*".toRegex()))
+        val isPlaceholder = (imageHref.contains(".*kdvs.org.*placeholder.*".toRegex())) // TODO: don't rely on static kdvs placeholder?
            // || resource == (view.context.getDrawable(R.drawable.show_placeholder) as BitmapDrawable).bitmap // this produces glitches when shows aren't loaded in yet
         val seed = showName.hashCode().toLong() // use showName to generate random color
         var colorVal = ColorHelper.getRandomMatColor(500, view.context, seed) // TODO: make colortype dynamic?
@@ -66,8 +67,17 @@ class BitmapColorRequestListener(
         val imageGradientDrawable = GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, backgroundColors)
         view.foreground = imageGradientDrawable
 
-        if (isCurrentShow) Timber.d("currentShow $showName")
+        if (isCurrentShow) {
+            Timber.d("currentShow $showName")
+            val waveView = viewToColor.findViewById<WaveView>(R.id.waveView)
+
+            if (waveView != null && waveView.visibility != View.VISIBLE){
+                waveView.waveColor = ColorHelper.getComplementaryColor(colorVal, view.context)
+                waveView.visibility = View.VISIBLE
+            }
+        }
 
         return false
     }
 }
+

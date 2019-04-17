@@ -8,8 +8,12 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
+import com.bumptech.glide.util.ViewPreloadSizeProvider
 import fho.kdvs.R
-import fho.kdvs.global.extensions.MyDividerItemDecoration
+import fho.kdvs.global.extensions.DividerItemDecoration
+import fho.kdvs.global.extensions.MyPreloadModelProvider
 import kotlinx.android.synthetic.main.cell_day_column.view.*
 import timber.log.Timber
 
@@ -47,18 +51,23 @@ class WeekViewAdapter(
         holder.recyclerView.apply {
             adapter = childAdapter
             layoutManager = childLayoutManager
-            
+            setItemViewCacheSize(10)
+
             if (recyclerView.itemDecorationCount == 0){
-                val dividerItemDecoration = MyDividerItemDecoration(context.getDrawable(R.drawable.timeslot_divider))
+                val dividerItemDecoration = DividerItemDecoration(context.getDrawable(R.drawable.timeslot_divider))
                 addItemDecoration(dividerItemDecoration)
             }
         }
 
         day.timeSlotsLiveData.observe(fragment, Observer { timeslots ->
             childAdapter.onShowsChanged(timeslots)
+
+//            val urls = timeslots.map { t -> t.imageHref ?: "" }.toList()
+//            val sizeProvider = ViewPreloadSizeProvider<String>(holder.recyclerView)
+//            val modelProvider = MyPreloadModelProvider(urls, fragment)
+//            val preloader = RecyclerViewPreloader<TimeSlot>(Glide.with(fragment), modelProvider, sizeProvider, 10)
         })
     }
-
 
     class ViewHolder(dayContainer: ConstraintLayout) : RecyclerView.ViewHolder(dayContainer) {
         val recyclerView: RecyclerView = dayContainer.recyclerView

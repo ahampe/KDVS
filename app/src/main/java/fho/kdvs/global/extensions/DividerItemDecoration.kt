@@ -5,10 +5,9 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import fho.kdvs.R
 
 
-class MyDividerItemDecoration(private val divider: Drawable) : RecyclerView.ItemDecoration() {
+class DividerItemDecoration(private val divider: Drawable) : RecyclerView.ItemDecoration() {
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
         super.getItemOffsets(outRect, view, parent, state)
 

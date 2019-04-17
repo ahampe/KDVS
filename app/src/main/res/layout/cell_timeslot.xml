@@ -35,6 +35,24 @@
             android:layout_height="match_parent"
             tools:background="@color/colorAccent">
 
+            <com.narayanacharya.waveview.WaveView
+                android:id="@+id/waveView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:alpha="128"
+                android:visibility="gone"
+                app:waveAmplitude="10.25"
+                app:waveBackgroundColor="@color/colorPrimary"
+                app:waveColor="@color/colorAccent"
+                app:waveDensity="5.0"
+                app:waveFrequency="2.0"
+                app:waveNumberOfWaves="5"
+                app:wavePhaseShift="-0.05"
+                app:wavePrimaryLineWidth="3.0"
+                app:waveSecondaryLineWidth="1.0"
+                app:waveXAxisPositionMultiplier="0.5" />
+
             <ImageView
                 android:id="@+id/timeSlotImage"
                 timeslotGlideHref="@{timeslot}"
@@ -43,10 +61,11 @@
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
                 android:contentDescription="@string/timeslot_desc"
-                android:layout_marginTop="@dimen/spacing_medium"
+                android:layout_marginTop="@dimen/timeslot_margin"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginEnd="@dimen/spacing_medium"
+                android:layout_marginEnd="@dimen/timeslot_margin"
+                tools:visibility="visible"
                 tools:background="@drawable/show_placeholder"/>
 
             <TextView
@@ -56,9 +75,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/white"
-                android:layout_marginTop="@dimen/spacing_medium"
-                android:layout_marginStart="@dimen/spacing_medium"
-                android:layout_marginEnd="@dimen/spacing_medium"
+                android:layout_marginTop="@dimen/timeslot_margin"
+                android:layout_marginStart="@dimen/timeslot_margin"
+                android:layout_marginEnd="@dimen/timeslot_margin"
                 android:ellipsize="end"
                 android:shadowColor="@color/colorPrimary50a"
                 android:shadowDx="3"
@@ -68,7 +87,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_default="wrap"
+                app:layout_constrainedWidth="true"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 tools:text="The Name of the Show"/>
@@ -81,7 +100,7 @@
                 <!--android:layout_width="wrap_content"-->
                 <!--android:layout_height="wrap_content"-->
                 <!--android:textColor="@android:color/white"-->
-                <!--android:layout_marginStart="@dimen/spacing_medium"-->
+                <!--android:layout_marginStart="@dimen/timeslot_margin"-->
                 <!--android:shadowColor="@color/colorPrimary50a"-->
                 <!--android:shadowDx="3"-->
                 <!--android:shadowDy="3"-->

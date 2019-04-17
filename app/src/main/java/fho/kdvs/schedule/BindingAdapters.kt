@@ -10,7 +10,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import fho.kdvs.R
-import fho.kdvs.global.extensions.BitmapColorRequestListener
+import fho.kdvs.global.extensions.TimeSlotBitmapColorRequestListener
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.cell_timeslot.view.*
 import org.threeten.bp.OffsetDateTime
@@ -35,7 +35,7 @@ fun makeShowNames(view: TextView, showNames: List<String>, numHalfHours: Int) {
 
     // find max number of showName lines to fit on card without breaking margins
     view.maxLines = max(1,
-        floor((cardHeight - (2 * view.resources.getDimension(R.dimen.spacing_medium)))
+        floor((cardHeight - (2 * view.resources.getDimension(R.dimen.timeslot_margin)))
                 / view.showName.height).toInt())
     view.text = if (showNames.size == 1) showNames.first() else showNames.joinToString(" &\n")
 }
@@ -57,6 +57,7 @@ fun makeTimeslotHeight(view: CardView, timeslot: TimeSlot, numHalfHours: Int){
 @BindingAdapter("timeslotGlideHref")
 fun loadImageWithGlideAndSetVisualizations(view: ImageView, timeslot: TimeSlot?) {
     val parent = view.parent as ConstraintLayout
+
     Glide.with(view)
         .asBitmap()
         .load(timeslot?.imageHref)
@@ -67,7 +68,7 @@ fun loadImageWithGlideAndSetVisualizations(view: ImageView, timeslot: TimeSlot?)
                 .error(R.drawable.show_placeholder)
         )
         .listener(
-            BitmapColorRequestListener(view, parent, timeslot)
+            TimeSlotBitmapColorRequestListener(view, parent, timeslot)
         )
         .into(view)
 }

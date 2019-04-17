@@ -82,6 +82,7 @@ dependencies {
 
     // Glide
     implementation "com.github.bumptech.glide:glide:$glide_version"
+    implementation "com.github.bumptech.glide:recyclerview-integration:$glide_version"
     kapt "com.github.bumptech.glide:compiler:$glide_version"
 
     // Room
@@ -108,4 +109,7 @@ dependencies {
 
     // JSR-310 Android backport
     implementation "com.jakewharton.threetenabp:threetenabp:1.1.1"
+
+    // WaveView
+    implementation 'com.narayanacharya:WaveView:0.9.3'
 }

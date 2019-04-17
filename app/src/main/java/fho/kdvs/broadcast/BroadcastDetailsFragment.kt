@@ -1,6 +1,5 @@
 package fho.kdvs.broadcast
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,13 +9,13 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
+import fho.kdvs.R
 import fho.kdvs.databinding.FragmentBroadcastDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
-import fho.kdvs.R
 import kotlinx.android.synthetic.main.fragment_broadcast_details.*
 import org.jetbrains.anko.doAsync
 import timber.log.Timber

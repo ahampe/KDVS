@@ -1,11 +1,18 @@
 package fho.kdvs.global.util
 import android.content.Context
-import android.graphics.Bitmap
+import android.graphics.Color
 import androidx.core.content.res.ResourcesCompat
 import fho.kdvs.R
 import java.util.*
 
+
 object ColorHelper {
+    fun getComplementaryColor(color: Int, context: Context): Int {
+        val hsv = FloatArray(3)
+        Color.colorToHSV(color, hsv)
+        return Color.HSVToColor(floatArrayOf(1 - hsv[0], hsv[1], hsv[2]))
+    }
+
     fun getRandomMatColor(typeColor: Int, context: Context, seed: Long?): Int {
         var returnColor = ResourcesCompat.getColor(context.resources, R.color.colorAccent, context.theme)
         val arrayId = context.resources.getIdentifier(
