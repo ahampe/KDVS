@@ -13,6 +13,7 @@ import fho.kdvs.R
 import fho.kdvs.global.util.ColorHelper
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.schedule.TimeSlot
+import fho.kdvs.show.ShowRepository
 import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 
@@ -42,12 +43,10 @@ class TimeSlotBitmapColorRequestListener (
         dataSource: DataSource,
         isFirstResource: Boolean
     ): Boolean {
-        if (resource == null) return false
+        if (resource == null || timeslot == null) return false
 
-        val imageHref = timeslot?.imageHref ?: ""
-        val showName = timeslot?.names?.first() ?: ""
-        val scheduleTime = TimeHelper.makeEpochRelativeTime(OffsetDateTime.now())
-        val isCurrentShow = (scheduleTime >= timeslot?.timeStart) && (scheduleTime < timeslot?.timeEnd)
+        val imageHref = timeslot.imageHref ?: ""
+        val showName = timeslot.names?.first() ?: ""
 
         // set placeholder timeslots to independent random colors
         val isPlaceholder = (imageHref.contains(".*kdvs.org.*placeholder.*".toRegex())) // TODO: don't rely on static kdvs placeholder?
@@ -67,11 +66,12 @@ class TimeSlotBitmapColorRequestListener (
         val imageGradientDrawable = GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, backgroundColors)
         view.foreground = imageGradientDrawable
 
-        if (isCurrentShow) {
+        if (TimeHelper.isTimeSlotForCurrentShow(timeslot)) {
             Timber.d("currentShow $showName")
             val waveView = viewToColor.findViewById<WaveView>(R.id.waveView)
 
             if (waveView != null && waveView.visibility != View.VISIBLE){
+                waveView.backgroundColor = colorVal
                 waveView.waveColor = ColorHelper.getComplementaryColor(colorVal, view.context)
                 waveView.visibility = View.VISIBLE
             }
