@@ -10,7 +10,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import fho.kdvs.R
-import fho.kdvs.global.extensions.TimeSlotBitmapColorRequestListener
+import fho.kdvs.global.extensions.TimeSlotRequestListener
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.cell_timeslot.view.*
 import org.threeten.bp.OffsetDateTime
@@ -61,14 +61,14 @@ fun loadImageWithGlideAndSetVisualizations(view: ImageView, timeslot: TimeSlot?)
     Glide.with(view)
         .asBitmap()
         .load(timeslot?.imageHref)
-        .transition(BitmapTransitionOptions.withCrossFade())
         .apply(
             RequestOptions()
-                .apply(RequestOptions.centerCropTransform())
                 .error(R.drawable.show_placeholder)
+                .apply(RequestOptions.centerCropTransform())
         )
+        .transition(BitmapTransitionOptions.withCrossFade())
         .listener(
-            TimeSlotBitmapColorRequestListener(view, parent, timeslot)
+            TimeSlotRequestListener(view, parent, timeslot)
         )
         .into(view)
 }

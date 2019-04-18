@@ -14,6 +14,7 @@ import fho.kdvs.databinding.FragmentBroadcastDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.util.HttpHelper
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import kotlinx.android.synthetic.main.fragment_broadcast_details.*
@@ -87,20 +88,6 @@ class BroadcastDetailsFragment : DaggerFragment() {
         })
     }
 
-    private fun isConnectionAvailable(broadcast: BroadcastEntity): Boolean{
-        val streamUrl = URLs.playlistForBroadcast(broadcast)
-        val con = URL(streamUrl).openConnection() as HttpURLConnection
-        var response = HttpURLConnection.HTTP_BAD_REQUEST
-
-        doAsync {
-            con.connectTimeout = 5000
-            con.connect()
-            response = con.responseCode
-        }
-
-        return (response == HttpURLConnection.HTTP_OK)
-    }
-
     private fun setTracksHeaders(tracks: List<TrackEntity>) {
         if (tracks.isEmpty()) {
             artist_header.text = resources.getText(R.string.no_tracks)
@@ -112,7 +99,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
     }
 
     private fun setPlayButton(broadcast: BroadcastEntity) {
-        if (isConnectionAvailable(broadcast))
+        if (HttpHelper.isConnectionAvailable(URLs.playlistForBroadcast(broadcast)))
             archive_playButton.visibility = View.VISIBLE
     }
 }

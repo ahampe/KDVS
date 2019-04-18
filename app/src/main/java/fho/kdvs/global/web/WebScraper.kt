@@ -10,8 +10,10 @@ import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.enums.enumValueOrDefault
 import fho.kdvs.global.extensions.listOfNulls
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.HttpHelper
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
+import fho.kdvs.global.util.URLs.SHOW_IMAGE_PLACEHOLDER
 import fho.kdvs.schedule.QuarterYear
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -110,9 +112,17 @@ class WebScraperManager @Inject constructor(
                     // exclude recurring media shows (e.g. Democracy Now)
                     // TODO: programmatic placeholder reference?
                     if (imageHref in imageHrefs && !imageHref!!.contains("library.kdvs.org/media"))
-                        imageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg"
+                        imageHref = SHOW_IMAGE_PLACEHOLDER
                     else
                         imageHrefs.add(imageHref)
+
+/*
+                    // TODO: find better solution for this? without this, glide listener isn't applied to these timeslots
+                    // Certain hrefs, namely those hosted on fbcdn (Facebook) are not actually direct images,
+                    // which produces an error with android.okhttp getInputStream. Manually override with placeholder
+                    if (!HttpHelper.isConnectionAvailable(imageHref))
+                        imageHref = SHOW_IMAGE_PLACEHOLDER
+*/
 
                     // Assumes that a time-slot can have arbitrarily many alternating shows
                     val (ids, names) = "<a href=\"https://kdvs.org/past-playlists/([0-9]+)\">(.*)</a>".toRegex()

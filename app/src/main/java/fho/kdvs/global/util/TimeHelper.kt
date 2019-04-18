@@ -113,6 +113,13 @@ object TimeHelper {
         }
     }
 
+    /** Returns true if current time falls within timeslot's time range. */
+    @JvmStatic
+    fun isTimeSlotForCurrentShow(timeslot: TimeSlot): Boolean {
+        val scheduleTime = TimeHelper.makeEpochRelativeTime(OffsetDateTime.now())
+        return (scheduleTime >= timeslot?.timeStart) && (scheduleTime < timeslot?.timeEnd)
+    }
+
     /**
      * When scraping the schedule, we only encounter a show on its starting day.
      * This function will correct the end date to the correct day.
@@ -150,6 +157,4 @@ object TimeHelper {
         )
     }
     // endregion
-
-    // TODO arbitrary time range (may not need)
 }

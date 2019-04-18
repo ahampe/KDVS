@@ -40,7 +40,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:alpha="128"
                 android:visibility="gone"
                 app:waveAmplitude="10.25"
                 app:waveBackgroundColor="@color/colorPrimary"
@@ -62,9 +61,9 @@
                 android:scaleType="centerCrop"
                 android:contentDescription="@string/timeslot_desc"
                 android:layout_marginTop="@dimen/timeslot_margin"
+                android:layout_marginEnd="@dimen/timeslot_margin"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginEnd="@dimen/timeslot_margin"
                 tools:visibility="visible"
                 tools:background="@drawable/show_placeholder"/>
 

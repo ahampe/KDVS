@@ -14,7 +14,10 @@ import com.bumptech.glide.util.ViewPreloadSizeProvider
 import fho.kdvs.R
 import fho.kdvs.global.extensions.DividerItemDecoration
 import fho.kdvs.global.extensions.MyPreloadModelProvider
+import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.cell_day_column.view.*
+import org.threeten.bp.LocalDate
+import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 
 /** A [RecyclerView.Adapter] which cycles through days of the week */
@@ -22,6 +25,9 @@ class WeekViewAdapter(
     private val fragment: ScheduleFragment,
     private val days: List<ScheduleFragment.DayInfo>
 ) : RecyclerView.Adapter<WeekViewAdapter.ViewHolder>() {
+
+    // Simple flag for scrolling to current show view. This will only be done once, after the fragment is created.
+    private var scrollingToCurrentShow = true
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val dayContainer = LayoutInflater.from(parent.context)
@@ -54,13 +60,28 @@ class WeekViewAdapter(
             setItemViewCacheSize(10)
 
             if (recyclerView.itemDecorationCount == 0){
-                val dividerItemDecoration = DividerItemDecoration(context.getDrawable(R.drawable.timeslot_divider))
+                val dividerItemDecoration = DividerItemDecoration(context.getDrawable(R.drawable.timeslot_divider)!!)
                 addItemDecoration(dividerItemDecoration)
             }
         }
 
         day.timeSlotsLiveData.observe(fragment, Observer { timeslots ->
             childAdapter.onShowsChanged(timeslots)
+
+            // Scroll to current show, only when the fragment is first created
+            // TODO this could be done with a custom layout manager, without the ugly boolean
+            if (scrollingToCurrentShow) {
+                val scheduleTime = TimeHelper.makeEpochRelativeTime(OffsetDateTime.now())
+                if (scheduleTime.dayOfWeek.toString().capitalize() == day.dayName.capitalize()) {
+                    childLayoutManager.stackFromEnd = true
+                    val timeSlotPosition = timeslots.indexOfFirst { t -> TimeHelper.isTimeSlotForCurrentShow(t) }
+                    if (timeSlotPosition != -1) {
+                        childLayoutManager.scrollToPositionWithOffset(timeSlotPosition, 0)
+                        scrollingToCurrentShow = false
+                    }
+                }
+            }
+
 
 //            val urls = timeslots.map { t -> t.imageHref ?: "" }.toList()
 //            val sizeProvider = ViewPreloadSizeProvider<String>(holder.recyclerView)
