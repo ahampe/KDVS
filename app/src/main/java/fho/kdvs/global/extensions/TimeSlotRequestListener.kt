@@ -72,8 +72,8 @@ class TimeSlotRequestListener (
         seed = (timeslot?.names?.first() ?: "").hashCode().toLong()
     }
 
-    private fun setPaletteColor(bitmap: Bitmap): Int {
-        return Palette.from(bitmap).generate().getDarkVibrantColor(color)
+    private fun setPaletteColor(bitmap: Bitmap) {
+        color = Palette.from(bitmap).generate().getDarkVibrantColor(color)
     }
 
     private fun setRandomColor() {

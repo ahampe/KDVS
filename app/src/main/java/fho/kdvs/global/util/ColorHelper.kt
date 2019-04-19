@@ -10,7 +10,9 @@ object ColorHelper {
     fun getComplementaryColor(color: Int, context: Context): Int {
         val hsv = FloatArray(3)
         Color.colorToHSV(color, hsv)
-        return Color.HSVToColor(floatArrayOf(1 - hsv[0], hsv[1], hsv[2]))
+        var hueComp = hsv[0] + 180
+        if (hueComp > 360) hueComp -= 360
+        return Color.HSVToColor(floatArrayOf(hueComp, hsv[1], hsv[2]))
     }
 
     fun getRandomMatColor(typeColor: Int, context: Context, seed: Long?): Int {
