@@ -32,6 +32,9 @@ class ScheduleFragment : DaggerFragment() {
     // Outer horizontal RecyclerView. Holds a vertical RecyclerView for each day of week.
     private var weekLayoutManager: LinearLayoutManager? = null
 
+    // Vertical RecyclerView. Holds 24 hour time cells.
+    private var timeGridLayoutManager: LinearLayoutManager? = null
+
     // Simple flag for scrolling to today's date. This will only be done once, after the fragment is created.
     private var scrollingToToday = true
 
@@ -56,6 +59,9 @@ class ScheduleFragment : DaggerFragment() {
         weekLayoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             .also { weekRecyclerView.layoutManager = it }
 
+        timeGridLayoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            .also { timeRecyclerView.layoutManager = it}
+
         // Scroll to today, only when the fragment is first created
         // TODO this could be done with a custom layout manager, without the ugly boolean
         if (scrollingToToday) {
@@ -66,8 +72,8 @@ class ScheduleFragment : DaggerFragment() {
         }
     }
 
-    /** Reconfigures the week recycler view. Use when the quarter-year changes or the fragment is recreated. */
-    private fun configureWeekView() {
+    /** Reconfigures the week recycler view and time recycler view. Use when the quarter-year changes or the fragment is recreated. */
+    private fun configureViews() {
         // Bail early if there isn't a quarter ready yet
         val (savedQuarter, savedYear) = viewModel.loadQuarterYear() ?: return
 
@@ -75,6 +81,12 @@ class ScheduleFragment : DaggerFragment() {
         val weekData = Day.values().map { day -> DayInfo(day, savedQuarter, savedYear) }
 
         val snapHelper = PagerSnapHelper()
+
+        timeRecyclerView?.run {
+            adapter = TimeGridViewAdapter(this@ScheduleFragment)
+            setHasFixedSize(true)
+            layoutManager = timeGridLayoutManager
+        }
 
         weekRecyclerView?.run {
             adapter = WeekViewAdapter(this@ScheduleFragment, weekData)
@@ -150,12 +162,12 @@ class ScheduleFragment : DaggerFragment() {
         viewModel.run {
             // When a new quarter-year is selected, redraw the week recycler:
             selectedQuarterYearLiveData.observe(fragment, Observer {
-                configureWeekView()
+                configureViews()
             })
 
             // When new quarter-years happen (which should only happen when a new quarter starts), update the spinner
             allQuarterYearsLiveData.observe(fragment, Observer {
-                configureWeekView()
+                configureViews()
             })
         }
     }

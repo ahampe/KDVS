@@ -25,6 +25,7 @@
     <string name="thurs">T</string>
     <string name="fri">F</string>
     <string name="sat">S</string>
+    <string name="hourLabel">%1$02d:00</string>
 
     <string name="show_time_range">%1$s - %2$s</string>
     <string name="past_playlists">Past Playlists:</string>
