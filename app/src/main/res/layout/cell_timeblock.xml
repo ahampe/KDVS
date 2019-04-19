@@ -12,8 +12,11 @@
         android:layout_height="match_parent"
         android:gravity="bottom"
         android:textSize="10sp"
+        android:drawableBottom="@drawable/timeblock_divider"
+        android:drawablePadding="0dp"
         style="@style/TextAppearance.MaterialComponents.Subtitle2"
         tools:text="05:00"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
