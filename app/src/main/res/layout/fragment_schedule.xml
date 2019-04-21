@@ -102,16 +102,19 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/timeRecyclerView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:layout_constraintHorizontal_weight="1"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/dayAbbreviations"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/weekRecyclerView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:layout_constraintHorizontal_weight="2"
         app:layout_constraintLeft_toRightOf="@id/timeRecyclerView"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/dayAbbreviations"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

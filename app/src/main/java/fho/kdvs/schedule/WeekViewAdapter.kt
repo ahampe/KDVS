@@ -16,6 +16,8 @@ import fho.kdvs.global.extensions.DividerItemDecoration
 import fho.kdvs.global.extensions.MyPreloadModelProvider
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.cell_day_column.view.*
+import kotlinx.android.synthetic.main.fragment_schedule.*
+import kotlinx.android.synthetic.main.fragment_schedule.view.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
@@ -29,9 +31,13 @@ class WeekViewAdapter(
     // Simple flag for scrolling to current show view. This will only be done once, after the fragment is created.
     private var scrollingToCurrentShow = true
 
+    // Timeblock view, for synced scrolling.
+    private var timeRecyclerView: RecyclerView? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val dayContainer = LayoutInflater.from(parent.context)
             .inflate(R.layout.cell_day_column, parent, false) as ConstraintLayout
+        timeRecyclerView = fragment.view?.timeRecyclerView
         return ViewHolder(dayContainer)
     }
 
@@ -58,11 +64,33 @@ class WeekViewAdapter(
             adapter = childAdapter
             layoutManager = childLayoutManager
             setItemViewCacheSize(10)
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
-            if (recyclerView.itemDecorationCount == 0){
-                val dividerItemDecoration = DividerItemDecoration(context.getDrawable(R.drawable.timeslot_divider)!!)
-                addItemDecoration(dividerItemDecoration)
-            }
+                // scroll other views to keep them in sync
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+//                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+//                        scrollingInDay = position % 7
+//                    }
+
+                }
+
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+
+                    if (dx != 0) { // scrolling days; sync adjacent day scrollY position as it loads in
+
+                    }
+                    if (dy != 0 && recyclerView.scrollY >= 0) { // scrolling within a day; sync time view -- must account for repeated calls
+                        timeRecyclerView?.scrollY = recyclerView.scrollY
+                    }
+                }
+            })
+
+//            if (recyclerView.itemDecorationCount == 0){
+//                val dividerItemDecoration = DividerItemDecoration(context.getDrawable(R.drawable.timeslot_divider)!!)
+//                addItemDecoration(dividerItemDecoration)
+//            }
         }
 
         day.timeSlotsLiveData.observe(fragment, Observer { timeslots ->
@@ -81,16 +109,10 @@ class WeekViewAdapter(
                     }
                 }
             }
-
-
-//            val urls = timeslots.map { t -> t.imageHref ?: "" }.toList()
-//            val sizeProvider = ViewPreloadSizeProvider<String>(holder.recyclerView)
-//            val modelProvider = MyPreloadModelProvider(urls, fragment)
-//            val preloader = RecyclerViewPreloader<TimeSlot>(Glide.with(fragment), modelProvider, sizeProvider, 10)
         })
     }
 
     class ViewHolder(dayContainer: ConstraintLayout) : RecyclerView.ViewHolder(dayContainer) {
-        val recyclerView: RecyclerView = dayContainer.recyclerView
+        val recyclerView: RecyclerView = dayContainer.dayRecyclerView
     }
 }

@@ -86,6 +86,7 @@ class ScheduleFragment : DaggerFragment() {
             adapter = TimeGridViewAdapter(this@ScheduleFragment)
             setHasFixedSize(true)
             layoutManager = timeGridLayoutManager
+            isNestedScrollingEnabled = false
         }
 
         weekRecyclerView?.run {
@@ -112,6 +113,24 @@ class ScheduleFragment : DaggerFragment() {
                 if (firstCompletelyVisiblePos == 0) {
                     weekLayoutManager?.scrollToPosition(7)
                     setDayAbbreviationsWithSelectedPos(7)
+                }
+
+                if (dy != 0){
+                    val test = 0
+                }
+
+                // sync scrollY positions
+                val lastVisiblePos = weekLayoutManager?.findLastVisibleItemPosition()
+                if (dx != 0 && firstVisiblePos != null && lastVisiblePos != null) {
+                    val scrollingFromPos = if (dx > 0) firstVisiblePos % 7 else lastVisiblePos % 7
+                    val scrollingToPos   = if (dx > 0) lastVisiblePos % 7 else firstVisiblePos % 7
+
+                    if (scrollingFromPos != scrollingToPos) {
+                        val vhFrom = weekRecyclerView?.findViewHolderForAdapterPosition(scrollingFromPos)
+                        val vhTo = weekRecyclerView?.findViewHolderForAdapterPosition(scrollingToPos)
+
+                        vhTo?.itemView?.scrollY = vhFrom?.itemView?.scrollY ?: 0
+                    }
                 }
             }
 
