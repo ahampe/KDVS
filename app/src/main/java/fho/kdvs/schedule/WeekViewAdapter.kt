@@ -8,17 +8,10 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
-import com.bumptech.glide.util.ViewPreloadSizeProvider
 import fho.kdvs.R
-import fho.kdvs.global.extensions.DividerItemDecoration
-import fho.kdvs.global.extensions.MyPreloadModelProvider
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.cell_day_column.view.*
-import kotlinx.android.synthetic.main.fragment_schedule.*
 import kotlinx.android.synthetic.main.fragment_schedule.view.*
-import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 
@@ -64,28 +57,6 @@ class WeekViewAdapter(
             adapter = childAdapter
             layoutManager = childLayoutManager
             setItemViewCacheSize(10)
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-
-                // scroll other views to keep them in sync
-                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                    super.onScrollStateChanged(recyclerView, newState)
-//                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-//                        scrollingInDay = position % 7
-//                    }
-
-                }
-
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-
-                    if (dx != 0) { // scrolling days; sync adjacent day scrollY position as it loads in
-
-                    }
-                    if (dy != 0 && recyclerView.scrollY >= 0) { // scrolling within a day; sync time view -- must account for repeated calls
-                        timeRecyclerView?.scrollY = recyclerView.scrollY
-                    }
-                }
-            })
 
 //            if (recyclerView.itemDecorationCount == 0){
 //                val dividerItemDecoration = DividerItemDecoration(context.getDrawable(R.drawable.timeslot_divider)!!)

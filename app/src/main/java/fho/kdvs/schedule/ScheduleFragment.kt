@@ -115,23 +115,18 @@ class ScheduleFragment : DaggerFragment() {
                     setDayAbbreviationsWithSelectedPos(7)
                 }
 
-                if (dy != 0){
-                    val test = 0
-                }
-
-                // sync scrollY positions
-                val lastVisiblePos = weekLayoutManager?.findLastVisibleItemPosition()
-                if (dx != 0 && firstVisiblePos != null && lastVisiblePos != null) {
-                    val scrollingFromPos = if (dx > 0) firstVisiblePos % 7 else lastVisiblePos % 7
-                    val scrollingToPos   = if (dx > 0) lastVisiblePos % 7 else firstVisiblePos % 7
-
-                    if (scrollingFromPos != scrollingToPos) {
-                        val vhFrom = weekRecyclerView?.findViewHolderForAdapterPosition(scrollingFromPos)
-                        val vhTo = weekRecyclerView?.findViewHolderForAdapterPosition(scrollingToPos)
-
-                        vhTo?.itemView?.scrollY = vhFrom?.itemView?.scrollY ?: 0
-                    }
-                }
+//                if (dx < 0) {
+//                    //val firstCompletelyVisiblePos = weekLayoutManager?.findFirstCompletelyVisibleItemPosition()
+//                    if (firstVisiblePos != null) {
+//                        weekLayoutManager?.scrollToPosition(firstVisiblePos % 7)
+//                        setDayAbbreviationsWithSelectedPos(firstVisiblePos % 7)
+//                    }
+//                } else if (dx > 0) {
+//                    if (lastVisiblePos != null) {
+//                        weekLayoutManager?.scrollToPosition(lastVisiblePos % 7)
+//                        setDayAbbreviationsWithSelectedPos(lastVisiblePos % 7)
+//                    }
+//                }
             }
 
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
