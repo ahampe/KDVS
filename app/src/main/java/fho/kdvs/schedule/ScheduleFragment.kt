@@ -114,19 +114,6 @@ class ScheduleFragment : DaggerFragment() {
                     weekLayoutManager?.scrollToPosition(7)
                     setDayAbbreviationsWithSelectedPos(7)
                 }
-
-//                if (dx < 0) {
-//                    //val firstCompletelyVisiblePos = weekLayoutManager?.findFirstCompletelyVisibleItemPosition()
-//                    if (firstVisiblePos != null) {
-//                        weekLayoutManager?.scrollToPosition(firstVisiblePos % 7)
-//                        setDayAbbreviationsWithSelectedPos(firstVisiblePos % 7)
-//                    }
-//                } else if (dx > 0) {
-//                    if (lastVisiblePos != null) {
-//                        weekLayoutManager?.scrollToPosition(lastVisiblePos % 7)
-//                        setDayAbbreviationsWithSelectedPos(lastVisiblePos % 7)
-//                    }
-//                }
             }
 
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {

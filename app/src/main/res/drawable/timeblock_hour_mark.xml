@@ -4,7 +4,7 @@
 
     <size
         android:height="1dp"
-        android:width="25dp" />
+        android:width="@dimen/spacing_extra_large" />
 
     <solid android:color="@android:color/white" />
 

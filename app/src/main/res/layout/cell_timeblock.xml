@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:paddingLeft="@dimen/spacing_small"
     android:layout_width="wrap_content"
     android:layout_height="@dimen/timeslot_hour_height">
 
@@ -12,19 +13,19 @@
         android:src="@drawable/timeblock_halfhour_mark"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintEnd_toEndOf="@id/hourLabel"/>
 
     <TextView
         android:id="@+id/hourLabel"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="bottom"
-        android:textSize="10sp"
+        android:textSize="12sp"
         android:drawableBottom="@drawable/timeblock_hour_mark"
         android:drawablePadding="0dp"
         style="@style/TextAppearance.MaterialComponents.Subtitle2"
         tools:text="05:00"
-        android:layout_marginRight="@dimen/spacing_medium"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 

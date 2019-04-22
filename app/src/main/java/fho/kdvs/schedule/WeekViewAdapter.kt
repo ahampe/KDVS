@@ -56,7 +56,7 @@ class WeekViewAdapter(
         holder.recyclerView.apply {
             adapter = childAdapter
             layoutManager = childLayoutManager
-            setItemViewCacheSize(10)
+            setItemViewCacheSize(20)
 
 //            if (recyclerView.itemDecorationCount == 0){
 //                val dividerItemDecoration = DividerItemDecoration(context.getDrawable(R.drawable.timeslot_divider)!!)

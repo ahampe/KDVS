@@ -46,9 +46,11 @@ fun makeTimeslotHeight(view: CardView, timeslot: TimeSlot, numHalfHours: Int){
         numHalfHours * view.context.resources.getDimension(R.dimen.timeslot_halfhour_height)
     ).toInt()
 
-    // Hide image if it cannot fit on card
-    if (view.layoutParams.height < view.resources.getDimension(R.dimen.timeslot_image)
-                                 + (2 * view.resources.getDimension(R.dimen.timeslot_margin))) {
+    val hourCardHeight = view.resources.getDimension(R.dimen.timeslot_image)
+        + (2 * view.resources.getDimension(R.dimen.timeslot_margin))
+
+    // Hide image if it cannot fit on card (half-hour shows)
+    if (view.layoutParams.height < hourCardHeight) {
         Timber.d("half-hour show ${timeslot.names.firstOrNull()} detected")
         val image = view.findViewById(R.id.timeSlotImage) as ImageView
         image.visibility = View.GONE
