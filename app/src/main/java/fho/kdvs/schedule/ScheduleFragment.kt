@@ -156,6 +156,21 @@ class ScheduleFragment : DaggerFragment() {
         }
     }
 
+    /** Display show selection view as a floating panel. Dim background views. */
+    fun displayShowSelection(timeSlot: TimeSlot){
+        thisWeekShow.text = timeSlot.names.firstOrNull()
+        nextWeekShow.text = timeSlot.names.getOrNull(1)
+
+        // TODO: make this work for n-many shows?
+        if (timeSlot.names.count() > 2) {
+            thenShow.text = timeSlot.names.getOrNull(2)
+            thenShow.visibility = View.VISIBLE
+        }
+
+        dim.visibility = View.VISIBLE
+        sharedTimeSlotSelection.visibility = View.VISIBLE
+    }
+
     /** This is where any [LiveData] in the ViewModel should be hooked up to [Observer]s. */
     private fun subscribeToViewModel() {
         val fragment = this

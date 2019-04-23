@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -41,9 +42,12 @@ class WeekViewAdapter(
         val day = days[position % 7]
 
         val childAdapter = TimeSlotViewAdapter { clickData ->
-            // Here is where we navigate to the ShowDetailsFragment
+            // Here is where we navigate to the ShowDetailsFragment or display show selection view
             Timber.d("clicked ${clickData.item.names.joinToString()}")
-            fragment.viewModel.onClickTimeSlot(fragment.findNavController(), clickData.item)
+            if (clickData.item.names.count() > 1)
+                fragment.displayShowSelection(clickData.item)
+            else
+                fragment.viewModel.onClickTimeSlot(fragment.findNavController(), clickData.item)
         }
 
         val childLayoutManager = LinearLayoutManager(holder.recyclerView.context, RecyclerView.VERTICAL, false)
@@ -75,7 +79,10 @@ class WeekViewAdapter(
                     childLayoutManager.stackFromEnd = true
                     val timeSlotPosition = timeslots.indexOfFirst { t -> TimeHelper.isTimeSlotForCurrentShow(t) }
                     if (timeSlotPosition != -1) {
-                        childLayoutManager.scrollToPositionWithOffset(timeSlotPosition, 0)
+                        val nsv = holder.recyclerView.parent.parent.parent.parent as NestedScrollView
+                        val parentRecycler = holder.recyclerView.parent.parent as RecyclerView
+                        val y = parentRecycler.y + (childLayoutManager.getChildAt(timeSlotPosition)?.y ?: 0.toFloat())
+                        nsv.scrollTo(0, y.toInt())
                         scrollingToCurrentShow = false
                     }
                 }

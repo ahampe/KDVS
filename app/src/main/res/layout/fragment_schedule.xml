@@ -98,6 +98,7 @@
     </LinearLayout>
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/schedule"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/dayAbbreviations"
@@ -126,4 +127,109 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <ImageView
+        android:id="@+id/dim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:src="@drawable/dim"
+        android:alpha="180"/>
+
+    <LinearLayout
+        android:id="@+id/sharedTimeSlotSelection"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/spacing_extra_large"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/thisWeek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:onClick="@{clickListener}">
+
+            <TextView
+                android:id="@+id/thisWeekHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:text="@string/thisWeek"
+                tools:text="This week:"
+                android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/thisWeekShow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                tools:text="Name of Longer Show Goes Here"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:gravity="center"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nextWeek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:onClick="@{clickListener}"
+            android:layout_marginTop="@dimen/spacing_large">
+
+            <TextView
+                android:id="@+id/nextWeekHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:text="@string/nextWeek"
+                tools:text="Next week:"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/nextWeekShow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                tools:text="Name of Really Long Show Title Goes Here To Test Ellipses"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:gravity="center"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/thenWeek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:onClick="@{clickListener}"
+            android:layout_marginTop="@dimen/spacing_large">
+
+            <TextView
+                android:id="@+id/thenHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                tools:text="Then:"
+                android:text="@string/thenWeek"
+                android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/thenShow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                tools:text="Name of Show Goes Here"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:gravity="center"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

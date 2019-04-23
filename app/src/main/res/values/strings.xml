@@ -26,6 +26,9 @@
     <string name="fri">F</string>
     <string name="sat">S</string>
     <string name="hourLabel">%1$02d:00\u0020</string>
+    <string name="thisWeek">This week:</string>
+    <string name="nextWeek">Next week:</string>
+    <string name="thenWeek">Then:</string>
 
     <string name="show_time_range">%1$s - %2$s</string>
     <string name="past_playlists">Past Playlists:</string>
