@@ -44,7 +44,7 @@ class WebScraperManager @Inject constructor(
     private val urlMap = mutableMapOf<String, Job>()
 
     /**
-     * Launches a coroutine that will scrape either the schedule grid, a show's details page, or a broadcast's details page.
+     * Launches a coroutine that will scrape a web page.
      * There is no need to specify which type of page, as this will be determined by the given URL.
      *
      * This should be the preferred method for scraping in general, unless a background process needs the result of a scrape call.

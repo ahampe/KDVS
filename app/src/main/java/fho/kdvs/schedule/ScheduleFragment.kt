@@ -10,6 +10,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +24,9 @@ import kotlinx.android.synthetic.main.fragment_schedule.view.*
 import org.threeten.bp.LocalDate
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.math.ceil
+import kotlin.math.floor
+
 
 class ScheduleFragment : DaggerFragment() {
     @Inject
@@ -81,6 +85,27 @@ class ScheduleFragment : DaggerFragment() {
         val weekData = Day.values().map { day -> DayInfo(day, savedQuarter, savedYear) }
 
         val snapHelper = PagerSnapHelper()
+
+        base?.run {
+            setOnTouchListener( View.OnTouchListener { v, event ->
+                if (sharedTimeSlotSelection.visibility == View.VISIBLE) {
+                    val absCoord: IntArray = intArrayOf(0, 0)
+                    v.getLocationOnScreen(absCoord)
+
+                    val x1 = absCoord[0]
+                    val x2 = x1 + v.width
+                    val y1 = absCoord[1]
+                    val y2 = y1 - v.height
+
+                    if (ceil(event.rawX) < x1 || floor(event.rawX) > x2 || floor(event.rawY) > y1 || ceil(event.rawY) < y2) {
+                        hideShowSelection()
+                        enableDisableView(schedule, true)
+                    }
+                }
+
+                return@OnTouchListener true
+            })
+        }
 
         timeRecyclerView?.run {
             adapter = TimeGridViewAdapter(this@ScheduleFragment)
@@ -158,17 +183,45 @@ class ScheduleFragment : DaggerFragment() {
 
     /** Display show selection view as a floating panel. Dim background views. */
     fun displayShowSelection(timeSlot: TimeSlot){
-        thisWeekShow.text = timeSlot.names.firstOrNull()
-        nextWeekShow.text = timeSlot.names.getOrNull(1)
 
-        // TODO: make this work for n-many shows?
-        if (timeSlot.names.count() > 2) {
-            thenShow.text = timeSlot.names.getOrNull(2)
-            thenShow.visibility = View.VISIBLE
+        val clickListener = View.OnClickListener { v ->
+            when (v.id) {
+                thisWeek.id -> viewModel.onClickTimeSlot(this.findNavController(), timeSlot, 0)
+                nextWeek.id -> viewModel.onClickTimeSlot(this.findNavController(), timeSlot, 1)
+                thenWeek.id -> viewModel.onClickTimeSlot(this.findNavController(), timeSlot, 2)
+            }
+        }
+
+        thisWeekShow.text = timeSlot.names.firstOrNull()
+        thisWeek.setOnClickListener(clickListener)
+        nextWeekShow.text = timeSlot.names.getOrNull(1)
+        nextWeek.setOnClickListener(clickListener)
+
+        if (timeSlot.names.count() > 2) { // TODO: make this work for arbitrarily many shows?
+            thenWeekShow.text = timeSlot.names.getOrNull(2)
+            thenWeek.setOnClickListener(clickListener)
+            thenWeek.visibility = View.VISIBLE
         }
 
         dim.visibility = View.VISIBLE
         sharedTimeSlotSelection.visibility = View.VISIBLE
+        enableDisableView(schedule, false) // TODO disable scrollview scrolling
+    }
+
+    private fun enableDisableView(view: View, enabled: Boolean) {
+        view.isEnabled = enabled
+        if (view is ViewGroup) {
+
+            for (idx in 0 until view.childCount) {
+                enableDisableView(view.getChildAt(idx), enabled)
+            }
+        }
+    }
+
+    private fun hideShowSelection(){
+        dim.visibility = View.GONE
+        sharedTimeSlotSelection.visibility = View.GONE
+        schedule.isEnabled = true
     }
 
     /** This is where any [LiveData] in the ViewModel should be hooked up to [Observer]s. */
@@ -187,6 +240,7 @@ class ScheduleFragment : DaggerFragment() {
             })
         }
     }
+    
 
     /** This class will hold all the data that the [WeekViewAdapter] needs. */
     inner class DayInfo(day: Day, quarter: Quarter, year: Int) {

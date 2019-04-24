@@ -29,8 +29,7 @@
         android:drawableBottom="@drawable/timeslot_divider"
         android:drawableTop="@drawable/timeslot_divider"
         android:onClick="@{clickListener}"
-        android:elevation="1dp"
-        app:cardCornerRadius="@dimen/spacing_large">
+        android:elevation="1dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

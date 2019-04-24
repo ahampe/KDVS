@@ -55,9 +55,9 @@ class ScheduleViewModel @Inject constructor(
      * If the TimeSlot consists of a single show, navigates to [ShowDetailsFragment][fho.kdvs.show.ShowDetailsFragment].
      * Otherwise, navigates to a disambiguation fragment TODO
      * */
-    fun onClickTimeSlot(navController: NavController, timeSlot: TimeSlot) {
+    fun onClickTimeSlot(navController: NavController, timeSlot: TimeSlot, index: Int) {
         val navAction = ScheduleFragmentDirections
-            .actionScheduleFragmentToShowDetailsFragment(timeSlot.ids.first())
+            .actionScheduleFragmentToShowDetailsFragment(timeSlot.ids.getOrNull(index) ?: timeSlot.ids.first())
         navController.navigate(navAction)
     }
 }

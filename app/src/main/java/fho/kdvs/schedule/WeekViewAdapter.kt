@@ -47,7 +47,7 @@ class WeekViewAdapter(
             if (clickData.item.names.count() > 1)
                 fragment.displayShowSelection(clickData.item)
             else
-                fragment.viewModel.onClickTimeSlot(fragment.findNavController(), clickData.item)
+                fragment.viewModel.onClickTimeSlot(fragment.findNavController(), clickData.item, 0)
         }
 
         val childLayoutManager = LinearLayoutManager(holder.recyclerView.context, RecyclerView.VERTICAL, false)
@@ -73,17 +73,17 @@ class WeekViewAdapter(
 
             // Scroll to current show, only when the fragment is first created
             // TODO this could be done with a custom layout manager, without the ugly boolean
-            if (scrollingToCurrentShow) {
+            if (scrollingToCurrentShow) { // TODO: fix this; nested scroll view broke it
                 val scheduleTime = TimeHelper.makeEpochRelativeTime(OffsetDateTime.now())
                 if (scheduleTime.dayOfWeek.toString().capitalize() == day.dayName.capitalize()) {
                     childLayoutManager.stackFromEnd = true
                     val timeSlotPosition = timeslots.indexOfFirst { t -> TimeHelper.isTimeSlotForCurrentShow(t) }
                     if (timeSlotPosition != -1) {
-                        val nsv = holder.recyclerView.parent.parent.parent.parent as NestedScrollView
-                        val parentRecycler = holder.recyclerView.parent.parent as RecyclerView
-                        val y = parentRecycler.y + (childLayoutManager.getChildAt(timeSlotPosition)?.y ?: 0.toFloat())
-                        nsv.scrollTo(0, y.toInt())
-                        scrollingToCurrentShow = false
+//                        val nsv = holder.recyclerView.parent.parent.parent.parent as NestedScrollView
+//                        val parentRecycler = holder.recyclerView.parent.parent as RecyclerView
+//                        val y = parentRecycler.y + (childLayoutManager.getChildAt(timeSlotPosition)?.y ?: 0.toFloat())
+//                        nsv.scrollTo(0, y.toInt())
+//                        scrollingToCurrentShow = false
                     }
                 }
             }
