@@ -4,6 +4,7 @@ import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.ShowDao
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.util.TimeHelper
+import fho.kdvs.schedule.TimeSlot
 import fho.kdvs.show.ShowRepository
 import kotlinx.coroutines.*
 import org.threeten.bp.DayOfWeek
@@ -179,6 +180,29 @@ class LiveShowUpdater @Inject constructor(
                 matchingShow ?: allShowsAtTime.first()
             }
         }
+    }
+
+    /** Takes a timeslot, returns its shows in the order in which they are scheduled to air from current time.*/
+    suspend fun orderShowsInTimeSlotRelativeToCurrentWeek(timeslot: TimeSlot): List<ShowEntity?> {
+        val orderedShows = mutableListOf<ShowEntity?>()
+
+        val now = OffsetDateTime.now()
+        val midnightSundayThisWeek = now.minusDays(now.dayOfWeek.value.toLong())
+            .minusHours(now.hour.toLong())
+            .minusMinutes(now.minute.toLong())
+            .minusSeconds(now.second.toLong())
+        var absoluteShowTimeForWeek = midnightSundayThisWeek
+            .plusDays(timeslot.timeStart?.dayOfWeek?.value?.toLong()!!) // TODO:  null safe?
+            .plusHours(timeslot.timeStart.hour.toLong())
+            .plusMinutes(timeslot.timeStart.minute.toLong())
+            .plusSeconds(timeslot.timeStart.second.toLong())
+
+        timeslot.ids.forEach { _ ->
+            orderedShows.add(getShowAtTime(absoluteShowTimeForWeek))
+            absoluteShowTimeForWeek.plusWeeks(1.toLong())
+        }
+
+        return orderedShows
     }
 
     companion object {

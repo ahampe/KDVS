@@ -22,6 +22,7 @@ import fho.kdvs.broadcast.BroadcastDetailsFragment
 import fho.kdvs.schedule.ScheduleFragment
 import fho.kdvs.show.ShowDetailsFragment
 import fho.kdvs.home.HomeFragment
+import fho.kdvs.schedule.ScheduleSelectionFragment
 
 @Suppress("unused")
 @Module
@@ -31,6 +32,9 @@ abstract class FragmentBuildersModule {
 
     @ContributesAndroidInjector
     abstract fun contributeScheduleFragment(): ScheduleFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributeScheduleSelectionFragment(): ScheduleSelectionFragment
 
     @ContributesAndroidInjector
     abstract fun contributeShowDetailsFragment(): ShowDetailsFragment

@@ -52,12 +52,18 @@ class ScheduleViewModel @Inject constructor(
 
     /**
      * Called when a [TimeSlot] is clicked.
-     * If the TimeSlot consists of a single show, navigates to [ShowDetailsFragment][fho.kdvs.show.ShowDetailsFragment].
-     * Otherwise, navigates to a disambiguation fragment TODO
+     * If the TimeSlot consists of multiple shows, navigates to [ScheduleSelectionFragment].
+     * Otherwise, if single show, navigates to [ShowDetailsFragment][fho.kdvs.show.ShowDetailsFragment].
      * */
-    fun onClickTimeSlot(navController: NavController, timeSlot: TimeSlot, index: Int) {
-        val navAction = ScheduleFragmentDirections
-            .actionScheduleFragmentToShowDetailsFragment(timeSlot.ids.getOrNull(index) ?: timeSlot.ids.first())
+    fun onClickTimeSlot(navController: NavController, timeslot: TimeSlot) {
+        val navAction = if (timeslot.ids.count() > 1) {
+            ScheduleFragmentDirections
+                .actionScheduleFragmentToScheduleSelectionFragment(timeslot)
+        } else {
+            ScheduleFragmentDirections
+                .actionScheduleFragmentToShowDetailsFragment(timeslot.ids.first())
+        }
+
         navController.navigate(navAction)
     }
 }

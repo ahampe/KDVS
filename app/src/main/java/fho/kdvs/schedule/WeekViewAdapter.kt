@@ -44,10 +44,7 @@ class WeekViewAdapter(
         val childAdapter = TimeSlotViewAdapter { clickData ->
             // Here is where we navigate to the ShowDetailsFragment or display show selection view
             Timber.d("clicked ${clickData.item.names.joinToString()}")
-            if (clickData.item.names.count() > 1)
-                fragment.displayShowSelection(clickData.item)
-            else
-                fragment.viewModel.onClickTimeSlot(fragment.findNavController(), clickData.item, 0)
+            fragment.viewModel.onClickTimeSlot(fragment.findNavController(), clickData.item)
         }
 
         val childLayoutManager = LinearLayoutManager(holder.recyclerView.context, RecyclerView.VERTICAL, false)
