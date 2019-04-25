@@ -189,8 +189,8 @@ class HomeFragment : DaggerFragment() {
             goalStr
         )
 
-        val progress = ((fundraiser.current ?: 0) / (fundraiser.goal ?: 1)) * 100
-        fundraiserProgress.progress = if (progress > 100) 100 else progress
+        val progress = ((fundraiser.current?.toFloat() ?: 0.toFloat()) / (fundraiser.goal?.toFloat() ?: 1.toFloat())) * 100
+        fundraiserProgress.progress = if (progress > 100) 100 else progress.toInt()
     }
 }
 
