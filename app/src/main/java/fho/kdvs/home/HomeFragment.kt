@@ -29,8 +29,6 @@ class HomeFragment : DaggerFragment() {
 
         viewModel = ViewModelProviders.of(requireActivity(), vmFactory)
             .get(SharedViewModel::class.java)
-
-        subscribeToViewModel()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -45,24 +43,22 @@ class HomeFragment : DaggerFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         exoPlayerView.player = exoPlayer
+
+        subscribeToViewModel()
     }
 
-    /*
-     * Consult #1:
-     * https://proandroiddev.com/5-common-mistakes-when-using-architecture-components-403e9899f4cb
-     */
     private fun subscribeToViewModel() {
-        viewModel.currentShow.observe(this, Observer { show ->
+        viewModel.currentShow.observe(viewLifecycleOwner, Observer { show ->
             binding.currentShow = show
             binding.executePendingBindings()
         })
 
-        viewModel.nextShow.observe(this, Observer { show ->
+        viewModel.nextShow.observe(viewLifecycleOwner, Observer { show ->
             binding.nextShow = show
             binding.executePendingBindings()
         })
 
-        viewModel.currentBroadcast.observe(this, Observer { broadcast ->
+        viewModel.currentBroadcast.observe(viewLifecycleOwner, Observer { broadcast ->
 
         })
     }
