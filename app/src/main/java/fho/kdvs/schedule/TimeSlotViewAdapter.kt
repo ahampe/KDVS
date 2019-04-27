@@ -3,12 +3,10 @@ package fho.kdvs.schedule
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.BindingAdapter
 import fho.kdvs.databinding.CellTimeslotBinding
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
-import fho.kdvs.global.util.TimeHelper
 
 /** Adapter for a single timeslot card. */
 class TimeSlotViewAdapter(onClick: (ClickData<TimeSlot>) -> Unit) :

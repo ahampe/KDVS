@@ -1,6 +1,7 @@
 package fho.kdvs.services
 
 import fho.kdvs.broadcast.BroadcastRepository
+import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowDao
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.util.TimeHelper
@@ -79,7 +80,7 @@ class LiveShowUpdater @Inject constructor(
     /**
      * Asynchronously updates [playingShowLiveData][ShowRepository.playingShowLiveData] and
      * [nextShowLiveData][ShowRepository.nextShowLiveData] based on the current time.
-     * Returns a [Deferred] boolean indicating whether the computation was sucessful or not.
+     * Returns a [Deferred] boolean indicating whether the computation was successful or not.
      */
     fun updateLiveShowsAsync(): Deferred<Boolean> = async {
         val scheduleTime = TimeHelper.makeEpochRelativeTime(OffsetDateTime.now())
@@ -128,21 +129,17 @@ class LiveShowUpdater @Inject constructor(
         return@async true
     }
 
-    /** A suspending function that will attempt to find a [ShowEntity] at the given [time]. */
-    private suspend fun getShowAtTime(time: OffsetDateTime): ShowEntity? {
+    private suspend fun getAllShowsAtTime(time: OffsetDateTime): List<ShowEntity> {
         // ensure that the quarter and year we're using are up to date, as well as the shows
         showRepository.scrapeSchedule().join()
-        val quarterYear = showDao.getCurrentQuarterYear() ?: return null
+        val quarterYear = showDao.getCurrentQuarterYear()
+            ?: return mutableListOf()
         val (quarter, year) = quarterYear
 
-        val allShowsAtTime = showDao.getShowsAtTime(time, quarter, year)
-        if (allShowsAtTime.isEmpty()) return null
+        return showDao.getShowsAtTime(time, quarter, year)
+    }
 
-        if (allShowsAtTime.size == 1) {
-            // easy case where only one show exists in this time slot
-            return allShowsAtTime.first()
-        }
-
+    private suspend fun getLatestBroadcastsForShowsAtTime(allShowsAtTime: List<ShowEntity>) : List<BroadcastEntity>{
         // If there are more than two shows in this TimeSlot, we need to find which one is scheduled this week.
         // First we need to scrape each show for the most recent broadcast, and wait for each to complete
         val jobs = mutableListOf<Job>()
@@ -152,9 +149,23 @@ class LiveShowUpdater @Inject constructor(
         jobs.forEach { it.join() }
 
         // Now get the most recent broadcasts, if they exist
-        val latestBroadcasts = allShowsAtTime.mapNotNull { show ->
+        return allShowsAtTime.mapNotNull { show ->
             broadcastRepository.getLatestBroadcastForShow(show.id)
         }
+    }
+
+    /** A suspending function that will attempt to find a [ShowEntity] at the given [time]. */
+    private suspend fun getShowAtTime(time: OffsetDateTime): ShowEntity? {
+        val allShowsAtTime = getAllShowsAtTime(time)
+
+        if (allShowsAtTime.isEmpty()) return null
+
+        if (allShowsAtTime.size == 1) {
+            // easy case where only one show exists in this time slot
+            return allShowsAtTime.first()
+        }
+
+        val latestBroadcasts = getLatestBroadcastsForShowsAtTime(allShowsAtTime)
 
         return when (latestBroadcasts.size) {
             0 -> {
@@ -183,23 +194,30 @@ class LiveShowUpdater @Inject constructor(
     }
 
     /** Takes a timeslot, returns its shows in the order in which they are scheduled to air from current time.*/
-    suspend fun orderShowsInTimeSlotRelativeToCurrentWeek(timeslot: TimeSlot): List<ShowEntity?> {
+    fun orderShowsInTimeSlotRelativeToCurrentWeek(timeslot: TimeSlot): List<ShowEntity?> {
+        job.cancelChildren()
+
         val orderedShows = mutableListOf<ShowEntity?>()
 
-        val now = OffsetDateTime.now()
-        val midnightSundayThisWeek = now.minusDays(now.dayOfWeek.value.toLong())
-            .minusHours(now.hour.toLong())
-            .minusMinutes(now.minute.toLong())
-            .minusSeconds(now.second.toLong())
-        var absoluteShowTimeForWeek = midnightSundayThisWeek
-            .plusDays(timeslot.timeStart?.dayOfWeek?.value?.toLong()!!) // TODO:  null safe?
-            .plusHours(timeslot.timeStart.hour.toLong())
-            .plusMinutes(timeslot.timeStart.minute.toLong())
-            .plusSeconds(timeslot.timeStart.second.toLong())
+        launch {
+            if (isActive) {
+                Timber.d("Attempting to order shows in timeslot by their relative order of appearance")
+                val allShowsAtTime = getAllShowsAtTime(timeslot.timeStart!!)
+                val latestBroadcasts = getLatestBroadcastsForShowsAtTime(allShowsAtTime)
 
-        timeslot.ids.forEach { _ ->
-            orderedShows.add(getShowAtTime(absoluteShowTimeForWeek))
-            absoluteShowTimeForWeek.plusWeeks(1.toLong())
+                if (timeslot.ids.count() > 0 && latestBroadcasts.isNotEmpty() &&
+                    latestBroadcasts.size >= (timeslot.ids.count() - 1)) {
+                    timeslot.ids.forEachIndexed { i, _ ->
+                        val n = allShowsAtTime.size
+                        val now = LocalDate.now()
+                        val matchingBroadcast = latestBroadcasts.filter { it.date != null }
+                            .find { ChronoUnit.WEEKS.between(it.date, now) % n == i.toLong() }
+                        val matchingShow = allShowsAtTime.find { it.id == matchingBroadcast?.showId }
+
+                        orderedShows.add(matchingShow)
+                    }
+                }
+            }
         }
 
         return orderedShows

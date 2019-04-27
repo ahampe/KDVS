@@ -5,13 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
-import fho.kdvs.R
+import fho.kdvs.databinding.CellShowSelectionBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.show.ScheduleSelectionViewModel
+import kotlinx.android.synthetic.main.fragment_schedule_selection.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -21,13 +26,16 @@ class ScheduleSelectionFragment : DaggerFragment(), CoroutineScope {
 
     private lateinit var viewModel: ScheduleSelectionViewModel
 
+    private var showSelectionViewAdapter: ShowSelectionViewAdapter? = null
+
+    private val job = Job()
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main // TODO: cleaner way to do this? we have to suspend thread in order to get show order
+        get() = job + Dispatchers.IO
 
     // Retrieves the timeslot from the arguments bundle. Throws an exception if it doesn't exist.
     private val timeslot: TimeSlot by lazy {
         arguments?.let { ScheduleSelectionFragmentArgs.fromBundle(it) }?.timeslot
-            ?: throw IllegalArgumentException("Should have passed a timeslot to ScheduleSelectionFragment")
+            ?: throw IllegalArgumentException("Should have passed a TimeSlot to ScheduleSelectionFragment")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,14 +43,30 @@ class ScheduleSelectionFragment : DaggerFragment(), CoroutineScope {
 
         viewModel = ViewModelProviders.of(this, vmFactory)
             .get(ScheduleSelectionViewModel::class.java)
-            .also { launch { it.initialize(timeslot) } }
+            .also {
+                it.initialize(timeslot)
+            }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_schedule, container, false)
+        val binding = CellShowSelectionBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        showSelectionViewAdapter = ShowSelectionViewAdapter {
+            Timber.d("Clicked ${it.item.second}")
+            viewModel.onClickShowSelection(findNavController(), it.item.first)
+        }
+
+        showSelectionRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            adapter = showSelectionViewAdapter
+        }
+
+        showSelectionViewAdapter?.submitList(viewModel.pairedIdsAndNames)
     }
 }

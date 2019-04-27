@@ -10,7 +10,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -24,9 +23,6 @@ import kotlinx.android.synthetic.main.fragment_schedule.view.*
 import org.threeten.bp.LocalDate
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.math.ceil
-import kotlin.math.floor
-
 
 class ScheduleFragment : DaggerFragment() {
     @Inject

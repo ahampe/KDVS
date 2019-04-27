@@ -27,6 +27,16 @@ fun showTimeRange(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDate
     )
 }
 
+@BindingAdapter("index")
+fun setShowSelectionHeader(view: TextView, index: Int){
+    view.text = when(index){
+        0 -> view.resources.getString(R.string.thisWeek)
+        1 -> view.resources.getString(R.string.nextWeek)
+        2 -> view.resources.getString(R.string.thenWeek)
+        else -> view.resources.getString(R.string.thenWeek)
+    }
+}
+
 @BindingAdapter("showNames", "layoutHeight")
 fun makeShowNames(view: TextView, showNames: List<String>, numHalfHours: Int) {
     if (showNames.isEmpty()) return
