@@ -1,19 +1,27 @@
 package fho.kdvs.schedule
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import dagger.android.support.DaggerFragment
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import dagger.Binds
+import dagger.Module
+import dagger.android.ContributesAndroidInjector
+import dagger.android.support.AndroidSupportInjection
+import dagger.multibindings.IntoMap
 import fho.kdvs.R
-import fho.kdvs.databinding.CellShowSelectionBinding
 import fho.kdvs.databinding.FragmentScheduleSelectionBinding
 import fho.kdvs.global.KdvsViewModelFactory
+import fho.kdvs.injection.ViewModelKey
 import fho.kdvs.show.ScheduleSelectionViewModel
 import kotlinx.android.synthetic.main.fragment_schedule_selection.*
 import kotlinx.coroutines.CoroutineScope
@@ -23,7 +31,28 @@ import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
-class ScheduleSelectionFragment : DaggerFragment(), CoroutineScope {
+@Module
+abstract class UiModule {
+
+    @Binds
+    abstract fun bindViewModelFactory(factory: KdvsViewModelFactory): ViewModelProvider.Factory
+
+    @PerFragment
+    @ContributesAndroidInjector(modules = [(ScheduleSelectionModule::class)])
+    abstract fun contributeFilterFragment(): ScheduleSelectionFragment
+}
+
+@Module
+abstract class ScheduleSelectionModule {
+
+    @Binds
+    @IntoMap
+    @PerFragment
+    @ViewModelKey(ScheduleSelectionViewModel::class)
+    abstract fun bindViewModel(viewModel: ScheduleSelectionModule): ViewModel
+}
+
+class ScheduleSelectionFragment : BottomSheetDialogFragment(), CoroutineScope {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
 
@@ -41,6 +70,11 @@ class ScheduleSelectionFragment : DaggerFragment(), CoroutineScope {
             ?: throw IllegalArgumentException("Should have passed a TimeSlot to ScheduleSelectionFragment")
     }
 
+    override fun onAttach(context: Context?) {
+        AndroidSupportInjection.inject(this)
+        super.onAttach(context)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -49,6 +83,9 @@ class ScheduleSelectionFragment : DaggerFragment(), CoroutineScope {
             .also {
                 it.initialize(timeslot)
             }
+
+        val scheduleSelectionFragment = ScheduleSelectionFragment.newInstance()
+        scheduleSelectionFragment.show(fragmentManager, "schedule_selection_fragment")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -75,5 +112,12 @@ class ScheduleSelectionFragment : DaggerFragment(), CoroutineScope {
         }
 
         showSelectionViewAdapter?.submitList(viewModel.pairedIdsAndNames)
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance() : ScheduleSelectionFragment  {
+            return ScheduleSelectionFragment()
+        }
     }
 }
