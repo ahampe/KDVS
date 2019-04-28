@@ -25,14 +25,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="@dimen/spacing_large"
         android:onClick="@{clickListener}">
 
         <TextView
             android:id="@+id/weekHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
             index="@{index}"
             tools:text="On This Week:"
             android:gravity="center"/>
@@ -41,9 +40,10 @@
             android:id="@+id/weekShow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/TextAppearance.MaterialComponents.Headline6"
-            tools:text="Name of Show Goes Here"
-            android:maxLines="1"
+            style="@style/TextAppearance.MaterialComponents.Headline4"
+            android:text="@{name}"
+            tools:text="Testing Display of Long Title For the Sake Of Ellipses"
+            android:maxLines="2"
             android:ellipsize="end"
             android:gravity="center"/>
 

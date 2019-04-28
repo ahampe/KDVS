@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.navigation.NavController
 import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.schedule.ScheduleFragmentDirections
+import fho.kdvs.schedule.ScheduleSelectionFragmentDirections
 import fho.kdvs.schedule.TimeSlot
 import fho.kdvs.services.LiveShowUpdater
 import javax.inject.Inject
@@ -27,8 +27,8 @@ class ScheduleSelectionViewModel @Inject constructor(
     }
 
     fun onClickShowSelection(navController: NavController, showId: Int) {
-        val navAction = ScheduleFragmentDirections
-            .actionScheduleFragmentToShowDetailsFragment(showId)
+        val navAction = ScheduleSelectionFragmentDirections
+            .actionScheduleSelectionFragmentToShowDetailsFragment(showId)
 
         navController.navigate(navAction)
     }

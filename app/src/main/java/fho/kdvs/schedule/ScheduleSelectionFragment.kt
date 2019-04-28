@@ -6,10 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
+import fho.kdvs.R
 import fho.kdvs.databinding.CellShowSelectionBinding
+import fho.kdvs.databinding.FragmentScheduleSelectionBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.show.ScheduleSelectionViewModel
 import kotlinx.android.synthetic.main.fragment_schedule_selection.*
@@ -49,7 +52,7 @@ class ScheduleSelectionFragment : DaggerFragment(), CoroutineScope {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = CellShowSelectionBinding.inflate(inflater, container, false)
+        val binding = FragmentScheduleSelectionBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         return binding.root
     }
@@ -65,6 +68,10 @@ class ScheduleSelectionFragment : DaggerFragment(), CoroutineScope {
         showSelectionRecyclerView.apply {
             layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             adapter = showSelectionViewAdapter
+
+            val dividerItemDecoration = DividerItemDecoration(context, LinearLayoutManager.VERTICAL)
+            dividerItemDecoration.setDrawable(resources.getDrawable(R.drawable.show_selection_divider, context.theme))
+            addItemDecoration(dividerItemDecoration)
         }
 
         showSelectionViewAdapter?.submitList(viewModel.pairedIdsAndNames)
