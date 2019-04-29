@@ -29,21 +29,27 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Scope
 import kotlin.coroutines.CoroutineContext
+
+
+@Scope
+@Retention(AnnotationRetention.RUNTIME)
+annotation class PerFragment
 
 @Module
 abstract class UiModule {
 
     @Binds
-    abstract fun bindViewModelFactory(factory: KdvsViewModelFactory): ViewModelProvider.Factory
+    abstract fun bindViewModelFactory(vmFactory: KdvsViewModelFactory): ViewModelProvider.Factory
 
     @PerFragment
     @ContributesAndroidInjector(modules = [(ScheduleSelectionModule::class)])
-    abstract fun contributeFilterFragment(): ScheduleSelectionFragment
+    abstract fun contributeScheduleSelectionFragment(): ScheduleSelectionFragment
 }
 
 @Module
-abstract class ScheduleSelectionModule {
+abstract class ScheduleSelectionModule: ViewModel() {
 
     @Binds
     @IntoMap
@@ -83,9 +89,6 @@ class ScheduleSelectionFragment : BottomSheetDialogFragment(), CoroutineScope {
             .also {
                 it.initialize(timeslot)
             }
-
-        val scheduleSelectionFragment = ScheduleSelectionFragment.newInstance()
-        scheduleSelectionFragment.show(fragmentManager, "schedule_selection_fragment")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -99,6 +102,7 @@ class ScheduleSelectionFragment : BottomSheetDialogFragment(), CoroutineScope {
 
         showSelectionViewAdapter = ShowSelectionViewAdapter {
             Timber.d("Clicked ${it.item.second}")
+            this.dismiss()
             viewModel.onClickShowSelection(findNavController(), it.item.first)
         }
 
@@ -112,12 +116,5 @@ class ScheduleSelectionFragment : BottomSheetDialogFragment(), CoroutineScope {
         }
 
         showSelectionViewAdapter?.submitList(viewModel.pairedIdsAndNames)
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() : ScheduleSelectionFragment  {
-            return ScheduleSelectionFragment()
-        }
     }
 }

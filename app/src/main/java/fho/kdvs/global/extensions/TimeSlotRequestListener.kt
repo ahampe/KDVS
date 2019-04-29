@@ -1,6 +1,7 @@
 package fho.kdvs.global.extensions
 
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.View
 import androidx.palette.graphics.Palette
@@ -94,7 +95,7 @@ class TimeSlotRequestListener (
 
     /** Set transparent to opaque Left->Right gradient */
     private fun setViewTransparency() {
-        val backgroundColors = intArrayOf(color, 0xaa000000.toChar().toInt())
+        val backgroundColors = intArrayOf(color, Color.TRANSPARENT)
         view.foreground = GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, backgroundColors)
     }
 

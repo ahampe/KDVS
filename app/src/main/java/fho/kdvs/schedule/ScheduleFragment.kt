@@ -46,6 +46,7 @@ class ScheduleFragment : DaggerFragment() {
             .also { it.fetchShows() }
 
         subscribeToViewModel()
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -154,6 +155,16 @@ class ScheduleFragment : DaggerFragment() {
                     R.color.colorPrimary,
                     dayAbbreviations.context.theme))
         }
+    }
+
+    fun showSelection(timeslot: TimeSlot) {
+        val args = Bundle()
+        args.putParcelable("timeslot", timeslot)
+
+        val newFragment = ScheduleSelectionFragment()
+
+        newFragment.arguments = args
+        newFragment.show(fragmentManager, "schedule_selection_fragment")
     }
 
     /** This is where any [LiveData] in the ViewModel should be hooked up to [Observer]s. */
