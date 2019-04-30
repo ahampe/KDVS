@@ -10,6 +10,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import fho.kdvs.R
+import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.extensions.TimeSlotRequestListener
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.cell_timeslot.view.*
@@ -35,6 +36,31 @@ fun setShowSelectionHeader(view: TextView, index: Int){
         2 -> view.resources.getString(R.string.thenWeek)
         else -> view.resources.getString(R.string.thenWeek)
     }
+}
+
+@BindingAdapter("showTimes")
+fun setShowSearchTimes(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDateTime){
+    val dayAbbrs = listOf(
+        view.resources.getString(R.string.sun),
+        view.resources.getString(R.string.mon),
+        view.resources.getString(R.string.tues),
+        view.resources.getString(R.string.wed),
+        view.resources.getString(R.string.thurs),
+        view.resources.getString(R.string.fri),
+        view.resources.getString(R.string.sat)
+    )
+
+    var dayText = dayAbbrs.getOrNull(timeStart.dayOfWeek.value)
+
+    if (timeEnd.dayOfWeek != timeStart.dayOfWeek)
+        dayText += "/" + dayAbbrs.getOrNull(timeEnd.dayOfWeek.value)
+
+    view.text = view.context.resources.getString(
+        R.string.searchTimeLabel,
+        dayText,
+        TimeHelper.showTimeFormatter.format(timeStart),
+        TimeHelper.showTimeFormatter.format(timeEnd)
+    )
 }
 
 @BindingAdapter("showNames", "layoutHeight")

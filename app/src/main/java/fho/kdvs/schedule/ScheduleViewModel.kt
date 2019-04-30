@@ -60,4 +60,11 @@ class ScheduleViewModel @Inject constructor(
                 .actionScheduleFragmentToShowDetailsFragment(timeslot.ids.first())
         navController.navigate(navAction)
     }
+
+    /** Called when the FAB Search icon is clicked. */
+    fun onClickSearch(navController: NavController) {
+        val navAction = ScheduleFragmentDirections
+            .actionScheduleFragmentToScheduleSearchFragment()
+        navController.navigate(navAction)
+    }
 }

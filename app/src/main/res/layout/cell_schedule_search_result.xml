@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+
+        <variable
+            name="show"
+            type="fho.kdvs.global.database.ShowEntity" />
+
+        <variable
+            name="clickListener"
+            type="android.view.View.OnClickListener" />
+
+        <import type="fho.kdvs.global.util.TimeHelper" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/timeslot_hour_height"
+        android:drawableBottom="@drawable/timeslot_divider"
+        android:drawableTop="@drawable/timeslot_divider"
+        android:onClick="@{clickListener}"
+        android:elevation="1dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/timeSlotImage"
+                android:layout_width="@dimen/timeslot_image"
+                android:layout_height="@dimen/timeslot_image"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/timeslot_desc"
+                android:layout_marginStart="@dimen/timeslot_margin"
+                android:layout_marginTop="@dimen/timeslot_margin"
+                android:layout_marginEnd="@dimen/timeslot_margin"
+                android:src="@{show.defaultImageHref}"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible"
+                tools:background="@drawable/show_placeholder"/>
+
+            <TextView
+                android:id="@+id/showName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="@dimen/timeslot_margin"
+                android:layout_marginStart="@dimen/timeslot_margin"
+                android:layout_marginEnd="@dimen/timeslot_margin"
+                android:ellipsize="end"
+                android:shadowColor="@color/colorPrimary50a"
+                android:shadowDx="3"
+                android:shadowDy="3"
+                android:shadowRadius="2"
+                android:text="@{show.name}"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                app:layout_constraintStart_toEndOf="@id/timeSlotImage"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                tools:text="The Name of the Show"/>
+
+            <TextView
+                android:id="@+id/showTime"
+                timeStart="@{show.timeStart}"
+                timeEnd="@{show.timeEnd}"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorPrimary"
+                android:layout_marginStart="@dimen/timeslot_margin"
+                android:layout_marginEnd="@dimen/timeslot_margin"
+                android:ellipsize="end"
+                android:shadowColor="@color/colorPrimary50a"
+                android:shadowDx="3"
+                android:shadowDy="3"
+                android:shadowRadius="2"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                app:layout_constraintStart_toEndOf="@id/timeSlotImage"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/showName"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                tools:text="Tues, 17:00 - 18:00"/>
+
+            <!--<TextView-->
+                <!--android:id="@+id/showTimeAlternatingText"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:textColor="@color/colorPrimary"-->
+                <!--android:layout_marginStart="@dimen/timeslot_margin"-->
+                <!--android:layout_marginEnd="@dimen/timeslot_margin"-->
+                <!--android:ellipsize="end"-->
+                <!--android:shadowColor="@color/colorPrimary50a"-->
+                <!--android:shadowDx="3"-->
+                <!--android:shadowDy="3"-->
+                <!--android:shadowRadius="2"-->
+                <!--android:textSize="12sp"-->
+                <!--style="@style/TextAppearance.MaterialComponents.Subtitle2"-->
+                <!--app:layout_constraintStart_toEndOf="@id/timeSlotImage"-->
+                <!--app:layout_constraintEnd_toEndOf="parent"-->
+                <!--app:layout_constraintTop_toBottomOf="@id/showTime"-->
+                <!--app:layout_constrainedWidth="true"-->
+                <!--app:layout_constraintHorizontal_bias="0.0"-->
+                <!--app:layout_constraintHorizontal_chainStyle="packed"-->
+                <!--tools:text="Every other week"/>-->
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</layout>
+

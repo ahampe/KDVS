@@ -10,6 +10,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -82,6 +83,10 @@ class ScheduleFragment : DaggerFragment() {
         val weekData = Day.values().map { day -> DayInfo(day, savedQuarter, savedYear) }
 
         val snapHelper = PagerSnapHelper()
+
+        fab?.run {
+            setOnClickListener { viewModel.onClickSearch(findNavController()) }
+        }
 
         timeRecyclerView?.run {
             adapter = TimeGridViewAdapter(this@ScheduleFragment)

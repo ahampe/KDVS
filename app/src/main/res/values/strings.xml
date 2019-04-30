@@ -18,14 +18,24 @@
     <string name="notification_pause">Pause</string>
 
     <!-- Schedule -->
-    <string name="sun">S</string>
-    <string name="mon">M</string>
-    <string name="tues">T</string>
-    <string name="wed">W</string>
-    <string name="thurs">T</string>
-    <string name="fri">F</string>
-    <string name="sat">S</string>
+    <string name="sun">Sun</string>
+    <string name="mon">Mon</string>
+    <string name="tues">Tues</string>
+    <string name="wed">Wed</string>
+    <string name="thurs">Thurs</string>
+    <string name="fri">Fri</string>
+    <string name="sat">Sat</string>
+
+    <string name="_s">S</string>
+    <string name="_m">M</string>
+    <string name="_t">T</string>
+    <string name="_w">W</string>
+    <string name="_f">F</string>
+
+    <string name="search_query_hint">Enter a show name</string>
+
     <string name="hourLabel">%1$02d:00\u0020</string>
+    <string name="searchTimeLabel">%1$s, %2$s - %3$s</string>
     <string name="thisWeek">This week:</string>
     <string name="nextWeek">Next week:</string>
     <string name="thenWeek">Then:</string>

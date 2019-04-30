@@ -21,6 +21,11 @@
             app:destination="@id/scheduleSelectionFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim" />
+        <action
+            android:id="@+id/action_scheduleFragment_to_scheduleSearchFragment"
+            app:destination="@id/scheduleSearchFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
     </fragment>
     <fragment
         android:id="@+id/scheduleSelectionFragment"
@@ -31,6 +36,14 @@
             app:argType="fho.kdvs.schedule.TimeSlot" />
         <action
             android:id="@+id/action_scheduleSelectionFragment_to_showDetailsFragment"
+            app:destination="@id/showDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/scheduleSearchFragment"
+        android:name="fho.kdvs.schedule.ScheduleSearchFragment"
+        android:label="ScheduleSearchFragment">
+        <action
+            android:id="@+id/action_scheduleSearchFragment_to_showDetailsFragment"
             app:destination="@id/showDetailsFragment" />
     </fragment>
     <fragment
