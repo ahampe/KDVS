@@ -53,23 +53,7 @@
                                 <LayoutPositions />
                               </value>
                             </entry>
-                          </map>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
-                  <entry key="scheduleSearchFragment">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="12" />
-                            <option name="y" value="12" />
-                          </Point>
-                        </option>
-                        <option name="myPositions">
-                          <map>
-                            <entry key="action_scheduleSearchFragment_to_showDetailsFragment">
+                            <entry key="action_scheduleFragment_to_showSearchFragment">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -124,6 +108,27 @@
                         <option name="myPositions">
                           <map>
                             <entry key="action_showDetailsFragment_to_broadcastDetailsFragment">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="showSearchFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="12" />
+                            <option name="y" value="12" />
+                          </Point>
+                        </option>
+                        <option name="myPositions">
+                          <map>
+                            <entry key="action_showSearchFragment_to_showDetailsFragment">
                               <value>
                                 <LayoutPositions />
                               </value>

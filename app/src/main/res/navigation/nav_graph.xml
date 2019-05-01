@@ -22,8 +22,8 @@
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim" />
         <action
-            android:id="@+id/action_scheduleFragment_to_scheduleSearchFragment"
-            app:destination="@id/scheduleSearchFragment"
+            android:id="@+id/action_scheduleFragment_to_showSearchFragment"
+            app:destination="@id/showSearchFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim" />
     </fragment>
@@ -39,11 +39,11 @@
             app:destination="@id/showDetailsFragment" />
     </fragment>
     <fragment
-        android:id="@+id/scheduleSearchFragment"
-        android:name="fho.kdvs.schedule.ScheduleSearchFragment"
-        android:label="ScheduleSearchFragment">
+        android:id="@+id/showSearchFragment"
+        android:name="fho.kdvs.schedule.ShowSearchFragment"
+        android:label="ShowSearchFragment">
         <action
-            android:id="@+id/action_scheduleSearchFragment_to_showDetailsFragment"
+            android:id="@+id/action_showSearchFragment_to_showDetailsFragment"
             app:destination="@id/showDetailsFragment" />
     </fragment>
     <fragment

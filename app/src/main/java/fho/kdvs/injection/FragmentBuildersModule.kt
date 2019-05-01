@@ -19,11 +19,11 @@ package fho.kdvs.injection
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import fho.kdvs.broadcast.BroadcastDetailsFragment
-import fho.kdvs.schedule.ScheduleFragment
-import fho.kdvs.show.ShowDetailsFragment
 import fho.kdvs.home.HomeFragment
-import fho.kdvs.schedule.ScheduleSearchFragment
+import fho.kdvs.schedule.ScheduleFragment
 import fho.kdvs.schedule.ScheduleSelectionFragment
+import fho.kdvs.schedule.ShowSearchFragment
+import fho.kdvs.show.ShowDetailsFragment
 
 @Suppress("unused")
 @Module
@@ -38,7 +38,7 @@ abstract class FragmentBuildersModule {
     abstract fun contributeScheduleSelectionFragment(): ScheduleSelectionFragment
 
     @ContributesAndroidInjector
-    abstract fun contributeScheduleSearchFragment(): ScheduleSearchFragment
+    abstract fun contributeShowSearchFragment(): ShowSearchFragment
 
     @ContributesAndroidInjector
     abstract fun contributeShowDetailsFragment(): ShowDetailsFragment

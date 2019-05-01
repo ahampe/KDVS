@@ -7,7 +7,6 @@ import androidx.navigation.NavController
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.extensions.toLiveData
-import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.show.ShowRepository
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -64,7 +63,7 @@ class ScheduleViewModel @Inject constructor(
     /** Called when the FAB Search icon is clicked. */
     fun onClickSearch(navController: NavController) {
         val navAction = ScheduleFragmentDirections
-            .actionScheduleFragmentToScheduleSearchFragment()
+            .actionScheduleFragmentToShowSearchFragment()
         navController.navigate(navAction)
     }
 }

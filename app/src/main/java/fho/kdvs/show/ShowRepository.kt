@@ -3,6 +3,7 @@ package fho.kdvs.show
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.BroadcastEntity
@@ -14,6 +15,7 @@ import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
+import fho.kdvs.schedule.QuarterYear
 import fho.kdvs.schedule.TimeSlot
 import fho.kdvs.services.KdvsPlaybackPreparer
 import io.reactivex.Flowable
@@ -90,11 +92,19 @@ class ShowRepository @Inject constructor(
      * Runs a schedule scrape without checking when it was last performed.
      * The only acceptable public usage of this method is when user explicitly refreshes.
      */
-    fun forceScrapeSchedule(): Job? = scraperManager.scrape(URLs.SCHEDULE)
+    private fun forceScrapeSchedule(): Job? = scraperManager.scrape(URLs.SCHEDULE)
+
+    fun getCurrentQuarterYear(): LiveData<QuarterYear> = showDao.currentQuarterYear()
 
     /** Fetches a [LiveData] that will wrap the show matching the provided ID. */
     fun showById(showId: Int): LiveData<ShowEntity> =
         showDao.showById(showId)
+
+    fun showsForQuarterYear(quarterYear: QuarterYear): Flowable<List<ShowEntity>> {
+        val (quarter, year) = quarterYear
+        return showDao.allShowsByQuarterYear(quarter, year)
+            .observeOn(Schedulers.io())
+    }
 
     /**
      * Given the day of week, quarter, and year, finds all shows that begin or end on that day,

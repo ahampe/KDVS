@@ -8,7 +8,7 @@ import dagger.multibindings.IntoMap
 import fho.kdvs.broadcast.BroadcastDetailsViewModel
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
-import fho.kdvs.schedule.ScheduleSearchViewModel
+import fho.kdvs.schedule.ShowSearchViewModel
 import fho.kdvs.schedule.ScheduleViewModel
 import fho.kdvs.show.ScheduleSelectionViewModel
 import fho.kdvs.show.ShowDetailsViewModel
@@ -33,8 +33,8 @@ abstract class ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(ScheduleSearchViewModel::class)
-    abstract fun bindScheduleSearchViewModel(scheduleSearchViewModel: ScheduleSearchViewModel): ViewModel
+    @ViewModelKey(ShowSearchViewModel::class)
+    abstract fun bindShowSearchViewModel(showSearchViewModel: ShowSearchViewModel): ViewModel
 
     @Binds
     @IntoMap

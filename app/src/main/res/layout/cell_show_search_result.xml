@@ -39,7 +39,7 @@
                 android:layout_marginStart="@dimen/timeslot_margin"
                 android:layout_marginTop="@dimen/timeslot_margin"
                 android:layout_marginEnd="@dimen/timeslot_margin"
-                android:src="@{show.defaultImageHref}"
+                glideHref="@{show.defaultImageHref}"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:visibility="visible"

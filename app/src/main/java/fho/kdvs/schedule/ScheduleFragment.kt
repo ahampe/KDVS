@@ -47,7 +47,6 @@ class ScheduleFragment : DaggerFragment() {
             .also { it.fetchShows() }
 
         subscribeToViewModel()
-
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
