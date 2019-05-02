@@ -83,7 +83,7 @@ class ScheduleFragment : DaggerFragment() {
 
         val snapHelper = PagerSnapHelper()
 
-        fab?.run {
+        search?.run {
             setOnClickListener { viewModel.onClickSearch(findNavController()) }
         }
 

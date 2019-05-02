@@ -32,6 +32,9 @@
     <string name="_w">W</string>
     <string name="_f">F</string>
 
+    <string name="alternating_every_other">Every other week</string>
+    <string name="alternating_num">Every %1$d weeks</string>
+
     <string name="search_query_hint">Enter a show name</string>
 
     <string name="hourLabel">%1$02d:00\u0020</string>

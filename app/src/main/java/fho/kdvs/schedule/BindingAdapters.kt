@@ -29,12 +29,23 @@ fun showTimeRange(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDate
 }
 
 @BindingAdapter("index")
-fun setShowSelectionHeader(view: TextView, index: Int){
+fun setShowSelectionHeader(view: TextView, index: Int) {
     view.text = when(index){
         0 -> view.resources.getString(R.string.thisWeek)
         1 -> view.resources.getString(R.string.nextWeek)
         2 -> view.resources.getString(R.string.thenWeek)
         else -> view.resources.getString(R.string.thenWeek)
+    }
+}
+
+@BindingAdapter("timeSlotSize")
+fun setShowTimeAlternatingText(view: TextView, size: Int) {
+    if (size > 1) {
+        if (size == 2) view.text = view.resources.getString(R.string.alternating_every_other)
+        else if (size > 2) view.text = view.resources.getString(
+            R.string.alternating_num,
+            size)
+        view.visibility = View.VISIBLE
     }
 }
 

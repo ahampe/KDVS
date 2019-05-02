@@ -8,6 +8,10 @@
             type="fho.kdvs.global.database.ShowEntity" />
 
         <variable
+            name="timeSlotSize"
+            type="Integer" />
+
+        <variable
             name="clickListener"
             type="android.view.View.OnClickListener" />
 
@@ -91,27 +95,29 @@
                 app:layout_constraintHorizontal_chainStyle="packed"
                 tools:text="Tues, 17:00 - 18:00"/>
 
-            <!--<TextView-->
-                <!--android:id="@+id/showTimeAlternatingText"-->
-                <!--android:layout_width="0dp"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:textColor="@color/colorPrimary"-->
-                <!--android:layout_marginStart="@dimen/timeslot_margin"-->
-                <!--android:layout_marginEnd="@dimen/timeslot_margin"-->
-                <!--android:ellipsize="end"-->
-                <!--android:shadowColor="@color/colorPrimary50a"-->
-                <!--android:shadowDx="3"-->
-                <!--android:shadowDy="3"-->
-                <!--android:shadowRadius="2"-->
-                <!--android:textSize="12sp"-->
-                <!--style="@style/TextAppearance.MaterialComponents.Subtitle2"-->
-                <!--app:layout_constraintStart_toEndOf="@id/timeSlotImage"-->
-                <!--app:layout_constraintEnd_toEndOf="parent"-->
-                <!--app:layout_constraintTop_toBottomOf="@id/showTime"-->
-                <!--app:layout_constrainedWidth="true"-->
-                <!--app:layout_constraintHorizontal_bias="0.0"-->
-                <!--app:layout_constraintHorizontal_chainStyle="packed"-->
-                <!--tools:text="Every other week"/>-->
+            <TextView
+                android:id="@+id/showTimeAlternatingText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorPrimary"
+                android:layout_marginStart="@dimen/timeslot_margin"
+                android:layout_marginEnd="@dimen/timeslot_margin"
+                android:ellipsize="end"
+                android:shadowColor="@color/colorPrimary50a"
+                android:shadowDx="3"
+                android:shadowDy="3"
+                android:shadowRadius="2"
+                android:textSize="12sp"
+                timeSlotSize="@{timeSlotSize}"
+                android:visibility="gone"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                app:layout_constraintStart_toEndOf="@id/timeSlotImage"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/showTime"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                tools:text="Every other week"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
