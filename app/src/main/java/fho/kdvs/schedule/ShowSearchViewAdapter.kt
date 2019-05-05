@@ -79,9 +79,9 @@ class ShowSearchViewAdapter(private val shows: List<ShowEntity>, onClick: (Click
 //                        ?.trim()
 //                    })
                 //onResultsChanged()
-                submitList(showsFiltered)
+                //submitList(showsFiltered)
 
-                //notifyDataSetChanged()
+                notifyDataSetChanged()
             }
         }
     }

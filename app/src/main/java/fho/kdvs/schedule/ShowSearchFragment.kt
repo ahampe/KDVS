@@ -1,7 +1,9 @@
 package fho.kdvs.schedule
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -11,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
-import fho.kdvs.global.database.ShowEntity
 import kotlinx.android.synthetic.main.fragment_show_search.*
 import timber.log.Timber
 import javax.inject.Inject
@@ -82,6 +83,8 @@ class ShowSearchFragment : DaggerFragment() {
         searchBar?.run {
             isActivated = true
             queryHint = resources.getString(R.string.search_query_hint)
+            setIconifiedByDefault(false)
+            onActionViewExpanded()
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
                 override fun onQueryTextSubmit(query: String): Boolean {
