@@ -41,7 +41,7 @@ class ShowSearchFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        configureViews() // TODO: not sure if this is in right spot, but crashes if called earlier
+        configureViews()
     }
 
     private fun subscribeToViewModel(){
@@ -51,15 +51,15 @@ class ShowSearchFragment : DaggerFragment() {
             getCurrentQuarterYear().observe(fragment, Observer { currentQuarterYear ->
                 viewModel.getShowsForCurrentQuarterYear(currentQuarterYear).observe(fragment, Observer { shows ->
                     // Pair each show with an int corresponding to number of shows in its timeslot
-                    val showsWithTimeSlotSize = shows.groupBy { s -> s.timeStart }
-                        .map { m ->
-                            val list = mutableListOf<Pair<ShowEntity, Int>>()
-                            m.value.forEach {
-                                list.add(Pair(it, m.value.size))
-                            }
-                            list
-                        }.flatten()
-                    showSearchViewAdapter = ShowSearchViewAdapter(showsWithTimeSlotSize) {
+//                    val showsWithTimeSlotSize = shows.groupBy { s -> s.timeStart }
+//                        .map { m ->
+//                            val list = mutableListOf<Pair<ShowEntity, Int>>()
+//                            m.value.forEach {
+//                                list.add(Pair(it, m.value.size))
+//                            }
+//                            list
+//                        }.flatten()
+                    showSearchViewAdapter = ShowSearchViewAdapter(shows) {
                         Timber.d("clicked ${it.item}")
                         viewModel.onClickShow(findNavController(), it.item)
                     }
@@ -87,12 +87,14 @@ class ShowSearchFragment : DaggerFragment() {
                 override fun onQueryTextSubmit(query: String): Boolean {
                     // filter recycler view when query submitted
                     showSearchViewAdapter?.filter?.filter(query)
+                    showSearchViewAdapter?.query = query
                     return false
                 }
 
                 override fun onQueryTextChange(query: String): Boolean {
                     // filter recycler view when text is changed
-                    //showSearchViewAdapter?.filter?.filter(query)
+                    showSearchViewAdapter?.filter?.filter(query)
+                    showSearchViewAdapter?.query = query
                     return false
                 }
             })

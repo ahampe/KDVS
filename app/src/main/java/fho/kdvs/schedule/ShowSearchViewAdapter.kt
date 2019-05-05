@@ -12,33 +12,37 @@ import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
 import fho.kdvs.show.ShowDiffCallback
 import timber.log.Timber
-import kotlin.math.min
 
 /** Adapter for a show search view.*/
-class ShowSearchViewAdapter(val showsWithTimeSlotSize: List<Pair<ShowEntity, Int>>, onClick: (ClickData<ShowEntity>) -> Unit) :
+class ShowSearchViewAdapter(private val shows: List<ShowEntity>, onClick: (ClickData<ShowEntity>) -> Unit) :
     BindingRecyclerViewAdapter<ShowEntity, ShowSearchViewAdapter.ViewHolder>(onClick, ShowDiffCallback()), Filterable {
 
-    private var showNames: List<ShowEntity>? = null
-    private var showNamesFiltered: List<ShowEntity>? = null
+    var query: String? = null
+    private val showsFiltered = mutableListOf<ShowEntity>()
 
     init {
-        this.showNames = showsWithTimeSlotSize.map { s -> s.first }.toList()
-        //this.showNamesFiltered = this.showNames
+        showsFiltered.addAll(shows)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = CellShowSearchResultBinding.inflate(inflater, parent, false)
-        return ViewHolder(binding, showsWithTimeSlotSize)
+        return ViewHolder(binding, query)
     }
     
     override fun getItemCount(): Int {
-        return showNamesFiltered?.size ?: 0
+        return showsFiltered.size
     }
 
-    /** Filters on matches of substrings starting from the beginning of words (word defined as query split by spaces).
-     * At least one word from the query must match at least one substring of a word from the show name, starting
-     * from index 0. e.g. Queries of "sui", "the", "th wa", "the watch" will all return "The Suicide Watch". */
+    override fun getItem(position: Int): ShowEntity {
+        return showsFiltered[position]
+    }
+
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
+    }
+
+    /** Filters show names containing query, case insensitive. */
     override fun getFilter(): Filter { // TODO: hash results
         return object : Filter() {
             override fun performFiltering(charSeq: CharSequence): FilterResults {
@@ -46,21 +50,16 @@ class ShowSearchViewAdapter(val showsWithTimeSlotSize: List<Pair<ShowEntity, Int
                 val charString = charSeq.toString().trim()
 
                 if (charString.isNotEmpty()){
-                    showNames?.forEach {
-                        val queryWords = charString.split(' ').toList()
-                        val showWords = it.name?.split(' ')?.toList()
-                        showWords?.forEach showWord@{ sw ->
-                            queryWords.forEach queryWord@{ qw ->
-                                if (sw.toLowerCase().substring(0, min(qw.length, sw.length)) == qw.toLowerCase()) {
-                                    filteredList.add(it)
-                                    return@showWord
-                                }
-                            }
-                        }
+                    shows.forEach {
+                        if ((it.name ?: "" ).toLowerCase()
+                            .contains(charString.toLowerCase()))
+                            filteredList.add(it)
                     }
-                    showNamesFiltered = filteredList
+                    query = charString
+                    showsFiltered.clear()
+                    showsFiltered.addAll(filteredList)
                 } else {
-                    showNamesFiltered = mutableListOf()
+                    showsFiltered.clear()
                 }
 
                 val filterResults = FilterResults()
@@ -70,33 +69,36 @@ class ShowSearchViewAdapter(val showsWithTimeSlotSize: List<Pair<ShowEntity, Int
                 return filterResults
             }
 
-            @SuppressWarnings("unchecked")
             override fun publishResults(charSeq: CharSequence, results: FilterResults) {
                 Timber.d("${results.count} results found")
-                if (results.values is List<*>) {
-                    showNamesFiltered = results.values as? List<ShowEntity>? // TODO: safe cast?
-                    onResultsChanged()
-                }
+                showsFiltered.clear()
+                showsFiltered.addAll(results.values as Iterable<ShowEntity>)  // TODO: safe cast?
+//                    ?.sortedBy { v -> v.name
+//                        ?.toLowerCase()
+//                        ?.replace("the", "")
+//                        ?.trim()
+//                    })
+                //onResultsChanged()
+                submitList(showsFiltered)
+
                 //notifyDataSetChanged()
             }
         }
     }
 
-    private fun onResultsChanged() {
-        submitList(showNamesFiltered?.sortedBy { s -> s.name })
-    }
-
     class ViewHolder(
         private val binding: CellShowSearchResultBinding,
-        private val showsWithTimeSlotSize: List<Pair<ShowEntity, Int>>
+        private val queryStr: String?
     ) : BindingViewHolder<ShowEntity>(binding.root) {
         override fun bind(listener: View.OnClickListener, item: ShowEntity) {
             binding.apply {
                 clickListener = listener
                 show = item
-                timeSlotSize = showsWithTimeSlotSize
-                    .firstOrNull { s -> s.first == item }
-                    ?.second
+                timeSlotSize = 1 // TODO: pass in count of timeslot shows
+//                timeSlotSize = showsWithTimeSlotSize
+//                    .firstOrNull { s -> s.first == item }
+//                    ?.second
+                query = queryStr // TODO: highlight query in cell
             }
         }
     }

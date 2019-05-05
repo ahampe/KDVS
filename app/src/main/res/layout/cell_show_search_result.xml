@@ -12,6 +12,10 @@
             type="Integer" />
 
         <variable
+            name="query"
+            type="String" />
+
+        <variable
             name="clickListener"
             type="android.view.View.OnClickListener" />
 
