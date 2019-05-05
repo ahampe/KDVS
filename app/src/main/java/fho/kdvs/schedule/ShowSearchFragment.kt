@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
+import fho.kdvs.global.database.ShowEntity
 import kotlinx.android.synthetic.main.fragment_show_search.*
 import timber.log.Timber
 import javax.inject.Inject
@@ -42,7 +43,7 @@ class ShowSearchFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        configureViews()
+        initializeSearchBar()
     }
 
     private fun subscribeToViewModel(){
@@ -52,31 +53,28 @@ class ShowSearchFragment : DaggerFragment() {
             getCurrentQuarterYear().observe(fragment, Observer { currentQuarterYear ->
                 viewModel.getShowsForCurrentQuarterYear(currentQuarterYear).observe(fragment, Observer { shows ->
                     // Pair each show with an int corresponding to number of shows in its timeslot
-//                    val showsWithTimeSlotSize = shows.groupBy { s -> s.timeStart }
-//                        .map { m ->
-//                            val list = mutableListOf<Pair<ShowEntity, Int>>()
-//                            m.value.forEach {
-//                                list.add(Pair(it, m.value.size))
-//                            }
-//                            list
-//                        }.flatten()
-                    showSearchViewAdapter = ShowSearchViewAdapter(shows) {
+                    val showsWithTimeSlotSize = shows.groupBy { s -> s.timeStart }
+                        .map { m ->
+                            val list = mutableListOf<Pair<ShowEntity, Int>>()
+                            m.value.forEach {
+                                list.add(Pair(it, m.value.size))
+                            }
+                            list
+                        }.flatten()
+
+                    showSearchViewAdapter = ShowSearchViewAdapter(showsWithTimeSlotSize) {
                         Timber.d("clicked ${it.item}")
                         viewModel.onClickShow(findNavController(), it.item)
+                    }
+
+                    resultsRecycler.run {
+                        layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+                        adapter = showSearchViewAdapter
                     }
                 })
             })
 
         }
-    }
-
-    private fun configureViews() {
-        resultsRecycler.run {
-            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-            adapter = showSearchViewAdapter
-        }
-
-        initializeSearchBar()
     }
 
     private fun initializeSearchBar(){
@@ -102,7 +100,5 @@ class ShowSearchFragment : DaggerFragment() {
                 }
             })
         }
-
-        // TODO: auto focus to searchbar
     }
 }

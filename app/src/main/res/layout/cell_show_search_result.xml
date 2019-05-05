@@ -28,10 +28,12 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="@dimen/timeslot_hour_height"
+        android:background="@android:color/transparent"
+        app:cardBackgroundColor="@android:color/transparent"
         android:drawableBottom="@drawable/timeslot_divider"
         android:drawableTop="@drawable/timeslot_divider"
         android:onClick="@{clickListener}"
-        android:elevation="1dp">
+        android:elevation="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -61,11 +63,10 @@
                 android:layout_marginTop="@dimen/timeslot_margin"
                 android:layout_marginStart="@dimen/timeslot_margin"
                 android:layout_marginEnd="@dimen/timeslot_margin"
+                android:maxLines="1"
                 android:ellipsize="end"
-                android:shadowColor="@color/colorPrimary50a"
-                android:shadowDx="3"
-                android:shadowDy="3"
-                android:shadowRadius="2"
+                query="@{query}"
+                showName="@{show.name}"
                 android:text="@{show.name}"
                 style="@style/TextAppearance.MaterialComponents.Headline6"
                 app:layout_constraintStart_toEndOf="@id/timeSlotImage"
@@ -78,8 +79,8 @@
 
             <TextView
                 android:id="@+id/showTime"
-                timeStart="@{show.timeStart}"
-                timeEnd="@{show.timeEnd}"
+                searchTimeStart="@{show.timeStart}"
+                searchTimeEnd="@{show.timeEnd}"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorPrimary"
@@ -107,10 +108,6 @@
                 android:layout_marginStart="@dimen/timeslot_margin"
                 android:layout_marginEnd="@dimen/timeslot_margin"
                 android:ellipsize="end"
-                android:shadowColor="@color/colorPrimary50a"
-                android:shadowDx="3"
-                android:shadowDy="3"
-                android:shadowRadius="2"
                 android:textSize="12sp"
                 timeSlotSize="@{timeSlotSize}"
                 android:visibility="gone"
@@ -121,6 +118,7 @@
                 app:layout_constrainedWidth="true"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintHorizontal_chainStyle="packed"
+                tools:visibility="visible"
                 tools:text="Every other week"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

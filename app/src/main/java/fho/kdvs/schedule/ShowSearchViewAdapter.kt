@@ -14,32 +14,29 @@ import fho.kdvs.show.ShowDiffCallback
 import timber.log.Timber
 
 /** Adapter for a show search view.*/
-class ShowSearchViewAdapter(private val shows: List<ShowEntity>, onClick: (ClickData<ShowEntity>) -> Unit) :
+class ShowSearchViewAdapter(private val showsWithTimeSlotSize: List<Pair<ShowEntity, Int>>, onClick: (ClickData<ShowEntity>) -> Unit) :
     BindingRecyclerViewAdapter<ShowEntity, ShowSearchViewAdapter.ViewHolder>(onClick, ShowDiffCallback()), Filterable {
 
-    var query: String? = null
-    private val showsFiltered = mutableListOf<ShowEntity>()
+    var query: String = ""
+
+    private var shows: List<ShowEntity>? = null
+    private var showsFiltered: List<ShowEntity>? = null
 
     init {
-        showsFiltered.addAll(shows)
+        this.shows = showsWithTimeSlotSize
+            .map { s -> s.first }
+            .toList()
+            .distinct()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = CellShowSearchResultBinding.inflate(inflater, parent, false)
-        return ViewHolder(binding, query)
+        return ViewHolder(binding, showsWithTimeSlotSize, query)
     }
     
     override fun getItemCount(): Int {
-        return showsFiltered.size
-    }
-
-    override fun getItem(position: Int): ShowEntity {
-        return showsFiltered[position]
-    }
-
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
+        return showsFiltered?.size ?: 0
     }
 
     /** Filters show names containing query, case insensitive. */
@@ -50,16 +47,14 @@ class ShowSearchViewAdapter(private val shows: List<ShowEntity>, onClick: (Click
                 val charString = charSeq.toString().trim()
 
                 if (charString.isNotEmpty()){
-                    shows.forEach {
+                    shows?.forEach {
                         if ((it.name ?: "" ).toLowerCase()
                             .contains(charString.toLowerCase()))
                             filteredList.add(it)
                     }
-                    query = charString
-                    showsFiltered.clear()
-                    showsFiltered.addAll(filteredList)
+                    showsFiltered = filteredList
                 } else {
-                    showsFiltered.clear()
+                    showsFiltered = mutableListOf()
                 }
 
                 val filterResults = FilterResults()
@@ -69,36 +64,32 @@ class ShowSearchViewAdapter(private val shows: List<ShowEntity>, onClick: (Click
                 return filterResults
             }
 
+            @SuppressWarnings("unchecked")
             override fun publishResults(charSeq: CharSequence, results: FilterResults) {
                 Timber.d("${results.count} results found")
-                showsFiltered.clear()
-                showsFiltered.addAll(results.values as Iterable<ShowEntity>)  // TODO: safe cast?
-//                    ?.sortedBy { v -> v.name
-//                        ?.toLowerCase()
-//                        ?.replace("the", "")
-//                        ?.trim()
-//                    })
-                //onResultsChanged()
-                //submitList(showsFiltered)
-
-                notifyDataSetChanged()
+                if (results.values is List<*>) {
+                    showsFiltered = results.values as? List<ShowEntity>? // TODO: safe cast?
+                    submitList(showsFiltered?.sortedBy { s -> s.name?.toLowerCase()
+                        ?.replace("the", "")
+                        ?.trim() })
+                }
             }
         }
     }
 
     class ViewHolder(
         private val binding: CellShowSearchResultBinding,
-        private val queryStr: String?
+        private val showsWithTimeSlotSize: List<Pair<ShowEntity, Int>>,
+        private val queryStr: String
     ) : BindingViewHolder<ShowEntity>(binding.root) {
         override fun bind(listener: View.OnClickListener, item: ShowEntity) {
             binding.apply {
                 clickListener = listener
                 show = item
-                timeSlotSize = 1 // TODO: pass in count of timeslot shows
-//                timeSlotSize = showsWithTimeSlotSize
-//                    .firstOrNull { s -> s.first == item }
-//                    ?.second
-                query = queryStr // TODO: highlight query in cell
+                timeSlotSize = showsWithTimeSlotSize
+                    .firstOrNull { s -> s.first == item }
+                    ?.second
+                query = queryStr
             }
         }
     }

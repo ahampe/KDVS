@@ -1,5 +1,9 @@
 package fho.kdvs.schedule
 
+import android.graphics.Color
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -49,7 +53,23 @@ fun setShowTimeAlternatingText(view: TextView, size: Int) {
     }
 }
 
-@BindingAdapter("showTimes")
+@BindingAdapter("query", "showName")
+fun setShowSearchNameHighlight(view: TextView, query: String, showName: String) {
+    if (query.isNotEmpty() && showName.isNotEmpty()) {
+        val startIndex = showName.indexOf(query, 0, true)
+        val stopIndex = startIndex + query.length
+
+        if (startIndex != -1) {
+            val spannable = SpannableString(showName)
+            spannable.setSpan(ForegroundColorSpan(Color.BLUE), startIndex, stopIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            view.text = spannable
+            // TODO: adapt this logic to set a white background with dark text color
+            // TODO: call this method when query changes, even if results are same
+        }
+    }
+}
+
+@BindingAdapter("searchTimeStart", "searchTimeEnd")
 fun setShowSearchTimes(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDateTime){
     val dayAbbrs = listOf(
         view.resources.getString(R.string.sun),
@@ -61,10 +81,10 @@ fun setShowSearchTimes(view: TextView, timeStart: OffsetDateTime, timeEnd: Offse
         view.resources.getString(R.string.sat)
     )
 
-    var dayText = dayAbbrs.getOrNull(timeStart.dayOfWeek.value)
+    var dayText = dayAbbrs.getOrNull(timeStart.dayOfWeek.value % 6)
 
     if (timeEnd.dayOfWeek != timeStart.dayOfWeek)
-        dayText += "/" + dayAbbrs.getOrNull(timeEnd.dayOfWeek.value)
+        dayText += "/" + dayAbbrs.getOrNull(timeEnd.dayOfWeek.value % 6)
 
     view.text = view.context.resources.getString(
         R.string.searchTimeLabel,
