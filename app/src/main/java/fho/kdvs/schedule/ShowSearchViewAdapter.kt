@@ -14,8 +14,11 @@ import fho.kdvs.show.ShowDiffCallback
 import timber.log.Timber
 
 /** Adapter for a show search view.*/
-class ShowSearchViewAdapter(private val showsWithTimeSlotSize: List<Pair<ShowEntity, Int>>, onClick: (ClickData<ShowEntity>) -> Unit) :
-    BindingRecyclerViewAdapter<ShowEntity, ShowSearchViewAdapter.ViewHolder>(onClick, ShowDiffCallback()), Filterable {
+class ShowSearchViewAdapter(
+    private val showsWithTimeSlotSize: List<Pair<ShowEntity, Int>>,
+    private val fragment: ShowSearchFragment,
+    onClick: (ClickData<ShowEntity>) -> Unit
+) : BindingRecyclerViewAdapter<ShowEntity, ShowSearchViewAdapter.ViewHolder>(onClick, ShowDiffCallback()), Filterable {
 
     var query: String = ""
 
@@ -44,15 +47,26 @@ class ShowSearchViewAdapter(private val showsWithTimeSlotSize: List<Pair<ShowEnt
         return object : Filter() {
             override fun performFiltering(charSeq: CharSequence): FilterResults {
                 val filteredList = ArrayList<ShowEntity>()
-                val charString = charSeq.toString().trim()
+                val query = charSeq.toString().trim()
 
-                if (charString.isNotEmpty()){
-                    shows?.forEach {
-                        if ((it.name ?: "" ).toLowerCase()
-                            .contains(charString.toLowerCase()))
-                            filteredList.add(it)
+                if (query.isNotEmpty()){
+                    if (fragment.hashedShows[query] != null) {
+                        filteredList.addAll(fragment.hashedShows[query]!!)
+                    } else {
+                        shows?.forEach {
+                            if ((it.name ?: "" ).toLowerCase()
+                                    .contains(query.toLowerCase()))
+                                filteredList.add(it)
+                        }
+
+                        // sort by name, ignoring articles
+                        filteredList.sortedBy { s -> s.name?.toLowerCase()
+                            ?.replace("the", "")
+                            ?.trim() }
+
+                        showsFiltered = filteredList
+                        fragment.hashedShows[query] = filteredList
                     }
-                    showsFiltered = filteredList
                 } else {
                     showsFiltered = mutableListOf()
                 }
@@ -69,9 +83,7 @@ class ShowSearchViewAdapter(private val showsWithTimeSlotSize: List<Pair<ShowEnt
                 Timber.d("${results.count} results found")
                 if (results.values is List<*>) {
                     showsFiltered = results.values as? List<ShowEntity>? // TODO: safe cast?
-                    submitList(showsFiltered?.sortedBy { s -> s.name?.toLowerCase()
-                        ?.replace("the", "")
-                        ?.trim() })
+                    submitList(showsFiltered)
                 }
             }
         }

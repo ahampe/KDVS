@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
+import fho.kdvs.R
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.extensions.toLiveData
@@ -64,6 +65,7 @@ class ScheduleViewModel @Inject constructor(
     fun onClickSearch(navController: NavController) {
         val navAction = ScheduleFragmentDirections
             .actionScheduleFragmentToShowSearchFragment()
-        navController.navigate(navAction)
+        if (navController.currentDestination?.id == R.id.scheduleFragment)
+            navController.navigate(navAction)
     }
 }

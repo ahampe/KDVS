@@ -25,6 +25,7 @@ class ShowSearchFragment : DaggerFragment() {
     private lateinit var viewModel: ShowSearchViewModel
 
     private var showSearchViewAdapter: ShowSearchViewAdapter? = null
+    var hashedShows = mutableMapOf<String, ArrayList<ShowEntity>>()
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,7 +63,7 @@ class ShowSearchFragment : DaggerFragment() {
                             list
                         }.flatten()
 
-                    showSearchViewAdapter = ShowSearchViewAdapter(showsWithTimeSlotSize) {
+                    showSearchViewAdapter = ShowSearchViewAdapter(showsWithTimeSlotSize, fragment) {
                         Timber.d("clicked ${it.item}")
                         viewModel.onClickShow(findNavController(), it.item)
                     }
