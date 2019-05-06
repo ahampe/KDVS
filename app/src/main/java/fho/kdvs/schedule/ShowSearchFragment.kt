@@ -1,6 +1,9 @@
 package fho.kdvs.schedule
 
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +17,9 @@ import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.database.ShowEntity
+import kotlinx.android.synthetic.main.cell_show_search_result.view.*
 import kotlinx.android.synthetic.main.fragment_show_search.*
+import org.jetbrains.anko.forEachChild
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -90,6 +95,7 @@ class ShowSearchFragment : DaggerFragment() {
                     // filter recycler view when query submitted
                     showSearchViewAdapter?.filter?.filter(query)
                     showSearchViewAdapter?.query = query
+                    highlightQueryTextInResults(query)
                     return false
                 }
 
@@ -97,9 +103,33 @@ class ShowSearchFragment : DaggerFragment() {
                     // filter recycler view when text is changed
                     showSearchViewAdapter?.filter?.filter(query)
                     showSearchViewAdapter?.query = query
+                    highlightQueryTextInResults(query)
                     return false
                 }
             })
+        }
+    }
+
+    private fun highlightQueryTextInResults(query: String) {
+        for (i in 0..resultsRecycler.childCount) {
+            val vh = resultsRecycler.findViewHolderForAdapterPosition(i) as? ShowSearchViewAdapter.ViewHolder
+            val showNameView = vh?.itemView?.showName
+
+            if (query.isNotEmpty() && showNameView != null && showNameView.text.isNotEmpty()) {
+                val startIndex = showNameView.text.indexOf(query, 0, true)
+                val stopIndex = startIndex + query.length
+
+                if (startIndex != -1) {
+                    val spannable = SpannableString(showNameView.text)
+                    val color = view?.resources?.getColor(R.color.colorAccent, view?.context?.theme)
+                    if (color != null) {
+                        spannable.setSpan(
+                            ForegroundColorSpan(color),
+                            startIndex, stopIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        showNameView.text = spannable
+                    }
+                }
+            }
         }
     }
 }

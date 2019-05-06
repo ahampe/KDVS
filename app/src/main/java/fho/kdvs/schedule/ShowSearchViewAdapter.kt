@@ -43,7 +43,7 @@ class ShowSearchViewAdapter(
     }
 
     /** Filters show names containing query, case insensitive. */
-    override fun getFilter(): Filter { // TODO: hash results
+    override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(charSeq: CharSequence): FilterResults {
                 val filteredList = ArrayList<ShowEntity>()

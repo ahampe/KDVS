@@ -61,9 +61,9 @@ fun setShowSearchNameHighlight(view: TextView, query: String, showName: String) 
 
         if (startIndex != -1) {
             val spannable = SpannableString(showName)
-            spannable.setSpan(ForegroundColorSpan(Color.BLUE), startIndex, stopIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            spannable.setSpan(ForegroundColorSpan(view.resources.getColor(R.color.colorAccent, view.context.theme)),
+                startIndex, stopIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             view.text = spannable
-            // TODO: adapt this logic to set a white background with dark text color
             // TODO: call this method when query changes, even if results are same
         }
     }

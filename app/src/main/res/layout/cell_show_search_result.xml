@@ -30,6 +30,7 @@
         android:layout_height="@dimen/timeslot_hour_height"
         android:background="@android:color/transparent"
         app:cardBackgroundColor="@android:color/transparent"
+        app:cardPreventCornerOverlap="false"
         android:drawableBottom="@drawable/timeslot_divider"
         android:drawableTop="@drawable/timeslot_divider"
         android:onClick="@{clickListener}"
