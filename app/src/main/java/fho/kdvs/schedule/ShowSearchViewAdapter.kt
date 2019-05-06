@@ -58,12 +58,6 @@ class ShowSearchViewAdapter(
                                     .contains(query.toLowerCase()))
                                 filteredList.add(it)
                         }
-
-                        // sort by name, ignoring articles
-                        filteredList.sortedBy { s -> s.name?.toLowerCase()
-                            ?.replace("the", "")
-                            ?.trim() }
-
                         showsFiltered = filteredList
                         fragment.hashedShows[query] = filteredList
                     }
@@ -83,7 +77,11 @@ class ShowSearchViewAdapter(
                 Timber.d("${results.count} results found")
                 if (results.values is List<*>) {
                     showsFiltered = results.values as? List<ShowEntity>? // TODO: safe cast?
-                    submitList(showsFiltered)
+
+                    // alphabetical sort ignoring leading articles
+                    submitList(showsFiltered?.sortedBy { s ->
+                        """^(?:(the|a|an) +)""".toRegex()
+                            .replace(s.name?.toLowerCase()?.trim() ?: "", "") })
                 }
             }
         }

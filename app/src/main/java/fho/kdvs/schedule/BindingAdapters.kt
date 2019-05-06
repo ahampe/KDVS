@@ -14,8 +14,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import fho.kdvs.R
-import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.extensions.TimeSlotRequestListener
+import fho.kdvs.global.util.SpanHelper
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.cell_timeslot.view.*
 import org.threeten.bp.OffsetDateTime
@@ -49,23 +49,13 @@ fun setShowTimeAlternatingText(view: TextView, size: Int) {
         else if (size > 2) view.text = view.resources.getString(
             R.string.alternating_num,
             size)
-        view.visibility = View.VISIBLE
-    }
+    } else view.text = ""
 }
 
 @BindingAdapter("query", "showName")
 fun setShowSearchNameHighlight(view: TextView, query: String, showName: String) {
     if (query.isNotEmpty() && showName.isNotEmpty()) {
-        val startIndex = showName.indexOf(query, 0, true)
-        val stopIndex = startIndex + query.length
-
-        if (startIndex != -1) {
-            val spannable = SpannableString(showName)
-            spannable.setSpan(ForegroundColorSpan(view.resources.getColor(R.color.colorAccent, view.context.theme)),
-                startIndex, stopIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            view.text = spannable
-            // TODO: call this method when query changes, even if results are same
-        }
+        SpanHelper.highlightSpan(view, query)
     }
 }
 

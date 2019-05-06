@@ -17,6 +17,7 @@ import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.util.SpanHelper
 import kotlinx.android.synthetic.main.cell_show_search_result.view.*
 import kotlinx.android.synthetic.main.fragment_show_search.*
 import org.jetbrains.anko.forEachChild
@@ -110,25 +111,14 @@ class ShowSearchFragment : DaggerFragment() {
         }
     }
 
+    /** Recycled views are not re-bound, so we must manually set the showName text highlighting when query changes. */
     private fun highlightQueryTextInResults(query: String) {
         for (i in 0..resultsRecycler.childCount) {
             val vh = resultsRecycler.findViewHolderForAdapterPosition(i) as? ShowSearchViewAdapter.ViewHolder
-            val showNameView = vh?.itemView?.showName
+            val view = vh?.itemView?.showName
 
-            if (query.isNotEmpty() && showNameView != null && showNameView.text.isNotEmpty()) {
-                val startIndex = showNameView.text.indexOf(query, 0, true)
-                val stopIndex = startIndex + query.length
-
-                if (startIndex != -1) {
-                    val spannable = SpannableString(showNameView.text)
-                    val color = view?.resources?.getColor(R.color.colorAccent, view?.context?.theme)
-                    if (color != null) {
-                        spannable.setSpan(
-                            ForegroundColorSpan(color),
-                            startIndex, stopIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                        showNameView.text = spannable
-                    }
-                }
+            if (query.isNotEmpty() && view != null && view.text.isNotEmpty()) {
+                SpanHelper.highlightSpan(view, query)
             }
         }
     }
