@@ -50,15 +50,17 @@ fun makeTimeslotHeight(view: CardView, height: Int){
 @BindingAdapter("timeslotGlideHref")
 fun loadImageWithGlideAndSetParentBackground(view: ImageView, imageHref: String?) {
     val parent = view.parent as ConstraintLayout
+
     Glide.with(view)
         .asBitmap()
         .load(imageHref)
         .transition(BitmapTransitionOptions.withCrossFade())
         .apply(
             RequestOptions()
-                .apply(RequestOptions.centerCropTransform())
                 .error(R.drawable.show_placeholder)
+                .apply(RequestOptions.centerCropTransform())
         )
+        .transition(BitmapTransitionOptions.withCrossFade())
         .listener(
             BitmapColorRequestListener(view, parent, imageHref ?: "")
         )

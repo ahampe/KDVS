@@ -1,8 +1,10 @@
 package fho.kdvs.global.util
 
 import fho.kdvs.global.enums.Day
+import fho.kdvs.schedule.TimeSlot
 import org.threeten.bp.*
 import org.threeten.bp.format.DateTimeFormatter
+import org.threeten.bp.temporal.ChronoUnit
 import java.lang.Math.abs
 import java.util.*
 
@@ -70,6 +72,52 @@ object TimeHelper {
             .plusHours(time.hour.toLong())
             .plusMinutes(time.minute.toLong())
             .plusSeconds(time.second.toLong())
+    }
+
+    /**
+     * Creates a date given the hour and minute as Ints as well as a [Day].
+     * The date generated with this method will fall within the week defined in [TimeHelper].
+     */
+    fun makeWeekTime(hour: Int, minute: Int, day: Day): OffsetDateTime {
+        return makeWeekTime24h("$hour:$minute", day)
+    }
+
+    fun getTimeDifferenceInMs(a: OffsetDateTime, b: OffsetDateTime) : Long {
+        return abs(ChronoUnit.SECONDS.between(b, a)) * 1000
+    }
+
+    /**
+     * Gets difference in 30-min intervals between two show times.
+     * Only counts time before midnight for the first half of a time interval spread across two days, and
+     * the time after midnight for the second half.
+     * Assumes a show can be across at most two days.
+     * Assumes b > a.
+     */
+    @JvmStatic
+    fun getTimeDifferenceInHalfHoursPerDay(a: OffsetDateTime, b: OffsetDateTime, timeslot: TimeSlot) : Int {
+        val isFirstHalfOrEntireSegment = timeslot.isFirstHalfOrEntireSegment
+
+        val midnight = if (isFirstHalfOrEntireSegment) {
+            val nextDay = a.plusDays(1)
+            OffsetDateTime.of(nextDay.year, nextDay.monthValue, nextDay.dayOfMonth, 0, 0,0,
+                0, nextDay.offset)
+        } else {
+            OffsetDateTime.of(b.year, b.monthValue, b.dayOfMonth, 0, 0,0, 0, b.offset)
+        }
+
+        return if (isFirstHalfOrEntireSegment){
+            val min = if (b < midnight) b else midnight
+            (abs(ChronoUnit.MINUTES.between(min, a)) / 30).toInt()
+        } else {
+            (abs(ChronoUnit.MINUTES.between(b, midnight)) / 30).toInt()
+        }
+    }
+
+    /** Returns true if current time falls within timeslot's time range. */
+    @JvmStatic
+    fun isTimeSlotForCurrentShow(timeslot: TimeSlot): Boolean {
+        val scheduleTime = TimeHelper.makeEpochRelativeTime(OffsetDateTime.now())
+        return (scheduleTime >= timeslot.timeStart) && (scheduleTime < timeslot.timeEnd)
     }
 
     /**
