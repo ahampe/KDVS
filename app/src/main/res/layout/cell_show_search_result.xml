@@ -59,8 +59,6 @@
             android:layout_marginEnd="@dimen/timeslot_margin"
             android:maxLines="1"
             android:ellipsize="end"
-            query="@{query}"
-            showName="@{show.name}"
             android:text="@{show.name}"
             style="@style/TextAppearance.MaterialComponents.Headline6"
             app:layout_constraintStart_toEndOf="@id/timeSlotImage"

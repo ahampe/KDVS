@@ -96,7 +96,6 @@ class ShowSearchFragment : DaggerFragment() {
                     // filter recycler view when query submitted
                     showSearchViewAdapter?.filter?.filter(query)
                     showSearchViewAdapter?.query = query
-                    highlightQueryTextInResults(query)
                     return false
                 }
 
@@ -104,22 +103,9 @@ class ShowSearchFragment : DaggerFragment() {
                     // filter recycler view when text is changed
                     showSearchViewAdapter?.filter?.filter(query)
                     showSearchViewAdapter?.query = query
-                    highlightQueryTextInResults(query)
                     return false
                 }
             })
-        }
-    }
-
-    /** Recycled views are not re-bound, so we must manually set the showName text highlighting when query changes. */
-    private fun highlightQueryTextInResults(query: String) {
-        for (i in 0..resultsRecycler.childCount) {
-            val vh = resultsRecycler.findViewHolderForAdapterPosition(i) as? ShowSearchViewAdapter.ViewHolder
-            val view = vh?.itemView?.showName
-
-            if (query.isNotEmpty() && view != null && view.text.isNotEmpty()) {
-                SpanHelper.highlightSpan(view, query)
-            }
         }
     }
 }

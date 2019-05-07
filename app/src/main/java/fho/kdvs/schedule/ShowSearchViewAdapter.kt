@@ -42,7 +42,7 @@ class ShowSearchViewAdapter(
         return showsFiltered?.size ?: 0
     }
 
-    /** Filters show names containing query, case insensitive. */
+    /** Filters show names containing query at start of string, both with and without articles, case insensitive. */
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(charSeq: CharSequence): FilterResults {
@@ -54,8 +54,11 @@ class ShowSearchViewAdapter(
                         filteredList.addAll(fragment.hashedShows[query]!!)
                     } else {
                         shows?.forEach {
-                            if ((it.name ?: "" ).toLowerCase()
-                                    .contains(query.toLowerCase()))
+                            //
+                            if ("^$query".toRegex() // with articles
+                                    .find(it.name?.toLowerCase() ?: "") != null ||
+                                "^$query".toRegex() // without articles
+                                    .find(removeArticles(it.name?.toLowerCase())) != null)
                                 filteredList.add(it)
                         }
                         showsFiltered = filteredList
@@ -80,11 +83,15 @@ class ShowSearchViewAdapter(
 
                     // alphabetical sort ignoring leading articles
                     submitList(showsFiltered?.sortedBy { s ->
-                        """^(?:(the|a|an) +)""".toRegex()
-                            .replace(s.name?.toLowerCase()?.trim() ?: "", "") })
+                        removeArticles(s.name?.toLowerCase()?.trim()) })
                 }
             }
         }
+    }
+
+    private fun removeArticles(str: String?): String {
+        return """^(?:(the|a|an) +)""".toRegex()
+            .replace(str ?: "", "")
     }
 
     class ViewHolder(

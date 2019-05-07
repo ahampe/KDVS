@@ -52,13 +52,6 @@ fun setShowTimeAlternatingText(view: TextView, size: Int) {
     } else view.text = ""
 }
 
-@BindingAdapter("query", "showName")
-fun setShowSearchNameHighlight(view: TextView, query: String, showName: String) {
-    if (query.isNotEmpty() && showName.isNotEmpty()) {
-        SpanHelper.highlightSpan(view, query)
-    }
-}
-
 @BindingAdapter("searchTimeStart", "searchTimeEnd")
 fun setShowSearchTimes(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDateTime){
     val dayAbbrs = listOf(
