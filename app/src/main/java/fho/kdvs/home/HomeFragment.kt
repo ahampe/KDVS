@@ -42,8 +42,6 @@ class HomeFragment : DaggerFragment() {
         viewModel = ViewModelProviders.of(requireActivity(), vmFactory)
             .get(HomeViewModel::class.java)
             .also {it.fetchHomeData()}
-
-        subscribeToViewModel()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -57,6 +55,9 @@ class HomeFragment : DaggerFragment() {
         }
 
         binding.lifecycleOwner = this
+
+        subscribeToViewModel()
+
         return binding.root
     }
 
@@ -71,11 +72,11 @@ class HomeFragment : DaggerFragment() {
             layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             adapter = newsArticlesAdapter
         }
-        
-        topAddsAdapter = TopMusicAdapter { 
+
+        topAddsAdapter = TopMusicAdapter {
             Timber.d("Clicked ${it.item}")
         }
-        
+
         topAddsRecycler.apply {
             layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             adapter = topAddsAdapter
@@ -89,7 +90,7 @@ class HomeFragment : DaggerFragment() {
             layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             adapter = topAlbumsAdapter
         }
-        
+
         staffsAdapter = StaffAdapter(sharedViewModel) {
             Timber.d("Clicked ${it.item}")
         }
@@ -101,31 +102,31 @@ class HomeFragment : DaggerFragment() {
     }
 
     private fun subscribeToViewModel() {
-        viewModel.currentShow.observe(this, Observer { show ->
+        viewModel.currentShow.observe(viewLifecycleOwner, Observer { show ->
             Timber.d("Got currently playing show: $show")
         })
 
-        viewModel.newsArticles.observe(this, Observer { articles ->
+        viewModel.newsArticles.observe(viewLifecycleOwner, Observer { articles ->
             Timber.d("Got articles: $articles")
             newsArticlesAdapter?.onNewsChanged(articles)
         })
 
-        viewModel.topMusicAdds.observe(this, Observer { adds ->
+        viewModel.topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
             Timber.d("Got adds: $adds")
             topAddsAdapter?.onTopAddsChanged(adds)
         })
 
-        viewModel.topMusicAlbums.observe(this, Observer { albums ->
+        viewModel.topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
             Timber.d("Got albums: $albums")
             topAlbumsAdapter?.onTopAlbumsChanged(albums)
         })
 
-        viewModel.staff.observe(this, Observer { staff ->
+        viewModel.staff.observe(viewLifecycleOwner, Observer { staff ->
             Timber.d("Got staff: $staff")
             staffsAdapter?.onStaffChanged(staff)
         })
 
-        viewModel.fundraiser.observe(this, Observer { fundraiser ->
+        viewModel.fundraiser.observe(viewLifecycleOwner, Observer { fundraiser ->
             Timber.d("Got fundraiser: $fundraiser")
             val now = LocalDate.now()
 
