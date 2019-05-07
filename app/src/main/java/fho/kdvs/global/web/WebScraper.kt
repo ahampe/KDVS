@@ -220,9 +220,10 @@ class WebScraperManager @Inject constructor(
             var desc = ""
             var elm = select("p.dj-name")?.firstOrNull()?.nextElementSibling()
             while (elm?.tagName() != "h3") {
-                elm?.parseHtml()?.let { desc += it }
+                elm?.parseHtml()?.let { desc += it + "\n"}
                 elm = elm?.nextElementSibling()
             }
+            desc = desc.trim()
 
             val imageElement = select("div.showcase-image")?.firstOrNull()
             var imageHref = """"background-image: url\('(.*)'\)""".toRegex()

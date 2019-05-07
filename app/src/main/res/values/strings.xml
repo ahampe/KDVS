@@ -58,4 +58,7 @@
     <string name="play">Play</string>
     <string name="live">Live</string>
     <string name="live_template">Live %1$s</string>
+    <string name="timeslot_desc">Show image</string>
+    <string name="timeslot_placeholder">kdvs-image-placeholder</string>
+
 </resources>

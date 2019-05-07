@@ -8,13 +8,15 @@ import org.threeten.bp.OffsetDateTime
 data class TimeSlot(
     val timeStart: OffsetDateTime?,
     val timeEnd: OffsetDateTime?,
+    val isFirstHalfOrEntireSegment: Boolean,
     val imageHref: String?,
     val ids: List<Int>,
     val names: List<String?>
 ) {
-    constructor(shows: List<ShowEntity>) : this(
+    constructor(shows: List<ShowEntity>, _isFirstHalfOrEntireSegment: Boolean) : this(
         shows.first().timeStart,
         shows.first().timeEnd,
+        _isFirstHalfOrEntireSegment,
         shows.first().defaultImageHref,
         shows.map { it.id },
         shows.map { it.name }
