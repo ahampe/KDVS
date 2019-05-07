@@ -16,6 +16,35 @@
         <action
             android:id="@+id/action_scheduleFragment_to_showDetailsFragment"
             app:destination="@id/showDetailsFragment" />
+        <action
+            android:id="@+id/action_scheduleFragment_to_scheduleSelectionFragment"
+            app:destination="@id/scheduleSelectionFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+        <action
+            android:id="@+id/action_scheduleFragment_to_showSearchFragment"
+            app:destination="@id/showSearchFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/scheduleSelectionFragment"
+        android:name="fho.kdvs.schedule.ScheduleSelectionFragment"
+        android:label="ScheduleSelectionFragment">
+        <argument
+            android:name="timeslot"
+            app:argType="fho.kdvs.schedule.TimeSlot" />
+        <action
+            android:id="@+id/action_scheduleSelectionFragment_to_showDetailsFragment"
+            app:destination="@id/showDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/showSearchFragment"
+        android:name="fho.kdvs.schedule.ShowSearchFragment"
+        android:label="ShowSearchFragment">
+        <action
+            android:id="@+id/action_showSearchFragment_to_showDetailsFragment"
+            app:destination="@id/showDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"

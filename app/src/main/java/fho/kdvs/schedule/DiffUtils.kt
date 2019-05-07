@@ -9,8 +9,13 @@ class TimeSlotDiffCallback : DiffUtil.ItemCallback<TimeSlot>() {
 
     override fun areContentsTheSame(oldItem: TimeSlot, newItem: TimeSlot): Boolean =
         oldItem == newItem
+}
 
-    override fun getChangePayload(oldItem: TimeSlot, newItem: TimeSlot): Any? {
-        return super.getChangePayload(oldItem, newItem) // TODO
-    }
+class PairIntStringDiffCallback : DiffUtil.ItemCallback<Pair<Int, String>>() {
+    override fun areItemsTheSame(oldItem: Pair<Int, String>, newItem: Pair<Int, String>): Boolean =
+        oldItem.first == newItem.first
+
+
+    override fun areContentsTheSame(oldItem: Pair<Int, String>, newItem: Pair<Int, String>): Boolean =
+        oldItem == newItem
 }

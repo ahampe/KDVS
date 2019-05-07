@@ -18,65 +18,80 @@
         <import type="fho.kdvs.global.util.TimeHelper" />
     </data>
 
-    <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-                                       xmlns:app="http://schemas.android.com/apk/res-auto"
-                                       xmlns:tools="http://schemas.android.com/tools"
-                                       android:layout_width="match_parent"
-                                       timeslotHeight="@{TimeHelper.getTimeDifferenceInHalfHoursPerDay(timeslot.timeStart, timeslot.timeEnd, timeslot)}"
-                                       android:layout_height="100dp"
-                                       android:onClick="@{clickListener}"
-                                       android:elevation="1dp"
-                                       android:padding="4dp">
+    <androidx.cardview.widget.CardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/timeslot_hour_height"
+        timeslot="@{timeslot}"
+        timeslotHeight="@{TimeHelper.getTimeDifferenceInHalfHoursPerDay(timeslot.timeStart, timeslot.timeEnd, timeslot)}"
+        android:drawableBottom="@drawable/timeslot_divider"
+        android:drawableTop="@drawable/timeslot_divider"
+        android:onClick="@{clickListener}"
+        android:elevation="1dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:background="@color/colorAccent">
+
+            <com.narayanacharya.waveview.WaveView
+                android:id="@+id/waveView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="0dp"
-                tools:background="@color/colorBlack50a">
+                android:layout_gravity="center"
+                android:visibility="gone"
+                app:waveAmplitude="10.25"
+                app:waveBackgroundColor="@color/colorPrimary"
+                app:waveColor="@color/colorAccent"
+                app:waveDensity="5.0"
+                app:waveFrequency="2.0"
+                app:waveNumberOfWaves="5"
+                app:wavePhaseShift="-0.05"
+                app:wavePrimaryLineWidth="3.0"
+                app:waveSecondaryLineWidth="1.0"
+                app:waveXAxisPositionMultiplier="0.5" />
 
             <ImageView
-                    android:id="@+id/showImage"
-                    timeslotGlideHref="@{timeslot.imageHref}"
-                    android:layout_width="@dimen/timeslot_image"
-                    android:layout_height="@dimen/timeslot_image"
-                    android:adjustViewBounds="true"
-                    android:scaleType="centerCrop"
-                    android:contentDescription="@string/timeslot_desc"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginRight="@dimen/timeslot_margin"
-                    tools:background="@drawable/show_placeholder"/>
+                android:id="@+id/timeSlotImage"
+                timeslotGlideHref="@{timeslot}"
+                android:layout_width="@dimen/timeslot_image"
+                android:layout_height="@dimen/timeslot_image"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/timeslot_desc"
+                android:layout_marginTop="@dimen/timeslot_margin"
+                android:layout_marginEnd="@dimen/timeslot_margin"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible"
+                tools:background="@drawable/show_placeholder"/>
 
             <TextView
-                    android:id="@+id/showName"
-                    showNames="@{timeslot.names}"
-                    android:gravity="center"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/white"
-                    android:textSize="22sp"
-                    android:textAlignment="textStart"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintRight_toLeftOf="@+id/showImage"
+                android:id="@+id/showName"
+                showNames="@{timeslot.names}"
+                layoutHeight="@{TimeHelper.getTimeDifferenceInHalfHoursPerDay(timeslot.timeStart, timeslot.timeEnd, timeslot)}"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="@dimen/timeslot_margin"
+                android:layout_marginStart="@dimen/timeslot_margin"
+                android:layout_marginEnd="@dimen/timeslot_margin"
+                android:ellipsize="end"
+                android:shadowColor="@color/colorPrimary50a"
+                android:shadowDx="3"
+                android:shadowDy="3"
+                android:shadowRadius="2"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                tools:text="The Name of the Show"/>
 
-                    tools:text="Buried Alive in the Blues"/>
-
-            <TextView
-                    android:id="@+id/showTime"
-                    timeEnd="@{timeslot.timeEnd}"
-                    timeStart="@{timeslot.timeStart}"
-                    android:gravity="center"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/white"
-                    android:textSize="10sp"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/showName"
-                    app:layout_constraintRight_toLeftOf="@+id/showImage"
-                    tools:text="00:00 AM - 02:00 PM"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 </layout>

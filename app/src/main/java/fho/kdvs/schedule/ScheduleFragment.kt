@@ -4,10 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +20,7 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import kotlinx.android.synthetic.main.fragment_schedule.*
+import kotlinx.android.synthetic.main.fragment_schedule.view.*
 import org.threeten.bp.LocalDate
 import timber.log.Timber
 import javax.inject.Inject
@@ -28,6 +32,9 @@ class ScheduleFragment : DaggerFragment() {
 
     // Outer horizontal RecyclerView. Holds a vertical RecyclerView for each day of week.
     private var weekLayoutManager: LinearLayoutManager? = null
+
+    // Vertical RecyclerView. Holds 24 hour time cells.
+    private var timeGridLayoutManager: LinearLayoutManager? = null
 
     // Simple flag for scrolling to today's date. This will only be done once, after the fragment is created.
     private var scrollingToToday = true
@@ -53,16 +60,21 @@ class ScheduleFragment : DaggerFragment() {
         weekLayoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             .also { weekRecyclerView.layoutManager = it }
 
+        timeGridLayoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            .also { timeRecyclerView.layoutManager = it}
+
         // Scroll to today, only when the fragment is first created
         // TODO this could be done with a custom layout manager, without the ugly boolean
         if (scrollingToToday) {
-            weekLayoutManager?.scrollToPosition(LocalDate.now().dayOfWeek.value)
+            val position = LocalDate.now().dayOfWeek.value
+            weekLayoutManager?.scrollToPosition(position)
+            setDayAbbreviationsWithSelectedPos(position)
             scrollingToToday = false
         }
     }
 
-    /** Reconfigures the week recycler view. Use when the quarter-year changes or the fragment is recreated. */
-    private fun configureWeekView() {
+    /** Reconfigures the week recycler view and time recycler view. Use when the quarter-year changes or the fragment is recreated. */
+    private fun configureViews() {
         // Bail early if there isn't a quarter ready yet
         val (savedQuarter, savedYear) = viewModel.loadQuarterYear() ?: return
 
@@ -70,6 +82,17 @@ class ScheduleFragment : DaggerFragment() {
         val weekData = Day.values().map { day -> DayInfo(day, savedQuarter, savedYear) }
 
         val snapHelper = PagerSnapHelper()
+
+        search?.run {
+            setOnClickListener { viewModel.onClickSearch(findNavController()) }
+        }
+
+        timeRecyclerView?.run {
+            adapter = TimeGridViewAdapter(this@ScheduleFragment)
+            setHasFixedSize(true)
+            layoutManager = timeGridLayoutManager
+            isNestedScrollingEnabled = false
+        }
 
         weekRecyclerView?.run {
             adapter = WeekViewAdapter(this@ScheduleFragment, weekData)
@@ -88,23 +111,64 @@ class ScheduleFragment : DaggerFragment() {
                 val firstVisiblePos = weekLayoutManager?.findFirstVisibleItemPosition()
                 if (firstVisiblePos == 8) {
                     weekLayoutManager?.scrollToPosition(1)
+                    setDayAbbreviationsWithSelectedPos(1)
                 }
 
                 val firstCompletelyVisiblePos = weekLayoutManager?.findFirstCompletelyVisibleItemPosition()
                 if (firstCompletelyVisiblePos == 0) {
                     weekLayoutManager?.scrollToPosition(7)
+                    setDayAbbreviationsWithSelectedPos(7)
                 }
             }
 
-            /** For debug purposes */
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     val newView = snapHelper.findSnapView(weekLayoutManager) as ConstraintLayout
                     Timber.d("scrolled to ${newView.tag}")
+                    // view.tag is formatted like "{DAY}_{#}" with number reflecting position
+                    val position = "\\w+_(\\d+)".toRegex() // TODO: find less hacky way to get position?
+                        .find(newView.tag.toString())
+                        ?.groupValues
+                        ?.getOrNull(1)
+                        ?.toInt()
+                    setDayAbbreviationsWithSelectedPos(position ?: newState)
                 }
             }
         })
+    }
+
+    private fun setDayAbbreviationsWithSelectedPos(pos: Int) {
+        val abbreviationViews = listOf<TextView>(
+            dayAbbreviations.sun,
+            dayAbbreviations.mon,
+            dayAbbreviations.tues,
+            dayAbbreviations.wed,
+            dayAbbreviations.thurs,
+            dayAbbreviations.fri,
+            dayAbbreviations.sat
+        )
+
+        abbreviationViews.forEachIndexed { i, v ->
+            if (i == pos % 7)
+                v.setTextColor(ResourcesCompat.getColor(dayAbbreviations.resources,
+                    R.color.colorWhite,
+                    dayAbbreviations.context.theme))
+            else
+                v.setTextColor(ResourcesCompat.getColor(dayAbbreviations.resources,
+                    R.color.colorPrimary,
+                    dayAbbreviations.context.theme))
+        }
+    }
+
+    fun showSelection(timeslot: TimeSlot) {
+        val args = Bundle()
+        args.putParcelable("timeslot", timeslot)
+
+        val newFragment = ScheduleSelectionFragment()
+
+        newFragment.arguments = args
+        newFragment.show(fragmentManager, "schedule_selection_fragment")
     }
 
     /** This is where any [LiveData] in the ViewModel should be hooked up to [Observer]s. */
@@ -114,12 +178,12 @@ class ScheduleFragment : DaggerFragment() {
         viewModel.run {
             // When a new quarter-year is selected, redraw the week recycler:
             selectedQuarterYearLiveData.observe(fragment, Observer {
-                configureWeekView()
+                configureViews()
             })
 
             // When new quarter-years happen (which should only happen when a new quarter starts), update the spinner
             allQuarterYearsLiveData.observe(fragment, Observer {
-                configureWeekView()
+                configureViews()
             })
         }
     }

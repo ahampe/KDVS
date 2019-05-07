@@ -47,6 +47,25 @@ abstract class ShowDao {
     @Query("SELECT DISTINCT host from showData ORDER BY host")
     abstract fun getDistinctHosts(): List<String>
 
+
+    @Query("SELECT * from showData WHERE quarter = :quarter AND year = :year")
+    abstract fun allShowsByQuarterYear(
+        quarter: Quarter,
+        year: Int
+    ): Flowable<List<ShowEntity>>
+
+    @Query(
+        """SELECT * from showData
+        WHERE (timeStart < :time AND timeEnd > :time OR
+        timeEnd < timeStart AND (timeEnd > :time OR timeStart < :time))
+        AND quarter = :quarter AND year = :year"""
+    )
+    abstract fun allShowsAtTime(
+        time: OffsetDateTime,
+        quarter: Quarter,
+        year: Int
+    ): Flowable<List<ShowEntity>>
+
     @Query(
         """SELECT * from showData
             WHERE (timeEnd > :timeStart AND timeStart < :timeEnd OR

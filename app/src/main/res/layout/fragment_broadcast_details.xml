@@ -76,6 +76,8 @@
                 tools:text="The broadcast" />
 
             <Button
+                android:id="@+id/archive_playButton"
+                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="@{() -> vm.onPlayBroadcast()}"
@@ -92,6 +94,7 @@
             app:layout_constraintTop_toBottomOf="@id/broadcast_details_pane">
 
             <TextView
+                android:id="@+id/artist_header"
                 style="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -99,6 +102,7 @@
                 android:text="@string/artist" />
 
             <TextView
+                android:id="@+id/song_header"
                 style="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -7,7 +7,7 @@ buildscript {
 
         lifecycle_version = '2.0.0'
         exo_version = '2.9.1'
-        glide_version = '4.8.0'
+        glide_version = '4.9.0'
         nav_version = '1.0.0-alpha09'
         dagger_version = '2.16'
         room_version = '2.1.0-alpha03'

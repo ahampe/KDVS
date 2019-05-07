@@ -4,10 +4,10 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
+import fho.kdvs.R
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.extensions.toLiveData
-import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.show.ShowRepository
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -52,12 +52,20 @@ class ScheduleViewModel @Inject constructor(
 
     /**
      * Called when a [TimeSlot] is clicked.
-     * If the TimeSlot consists of a single show, navigates to [ShowDetailsFragment][fho.kdvs.show.ShowDetailsFragment].
-     * Otherwise, navigates to a disambiguation fragment TODO
+     * If the TimeSlot consists of multiple shows, navigates to [ScheduleSelectionFragment].
+     * Otherwise, if single show, navigates to [ShowDetailsFragment][fho.kdvs.show.ShowDetailsFragment].
      * */
-    fun onClickTimeSlot(navController: NavController, timeSlot: TimeSlot) {
+    fun onClickTimeSlot(navController: NavController, timeslot: TimeSlot) {
         val navAction = ScheduleFragmentDirections
-            .actionScheduleFragmentToShowDetailsFragment(timeSlot.ids.first())
+                .actionScheduleFragmentToShowDetailsFragment(timeslot.ids.first())
         navController.navigate(navAction)
+    }
+
+    /** Called when the search icon is clicked. */
+    fun onClickSearch(navController: NavController) {
+        val navAction = ScheduleFragmentDirections
+            .actionScheduleFragmentToShowSearchFragment()
+        if (navController.currentDestination?.id == R.id.scheduleFragment)
+            navController.navigate(navAction)
     }
 }

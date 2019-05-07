@@ -117,7 +117,7 @@ object TimeHelper {
     @JvmStatic
     fun isTimeSlotForCurrentShow(timeslot: TimeSlot): Boolean {
         val scheduleTime = TimeHelper.makeEpochRelativeTime(OffsetDateTime.now())
-        return (scheduleTime >= timeslot.timeStart) && (scheduleTime < timeslot.timeEnd)
+        return (scheduleTime >= timeslot?.timeStart) && (scheduleTime < timeslot?.timeEnd)
     }
 
     /**

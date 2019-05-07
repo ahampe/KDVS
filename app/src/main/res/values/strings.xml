@@ -40,13 +40,30 @@
     <string name="fundraiser_total">$%1$s</string>
 
     <!-- Schedule -->
-    <string name="sun">Sunday</string>
-    <string name="mon">Monday</string>
-    <string name="tues">Tuesday</string>
-    <string name="wed">Wednesday</string>
-    <string name="thurs">Thursday</string>
-    <string name="fri">Friday</string>
-    <string name="sat">Saturday</string>
+    <string name="sun">Sun</string>
+    <string name="mon">Mon</string>
+    <string name="tues">Tues</string>
+    <string name="wed">Wed</string>
+    <string name="thurs">Thurs</string>
+    <string name="fri">Fri</string>
+    <string name="sat">Sat</string>
+
+    <string name="_s">S</string>
+    <string name="_m">M</string>
+    <string name="_t">T</string>
+    <string name="_w">W</string>
+    <string name="_f">F</string>
+
+    <string name="alternating_every_other">Every other week</string>
+    <string name="alternating_num">Every %1$d weeks</string>
+
+    <string name="search_query_hint">Enter a show name</string>
+
+    <string name="hourLabel">%1$02d:00\u0020</string>
+    <string name="searchTimeLabel">%1$s, %2$s - %3$s</string>
+    <string name="thisWeek">This week:</string>
+    <string name="nextWeek">Next week:</string>
+    <string name="thenWeek">Then:</string>
 
     <string name="show_time_range">%1$s - %2$s</string>
     <string name="past_playlists">Past Playlists:</string>
@@ -58,6 +75,9 @@
     <string name="play">Play</string>
     <string name="live">Live</string>
     <string name="live_template">Live %1$s</string>
+    <string name="no_tracks">No tracks available.</string>
+    <string name="artist_header">Artist</string>
+    <string name="song_header">Song</string>
     <string name="timeslot_desc">Show image</string>
     <string name="timeslot_placeholder">kdvs-image-placeholder</string>
 

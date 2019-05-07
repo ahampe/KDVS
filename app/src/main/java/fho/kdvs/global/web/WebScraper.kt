@@ -7,8 +7,10 @@ import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.enums.enumValueOrDefault
 import fho.kdvs.global.extensions.listOfNulls
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.HttpHelper
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
+import fho.kdvs.global.util.URLs.SHOW_IMAGE_PLACEHOLDER
 import fho.kdvs.schedule.QuarterYear
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +42,7 @@ class WebScraperManager @Inject constructor(
     private val urlMap = mutableMapOf<String, Job>()
 
     /**
-     * Launches a coroutine that will scrape either the schedule grid, a show's details page, or a broadcast's details page.
+     * Launches a coroutine that will scrape a web page.
      * There is no need to specify which type of page, as this will be determined by the given URL.
      *
      * This should be the preferred method for scraping in general, unless a background process needs the result of a scrape call.
@@ -98,6 +100,8 @@ class WebScraperManager @Inject constructor(
 
         val scheduleChildren = document.select("div.schedule-list > *")
 
+        var imageHrefs = mutableSetOf<String?>()
+
         scheduleChildren.forEach { element ->
             when (element.tagName()) {
                 "h2" -> day = element.parseHtml()?.toUpperCase() ?: ""
@@ -106,7 +110,21 @@ class WebScraperManager @Inject constructor(
                         .find(element.attributes().html())
                         ?.groupValues?.getOrNull(1)
 
-                    if (imageHref == URLs.SHOW_IMAGE_PLACEHOLDER) imageHref = null
+                    // Force placeholder if duplicate image (because of kdvs.org schedule bug)
+                    // exclude recurring media shows (e.g. Democracy Now)
+                    // TODO: programmatic placeholder reference?
+                    if (imageHref in imageHrefs && !imageHref!!.contains("library.kdvs.org/media"))
+                        imageHref = SHOW_IMAGE_PLACEHOLDER
+                    else
+                        imageHrefs.add(imageHref)
+
+/*
+                    // TODO: find better solution for this? without this, glide listener isn't applied to these timeslots
+                    // Certain hrefs, namely those hosted on fbcdn (Facebook) are not actually direct images,
+                    // which produces an error with android.okhttp getInputStream. Manually override with placeholder
+                    if (!HttpHelper.isConnectionAvailable(imageHref))
+                        imageHref = SHOW_IMAGE_PLACEHOLDER
+*/
 
                     // Assumes that a time-slot can have arbitrarily many alternating shows
                     val (ids, names) = "<a href=\"https://kdvs.org/past-playlists/([0-9]+)\">(.*)</a>".toRegex()
@@ -254,6 +272,8 @@ class WebScraperManager @Inject constructor(
                         !t.html().toUpperCase().contains("EMPTY PLAYLIST")
             }
             tracks.forEachIndexed { index, element ->
+                val brId = broadcastId ?: return@forEachIndexed
+
                 val trackEntity: TrackEntity
                 if (element.select("td.airbreak").isNotEmpty()) {
                     trackEntity =
