@@ -45,11 +45,10 @@ class ScheduleFragment : DaggerFragment() {
         viewModel = ViewModelProviders.of(this, vmFactory)
             .get(ScheduleViewModel::class.java)
             .also { it.fetchShows() }
-
-        subscribeToViewModel()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        subscribeToViewModel()
         return inflater.inflate(R.layout.fragment_schedule, container, false)
     }
 
@@ -173,16 +172,14 @@ class ScheduleFragment : DaggerFragment() {
 
     /** This is where any [LiveData] in the ViewModel should be hooked up to [Observer]s. */
     private fun subscribeToViewModel() {
-        val fragment = this
-
         viewModel.run {
             // When a new quarter-year is selected, redraw the week recycler:
-            selectedQuarterYearLiveData.observe(fragment, Observer {
+            selectedQuarterYearLiveData.observe(viewLifecycleOwner, Observer {
                 configureViews()
             })
 
             // When new quarter-years happen (which should only happen when a new quarter starts), update the spinner
-            allQuarterYearsLiveData.observe(fragment, Observer {
+            allQuarterYearsLiveData.observe(viewLifecycleOwner, Observer {
                 configureViews()
             })
         }
