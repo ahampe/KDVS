@@ -9,34 +9,28 @@
 
         <variable
             name="urlObj"
-            type="fho.kdvs.global.util.URLs"/>
+            type="fho.kdvs.global.util.URLs" />
+
+        <variable
+            name="sharedVm"
+            type="fho.kdvs.global.SharedViewModel" />
 
         <variable
             name="vm"
-            type="fho.kdvs.global.SharedViewModel" />
+            type="fho.kdvs.home.HomeViewModel" />
 
     </data>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_large"
         android:layout_marginBottom="@dimen/spacing_extra_large">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <!-- TODO: Replace this?-->
-            <Button
-                android:id="@+id/go_live"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="@{() -> vm.changeToKdvsOgg()}"
-                android:text="Go Live!"
-                android:layout_gravity="center_horizontal"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent" />
 
             <LinearLayout
                 android:id="@+id/nowPlayingSection"
@@ -54,16 +48,30 @@
                     android:text="@string/now_playing_header"
                     tools:text="What's On Now"/>
 
-                <TextView
-                    android:id="@+id/currentShow"
-                    style="@style/TextAppearance.MaterialComponents.Headline6"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
-                    android:layout_marginStart="@dimen/spacing_large"
-                    android:layout_marginEnd="@dimen/spacing_large"
-                    tools:text="The Show Name"/>
+                    android:orientation="horizontal">
 
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/currentShowRecycler"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:layout_marginStart="@dimen/spacing_large"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"/>
+
+                    <ImageView
+                        android:id="@+id/play"
+                        android:contentDescription="@string/now_playing_link"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_play_arrow_white_36dp"
+                        android:onClick="@{() -> sharedVm.changeToKdvsOgg()}"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -147,7 +155,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_open_in_browser_white_36dp"
-                        android:onClick="@{(view) -> vm.openBrowser(view, urlObj.FUNDRAISER)}"/>
+                        android:onClick="@{(view) -> sharedVm.openBrowser(view, urlObj.FUNDRAISER)}"/>
 
                 </LinearLayout>
 
@@ -173,6 +181,7 @@
                     style="@style/TextAppearance.MaterialComponents.Headline4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/spacing_large"
                     android:text="@string/news" />
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -189,6 +198,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_large"
+
+                android:layout_marginEnd="@dimen/spacing_large"
                 android:orientation="vertical">
 
                 <TextView
@@ -212,6 +223,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_large"
+                android:layout_marginEnd="@dimen/spacing_large"
                 android:orientation="vertical">
 
                 <TextView
@@ -235,6 +247,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_large"
+                android:layout_marginEnd="@dimen/spacing_large"
                 android:orientation="vertical">
 
                 <TextView

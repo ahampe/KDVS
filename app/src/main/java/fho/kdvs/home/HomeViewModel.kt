@@ -3,9 +3,12 @@ package fho.kdvs.home
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.navigation.NavController
 import fho.kdvs.global.database.*
 import fho.kdvs.show.*
 import org.threeten.bp.OffsetDateTime
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -55,12 +58,10 @@ class HomeViewModel @Inject constructor(
 
     /** Signals the [Fundraiser Repository] to scrape the fundraiser page. */
     private fun fetchFundraiser() = fundraiserRepository.scrapeFundraiser()
-    /**
-     * Called when a news article is clicked.
-     * */
-//    fun onClickNews(navController: NavController, timeSlot: TimeSlot) {
-//        val navAction = ScheduleFragmentDirections
-//            .actionScheduleFragmentToShowDetailsFragment(timeSlot.ids.first())
-//        navController.navigate(navAction)
-//    }
+
+    fun onClickCurrentShow(navController: NavController, showId: Int) {
+        val navAction = HomeFragmentDirections
+            .actionHomeFragmentToShowDetailsFragment(showId)
+        navController.navigate(navAction)
+    }
 }

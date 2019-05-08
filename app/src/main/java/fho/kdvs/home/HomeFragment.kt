@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
@@ -14,6 +16,7 @@ import fho.kdvs.databinding.FragmentHomeBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.FundraiserEntity
+import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.news.NewsArticlesAdapter
@@ -30,7 +33,9 @@ class HomeFragment : DaggerFragment() {
     lateinit var vmFactory: KdvsViewModelFactory
     private lateinit var viewModel: HomeViewModel
     private lateinit var sharedViewModel: SharedViewModel
+    private lateinit var fragmentHomeBinding: FragmentHomeBinding
 
+    private var currentShowAdapter: CurrentShowAdapter? = null
     private var newsArticlesAdapter: NewsArticlesAdapter? = null
     private var topAddsAdapter: TopMusicAdapter? = null
     private var topAlbumsAdapter: TopMusicAdapter? = null
@@ -45,24 +50,35 @@ class HomeFragment : DaggerFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = FragmentHomeBinding.inflate(inflater, container, false)
+        fragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false)
         sharedViewModel = ViewModelProviders.of(requireActivity(), vmFactory)
             .get(SharedViewModel::class.java)
 
-        binding.apply {
-            vm = sharedViewModel
+        fragmentHomeBinding.apply {
+            vm = viewModel
+            sharedVm = sharedViewModel
             urlObj = URLs
         }
 
-        binding.lifecycleOwner = this
+        fragmentHomeBinding.lifecycleOwner = this
 
         subscribeToViewModel()
 
-        return binding.root
+        return fragmentHomeBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        currentShowAdapter = CurrentShowAdapter(viewModel) {
+            Timber.d("Clicked ${it.item}")
+            viewModel.onClickCurrentShow(findNavController(), it.item.id)
+        }
+
+        currentShowRecycler.apply {
+            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            adapter = currentShowAdapter
+        }
 
         newsArticlesAdapter = NewsArticlesAdapter(sharedViewModel) {
             Timber.d("Clicked ${it.item}")
@@ -102,44 +118,48 @@ class HomeFragment : DaggerFragment() {
     }
 
     private fun subscribeToViewModel() {
-        viewModel.currentShow.observe(viewLifecycleOwner, Observer { show ->
-            Timber.d("Got currently playing show: $show")
-        })
+        viewModel.run {
+            currentShow.observe(viewLifecycleOwner, Observer { show ->
+                Timber.d("Got currently playing show: $show")
+                currentShowAdapter?.onCurrentShowChanged(show)
+            })
 
-        viewModel.newsArticles.observe(viewLifecycleOwner, Observer { articles ->
-            Timber.d("Got articles: $articles")
-            newsArticlesAdapter?.onNewsChanged(articles)
-        })
+            newsArticles.observe(viewLifecycleOwner, Observer { articles ->
+                Timber.d("Got articles: $articles")
+                newsArticlesAdapter?.onNewsChanged(articles)
+            })
 
-        viewModel.topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
-            Timber.d("Got adds: $adds")
-            topAddsAdapter?.onTopAddsChanged(adds)
-        })
+            topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
+                Timber.d("Got adds: $adds")
+                topAddsAdapter?.onTopAddsChanged(adds)
+            })
 
-        viewModel.topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
-            Timber.d("Got albums: $albums")
-            topAlbumsAdapter?.onTopAlbumsChanged(albums)
-        })
+            topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
+                Timber.d("Got albums: $albums")
+                topAlbumsAdapter?.onTopAlbumsChanged(albums)
+            })
 
-        viewModel.staff.observe(viewLifecycleOwner, Observer { staff ->
-            Timber.d("Got staff: $staff")
-            staffsAdapter?.onStaffChanged(staff)
-        })
+            staff.observe(viewLifecycleOwner, Observer { staff ->
+                Timber.d("Got staff: $staff")
+                staffsAdapter?.onStaffChanged(staff)
+            })
 
-        viewModel.fundraiser.observe(viewLifecycleOwner, Observer { fundraiser ->
-            Timber.d("Got fundraiser: $fundraiser")
-            val now = LocalDate.now()
+            fundraiser.observe(viewLifecycleOwner, Observer { fundraiser ->
+                Timber.d("Got fundraiser: $fundraiser")
+                val now = LocalDate.now()
 
-            // display fundraiser section only within a two-month window
-            if (fundraiser != null) {
-                if (fundraiser.dateStart ?: now > now.plusMonths(1) ||
-                    fundraiser.dateEnd ?: now < now.minusMonths(1)) {
-                    fundraiserSection.visibility = View.GONE
-                } else {
-                    setFundraiserView(fundraiser)
+                // display fundraiser section only within a two-month window
+                if (fundraiser != null) {
+                    if (fundraiser.dateStart ?: now > now.plusMonths(1) ||
+                        fundraiser.dateEnd ?: now < now.minusMonths(1)
+                    ) {
+                        fundraiserSection.visibility = View.GONE
+                    } else {
+                        setFundraiserView(fundraiser)
+                    }
                 }
-            }
-        })
+            })
+        }
     }
 
     private fun setFundraiserView(fundraiser: FundraiserEntity){

@@ -8,7 +8,11 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="fho.kdvs.home.HomeFragment"
-        android:label="HomeFragment" />
+        android:label="HomeFragment">
+        <action
+            android:id="@+id/action_homeFragment_to_showDetailsFragment"
+            app:destination="@id/showDetailsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/scheduleFragment"
         android:name="fho.kdvs.schedule.ScheduleFragment"
