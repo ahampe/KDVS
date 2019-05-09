@@ -3,7 +3,6 @@ package fho.kdvs.broadcast
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.databinding.CellAirbreakBinding
 import fho.kdvs.databinding.CellTrackBinding
 import fho.kdvs.global.database.TrackEntity
@@ -12,7 +11,7 @@ import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
 
 /** A [BindingRecyclerViewAdapter] which recycles track cells and airbreak cells. */
-class BroadcastTracksAdapter(onClick: (ClickData<TrackEntity>) -> Unit) :
+class BroadcastTracksAdapter(private val viewModel: BroadcastDetailsViewModel, onClick: (ClickData<TrackEntity>) -> Unit) :
     BindingRecyclerViewAdapter<TrackEntity, BindingViewHolder<TrackEntity>>(onClick, TrackDiffCallback()) {
 
     override fun getItemViewType(position: Int): Int {
@@ -29,15 +28,19 @@ class BroadcastTracksAdapter(onClick: (ClickData<TrackEntity>) -> Unit) :
             }
             else -> {
                 val binding = fho.kdvs.databinding.CellTrackBinding.inflate(inflater, parent, false)
-                TrackViewHolder(binding)
+                TrackViewHolder(binding, viewModel)
             }
         }
     }
 
-    class TrackViewHolder(private val binding: CellTrackBinding) : BindingViewHolder<TrackEntity>(binding.root) {
+    class TrackViewHolder(private val binding: CellTrackBinding, private val viewModel: BroadcastDetailsViewModel)
+        : BindingViewHolder<TrackEntity>(binding.root) {
         override fun bind(listener: View.OnClickListener, item: TrackEntity) {
             binding.apply {
                 track = item
+                clickListener = listener
+                vm = viewModel
+                favorited = viewModel.favoritedTracks.contains(item.trackId)
             }
         }
     }

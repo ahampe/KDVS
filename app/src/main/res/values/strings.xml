@@ -82,4 +82,6 @@
     <string name="timeslot_desc">Show image</string>
     <string name="timeslot_placeholder">kdvs-image-placeholder</string>
 
+    <string name="track_info_album">\u0020• %1$s</string>
+    <string name="track_info_label">\u0020[%1$s]</string>
 </resources>

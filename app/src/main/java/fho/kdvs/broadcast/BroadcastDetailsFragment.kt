@@ -9,19 +9,14 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
-import fho.kdvs.R
 import fho.kdvs.databinding.FragmentBroadcastDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.util.HttpHelper
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import kotlinx.android.synthetic.main.fragment_broadcast_details.*
-import org.jetbrains.anko.doAsync
 import timber.log.Timber
-import java.net.HttpURLConnection
-import java.net.URL
 import javax.inject.Inject
 
 class BroadcastDetailsFragment : DaggerFragment() {
@@ -65,7 +60,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        tracksAdapter = BroadcastTracksAdapter {
+        tracksAdapter = BroadcastTracksAdapter(viewModel) {
             Timber.d("Clicked ${it.item}")
         }
 
@@ -76,26 +71,31 @@ class BroadcastDetailsFragment : DaggerFragment() {
     }
 
     private fun subscribeToViewModel() {
-        viewModel.broadcast.observe(this, Observer { broadcast ->
+        val fragment = this
+        viewModel.broadcast.observe(fragment, Observer { broadcast ->
             Timber.d("Got broadcast: $broadcast")
             setPlayButton(broadcast)
         })
 
-        viewModel.tracks.observe(this, Observer { tracks ->
+        viewModel.tracks.observe(fragment, Observer { tracks ->
             Timber.d("Got tracks: $tracks")
-            tracksAdapter?.onTracksChanged(tracks)
-            setTracksHeaders(tracks)
-        })
-    }
 
-    private fun setTracksHeaders(tracks: List<TrackEntity>) {
-        if (tracks.isEmpty()) {
-            artist_header.text = resources.getText(R.string.no_tracks)
-            song_header.text = ""
-        } else {
-            artist_header.text = resources.getText(R.string.artist_header)
-            song_header.text = resources.getText(R.string.song_header)
-        }
+            if (tracks.isEmpty())
+                noTracksMessage.visibility = View.VISIBLE
+            else
+                noTracksMessage.visibility = View.GONE
+
+            tracksAdapter?.onTracksChanged(tracks)
+
+            viewModel.getFavoritesForTracks(tracks)
+
+            viewModel.favorites.forEach {
+                it.observe(fragment, Observer { favorite ->
+                    if (favorite != null)
+                        viewModel.favoritedTracks.add(favorite.trackId)
+                })
+            }
+        })
     }
 
     private fun setPlayButton(broadcast: BroadcastEntity) {

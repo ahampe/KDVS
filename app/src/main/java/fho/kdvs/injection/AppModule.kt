@@ -56,6 +56,11 @@ class AppModule {
 
     @Singleton
     @Provides
+    fun provideFavoriteDao(db: KdvsDatabase): FavoriteDao = db.favoriteDao()
+
+
+    @Singleton
+    @Provides
     fun provideTrackDao(db: KdvsDatabase): TrackDao = db.trackDao()
 
     @Singleton

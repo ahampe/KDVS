@@ -18,6 +18,7 @@
     <androidx.constraintlayout.motion.widget.MotionLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginHorizontal="@dimen/spacing_large"
         app:layoutDescription="@xml/scene_broadcast_details">
 
         <!--header region-->
@@ -56,6 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:orientation="vertical"
+            android:layout_marginBottom="@dimen/spacing_large"
             app:layout_constraintTop_toBottomOf="@id/broadcast_detail_image">
 
             <TextView
@@ -83,31 +85,15 @@
                 android:onClick="@{() -> vm.onPlayBroadcast()}"
                 android:text="@string/play" />
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/tracks_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/broadcast_details_pane">
-
             <TextView
-                android:id="@+id/artist_header"
-                style="@style/TextAppearance.MaterialComponents.Subtitle1"
-                android:layout_width="match_parent"
+                android:id="@+id/noTracksMessage"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/artist" />
-
-            <TextView
-                android:id="@+id/song_header"
-                style="@style/TextAppearance.MaterialComponents.Subtitle1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/song" />
+                android:text="@string/no_tracks"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/broadcast_details_pane"
+                android:visibility="gone"
+                tools:visibility="visible"/>
 
         </LinearLayout>
 
@@ -116,7 +102,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tracks_header" />
+            app:layout_constraintTop_toBottomOf="@id/broadcast_details_pane"/>
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
 </layout>
