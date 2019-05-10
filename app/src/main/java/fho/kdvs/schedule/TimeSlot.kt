@@ -27,7 +27,7 @@ data class TimeSlot(
     constructor(parcel: Parcel) : this(
         timeStart = parcel.readValue(OffsetDateTime::class.java.classLoader) as OffsetDateTime?,
         timeEnd = parcel.readValue(OffsetDateTime::class.java.classLoader) as OffsetDateTime?,
-        isFirstHalfOrEntireSegment = parcel.readValue(OffsetDateTime::class.java.classLoader) as Boolean,
+        isFirstHalfOrEntireSegment = parcel.readValue(Boolean::class.java.classLoader) as Boolean,
         imageHref = parcel.readString(),
         ids = parcel.createIntArray()!!.toList(),
         names = parcel.createStringArray()!!.toList()

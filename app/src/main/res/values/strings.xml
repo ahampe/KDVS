@@ -84,4 +84,6 @@
 
     <string name="track_info_album">\u0020• %1$s</string>
     <string name="track_info_label">\u0020[%1$s]</string>
+
+    <string name="user_agent">kdvsapp@gmail.com</string>
 </resources>

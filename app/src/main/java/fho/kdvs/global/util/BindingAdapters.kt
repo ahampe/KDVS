@@ -82,6 +82,16 @@ fun formatTrackInfo(view: TextView, track: TrackEntity) {
     }
 }
 
+@BindingAdapter("artistAlbum")
+fun formatTrackDetailsAlbumArtist(view: TextView, track: TrackEntity) {
+    var trackInfo = track.artist
+
+    if (!track.album.isNullOrBlank())
+        trackInfo += view.resources.getString(R.string.track_info_album, track.album)
+
+    view.text = trackInfo
+}
+
 //@BindingAdapter("trackPosition")
 //fun alternateTrackBackground(layout: ConstraintLayout, position: Int?) {
 //    val i = position ?: return

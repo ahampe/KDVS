@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.ImageView
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.navigation.NavController
 import fho.kdvs.R
 import fho.kdvs.favorite.FavoriteRepository
 import fho.kdvs.global.database.*
@@ -73,5 +74,12 @@ class BroadcastDetailsViewModel @Inject constructor(
             imageView.tag = 0
             launch { favoriteDao.deleteByTrackId(trackId) }
         }
+    }
+
+    fun onClickTrack(navController: NavController, track: TrackEntity) {
+        val navAction = BroadcastDetailsFragmentDirections
+            .actionBroadcastDetailsFragmentToTrackDetailsFragment(track)
+        if (navController.currentDestination?.id == R.id.broadcastDetailsFragment)
+            navController.navigate(navAction)
     }
 }

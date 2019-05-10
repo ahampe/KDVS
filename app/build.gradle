@@ -31,6 +31,10 @@ android {
             includeAndroidResources = true
         }
     }
+    packagingOptions {
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/notice.txt'
+    }
 }
 
 dependencies {
@@ -113,4 +117,10 @@ dependencies {
 
     // WaveView
     implementation 'com.narayanacharya:WaveView:0.9.3'
+
+    // Spring
+    implementation "org.springframework.android:spring-android-rest-template:$spring_version"
+
+    // Apache
+    implementation 'org.apache.commons:commons-text:1.6'
 }

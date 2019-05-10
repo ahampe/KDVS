@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
@@ -62,6 +63,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
         tracksAdapter = BroadcastTracksAdapter(viewModel) {
             Timber.d("Clicked ${it.item}")
+            viewModel.onClickTrack(this.findNavController(), it.item)
         }
 
         trackRecycler.apply {

@@ -4,7 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
+import androidx.room.Update
 import io.reactivex.Flowable
+import org.w3c.dom.Document
 
 @Dao
 interface TrackDao {
@@ -41,10 +43,14 @@ interface TrackDao {
     @Query("SELECT * from trackData WHERE label like :label")
     fun getTracksByLabel(label: String?): List<TrackEntity>
 
-    //TODO: fuzzy search for music metadata?
-
     @Insert(onConflict = REPLACE)
     fun insert(trackEntity: TrackEntity)
+
+    @Query("UPDATE trackData SET imageHref = :href WHERE trackId = :id")
+    fun updateImageHref(id: Int?, href: String?)
+
+    @Query("UPDATE trackData SET metadata = :metadata WHERE trackId = :id")
+    fun updateMetadata(id: Int?, metadata: Document?)
 
     @Query("DELETE from trackData where broadcastId = :broadcastId")
     fun deleteByBroadcast(broadcastId: Int?)

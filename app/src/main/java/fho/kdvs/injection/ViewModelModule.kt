@@ -13,6 +13,7 @@ import fho.kdvs.home.HomeViewModel
 import fho.kdvs.schedule.ScheduleViewModel
 import fho.kdvs.show.ScheduleSelectionViewModel
 import fho.kdvs.show.ShowDetailsViewModel
+import fho.kdvs.show.TrackDetailsViewModel
 
 @Suppress("unused")
 @Module
@@ -51,6 +52,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(BroadcastDetailsViewModel::class)
     abstract fun bindBroadcastDetailsViewModel(broadcastDetailsViewModel: BroadcastDetailsViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(TrackDetailsViewModel::class)
+    abstract fun bindTrackDetailsViewModel(trackDetailsViewModel: TrackDetailsViewModel): ViewModel
 
     @Binds
     abstract fun bindViewModelFactory(factory: KdvsViewModelFactory): ViewModelProvider.Factory

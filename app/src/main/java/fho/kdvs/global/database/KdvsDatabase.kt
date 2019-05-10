@@ -9,7 +9,11 @@ import org.threeten.bp.Instant
 import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
 import org.threeten.bp.ZoneOffset
+import org.w3c.dom.Document
+import org.xml.sax.InputSource
 import java.io.File
+import java.io.StringReader
+import javax.xml.parsers.DocumentBuilderFactory
 
 @Database(
     entities = [ShowEntity::class, BroadcastEntity::class, FavoriteEntity::class, TrackEntity::class,
@@ -20,7 +24,8 @@ import java.io.File
 @TypeConverters(
     OffsetDateTimeTypeConverter::class,
     LocalDateTypeConverter::class,
-    QuarterTypeConverter::class
+    QuarterTypeConverter::class,
+    DocumentTypeConverter::class
 )
 abstract class KdvsDatabase : RoomDatabase() {
 
@@ -89,4 +94,22 @@ class QuarterTypeConverter {
 
     @TypeConverter
     fun toQuarter(value: Int?): Quarter? = value?.let { Quarter.values()[value] }
+}
+
+class DocumentTypeConverter {
+
+    @TypeConverter
+    fun toString(value: Document?): String? = value.toString()
+
+    @TypeConverter
+    fun toDocument(value: String?): Document? {
+        if (value == "null")
+            return null
+
+        val db = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+        val src = InputSource()
+        src.characterStream = StringReader(value)
+
+        return db.parse(src)
+    }
 }

@@ -11,6 +11,7 @@ import fho.kdvs.global.web.WebScraperManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.threeten.bp.OffsetDateTime
+import org.w3c.dom.Document
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -46,4 +47,8 @@ class TrackRepository @Inject constructor(
         trackDao.allTracksForBroadcast(broadcastId)
             .debounce(100L, TimeUnit.MILLISECONDS)
             .toLiveData()
+
+    fun updateTrackImageHref(trackId: Int?, href: String?) = trackDao.updateImageHref(trackId, href)
+
+    fun updateTrackMetadata(trackId: Int?, metadata: Document?) = trackDao.updateMetadata(trackId, metadata)
 }

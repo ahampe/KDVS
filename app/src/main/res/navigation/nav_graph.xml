@@ -78,5 +78,16 @@
         <argument
             android:name="broadcastId"
             app:argType="integer" />
+        <action
+            android:id="@+id/action_broadcastDetailsFragment_to_trackDetailsFragment"
+            app:destination="@id/trackDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/trackDetailsFragment"
+        android:name="fho.kdvs.track.TrackDetailsFragment"
+        android:label="TrackDetailsFragment">
+        <argument
+            android:name="track"
+            app:argType="fho.kdvs.global.database.TrackEntity" />
     </fragment>
 </navigation>
