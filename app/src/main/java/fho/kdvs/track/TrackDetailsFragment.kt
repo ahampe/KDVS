@@ -123,23 +123,21 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
 
             song.text = liveTrack.song
 
-            var artistAlbumStr = artistAlbum.resources.getString(R.string.track_info_start, liveTrack.artist)
+            var artistAlbumStr = liveTrack.artist
             artistAlbumStr += if (liveTrack.album.isNullOrBlank())
                                 artistAlbum.resources.getString(R.string.track_info_middle,
                                     getRootLevelElmFromMetadataOfType<String>("title", liveTrack.metadata))
                             else artistAlbum.resources.getString(R.string.track_info_middle, liveTrack.album)
             artistAlbum.text = artistAlbumStr
-            if (liveTrack.album.isNullOrBlank())
-                artistAlbum.visibility = View.GONE
 
             val year = getRootLevelElmFromMetadataOfType<String>("date", liveTrack.metadata)
                 ?.substring(0,4)
             val label = if (!liveTrack.label.isNullOrBlank()) liveTrack.label
                 else getLabelFromMetadata(liveTrack.metadata)
 
-            var albumInfoStr = year
+            var albumInfoStr = year ?: ""
             if (!label.isNullOrBlank())
-                albumInfoStr += if (year.isNullOrBlank()) liveTrack.label
+                albumInfoStr += if (year.isNullOrBlank() || year == "null") liveTrack.label
                     else albumInfo.resources.getString(R.string.album_info_middle, label)
             albumInfo.text = albumInfoStr
 
@@ -157,7 +155,7 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
     private inline fun <reified T> getRootLevelElmFromMetadataOfType(key: String, metadata: JSONObject?): T?{
         var elm: T? = null
 
-        if (metadata?.has(key) == true && metadata.get(key) is T)
+        if (metadata?.has(key) == true && metadata.get(key) is T && metadata.get(key) != null)
             elm = metadata.get(key) as? T
 
         return elm
