@@ -42,6 +42,7 @@ object MusicBrainz {
             }
 
             if (id.isNotEmpty()) {
+                // TODO: try each release ID? (on separate thread)
                 val covertArtArchiveJson = getCovertArtArchiveResponse(id)
                 track.imageHref = getHrefFromJson(covertArtArchiveJson)
             }
@@ -106,7 +107,7 @@ object MusicBrainz {
         }
     }
 
-    inline fun <reified T> getRootLevelElmFromMetadataOfType(key: String, metadata: JSONObject?): T?{
+    private inline fun <reified T> getRootLevelElmFromMetadataOfType(key: String, metadata: JSONObject?): T?{
         var elm: T? = null
 
         if (metadata?.has(key) == true && metadata.get(key) is T && metadata.get(key) != null)
@@ -115,7 +116,7 @@ object MusicBrainz {
         return elm
     }
 
-    fun getLabelFromMetadata(metadata: JSONObject?): String {
+    private fun getLabelFromMetadata(metadata: JSONObject?): String {
         var label = ""
 
         if (metadata?.has("label-info") == true){
@@ -146,6 +147,6 @@ object MusicBrainz {
 
     // Append '~' to each word to make fuzzy
     private fun String?.makeStringFuzzyAndEncoded(): String? {
-        return this?.urlEncoded?.replace(" ", " ~") + "~"
+        return this?.urlEncoded?.replace(" ", " ~")?.replace("+", "~+") + "~"
     }
 }

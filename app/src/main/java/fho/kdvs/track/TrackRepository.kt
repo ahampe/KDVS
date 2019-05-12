@@ -52,5 +52,9 @@ class TrackRepository @Inject constructor(
 
     fun updateTrackImageHref(trackId: Int?, href: String?) = trackDao.updateImageHref(trackId, href)
 
+    fun updateTrackLabel(trackId: Int?, label: String?) = trackDao.updateLabel(trackId, label)
+
+    fun updateTrackYear(trackId: Int?, year: Int?) = trackDao.updateYear(trackId, year)
+
     fun onScrapeMetadata(trackId: Int?) = trackDao.onScrapeMetadata(trackId)
 }

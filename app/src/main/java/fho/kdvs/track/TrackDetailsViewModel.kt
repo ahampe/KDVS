@@ -19,21 +19,25 @@ class TrackDetailsViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application), CoroutineScope {
 
-    val liveTrack = MutableLiveData<TrackEntity>()
+    lateinit var liveTrack: LiveData<TrackEntity>
 
     private val parentJob = Job()
     override val coroutineContext: CoroutineContext
         get() = parentJob + Dispatchers.IO
 
     fun initialize(track: TrackEntity) {
-        liveTrack.value = track
-
         if (!track.hasScrapedMetadata) {
+            val hasLabel = !track.label.isNullOrEmpty()
             var trackWithMetadata: TrackEntity = track
             val job = launch { trackWithMetadata = MusicBrainz.fetchTrackInfo(track) }
 
             job.invokeOnCompletion {
-                launch { trackRepository.updateTrackImageHref(track.trackId, trackWithMetadata.imageHref) }
+                if (!trackWithMetadata.imageHref.isNullOrBlank())
+                    launch { trackRepository.updateTrackImageHref(track.trackId, trackWithMetadata.imageHref) }
+                if (!hasLabel && !trackWithMetadata.label.isNullOrBlank())
+                    launch { trackRepository.updateTrackLabel(track.trackId, trackWithMetadata.label)}
+                if (trackWithMetadata.year != null && trackWithMetadata.year != -1)
+                    launch { trackRepository.updateTrackYear(track.trackId, trackWithMetadata.year)}
                 launch { trackRepository.onScrapeMetadata(track.trackId) }
             }
         }

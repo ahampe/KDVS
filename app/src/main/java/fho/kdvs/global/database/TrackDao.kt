@@ -54,6 +54,12 @@ interface TrackDao {
     @Query("UPDATE trackData SET imageHref = :href WHERE trackId = :id")
     fun updateImageHref(id: Int?, href: String?)
 
+    @Query("UPDATE trackData SET label= :label WHERE trackId = :id")
+    fun updateLabel(id: Int?, label: String?)
+
+    @Query("UPDATE trackData SET year = :year WHERE trackId = :id")
+    fun updateYear(id: Int?, year: Int?)
+
     @Query("UPDATE trackData SET hasScrapedMetadata = 1 WHERE trackId = :id")
     fun onScrapeMetadata(id: Int?)
 

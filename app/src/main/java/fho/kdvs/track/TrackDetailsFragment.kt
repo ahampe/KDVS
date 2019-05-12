@@ -109,16 +109,44 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = FragmentTrackDetailsBinding.inflate(inflater, container, false)
-        binding.apply {
-            trackData = viewModel.liveTrack
-        }
         binding.lifecycleOwner = this
         return binding.root
     }
 
     private fun subscribeToViewModel() {
-        viewModel.liveTrack.observe(this, Observer { liveTrackData ->
-            Timber.d("Got updated track: $liveTrackData")
+        viewModel.liveTrack.observe(this, Observer { liveTrack ->
+            Timber.d("Got updated track: $liveTrack")
+
+            // TODO: replace some of these with binding adapters
+
+            song.text = liveTrack.song
+
+            if (liveTrack.album.isNullOrBlank())
+                artistAlbum.text = liveTrack.artist
+            else
+                artistAlbum.text = artistAlbum.resources.getString(R.string.artist_album,
+                    liveTrack.artist, liveTrack.album)
+
+            if (liveTrack.year != null || liveTrack.label != null) {
+                if (liveTrack.label == null) {
+                    albumInfo.text = liveTrack.year.toString()
+                } else if (liveTrack.year == null) {
+                    albumInfo.text = liveTrack.label
+                } else {
+                    albumInfo.text = albumInfo.resources.getString(R.string.album_info,
+                        liveTrack.year, liveTrack.label)
+                }
+                albumInfo.visibility = View.VISIBLE
+            } else albumInfo.visibility = View.GONE
+
+            if (!liveTrack.comment.isNullOrBlank()) {
+                comment.text = comment.resources.getString(R.string.track_comments, liveTrack.comment)
+                comment.visibility = View.VISIBLE
+            }
+
+            if ((liveTrack.imageHref ?: "").isNotEmpty()) {
+                ImageHelper.loadImageWithGlide(artwork, liveTrack.imageHref)
+            }
         })
     }
 }

@@ -62,37 +62,6 @@ fun formatTrackInfo(view: TextView, track: TrackEntity?) {
     }
 }
 
-@BindingAdapter("artist", "album")
-fun formatArtistAlbum(view: TextView, artist: String?, album: String?) {
-    val albumStr = view.resources.getString(R.string.track_info_middle, album)
-
-    if (albumStr.isNullOrBlank())
-        view.text = artist
-    else
-        view.text = view.resources.getString(R.string.artist_album, artist, album)
-}
-
-@BindingAdapter("year", "label")
-fun formatAlbumInfo(view: TextView, year: Int?, label: String?) {
-    if (year != null || label != null) {
-        if (label == null) {
-            view.text = year.toString()
-        } else if (year == null) {
-            view.text = label
-        } else {
-            view.text = view.resources.getString(R.string.album_info, year, label)
-        }
-    } else view.visibility = View.GONE
-}
-
-@BindingAdapter("comment")
-fun formatComment(view: TextView, comment: String?) {
-    if (!comment.isNullOrBlank()) {
-        view.text = view.resources.getString(R.string.track_comments, comment)
-        view.visibility = View.VISIBLE
-    }
-}
-
 //@BindingAdapter("trackPosition")
 //fun alternateTrackBackground(layout: ConstraintLayout, position: Int?) {
 //    val i = position ?: return
