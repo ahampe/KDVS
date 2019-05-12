@@ -1,15 +1,20 @@
 package fho.kdvs.global.database
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import androidx.room.Update
 import io.reactivex.Flowable
+import org.json.JSONObject
 import org.w3c.dom.Document
 
 @Dao
 interface TrackDao {
+
+    @Query("SELECT * from trackData WHERE trackId = :trackId LIMIT 1")
+    fun trackById(trackId: Int?): LiveData<TrackEntity>
 
     @Query("SELECT * from trackData WHERE broadcastId = :broadcastId ORDER BY position")
     fun allTracksForBroadcast(broadcastId: Int?): Flowable<List<TrackEntity>>
@@ -50,7 +55,7 @@ interface TrackDao {
     fun updateImageHref(id: Int?, href: String?)
 
     @Query("UPDATE trackData SET metadata = :metadata WHERE trackId = :id")
-    fun updateMetadata(id: Int?, metadata: Document?)
+    fun updateMetadata(id: Int?, metadata: JSONObject?)
 
     @Query("DELETE from trackData where broadcastId = :broadcastId")
     fun deleteByBroadcast(broadcastId: Int?)

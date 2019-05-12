@@ -3,18 +3,9 @@ package fho.kdvs.global.util
 import android.text.Html
 import android.view.View
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BindingAdapter
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
-import com.bumptech.glide.request.RequestOptions
-import com.google.android.exoplayer2.ui.PlayerView
 import fho.kdvs.R
-import fho.kdvs.favorite.FavoriteRepository
-import fho.kdvs.global.database.FavoriteDao
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TrackEntity
 import org.threeten.bp.LocalDate
@@ -24,15 +15,7 @@ import org.threeten.bp.format.DateTimeFormatter
 
 @BindingAdapter("glideHref")
 fun loadImageWithGlide(view: ImageView, imageHref: String?) {
-    Glide.with(view)
-        .asBitmap()
-        .load(imageHref)
-        .transition(BitmapTransitionOptions.withCrossFade())
-        .apply(RequestOptions()
-            .apply(RequestOptions.centerCropTransform())
-            .error(R.drawable.show_placeholder)
-        )
-        .into(view)
+    ImageHelper.loadImageWithGlide(view, imageHref)
 }
 
 @BindingAdapter("localDate", "dateFormatter")
@@ -68,28 +51,18 @@ fun displayFavorite(view: ImageView, favorite: Boolean) {
 }
 
 @BindingAdapter("trackInfo")
-fun formatTrackInfo(view: TextView, track: TrackEntity) {
-    if (!track.artist.isNullOrBlank() && !track.song.isNullOrBlank()){
-        var trackInfo = track.artist
+fun formatTrackInfo(view: TextView, track: TrackEntity?) {
+    if (!track?.artist.isNullOrBlank() && !track?.song.isNullOrBlank()){
+        var trackInfo = track?.artist
         
-        if (!track.album.isNullOrBlank())
-            trackInfo += view.resources.getString(R.string.track_info_album, track.album)
+        if (!track?.album.isNullOrBlank())
+            trackInfo += view.resources.getString(R.string.track_info_album, track?.album)
         
-        if (!track.label.isNullOrBlank())
-            trackInfo += view.resources.getString(R.string.track_info_label, track.label)
+        if (!track?.label.isNullOrBlank())
+            trackInfo += view.resources.getString(R.string.track_info_label, track?.label)
 
         view.text = trackInfo
     }
-}
-
-@BindingAdapter("artistAlbum")
-fun formatTrackDetailsAlbumArtist(view: TextView, track: TrackEntity) {
-    var trackInfo = track.artist
-
-    if (!track.album.isNullOrBlank())
-        trackInfo += view.resources.getString(R.string.track_info_album, track.album)
-
-    view.text = trackInfo
 }
 
 //@BindingAdapter("trackPosition")

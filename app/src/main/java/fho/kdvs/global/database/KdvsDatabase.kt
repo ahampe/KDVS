@@ -5,15 +5,12 @@ import android.content.Context
 import androidx.room.*
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.util.TimeHelper
+import org.json.JSONObject
 import org.threeten.bp.Instant
 import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
 import org.threeten.bp.ZoneOffset
-import org.w3c.dom.Document
-import org.xml.sax.InputSource
 import java.io.File
-import java.io.StringReader
-import javax.xml.parsers.DocumentBuilderFactory
 
 @Database(
     entities = [ShowEntity::class, BroadcastEntity::class, FavoriteEntity::class, TrackEntity::class,
@@ -25,7 +22,7 @@ import javax.xml.parsers.DocumentBuilderFactory
     OffsetDateTimeTypeConverter::class,
     LocalDateTypeConverter::class,
     QuarterTypeConverter::class,
-    DocumentTypeConverter::class
+    JSONObjectTypeConverter::class
 )
 abstract class KdvsDatabase : RoomDatabase() {
 
@@ -55,7 +52,7 @@ abstract class KdvsDatabase : RoomDatabase() {
         /**
          * Deletes the database file along with related temporary files.
          *
-         * [See the sql documentation for more info on shm and wal](https://www.sqlite.org/tempfiles.html)
+         * [See the sql JSONObjectation for more info on shm and wal](https://www.sqlite.org/tempfiles.html)
          */
         fun deleteDatabaseFile(context: Context) {
             val databases = File(context.applicationInfo.dataDir + "/databases")
@@ -96,20 +93,16 @@ class QuarterTypeConverter {
     fun toQuarter(value: Int?): Quarter? = value?.let { Quarter.values()[value] }
 }
 
-class DocumentTypeConverter {
+class JSONObjectTypeConverter {
 
     @TypeConverter
-    fun toString(value: Document?): String? = value.toString()
+    fun toString(value: JSONObject?): String? = value.toString()
 
     @TypeConverter
-    fun toDocument(value: String?): Document? {
+    fun toJSONObject(value: String?): JSONObject? {
         if (value == "null")
             return null
 
-        val db = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-        val src = InputSource()
-        src.characterStream = StringReader(value)
-
-        return db.parse(src)
+        return JSONObject(value)
     }
 }

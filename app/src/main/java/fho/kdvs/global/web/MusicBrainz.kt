@@ -1,10 +1,15 @@
 package fho.kdvs.global.web
 
 import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.extensions.urlEncoded
 import fho.kdvs.global.util.HttpHelper
-import org.apache.commons.text.StringEscapeUtils
 import org.json.JSONObject
-import org.w3c.dom.Document
+import timber.log.Timber
+
+enum class MusicBrainzType(val type: String) {
+    RECORDING("recording"),
+    RELEASE("release")
+}
 
 object MusicBrainz {
 
@@ -13,49 +18,90 @@ object MusicBrainz {
 
     @JvmStatic
     fun fetchTrackInfo(track: TrackEntity): TrackEntity {
-        val type = if (track.album.isNullOrBlank()) "recording" else "release"
+        val type = if (track.album.isNullOrBlank()) MusicBrainzType.RECORDING else MusicBrainzType.RELEASE
 
-        val doc = getMusicBrainzResponse(type,
+        var json = getMusicBrainzResponse(type,
             if (track.album.isNullOrBlank()) makeRecordingQuery(track) else makeReleaseQuery(track))
-        track.metadata = doc
 
-        val id = getIdFromXml(doc, type)
+        // If no results for release, try artist + recording
+        if (type == MusicBrainzType.RELEASE && isResponseEmpty(json))
+            json = getMusicBrainzResponse(type, makeRecordingQuery(track))
 
-        val covertArtArchiveJson = getCovertArtArchiveResponse(id)
+        if (!isResponseEmpty(json)) {
+            val metadata = getMetadataFromJson(json, type)
+            track.metadata = metadata
 
-        track.imageHref = getHrefFromJson(covertArtArchiveJson)
+            val id = getIdFromMetadata(metadata)
+
+            if (id.isNotEmpty()) {
+                val covertArtArchiveJson = getCovertArtArchiveResponse(id)
+                track.imageHref = getHrefFromJson(covertArtArchiveJson)
+            }
+        }
 
         return track
     }
 
-    /** https://musicbrainz.org/doc/Development/XML_Web_Service/Version_2/Search */
-    private fun getMusicBrainzResponse(type: String, query: String): Document {
-        val url = "$searchDomain$type?query=$query".htmlEncode()
-        return HttpHelper.getDocumentResponse(url)
-    }
-
-    private fun getCovertArtArchiveResponse(id: String): JSONObject {
-        val url = "$covertArtDomain$id".htmlEncode()
+    /** https://wiki.musicbrainz.org/Development/JSON_Web_Service */
+    private fun getMusicBrainzResponse(type: MusicBrainzType, query: String): JSONObject {
+        val url = "$searchDomain${type.type}?query=$query" + "&fmt=json"
+        Timber.d("GET $url")
         return HttpHelper.getJsonResponse(url)
     }
 
-    private fun getIdFromXml(doc: Document, type: String): String {
-        return doc.getElementById(type).getAttribute("id")
+    private fun getCovertArtArchiveResponse(id: String): JSONObject {
+        val url = "$covertArtDomain$id"
+        Timber.d("GET $url")
+        return HttpHelper.getJsonResponse(url)
+    }
+
+    private fun getIdFromMetadata(json: JSONObject?): String {
+        var id = ""
+
+        if (json?.has("id") == true)
+            id = json.getString("id")
+
+        return id
     }
 
     private fun getHrefFromJson(json: JSONObject): String {
-        return json.get("image").toString()
+        if (json.has("images")) {
+            val images = json.getJSONArray("images")
+            val obj = images?.getJSONObject(0)
+            return obj?.getString("image") ?: ""
+        }
+        else return ""
+    }
+
+    private fun getMetadataFromJson(json: JSONObject?, type: MusicBrainzType): JSONObject? {
+        return when(type) {
+            MusicBrainzType.RECORDING -> json
+                ?.getJSONArray("recordings")
+                ?.getJSONObject(0)
+                ?.getJSONArray("releases")
+                ?.getJSONObject(0)
+            MusicBrainzType.RELEASE -> json
+                ?.getJSONArray("releases")
+                ?.getJSONObject(0)
+        }
+    }
+
+    private fun isResponseEmpty(json: JSONObject): Boolean {
+        return !json.has("count") || json.getInt("count") == 0
     }
 
     private fun makeRecordingQuery(track: TrackEntity): String {
-        return "\"" + track.song + "\" AND artist:" + track.artist
+        return "\"" + track.song.makeStringFuzzyAndEncoded() +
+                "\" AND artist:" + "\"" + track.artist.makeStringFuzzyAndEncoded() + "\""
     }
 
     private fun makeReleaseQuery(track: TrackEntity): String {
-        return "\"" + track.album + "\" AND artist:" + track.artist
+        return "\"" + track.album.makeStringFuzzyAndEncoded() +
+                "\" AND artist:" + "\"" + track.artist.makeStringFuzzyAndEncoded() + "\""
     }
 
-    private fun String.htmlEncode(): String {
-        return StringEscapeUtils.escapeHtml4(this)
+    // Append '~' to each word to make fuzzy
+    private fun String?.makeStringFuzzyAndEncoded(): String? {
+        return this?.urlEncoded?.replace(" ", " ~") + "~"
     }
 }

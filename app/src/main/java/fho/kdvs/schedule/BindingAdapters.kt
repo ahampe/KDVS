@@ -1,9 +1,5 @@
 package fho.kdvs.schedule
 
-import android.graphics.Color
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -15,7 +11,6 @@ import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import fho.kdvs.R
 import fho.kdvs.global.extensions.TimeSlotRequestListener
-import fho.kdvs.global.util.SpanHelper
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.cell_timeslot.view.*
 import org.threeten.bp.OffsetDateTime

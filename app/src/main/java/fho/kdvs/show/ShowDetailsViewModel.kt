@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
+import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
@@ -28,7 +29,8 @@ class ShowDetailsViewModel @Inject constructor(
     fun onClickBroadcast(navController: NavController, broadcast: BroadcastEntity) {
         val navAction = ShowDetailsFragmentDirections
             .actionShowDetailsFragmentToBroadcastDetailsFragment(broadcast.showId, broadcast.broadcastId)
-        navController.navigate(navAction)
+        if (navController.currentDestination?.id == R.id.showDetailsFragment)
+            navController.navigate(navAction)
     }
 
     private fun fetchBroadcasts(showId: Int) {

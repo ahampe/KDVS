@@ -7,9 +7,13 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
 import android.widget.LinearLayout
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.Binds
 import dagger.Module
@@ -21,11 +25,15 @@ import fho.kdvs.databinding.FragmentTrackDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.PerFragment
 import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.util.ImageHelper
 import fho.kdvs.injection.ViewModelKey
 import fho.kdvs.show.TrackDetailsViewModel
+import kotlinx.android.synthetic.main.fragment_track_details.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import org.json.JSONObject
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -98,11 +106,71 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
             }
 
         setStyle(BottomSheetDialogFragment.STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme)
+        subscribeToViewModel()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = FragmentTrackDetailsBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         return binding.root
+    }
+
+    private fun subscribeToViewModel() {
+        viewModel.liveTrack.observe(this, Observer { liveTrack ->
+            song.text = liveTrack.song
+            artist.text = liveTrack.artist
+            album.text = if (!liveTrack.album.isNullOrBlank()) liveTrack.album
+                else getRootLevelElmFromMetadataOfType<String>("title", liveTrack.metadata)
+            year.text = getRootLevelElmFromMetadataOfType<String>("date", liveTrack.metadata)
+                ?.substring(0,4)
+            country.text = getRootLevelElmFromMetadataOfType<String>("country", liveTrack.metadata)
+            label.text = if (!liveTrack.label.isNullOrBlank()) liveTrack.label
+                else getLabelFromMetadata(liveTrack.metadata)
+            comment.text = "\"${liveTrack.comment}\""
+
+            if (album.text.isNullOrBlank())
+                album.visibility = View.GONE
+
+            if (!year.text.isNullOrBlank())
+                year.visibility = View.VISIBLE
+
+            if (!country.text.isNullOrBlank())
+                country.visibility = View.VISIBLE
+
+            if (!label.text.isNullOrBlank())
+                label.visibility = View.VISIBLE
+
+            if (!liveTrack.comment.isNullOrBlank())
+                comment.visibility = View.VISIBLE
+
+            Timber.d("Got updated track: $liveTrack")
+            if ((liveTrack.imageHref ?: "").isNotEmpty()) {
+                ImageHelper.loadImageWithGlide(artwork, liveTrack.imageHref)
+            }
+        })
+    }
+
+    private inline fun <reified T> getRootLevelElmFromMetadataOfType(key: String, metadata: JSONObject?): T?{
+        var elm: T? = null
+
+        if (metadata?.has(key) == true && metadata.get(key) is T)
+            elm = metadata.get(key) as? T
+
+        return elm
+    }
+
+    private fun getLabelFromMetadata(metadata: JSONObject?): String {
+        var label = ""
+
+        if (metadata?.has("label-info") == true){
+            val labelInfo = metadata.getJSONArray("label-info").get(0) as? JSONObject
+            if (labelInfo?.has("label") == true){
+                val labelObj = labelInfo.get("label") as? JSONObject
+                if (labelObj?.has("name") == true)
+                    label = labelObj.getString("name")
+            }
+        }
+
+        return label
     }
 }

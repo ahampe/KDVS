@@ -6,6 +6,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import org.json.JSONObject
 import org.w3c.dom.Document
 
 @Entity(
@@ -29,7 +30,7 @@ data class TrackEntity(
     @ColumnInfo(name = "comment") var comment: String? = null,
     @ColumnInfo(name = "airbreak") var airbreak: Boolean = false,
     @ColumnInfo(name = "imageHref") var imageHref: String? = null,
-    @ColumnInfo(name = "metadata") var metadata: Document? = null
+    @ColumnInfo(name = "metadata") var metadata: JSONObject? = null
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
@@ -43,7 +44,7 @@ data class TrackEntity(
         comment = parcel.readString(),
         airbreak = parcel.readValue(Boolean::class.java.classLoader) as Boolean,
         imageHref = parcel.readString(),
-        metadata = parcel.readValue(Document::class.java.classLoader) as Document
+        metadata = parcel.readValue(Document::class.java.classLoader) as JSONObject
     )
 
     override fun writeToParcel(dest: Parcel?, flags: Int) {

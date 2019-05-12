@@ -1,9 +1,8 @@
 package fho.kdvs.global.util
 
+import org.apache.commons.text.StringEscapeUtils
 import org.jetbrains.anko.doAsync
 import org.json.JSONObject
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
 import org.w3c.dom.Document
 import java.net.HttpURLConnection
@@ -25,11 +24,13 @@ object HttpHelper {
         return (response == HttpURLConnection.HTTP_OK)
     }
 
-    fun getResponse(url: String?): ResponseEntity<String> {
-        val restTemplate = RestTemplate()
-        val response = restTemplate.getForEntity(url, String::class.java)
+    private fun getResponse(url: String?): String {
+        val restTemplate = RestTemplate(true)
+        var response = "{}"
 
-        assert(response.statusCode == HttpStatus.OK)
+        try {
+            response = restTemplate.getForObject(url, String::class.java)
+        } catch (e: Exception) {}
 
         return response
     }
@@ -42,11 +43,16 @@ object HttpHelper {
         factory.isIgnoringElementContentWhitespace = true
 
         val builder = factory.newDocumentBuilder()
-        return builder.parse(response.body)
+        return builder.parse(response)
     }
 
     fun getJsonResponse(url: String?): JSONObject {
-        return JSONObject(HttpHelper.getResponse(url).body)
+        return JSONObject(HttpHelper.getResponse(url))
     }
 
+    fun String.htmlEncode(): String {
+        return StringEscapeUtils.escapeHtml4(this)
+            .replace(" ", "%20")
+            .replace("&quot;", "%22")
+    }
 }

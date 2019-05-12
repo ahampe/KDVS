@@ -2,6 +2,7 @@ package fho.kdvs.show
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.web.MusicBrainz
 import fho.kdvs.track.TrackRepository
@@ -17,7 +18,7 @@ class TrackDetailsViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application), CoroutineScope {
 
-    lateinit var trackMetadata: TrackEntity
+    lateinit var liveTrack: LiveData<TrackEntity>
 
     private val parentJob = Job()
     override val coroutineContext: CoroutineContext
@@ -25,11 +26,15 @@ class TrackDetailsViewModel @Inject constructor(
 
     fun initialize(track: TrackEntity) {
         if (track.imageHref.isNullOrBlank() && track.metadata == null) {
-            launch {
-                trackMetadata = MusicBrainz.fetchTrackInfo(track)
-                launch { trackRepository.updateTrackImageHref(track.trackId, trackMetadata.imageHref) }
-                launch { trackRepository.updateTrackMetadata(track.trackId, trackMetadata.metadata) }
+            var trackWithMetadata: TrackEntity = track
+            val job = launch { trackWithMetadata = MusicBrainz.fetchTrackInfo(track) }
+
+            job.invokeOnCompletion {
+                launch { trackRepository.updateTrackImageHref(track.trackId, trackWithMetadata.imageHref) }
+                launch { trackRepository.updateTrackMetadata(track.trackId, trackWithMetadata.metadata) }
             }
         }
+
+        liveTrack = trackRepository.trackById(track.trackId)
     }
 }
