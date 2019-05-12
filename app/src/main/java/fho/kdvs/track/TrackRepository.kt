@@ -1,6 +1,7 @@
 package fho.kdvs.track
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.TrackDao
 import fho.kdvs.global.database.TrackEntity
@@ -10,9 +11,7 @@ import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import org.threeten.bp.OffsetDateTime
-import org.w3c.dom.Document
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -53,5 +52,5 @@ class TrackRepository @Inject constructor(
 
     fun updateTrackImageHref(trackId: Int?, href: String?) = trackDao.updateImageHref(trackId, href)
 
-    fun updateTrackMetadata(trackId: Int?, metadata: JSONObject?) = trackDao.updateMetadata(trackId, metadata)
+    fun onScrapeMetadata(trackId: Int?) = trackDao.onScrapeMetadata(trackId)
 }

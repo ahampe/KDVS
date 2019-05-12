@@ -54,8 +54,8 @@ interface TrackDao {
     @Query("UPDATE trackData SET imageHref = :href WHERE trackId = :id")
     fun updateImageHref(id: Int?, href: String?)
 
-    @Query("UPDATE trackData SET metadata = :metadata WHERE trackId = :id")
-    fun updateMetadata(id: Int?, metadata: JSONObject?)
+    @Query("UPDATE trackData SET hasScrapedMetadata = 1 WHERE trackId = :id")
+    fun onScrapeMetadata(id: Int?)
 
     @Query("DELETE from trackData where broadcastId = :broadcastId")
     fun deleteByBroadcast(broadcastId: Int?)

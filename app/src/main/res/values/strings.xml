@@ -84,7 +84,8 @@
 
     <string name="track_info_start">%1$s</string>
     <string name="track_info_middle">\u0020• %1$s</string>
-    <string name="album_info_middle">, %1$s</string>
+    <string name="artist_album">%1$s • %2$s</string>
+    <string name="album_info">%1$d, %2$s</string>
 
     <string name="track_comments">\"%1$s\"</string>
 

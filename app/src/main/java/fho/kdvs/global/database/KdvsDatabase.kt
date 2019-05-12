@@ -5,7 +5,6 @@ import android.content.Context
 import androidx.room.*
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.util.TimeHelper
-import org.json.JSONObject
 import org.threeten.bp.Instant
 import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
@@ -21,8 +20,7 @@ import java.io.File
 @TypeConverters(
     OffsetDateTimeTypeConverter::class,
     LocalDateTypeConverter::class,
-    QuarterTypeConverter::class,
-    JSONObjectTypeConverter::class
+    QuarterTypeConverter::class
 )
 abstract class KdvsDatabase : RoomDatabase() {
 
@@ -91,18 +89,4 @@ class QuarterTypeConverter {
 
     @TypeConverter
     fun toQuarter(value: Int?): Quarter? = value?.let { Quarter.values()[value] }
-}
-
-class JSONObjectTypeConverter {
-
-    @TypeConverter
-    fun toString(value: JSONObject?): String? = value.toString()
-
-    @TypeConverter
-    fun toJSONObject(value: String?): JSONObject? {
-        if (value == "null")
-            return null
-
-        return JSONObject(value)
-    }
 }

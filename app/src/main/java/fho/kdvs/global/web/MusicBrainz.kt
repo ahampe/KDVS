@@ -29,9 +29,17 @@ object MusicBrainz {
 
         if (!isResponseEmpty(json)) {
             val metadata = getMetadataFromJson(json, type)
-            track.metadata = metadata
+            track.hasScrapedMetadata = true
 
             val id = getIdFromMetadata(metadata)
+
+            track.year = getRootLevelElmFromMetadataOfType<String>("date", metadata)
+                ?.substring(0,4)
+                ?.toIntOrNull()
+
+            if (!track.label.isNullOrBlank()) {
+                track.label = getLabelFromMetadata(metadata)
+            }
 
             if (id.isNotEmpty()) {
                 val covertArtArchiveJson = getCovertArtArchiveResponse(id)
@@ -96,6 +104,30 @@ object MusicBrainz {
                 ?.getJSONArray("releases")
                 ?.getJSONObject(0)
         }
+    }
+
+    inline fun <reified T> getRootLevelElmFromMetadataOfType(key: String, metadata: JSONObject?): T?{
+        var elm: T? = null
+
+        if (metadata?.has(key) == true && metadata.get(key) is T && metadata.get(key) != null)
+            elm = metadata.get(key) as? T
+
+        return elm
+    }
+
+    fun getLabelFromMetadata(metadata: JSONObject?): String {
+        var label = ""
+
+        if (metadata?.has("label-info") == true){
+            val labelInfo = metadata.getJSONArray("label-info").get(0) as? JSONObject
+            if (labelInfo?.has("label") == true){
+                val labelObj = labelInfo.get("label") as? JSONObject
+                if (labelObj?.has("name") == true)
+                    label = labelObj.getString("name")
+            }
+        }
+
+        return label
     }
 
     private fun isResponseEmpty(json: JSONObject): Boolean {

@@ -10,8 +10,8 @@
             type="android.view.View.OnClickListener" />
 
         <variable
-            name="track"
-            type="fho.kdvs.global.database.TrackEntity" />
+            name="trackData"
+            type="androidx.lifecycle.MutableLiveData&lt;fho.kdvs.global.database.TrackEntity&gt;"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -40,7 +40,7 @@
             android:layout_marginEnd="@dimen/spacing_extra_large"
             android:layout_marginTop="@dimen/spacing_extra_large"
             android:src="@drawable/show_placeholder"
-            glideHref="@{track.imageHref}"
+            glideHref="@{trackData.imageHref}"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_large"
             android:singleLine="true"
-            android:text="@{track.song}"
+            android:text="@{trackData.song}"
             android:ellipsize="marquee"
             style="@style/TextAppearance.MaterialComponents.Headline5"
             app:layout_constraintStart_toStartOf="@id/artwork"
@@ -68,6 +68,8 @@
             android:ellipsize="marquee"
             android:singleLine="true"
             android:gravity="start"
+            artist="@{trackData.artist}"
+            album="@{trackData.album}"
             app:layout_constraintStart_toStartOf="@id/artwork"
             app:layout_constraintEnd_toEndOf="@id/artwork"
             app:layout_constraintTop_toBottomOf="@id/song"
@@ -81,6 +83,8 @@
             android:ellipsize="marquee"
             android:singleLine="true"
             android:layout_marginTop="@dimen/spacing_small"
+            year="@{trackData.year}"
+            label="@{trackData.label}"
             app:layout_constraintStart_toStartOf="@id/artwork"
             app:layout_constraintEnd_toEndOf="@id/artwork"
             app:layout_constraintTop_toBottomOf="@id/artistAlbum"
@@ -95,6 +99,7 @@
             app:layout_constraintStart_toStartOf="@id/artwork"
             app:layout_constraintTop_toBottomOf="@id/albumInfo"
             app:layout_constraintEnd_toEndOf="@id/artwork"
+            comment="@{trackData.comment}"
             android:visibility="gone"
             android:textStyle="italic"
             tools:text="Comments from the DJ"
