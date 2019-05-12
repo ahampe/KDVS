@@ -74,7 +74,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@id/comment"
             app:layout_constraintTop_toBottomOf="@id/songName"
-            tools:text="Very Long Artist Name • Along With Long Album Name [And Long Label]" />
+            tools:text="Very Long Artist Name • Along With Long Album Name" />
 
         <ImageView
             android:id="@+id/favorite"

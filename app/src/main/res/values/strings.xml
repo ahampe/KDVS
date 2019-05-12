@@ -82,8 +82,11 @@
     <string name="timeslot_desc">Show image</string>
     <string name="timeslot_placeholder">kdvs-image-placeholder</string>
 
-    <string name="track_info_album">\u0020• %1$s</string>
-    <string name="track_info_label">\u0020[%1$s]</string>
+    <string name="track_info_start">%1$s</string>
+    <string name="track_info_middle">\u0020• %1$s</string>
+    <string name="album_info_middle">, %1$s</string>
+
+    <string name="track_comments">\"%1$s\"</string>
 
     <string name="user_agent">kdvsapp@gmail.com</string>
 </resources>

@@ -56,10 +56,7 @@ fun formatTrackInfo(view: TextView, track: TrackEntity?) {
         var trackInfo = track?.artist
         
         if (!track?.album.isNullOrBlank())
-            trackInfo += view.resources.getString(R.string.track_info_album, track?.album)
-        
-        if (!track?.label.isNullOrBlank())
-            trackInfo += view.resources.getString(R.string.track_info_label, track?.label)
+            trackInfo += view.resources.getString(R.string.track_info_middle, track?.album)
 
         view.text = trackInfo
     }

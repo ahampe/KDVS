@@ -36,9 +36,9 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintDimensionRatio="1:1"
-            android:layout_marginStart="@dimen/spacing_64dp"
-            android:layout_marginEnd="@dimen/spacing_64dp"
-            android:layout_marginTop="@dimen/spacing_64dp"
+            android:layout_marginStart="@dimen/spacing_extra_large"
+            android:layout_marginEnd="@dimen/spacing_extra_large"
+            android:layout_marginTop="@dimen/spacing_extra_large"
             android:src="@drawable/show_placeholder"
             glideHref="@{track.imageHref}"
             app:layout_constraintTop_toTopOf="parent"
@@ -48,78 +48,55 @@
 
         <TextView
             android:id="@+id/song"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_large"
-            android:maxLines="2"
-            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:singleLine="true"
+            android:text="@{track.song}"
+            android:ellipsize="marquee"
+            style="@style/TextAppearance.MaterialComponents.Headline5"
             app:layout_constraintStart_toStartOf="@id/artwork"
+            app:layout_constraintEnd_toEndOf="@id/artwork"
             app:layout_constraintTop_toBottomOf="@id/artwork"
             tools:text="The Name of the Track"/>
 
         <TextView
-            android:id="@+id/artist"
-            android:layout_width="wrap_content"
+            android:id="@+id/artistAlbum"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            android:gravity="start"
             app:layout_constraintStart_toStartOf="@id/artwork"
+            app:layout_constraintEnd_toEndOf="@id/artwork"
             app:layout_constraintTop_toBottomOf="@id/song"
-            tools:text="Artist"/>
+            tools:text="Artist • Album"/>
 
         <TextView
-            android:id="@+id/album"
-            android:layout_width="wrap_content"
+            android:id="@+id/albumInfo"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            android:ellipsize="marquee"
+            android:singleLine="true"
             app:layout_constraintStart_toStartOf="@id/artwork"
-            app:layout_constraintTop_toBottomOf="@id/artist"
-            tools:text="Album"/>
-
-        <TextView
-            android:id="@+id/year"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_large"
-            style="@style/TextAppearance.MaterialComponents.Subtitle2"
-            app:layout_constraintStart_toStartOf="@id/artwork"
-            app:layout_constraintTop_toBottomOf="@id/album"
-            android:visibility="gone"
-            android:text="2019"
-            tools:visibility="visible"/>
-
-        <TextView
-            android:id="@+id/country"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/TextAppearance.MaterialComponents.Subtitle2"
-            app:layout_constraintStart_toStartOf="@id/artwork"
-            app:layout_constraintTop_toBottomOf="@id/year"
-            android:visibility="gone"
-            android:text="US"
-            tools:visibility="visible"/>
-
-        <TextView
-            android:id="@+id/label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/TextAppearance.MaterialComponents.Subtitle2"
-            app:layout_constraintStart_toStartOf="@id/artwork"
-            app:layout_constraintTop_toBottomOf="@id/country"
-            android:visibility="gone"
-            android:text="Label Name"
-            tools:visibility="visible"/>
+            app:layout_constraintEnd_toEndOf="@id/artwork"
+            app:layout_constraintTop_toBottomOf="@id/artistAlbum"
+            tools:text="2019, Label Records"/>
 
         <TextView
             android:id="@+id/comment"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_large"
             style="@style/TextAppearance.MaterialComponents.Subtitle2"
             app:layout_constraintStart_toStartOf="@id/artwork"
-            app:layout_constraintTop_toBottomOf="@id/label"
+            app:layout_constraintTop_toBottomOf="@id/albumInfo"
+            app:layout_constraintEnd_toEndOf="@id/artwork"
             android:visibility="gone"
             android:textStyle="italic"
-            android:text="Comments from the DJ"
+            tools:text="Comments from the DJ"
             tools:visibility="visible"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

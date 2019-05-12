@@ -117,33 +117,37 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
 
     private fun subscribeToViewModel() {
         viewModel.liveTrack.observe(this, Observer { liveTrack ->
-            song.text = liveTrack.song
-            artist.text = liveTrack.artist
-            album.text = if (!liveTrack.album.isNullOrBlank()) liveTrack.album
-                else getRootLevelElmFromMetadataOfType<String>("title", liveTrack.metadata)
-            year.text = getRootLevelElmFromMetadataOfType<String>("date", liveTrack.metadata)
-                ?.substring(0,4)
-            country.text = getRootLevelElmFromMetadataOfType<String>("country", liveTrack.metadata)
-            label.text = if (!liveTrack.label.isNullOrBlank()) liveTrack.label
-                else getLabelFromMetadata(liveTrack.metadata)
-            comment.text = "\"${liveTrack.comment}\""
-
-            if (album.text.isNullOrBlank())
-                album.visibility = View.GONE
-
-            if (!year.text.isNullOrBlank())
-                year.visibility = View.VISIBLE
-
-            if (!country.text.isNullOrBlank())
-                country.visibility = View.VISIBLE
-
-            if (!label.text.isNullOrBlank())
-                label.visibility = View.VISIBLE
-
-            if (!liveTrack.comment.isNullOrBlank())
-                comment.visibility = View.VISIBLE
-
             Timber.d("Got updated track: $liveTrack")
+
+            // TODO: replace some of these with binding adapters
+
+            song.text = liveTrack.song
+
+            var artistAlbumStr = artistAlbum.resources.getString(R.string.track_info_start, liveTrack.artist)
+            artistAlbumStr += if (liveTrack.album.isNullOrBlank())
+                                artistAlbum.resources.getString(R.string.track_info_middle,
+                                    getRootLevelElmFromMetadataOfType<String>("title", liveTrack.metadata))
+                            else artistAlbum.resources.getString(R.string.track_info_middle, liveTrack.album)
+            artistAlbum.text = artistAlbumStr
+            if (liveTrack.album.isNullOrBlank())
+                artistAlbum.visibility = View.GONE
+
+            val year = getRootLevelElmFromMetadataOfType<String>("date", liveTrack.metadata)
+                ?.substring(0,4)
+            val label = if (!liveTrack.label.isNullOrBlank()) liveTrack.label
+                else getLabelFromMetadata(liveTrack.metadata)
+
+            var albumInfoStr = year
+            if (!label.isNullOrBlank())
+                albumInfoStr += if (year.isNullOrBlank()) liveTrack.label
+                    else albumInfo.resources.getString(R.string.album_info_middle, label)
+            albumInfo.text = albumInfoStr
+
+            if (!liveTrack.comment.isNullOrBlank()) {
+                comment.text = comment.resources.getString(R.string.track_comments, liveTrack.comment)
+                comment.visibility = View.VISIBLE
+            }
+
             if ((liveTrack.imageHref ?: "").isNotEmpty()) {
                 ImageHelper.loadImageWithGlide(artwork, liveTrack.imageHref)
             }

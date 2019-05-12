@@ -75,11 +75,23 @@ object MusicBrainz {
 
     private fun getMetadataFromJson(json: JSONObject?, type: MusicBrainzType): JSONObject? {
         return when(type) {
-            MusicBrainzType.RECORDING -> json
-                ?.getJSONArray("recordings")
-                ?.getJSONObject(0)
-                ?.getJSONArray("releases")
-                ?.getJSONObject(0)
+            MusicBrainzType.RECORDING -> {
+                var dataObj: JSONObject? = null
+
+                val recordings = json
+                    ?.getJSONArray("recordings")
+
+                for (i in 0 until (recordings?.length() ?: 0)) {
+                    val node = recordings?.get(i) as? JSONObject
+                    if (node?.has("releases") == true){
+                        dataObj = node.getJSONArray("releases")
+                            ?.getJSONObject(0)
+                        break
+                    }
+                }
+
+                dataObj
+            }
             MusicBrainzType.RELEASE -> json
                 ?.getJSONArray("releases")
                 ?.getJSONObject(0)
