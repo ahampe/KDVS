@@ -25,7 +25,6 @@ import fho.kdvs.databinding.FragmentScheduleSelectionBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.PerFragment
 import fho.kdvs.injection.ViewModelKey
-import fho.kdvs.show.ScheduleSelectionViewModel
 import kotlinx.android.synthetic.main.fragment_schedule_selection.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

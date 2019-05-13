@@ -33,9 +33,11 @@ object MusicBrainz {
 
             val id = getIdFromMetadata(metadata)
 
-            track.year = getRootLevelElmFromMetadataOfType<String>("date", metadata)
-                ?.substring(0,4)
-                ?.toIntOrNull()
+            val yearStr = getRootLevelElmFromMetadataOfType<String>("date", metadata)
+            if (yearStr?.length == 4)
+                track.year = yearStr
+                    .substring(0,4)
+                    .toIntOrNull()
 
             if (!track.label.isNullOrBlank()) {
                 track.label = getLabelFromMetadata(metadata)

@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer
 import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.BroadcastDao
 import fho.kdvs.global.database.BroadcastEntity
+import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.extensions.toLiveData
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.URLs
@@ -113,6 +114,9 @@ class BroadcastRepository @Inject constructor(
 
     fun getLatestBroadcastForShow(showId: Int): BroadcastEntity? =
         broadcastDao.getLatestBroadcastForShow(showId)
+
+    fun showByBroadcastId(broadcastId: Int): LiveData<ShowEntity> =
+        broadcastDao.showByBroadcastId(broadcastId)
 
     /** Called when the live show changes so that the playing broadcast can be updated */
     internal fun updateLiveBroadcast(showId: Int) {

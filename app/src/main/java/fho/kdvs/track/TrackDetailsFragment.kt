@@ -7,10 +7,10 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
 import android.widget.LinearLayout
-import androidx.lifecycle.*
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
-import com.bumptech.glide.request.RequestOptions
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.Binds
 import dagger.Module
@@ -23,14 +23,12 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.PerFragment
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.util.ImageHelper
-import fho.kdvs.global.web.MusicBrainz
+import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.injection.ViewModelKey
-import fho.kdvs.show.TrackDetailsViewModel
 import kotlinx.android.synthetic.main.fragment_track_details.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import org.json.JSONObject
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -59,7 +57,6 @@ abstract class TrackDetailsModule: ViewModel() {
 class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
-
     private lateinit var viewModel: TrackDetailsViewModel
 
     private val job = Job()
@@ -109,11 +106,33 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = FragmentTrackDetailsBinding.inflate(inflater, container, false)
+        binding.apply {
+            vm = viewModel
+            trackData = track
+        }
         binding.lifecycleOwner = this
         return binding.root
     }
 
     private fun subscribeToViewModel() {
+        viewModel.favorite.observe(this, Observer { favorite ->
+            if (favorite != null && favorite.trackId != -1) {
+                favoriteIcon.setImageResource(R.drawable.ic_favorite_white_24dp)
+                favoriteIcon.tag = 1
+            }
+        })
+
+        viewModel.broadcast.observe(this, Observer { broadcast ->
+            if (broadcast.date != null) {
+                val formatter = TimeHelper.uiDateFormatter
+                broadcastDate.text = formatter.format(broadcast.date)
+            }
+        })
+
+        viewModel.show.observe(this, Observer { show ->
+            showName.text = show.name
+        })
+
         viewModel.liveTrack.observe(this, Observer { liveTrack ->
             Timber.d("Got updated track: $liveTrack")
 

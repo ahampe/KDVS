@@ -13,7 +13,7 @@ class FavoriteRepository @Inject constructor(
     private val favoriteDao: FavoriteDao
 ) : BaseRepository() {
 
-    private fun favoriteByTrackId(trackId: Int): LiveData<FavoriteEntity> {
+    fun favoriteByTrackId(trackId: Int): LiveData<FavoriteEntity> {
         return favoriteDao.getByTrackId(trackId)
     }
 

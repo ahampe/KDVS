@@ -4,10 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <variable
+            name="showName"
+            type="String" />
+        <variable
+            name="broadcastDate"
+            type="String" />
+        <variable
+            name="vm"
+            type="fho.kdvs.track.TrackDetailsViewModel" />
 
         <variable
-            name="clickListener"
-            type="android.view.View.OnClickListener" />
+            name="trackData"
+            type="fho.kdvs.global.database.TrackEntity" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -27,19 +36,72 @@
             app:layout_constraintRight_toRightOf="parent"
             android:background="@drawable/top_down_fade"/>
 
+        <TextView
+            android:id="@+id/showName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAllCaps="true"
+            style="@style/TextAppearance.MaterialComponents.Overline"
+            android:layout_marginTop="@dimen/spacing_large"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="@id/artwork"
+            app:layout_constraintEnd_toEndOf="@id/artwork_overlay"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:text="@{showName}"
+            tools:text="Show Name"/>
+
+        <TextView
+            android:id="@+id/broadcastDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAllCaps="true"
+            style="@style/TextAppearance.MaterialComponents.Overline"
+            app:layout_constraintTop_toBottomOf="@id/showName"
+            app:layout_constraintStart_toStartOf="@id/artwork"
+            app:layout_constraintEnd_toEndOf="@id/artwork_overlay"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:text="@{broadcastDate}"
+            tools:text="Jan 2, 2019"/>
+
         <ImageView
             android:id="@+id/artwork"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintDimensionRatio="1:1"
-            android:layout_marginStart="@dimen/spacing_extra_large"
-            android:layout_marginEnd="@dimen/spacing_extra_large"
-            android:layout_marginTop="@dimen/spacing_extra_large"
+            android:layout_marginStart="@dimen/spacing_64dp"
+            android:layout_marginEnd="@dimen/spacing_64dp"
+            android:layout_marginTop="@dimen/spacing_64dp"
             android:src="@drawable/show_placeholder"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:visibility="visible"/>
+
+        <ImageView
+            android:id="@+id/artwork_overlay"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/spacing_extra_large"
+            app:layout_constraintStart_toStartOf="@id/artwork"
+            app:layout_constraintEnd_toEndOf="@id/artwork"
+            app:layout_constraintBottom_toBottomOf="@id/artwork"
+            android:src="@drawable/album_art_overlay" />
+
+        <ImageView
+            android:id="@+id/favoriteIcon"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:onClick="@{(view) -> vm.onClickFavorite(view, trackData.trackId)}"
+            app:layout_constraintDimensionRatio="1:1"
+            android:padding="@dimen/spacing_extra_small"
+            android:tag="0"
+            android:src="@drawable/ic_favorite_border_white_24dp"
+            app:layout_constraintTop_toTopOf="@id/artwork_overlay"
+            app:layout_constraintBottom_toBottomOf="@id/artwork_overlay"
+            app:layout_constraintEnd_toEndOf="@id/artwork_overlay"/>
 
         <TextView
             android:id="@+id/song"
@@ -49,8 +111,10 @@
             android:singleLine="true"
             android:ellipsize="marquee"
             style="@style/TextAppearance.MaterialComponents.Headline5"
-            app:layout_constraintStart_toStartOf="@id/artwork"
-            app:layout_constraintEnd_toEndOf="@id/artwork"
+            android:layout_marginStart="@dimen/spacing_extra_large"
+            android:layout_marginEnd="@dimen/spacing_extra_large"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/artwork"
             tools:text="The Name of the Track"/>
 
@@ -59,11 +123,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_marginStart="@dimen/spacing_extra_large"
+            android:layout_marginEnd="@dimen/spacing_extra_large"
             android:ellipsize="marquee"
             android:singleLine="true"
             android:gravity="start"
-            app:layout_constraintStart_toStartOf="@id/artwork"
-            app:layout_constraintEnd_toEndOf="@id/artwork"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/song"
             tools:text="Artist • Album"/>
 
@@ -72,11 +138,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            android:layout_marginStart="@dimen/spacing_extra_large"
+            android:layout_marginEnd="@dimen/spacing_extra_large"
             android:ellipsize="marquee"
             android:singleLine="true"
             android:layout_marginTop="@dimen/spacing_small"
-            app:layout_constraintStart_toStartOf="@id/artwork"
-            app:layout_constraintEnd_toEndOf="@id/artwork"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/artistAlbum"
             tools:text="2019, Label Records"/>
 
@@ -86,9 +154,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_large"
             style="@style/TextAppearance.MaterialComponents.Subtitle2"
-            app:layout_constraintStart_toStartOf="@id/artwork"
+            android:layout_marginStart="@dimen/spacing_extra_large"
+            android:layout_marginEnd="@dimen/spacing_extra_large"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/albumInfo"
-            app:layout_constraintEnd_toEndOf="@id/artwork"
             android:visibility="gone"
             android:textStyle="italic"
             tools:text="Comments from the DJ"

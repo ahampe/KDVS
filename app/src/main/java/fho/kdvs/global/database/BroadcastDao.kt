@@ -22,6 +22,13 @@ abstract class BroadcastDao {
     @Query("SELECT * from broadcastData WHERE showId = :showId ORDER BY date DESC LIMIT 1")
     abstract fun getLatestBroadcastForShow(showId: Int): BroadcastEntity?
 
+    @Query(
+        """SELECT * from broadcastData
+            INNER JOIN showData ON broadcastData.showId = showData.id
+            WHERE broadcastId = :broadcastId"""
+    )
+    abstract fun showByBroadcastId(broadcastId: Int): LiveData<ShowEntity>
+
     @Query("SELECT * from broadcastData WHERE broadcastId = :broadcastId LIMIT 1")
     abstract fun broadcastById(broadcastId: Int): LiveData<BroadcastEntity>
 
