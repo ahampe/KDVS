@@ -119,6 +119,9 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
             if (favorite != null && favorite.trackId != -1) {
                 favoriteIcon.setImageResource(R.drawable.ic_favorite_white_24dp)
                 favoriteIcon.tag = 1
+            } else {
+                favoriteIcon.setImageResource(R.drawable.ic_favorite_border_white_24dp)
+                favoriteIcon.tag = 0
             }
         })
 
@@ -139,6 +142,7 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
             // TODO: replace some of these with binding adapters
 
             song.text = liveTrack.song
+            song.isSelected = true
 
             if (liveTrack.album.isNullOrBlank())
                 artistAlbum.text = liveTrack.artist

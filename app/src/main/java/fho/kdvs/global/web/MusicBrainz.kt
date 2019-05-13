@@ -6,120 +6,160 @@ import fho.kdvs.global.util.HttpHelper
 import org.json.JSONObject
 import timber.log.Timber
 
-enum class MusicBrainzType(val type: String) {
-    RECORDING("recording"),
-    RELEASE("release")
-}
-
 object MusicBrainz {
 
     private const val covertArtDomain = "http://coverartarchive.org/release/"
     private const val searchDomain = "https://musicbrainz.org/ws/2/"
+    private const val jsonQs = "&fmt=json"
+    private const val releaseQs = "inc=labels"
+
+    private var releases: JSONObject?= null
+    private var topRelease: JSONObject?= null
 
     @JvmStatic
     fun fetchTrackInfo(track: TrackEntity): TrackEntity {
-        val type = if (track.album.isNullOrBlank()) MusicBrainzType.RECORDING else MusicBrainzType.RELEASE
+        getReleasesFromTrack(track)
 
-        var json = getMusicBrainzResponse(type,
-            if (track.album.isNullOrBlank()) makeRecordingQuery(track) else makeReleaseQuery(track))
-
-        // If no results for release, try artist + recording
-        if (type == MusicBrainzType.RELEASE && isResponseEmpty(json))
-            json = getMusicBrainzResponse(type, makeRecordingQuery(track))
-
-        if (!isResponseEmpty(json)) {
-            val metadata = getMetadataFromJson(json, type)
-            track.hasScrapedMetadata = true
-
-            val id = getIdFromMetadata(metadata)
-
-            val yearStr = getRootLevelElmFromMetadataOfType<String>("date", metadata)
-            if (yearStr?.length == 4)
-                track.year = yearStr
-                    .substring(0,4)
-                    .toIntOrNull()
-
-            if (!track.label.isNullOrBlank()) {
-                track.label = getLabelFromMetadata(metadata)
-            }
-
-            if (id.isNotEmpty()) {
-                // TODO: try each release ID? (on separate thread)
-                val covertArtArchiveJson = getCovertArtArchiveResponse(id)
-                track.imageHref = getHrefFromJson(covertArtArchiveJson)
-            }
+        if (topRelease == null && releases != null && !isResponseEmpty(releases)){
+            track.imageHref = attemptToGetImageFromReleases()
+        } else if (topRelease != null) { // MBID GET will only have one release
+            val id: String? = getRootLevelElmFromJsonOfType("id", topRelease)
+            val covertArtArchiveJson = getCoverArtArchiveResponse(id)
+            track.imageHref = getHrefFromJson(covertArtArchiveJson)
         }
 
+        if (track.album.isNullOrBlank())
+            track.album = getRootLevelElmFromJsonOfType<String>("title", topRelease)
+
+        if (track.label.isNullOrBlank())
+            track.label = getLabelFromRelease(topRelease)
+
+        val yearStr = getRootLevelElmFromJsonOfType<String>("date", topRelease)
+        if ((yearStr?.length ?: 0) >= 4)
+            track.year = yearStr
+                ?.substring(0,4)
+                ?.toIntOrNull()
+
+        track.hasScrapedMetadata = true
         return track
     }
 
+    // Try each release ID until we get an image
+    private fun attemptToGetImageFromReleases(): String? {
+        var imageHref: String?= null
+        val releaseCount = getRootLevelElmFromJsonOfType<Int>("count", releases) ?: 0
+
+        (0 until releaseCount).asSequence()
+            .takeWhile { imageHref.isNullOrEmpty() } // TODO: cap this at a certain limit?
+            .forEach {
+                val releaseAtPosition = getReleaseAtPosition(it, releases)
+                val id: String? = getRootLevelElmFromJsonOfType("id", releaseAtPosition)
+                val covertArtArchiveJson = getCoverArtArchiveResponse(id)
+                return getHrefFromJson(covertArtArchiveJson)
+            }
+
+        return null
+    }
+
     /** https://wiki.musicbrainz.org/Development/JSON_Web_Service */
-    private fun getMusicBrainzResponse(type: MusicBrainzType, query: String): JSONObject {
-        val url = "$searchDomain${type.type}?query=$query" + "&fmt=json"
+    private fun getMusicBrainzResponse(url: String): JSONObject? {
         Timber.d("GET $url")
         return HttpHelper.getJsonResponse(url)
     }
 
-    private fun getCovertArtArchiveResponse(id: String): JSONObject {
+    private fun getCoverArtArchiveResponse(id: String?): JSONObject? {
+        if (id == null) return null
+
         val url = "$covertArtDomain$id"
         Timber.d("GET $url")
         return HttpHelper.getJsonResponse(url)
     }
 
-    private fun getIdFromMetadata(json: JSONObject?): String {
-        var id = ""
+    private fun getHrefFromJson(json: JSONObject?): String? {
+        var href: String?= null
 
-        if (json?.has("id") == true)
-            id = json.getString("id")
-
-        return id
-    }
-
-    private fun getHrefFromJson(json: JSONObject): String {
-        if (json.has("images")) {
+        if (json?.has("images") == true) {
             val images = json.getJSONArray("images")
             val obj = images?.getJSONObject(0)
-            return obj?.getString("image") ?: ""
+            href = obj?.getString("image") ?: ""
         }
-        else return ""
+
+        return href
     }
 
-    private fun getMetadataFromJson(json: JSONObject?, type: MusicBrainzType): JSONObject? {
-        return when(type) {
-            MusicBrainzType.RECORDING -> {
-                var dataObj: JSONObject? = null
+    private fun getReleaseAtPosition(position: Int, json: JSONObject?): JSONObject? {
+        return if (json?.has("releases") == true)
+            json
+            .getJSONArray("releases")
+            ?.getJSONObject(position)
+        else
+            null
+    }
 
-                val recordings = json
-                    ?.getJSONArray("recordings")
+    private fun getRecordingFromSong(track: TrackEntity): JSONObject? {
+        val query = makeRecordingQuery(track)
+        val url = "${searchDomain}recording?query=$query$jsonQs"
+        return getMusicBrainzResponse(url)
+    }
 
-                for (i in 0 until (recordings?.length() ?: 0)) {
-                    val node = recordings?.get(i) as? JSONObject
-                    if (node?.has("releases") == true){
-                        dataObj = node.getJSONArray("releases")
-                            ?.getJSONObject(0)
-                        break
+    private fun getReleasesFromAlbum(track: TrackEntity): JSONObject? {
+        val query = makeReleaseQuery(track)
+        val url = "${searchDomain}release?query=$query&$releaseQs$jsonQs"
+        return getMusicBrainzResponse(url)
+    }
+
+    private fun getReleaseFromMBID(mbid: String): JSONObject? {
+        return getMusicBrainzResponse("${searchDomain}release/$mbid?$releaseQs$jsonQs")
+    }
+
+    private fun getReleasesFromRecording(json: JSONObject?): JSONObject? {
+        if (json?.has("recordings") == true) {
+            val recordings = json.getJSONArray("recordings")
+
+            for (i in 0 until (recordings?.length() ?: 0)) {
+                val node = recordings?.get(i) as? JSONObject
+                if (node?.has("releases") == true){
+                    val releases = node.getJSONArray("releases") // note: this node does not contain label info
+                    if (releases.length() > 0) {
+                        val topReleaseObj = releases?.getJSONObject(0)
+                        if (topReleaseObj?.has("id") == true) {
+                            return getReleaseFromMBID(topReleaseObj.getString("id"))
+                        }
                     }
                 }
-
-                dataObj
             }
-            MusicBrainzType.RELEASE -> json
-                ?.getJSONArray("releases")
-                ?.getJSONObject(0)
+        }
+
+        return null
+    }
+
+    private fun getReleaseFromSong(track: TrackEntity): JSONObject? {
+        val recording = getRecordingFromSong(track)
+        return getReleasesFromRecording(recording)
+    }
+
+    private fun getReleasesFromTrack(track: TrackEntity) {
+        if (track.album.isNullOrBlank()) {
+            topRelease = getReleaseFromSong(track)
+        } else {
+            releases = getReleasesFromAlbum(track)
+            if (isResponseEmpty(releases)) // try song if no results for album
+                topRelease = getReleaseFromSong(track)
         }
     }
 
-    private inline fun <reified T> getRootLevelElmFromMetadataOfType(key: String, metadata: JSONObject?): T?{
+    // TODO: refactor this into a general purpose JSON helper
+    private inline fun <reified T> getRootLevelElmFromJsonOfType(key: String, json: JSONObject?): T?{
         var elm: T? = null
 
-        if (metadata?.has(key) == true && metadata.get(key) is T && metadata.get(key) != null)
-            elm = metadata.get(key) as? T
+        if (json?.has(key) == true && json.get(key) is T && json.get(key) != null)
+            elm = json.get(key) as? T
 
         return elm
     }
 
-    private fun getLabelFromMetadata(metadata: JSONObject?): String {
-        var label = ""
+    private fun getLabelFromRelease(metadata: JSONObject?): String? {
+        var label: String? = null
 
         if (metadata?.has("label-info") == true){
             val labelInfo = metadata.getJSONArray("label-info").get(0) as? JSONObject
@@ -133,8 +173,8 @@ object MusicBrainz {
         return label
     }
 
-    private fun isResponseEmpty(json: JSONObject): Boolean {
-        return !json.has("count") || json.getInt("count") == 0
+    private fun isResponseEmpty(json: JSONObject?): Boolean {
+        return json == null || !json.has("count") || json.getInt("count") == 0
     }
 
     private fun makeRecordingQuery(track: TrackEntity): String {

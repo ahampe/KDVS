@@ -51,6 +51,9 @@ interface TrackDao {
     @Insert(onConflict = REPLACE)
     fun insert(trackEntity: TrackEntity)
 
+    @Query("UPDATE trackData SET album = :album WHERE trackId = :id")
+    fun updateAlbum(id: Int?, album: String?)
+
     @Query("UPDATE trackData SET imageHref = :href WHERE trackId = :id")
     fun updateImageHref(id: Int?, href: String?)
 

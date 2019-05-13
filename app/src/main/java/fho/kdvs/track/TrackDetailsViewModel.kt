@@ -41,15 +41,18 @@ class TrackDetailsViewModel @Inject constructor(
         show = broadcastRepository.showByBroadcastId(track.broadcastId)
 
         if (!track.hasScrapedMetadata) {
+            val hasAlbum = !track.album.isNullOrEmpty()
             val hasLabel = !track.label.isNullOrEmpty()
             var trackWithMetadata: TrackEntity = track
             val job = launch { trackWithMetadata = MusicBrainz.fetchTrackInfo(track) }
 
             job.invokeOnCompletion {
-                if (!trackWithMetadata.imageHref.isNullOrBlank())
-                    launch { trackRepository.updateTrackImageHref(track.trackId, trackWithMetadata.imageHref) }
+                if (!hasAlbum && !trackWithMetadata.album.isNullOrBlank())
+                    launch { trackRepository.updateTrackAlbum(track.trackId, trackWithMetadata.album)}
                 if (!hasLabel && !trackWithMetadata.label.isNullOrBlank())
                     launch { trackRepository.updateTrackLabel(track.trackId, trackWithMetadata.label)}
+                if (!trackWithMetadata.imageHref.isNullOrBlank())
+                    launch { trackRepository.updateTrackImageHref(track.trackId, trackWithMetadata.imageHref) }
                 if (trackWithMetadata.year != null && trackWithMetadata.year != -1)
                     launch { trackRepository.updateTrackYear(track.trackId, trackWithMetadata.year)}
                 launch { trackRepository.onScrapeMetadata(track.trackId) }

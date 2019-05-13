@@ -50,6 +50,8 @@ class TrackRepository @Inject constructor(
             .debounce(100L, TimeUnit.MILLISECONDS)
             .toLiveData()
 
+    fun updateTrackAlbum(trackId: Int?, album: String?) = trackDao.updateAlbum(trackId, album)
+
     fun updateTrackImageHref(trackId: Int?, href: String?) = trackDao.updateImageHref(trackId, href)
 
     fun updateTrackLabel(trackId: Int?, label: String?) = trackDao.updateLabel(trackId, label)
