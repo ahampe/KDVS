@@ -103,6 +103,20 @@
             app:layout_constraintBottom_toBottomOf="@id/artwork_overlay"
             app:layout_constraintEnd_toEndOf="@id/artwork_overlay"/>
 
+        <ImageView
+            android:id="@+id/spotifyIcon"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintDimensionRatio="1:1"
+            android:padding="@dimen/spacing_small"
+            android:tag="0"
+            android:src="@drawable/ic_spotify_white_24dp"
+            android:visibility="gone"
+            tools:visibility="visible"
+            app:layout_constraintTop_toTopOf="@id/artwork_overlay"
+            app:layout_constraintBottom_toBottomOf="@id/artwork_overlay"
+            app:layout_constraintEnd_toStartOf="@id/favoriteIcon"/>
+
         <TextView
             android:id="@+id/song"
             android:layout_width="0dp"

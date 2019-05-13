@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.databinding.FragmentBroadcastDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
+import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.util.HttpHelper
 import fho.kdvs.global.util.TimeHelper
@@ -24,6 +25,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
     private lateinit var viewModel: BroadcastDetailsViewModel
+    private lateinit var sharedViewModel: SharedViewModel
 
     private var tracksAdapter: BroadcastTracksAdapter? = null
 
@@ -44,6 +46,9 @@ class BroadcastDetailsFragment : DaggerFragment() {
             .get(BroadcastDetailsViewModel::class.java)
             .also { it.initialize(showId, broadcastId) }
 
+        sharedViewModel = ViewModelProviders.of(this, vmFactory)
+            .get(SharedViewModel::class.java)
+
         subscribeToViewModel()
     }
 
@@ -61,7 +66,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        tracksAdapter = BroadcastTracksAdapter(viewModel) {
+        tracksAdapter = BroadcastTracksAdapter(viewModel, sharedViewModel) {
             Timber.d("Clicked ${it.item}")
             viewModel.onClickTrack(this.findNavController(), it.item)
         }

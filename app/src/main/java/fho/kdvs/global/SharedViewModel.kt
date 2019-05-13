@@ -10,6 +10,7 @@ import androidx.lifecycle.LiveData
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.extensions.id
 import fho.kdvs.global.extensions.isPlayEnabled
 import fho.kdvs.global.extensions.isPlaying
@@ -101,6 +102,10 @@ class SharedViewModel @Inject constructor(
         if (intent.resolveActivity(view.context.packageManager) != null) {
             startActivity(view.context, intent, null)
         }
+    }
+
+    fun openSpotify(track: TrackEntity?) {
+
     }
 
     // endregion

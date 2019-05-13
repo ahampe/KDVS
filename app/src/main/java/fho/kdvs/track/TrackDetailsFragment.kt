@@ -21,6 +21,7 @@ import fho.kdvs.R
 import fho.kdvs.databinding.FragmentTrackDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.PerFragment
+import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.util.ImageHelper
 import fho.kdvs.global.util.TimeHelper
@@ -58,6 +59,7 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
     private lateinit var viewModel: TrackDetailsViewModel
+    private lateinit var sharedViewModel: SharedViewModel
 
     private val job = Job()
     override val coroutineContext: CoroutineContext
@@ -100,6 +102,9 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
                 it.initialize(track)
             }
 
+        sharedViewModel = ViewModelProviders.of(this, vmFactory)
+            .get(SharedViewModel::class.java)
+
         setStyle(BottomSheetDialogFragment.STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme)
         subscribeToViewModel()
     }
@@ -138,6 +143,9 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
 
         viewModel.liveTrack.observe(this, Observer { liveTrack ->
             Timber.d("Got updated track: $liveTrack")
+
+            spotifyIcon.setOnClickListener { sharedViewModel.openSpotify(liveTrack) }
+            spotifyIcon.visibility = View.VISIBLE
 
             // TODO: replace some of these with binding adapters
 
