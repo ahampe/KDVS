@@ -16,6 +16,9 @@ interface TrackDao {
     @Query("SELECT * from trackData WHERE trackId = :trackId LIMIT 1")
     fun trackById(trackId: Int?): LiveData<TrackEntity>
 
+    @Query("SELECT spotifyUri from trackData WHERE trackId = :trackId LIMIT 1")
+    fun spotifyUriById(trackId: Int?): LiveData<String>
+
     @Query("SELECT * from trackData WHERE broadcastId = :broadcastId ORDER BY position")
     fun allTracksForBroadcast(broadcastId: Int?): Flowable<List<TrackEntity>>
 

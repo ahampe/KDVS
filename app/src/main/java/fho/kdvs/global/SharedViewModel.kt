@@ -8,6 +8,7 @@ import android.view.View
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
@@ -128,6 +129,8 @@ class SharedViewModel @Inject constructor(
 
     // region Spotify
 
+    // TODO: refactor this code to Spotify.kt
+
     fun onTrackSpotifyClick(view: View, track: TrackEntity?) {
         Timber.d("Spotify icon clicked for ${track?.song}")
 
@@ -136,6 +139,13 @@ class SharedViewModel @Inject constructor(
         launch {
             var spotifyUri = track.spotifyUri
             if (spotifyUri.isNullOrEmpty()) {
+//
+//                launch {
+//                    val liveUri = trackRepository.spotifyUriById(track.trackId)
+//                    liveUri.observe(this, Observer {
+//
+//                    })
+//                }
 
                 val response = Spotify.searchForTrack(track)
                 spotifyUri = Spotify.parseSpotifyTrackUri(response)

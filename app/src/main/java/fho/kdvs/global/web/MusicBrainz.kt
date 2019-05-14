@@ -166,11 +166,14 @@ object MusicBrainz {
         var label: String? = null
 
         if (metadata?.has("label-info") == true){
-            val labelInfo = metadata.getJSONArray("label-info").get(0) as? JSONObject
-            if (labelInfo?.has("label") == true){
-                val labelObj = labelInfo.get("label") as? JSONObject
-                if (labelObj?.has("name") == true)
-                    label = labelObj.getString("name")
+            val labelInfo = metadata.getJSONArray("label-info")
+            if (labelInfo.length() > 0) {
+                val topLabelInfo = labelInfo.getJSONObject(0)
+                if (topLabelInfo?.has("label") == true) {
+                    val labelObj = topLabelInfo.getJSONObject("label")
+                    if (labelObj?.has("name") == true)
+                        label = labelObj.getString("name")
+                }
             }
         }
 

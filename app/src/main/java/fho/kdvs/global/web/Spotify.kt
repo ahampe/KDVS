@@ -58,7 +58,6 @@ object Spotify {
 
     }
 
-
     fun searchForAlbum(artist: String, album: String): JSONObject {
         val query = getAlbumQuery(artist, album)
         return search(query)
@@ -70,7 +69,7 @@ object Spotify {
     }
 
     // Client Credentials Flow
-    private fun search(query: String?): JSONObject {
+    private fun search(query: String?): JSONObject { // TODO: fuzzy/dynamic search
         Timber.d("Spotify search $query")
 
         var item = JSONObject("{}")
@@ -91,6 +90,24 @@ object Spotify {
         return item
     }
 
+    fun parseSpotifyAlbumUri(json: JSONObject): String {
+        var uri = ""
+
+        if (json.has("albums")) {
+            val tracks = json.getJSONObject("albums")
+            if (tracks.has("items")) {
+                val items = tracks.getJSONArray("items")
+                if (items.length() > 0) {
+                    val topResult = items.getJSONObject(0)
+                    if (topResult.has("id"))
+                        uri = "spotify:album:" + topResult.getString("id")
+                }
+            }
+        }
+
+        return uri
+    }
+
     fun parseSpotifyTrackUri(json: JSONObject): String {
         var uri = ""
 
@@ -106,14 +123,22 @@ object Spotify {
             }
         }
 
+        // TODO : parse artwork if it's available
+
         return uri
     }
 
     private fun getAlbumQuery(artist: String, album: String): String {
-        return "album:${album.urlEncoded}%20artist:${artist.urlEncoded}&type=album&limit=1"
+        return "album:${album.encode()} artist:${artist.encode()}&type=album&limit=1"
     }
 
     private fun getTrackQuery(track: TrackEntity): String {
-        return "track:${track.song.urlEncoded} artist:${track.artist.urlEncoded}&type=track&limit=1"
+        return ("track:${track.song.encode()} "
+            + "artist:${track.artist.encode()}&type=track&limit=1")
+    }
+
+    private fun String?.encode(): String {
+        return this.urlEncoded
+            .replace("+", " ")
     }
 }

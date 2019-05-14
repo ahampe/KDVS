@@ -29,8 +29,10 @@ object HttpHelper {
         var response = "{}"
 
         try {
-            if (!url.isNullOrEmpty())
+            if (!url.isNullOrEmpty()) {
+                Timber.d("GET request $url")
                 response = restTemplate.getForObject(url, String::class.java)
+            }
         } catch (e: Exception) {
             Timber.d("GET error $e")
         }
@@ -43,8 +45,10 @@ object HttpHelper {
         var response = "{}"
 
         try {
-            if (!url.isNullOrEmpty() && request != null)
+            if (!url.isNullOrEmpty() && request != null) {
+                Timber.d("GET request $url")
                 response = restTemplate.exchange(url, HttpMethod.GET, request, String::class.java).body
+            }
         } catch (e: Exception) {
             Timber.d("GET error $e")
         }
@@ -57,9 +61,10 @@ object HttpHelper {
         var response = "{}"
 
         try {
-            Timber.d("Making POST $url")
-            if (!url.isNullOrEmpty())
+            if (!url.isNullOrEmpty()) {
+                Timber.d("Making POST $url")
                 response = restTemplate.postForObject(url, request, String::class.java)
+            }
         } catch (e: Exception) {
             Timber.d("POST error $e")
         }

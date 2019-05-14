@@ -45,6 +45,8 @@ class TrackRepository @Inject constructor(
 
     fun trackById(trackId: Int): LiveData<TrackEntity> = trackDao.trackById(trackId)
 
+    fun spotifyUriById(trackId: Int): LiveData<String> = trackDao.spotifyUriById(trackId)
+
     fun tracksForBroadcast(broadcastId: Int): LiveData<List<TrackEntity>> =
         trackDao.allTracksForBroadcast(broadcastId)
             .debounce(100L, TimeUnit.MILLISECONDS)
