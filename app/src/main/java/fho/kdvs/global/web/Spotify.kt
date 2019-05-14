@@ -4,11 +4,14 @@ import android.util.Base64
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.SpotifyAppRemote
 import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.extensions.urlEncoded
 import fho.kdvs.global.util.HttpHelper
 import org.json.JSONObject
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.util.LinkedMultiValueMap
+import timber.log.Timber
 
 enum class SearchType {
     ALBUM, TRACK
@@ -32,11 +35,14 @@ object Spotify {
     }
 
     private fun requestAuthentication(): JSONObject {
-        val body = Pair("grant_type", "client_credentials")
+        Timber.d("Requesting Spotify authentication")
 
-        var encoded = Base64.encodeToString(
+        val body = LinkedMultiValueMap<String, String>()
+        body.add("grant_type", "client_credentials")
+
+        val encoded = Base64.encodeToString(
             "$CLIENT_ID:$CLIENT_SECRET".toByteArray(),
-            Base64.DEFAULT
+            Base64.NO_WRAP
         )
 
         val headers = HttpHeaders()
@@ -65,6 +71,8 @@ object Spotify {
 
     // Client Credentials Flow
     private fun search(query: String?): JSONObject {
+        Timber.d("Spotify search $query")
+
         var item = JSONObject("{}")
 
         val authentication = requestAuthentication()
@@ -75,14 +83,13 @@ object Spotify {
             headers.set("Authorization", "Bearer $token")
 
             val url = "$SEARCH_URL$query"
-            item = HttpHelper.makeGETRequest(url)
+            val request = HttpEntity<String>(headers)
+
+            item = HttpHelper.makeParameterizedGETRequest(url, request)
         }
 
         return item
     }
-
-    // Client Credentials Flow
-
 
     fun parseSpotifyTrackUri(json: JSONObject): String {
         var uri = ""
@@ -103,10 +110,10 @@ object Spotify {
     }
 
     private fun getAlbumQuery(artist: String, album: String): String {
-        return "q=album:$album%20artist:$artist&type=album&limit=1"
+        return "album:${album.urlEncoded}%20artist:${artist.urlEncoded}&type=album&limit=1"
     }
 
     private fun getTrackQuery(track: TrackEntity): String {
-        return "q=track:${track.song}%20artist:${track.artist}&type=album,track&limit=1"
+        return "track:${track.song.urlEncoded} artist:${track.artist.urlEncoded}&type=track&limit=1"
     }
 }

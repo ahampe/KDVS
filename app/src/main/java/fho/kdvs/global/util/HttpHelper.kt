@@ -1,16 +1,13 @@
 package fho.kdvs.global.util
 
-import android.util.Base64
-import org.apache.commons.text.StringEscapeUtils
 import org.jetbrains.anko.doAsync
 import org.json.JSONObject
 import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
 import org.springframework.web.client.RestTemplate
-import org.w3c.dom.Document
+import timber.log.Timber
 import java.net.HttpURLConnection
 import java.net.URL
-import javax.xml.parsers.DocumentBuilderFactory
 
 object HttpHelper {
     /* Returns true if good HTTP request. */
@@ -34,7 +31,23 @@ object HttpHelper {
         try {
             if (!url.isNullOrEmpty())
                 response = restTemplate.getForObject(url, String::class.java)
-        } catch (e: Exception) {}
+        } catch (e: Exception) {
+            Timber.d("GET error $e")
+        }
+
+        return JSONObject(response)
+    }
+
+    fun makeParameterizedGETRequest(url: String?, request: HttpEntity<String>?): JSONObject {
+        val restTemplate = RestTemplate(true)
+        var response = "{}"
+
+        try {
+            if (!url.isNullOrEmpty() && request != null)
+                response = restTemplate.exchange(url, HttpMethod.GET, request, String::class.java).body
+        } catch (e: Exception) {
+            Timber.d("GET error $e")
+        }
 
         return JSONObject(response)
     }
@@ -44,9 +57,12 @@ object HttpHelper {
         var response = "{}"
 
         try {
+            Timber.d("Making POST $url")
             if (!url.isNullOrEmpty())
                 response = restTemplate.postForObject(url, request, String::class.java)
-        } catch (e: Exception) {}
+        } catch (e: Exception) {
+            Timber.d("POST error $e")
+        }
 
         return JSONObject(response)
     }

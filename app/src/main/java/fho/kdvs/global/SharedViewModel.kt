@@ -129,18 +129,24 @@ class SharedViewModel @Inject constructor(
     // region Spotify
 
     fun onTrackSpotifyClick(view: View, track: TrackEntity?) {
+        Timber.d("Spotify icon clicked for ${track?.song}")
+
         if (track == null) return
 
-        var spotifyUri = track.spotifyUri
-        if (spotifyUri.isNullOrEmpty()) {
-            val response = Spotify.searchForTrack(track)
-            spotifyUri = Spotify.parseSpotifyTrackUri(response)
+        launch {
+            var spotifyUri = track.spotifyUri
+            if (spotifyUri.isNullOrEmpty()) {
 
-            launch { trackRepository.updateTrackSpotifyUri(track.trackId, spotifyUri) }
+                val response = Spotify.searchForTrack(track)
+                spotifyUri = Spotify.parseSpotifyTrackUri(response)
+
+                launch { trackRepository.updateTrackSpotifyUri(track.trackId, spotifyUri) }
+
+            }
+
+            if (spotifyUri.isNotEmpty())
+                openSpotify(view, spotifyUri)
         }
-
-        if (spotifyUri.isNotEmpty())
-            openSpotify(view, spotifyUri)
     }
 
     fun openSpotify(view: View, spotifyUri: String) {
