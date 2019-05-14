@@ -68,7 +68,7 @@ object MusicBrainz {
     /** https://wiki.musicbrainz.org/Development/JSON_Web_Service */
     private fun getMusicBrainzResponse(url: String): JSONObject? {
         Timber.d("GET $url")
-        return HttpHelper.getJsonResponse(url)
+        return HttpHelper.makeGETRequest(url)
     }
 
     private fun getCoverArtArchiveResponse(id: String?): JSONObject? {
@@ -76,7 +76,7 @@ object MusicBrainz {
 
         val url = "$covertArtDomain$id"
         Timber.d("GET $url")
-        return HttpHelper.getJsonResponse(url)
+        return HttpHelper.makeGETRequest(url)
     }
 
     private fun getHrefFromJson(json: JSONObject?): String? {

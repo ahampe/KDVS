@@ -5,14 +5,12 @@
 
     <data>
         <variable
-            name="showName"
-            type="String" />
-        <variable
-            name="broadcastDate"
-            type="String" />
-        <variable
             name="vm"
             type="fho.kdvs.track.TrackDetailsViewModel" />
+
+        <variable
+            name="sharedVm"
+            type="fho.kdvs.global.SharedViewModel" />
 
         <variable
             name="trackData"
@@ -49,7 +47,6 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:gravity="center"
-            android:text="@{showName}"
             tools:text="Show Name"/>
 
         <TextView
@@ -64,7 +61,6 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:gravity="center"
-            android:text="@{broadcastDate}"
             tools:text="Jan 2, 2019"/>
 
         <ImageView
@@ -107,6 +103,7 @@
             android:id="@+id/spotifyIcon"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:onClick="@{(view) -> sharedVm.onTrackSpotifyClick(view, trackData)}"
             app:layout_constraintDimensionRatio="1:1"
             android:padding="@dimen/spacing_small"
             android:tag="0"

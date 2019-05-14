@@ -29,7 +29,8 @@ data class TrackEntity(
     @ColumnInfo(name = "airbreak") var airbreak: Boolean = false,
     @ColumnInfo(name = "imageHref") var imageHref: String? = null,
     @ColumnInfo(name = "year") var year: Int? = null,
-    @ColumnInfo(name = "hasScrapedMetadata") var hasScrapedMetadata: Boolean = false
+    @ColumnInfo(name = "hasScrapedMetadata") var hasScrapedMetadata: Boolean = false,
+    @ColumnInfo(name = "spotifyUri") var spotifyUri: String? = null
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
@@ -44,7 +45,8 @@ data class TrackEntity(
         airbreak = parcel.readValue(Boolean::class.java.classLoader) as Boolean,
         imageHref = parcel.readString(),
         year = parcel.readInt(),
-        hasScrapedMetadata = parcel.readValue(Boolean::class.java.classLoader) as Boolean
+        hasScrapedMetadata = parcel.readValue(Boolean::class.java.classLoader) as Boolean,
+        spotifyUri = parcel.readString()
     )
 
     override fun writeToParcel(dest: Parcel?, flags: Int) {
@@ -60,6 +62,7 @@ data class TrackEntity(
         dest?.writeValue(imageHref)
         dest?.writeValue(year)
         dest?.writeValue(hasScrapedMetadata)
+        dest?.writeValue(spotifyUri)
     }
 
     override fun describeContents(): Int {

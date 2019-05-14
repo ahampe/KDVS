@@ -2,6 +2,7 @@ package fho.kdvs.global
 
 import android.app.Application
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.view.View
 import androidx.core.content.ContextCompat.startActivity
@@ -16,11 +17,15 @@ import fho.kdvs.global.extensions.isPlayEnabled
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
 import fho.kdvs.global.util.URLs
+import fho.kdvs.global.web.Spotify
 import fho.kdvs.services.LiveShowUpdater
 import fho.kdvs.services.MediaSessionConnection
 import fho.kdvs.show.ShowRepository
+import fho.kdvs.track.TrackRepository
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+
 
 /** An [AndroidViewModel] scoped to the main activity.
  * Use this for data that will be consumed in many places. */
@@ -28,6 +33,7 @@ class SharedViewModel @Inject constructor(
     application: Application,
     private val showRepository: ShowRepository,
     private val broadcastRepository: BroadcastRepository,
+    private val trackRepository: TrackRepository,
     private val liveShowUpdater: LiveShowUpdater,
     private val mediaSessionConnection: MediaSessionConnection
 ) : BaseViewModel(application) {
@@ -85,6 +91,10 @@ class SharedViewModel @Inject constructor(
         }
     }
 
+    // endregion
+
+    // region Launch Activity
+
     fun composeEmail(view: View, address: String?) {
         val intent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("mailto:") // only email apps should handle this
@@ -104,8 +114,68 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun openSpotify(track: TrackEntity?) {
+    fun openSpotifyApp(view: View, spotifyUri: String?) {
+        val intent = Intent(Intent.ACTION_VIEW).apply{
+            data = Uri.parse(spotifyUri)
+            putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + view.context.packageName))
+        }
+        if (intent.resolveActivity(view.context.packageManager) != null) {
+            startActivity(view.context, intent, null)
+        }
+    }
 
+    // endregion
+
+    // region Spotify
+
+    fun onTrackSpotifyClick(view: View, track: TrackEntity?) {
+        if (track == null) return
+
+        var spotifyUri = track.spotifyUri
+        if (spotifyUri.isNullOrEmpty()) {
+            val response = Spotify.searchForTrack(track)
+            spotifyUri = Spotify.parseSpotifyTrackUri(response)
+
+            launch { trackRepository.updateTrackSpotifyUri(track.trackId, spotifyUri) }
+        }
+
+        if (spotifyUri.isNotEmpty())
+            openSpotify(view, spotifyUri)
+    }
+
+    fun openSpotify(view: View, spotifyUri: String) {
+        if (isSpotifyInstalledOnDevice(view)) {
+            openSpotifyApp(view, spotifyUri)
+        }
+        else {
+            val url = makeSpotifyUrl(spotifyUri)
+            if (url.isNotEmpty())
+                openBrowser(view, url)
+        }
+    }
+
+    private fun isSpotifyInstalledOnDevice(view: View): Boolean {
+        var isSpotifyInstalled = false
+
+        try {
+            view.context.packageManager.getPackageInfo("com.spotify.music", 0)
+            isSpotifyInstalled = true
+        } catch (e: PackageManager.NameNotFoundException) {}
+
+        return isSpotifyInstalled
+    }
+
+    fun makeSpotifyUrl(spotifyUri: String): String {
+        var url = ""
+
+        val re = "spotify:(\\w+):(.+)".toRegex().find(spotifyUri)
+        val type = re?.groupValues?.getOrNull(1)
+        val id = re?.groupValues?.getOrNull(2)
+
+        if (!type.isNullOrEmpty() && !id.isNullOrEmpty())
+            url = "https://open.spotify.com/$type/$id"
+
+        return url
     }
 
     // endregion

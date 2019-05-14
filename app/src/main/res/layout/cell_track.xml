@@ -10,10 +10,6 @@
             type="fho.kdvs.broadcast.BroadcastDetailsViewModel" />
 
         <variable
-            name="sharedVm"
-            type="fho.kdvs.global.SharedViewModel" />
-
-        <variable
             name="clickListener"
             type="android.view.View.OnClickListener" />
 
@@ -45,7 +41,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/spotifyIcon"
+            app:layout_constraintEnd_toStartOf="@id/favorite"
             android:layout_marginEnd="@dimen/spacing_extra_small"
             style="@style/TextAppearance.MaterialComponents.Subtitle2"
             tools:text="Testing a Very Long Song Name to See How It Displays With Other Elements" />
@@ -75,24 +71,11 @@
             android:maxLines="1"
             android:textColor="@color/colorPrimary"
             android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/favorite"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@id/comment"
             app:layout_constraintTop_toBottomOf="@id/songName"
             tools:text="Very Long Artist Name • Along With Long Album Name" />
-
-        <ImageView
-            android:id="@+id/spotifyIcon"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:onClick="@{() -> sharedVm.openSpotify(track)}"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="@id/songName"
-            app:layout_constraintEnd_toStartOf="@id/favorite"
-            app:layout_constraintDimensionRatio="1:1"
-            android:layout_marginEnd="@dimen/spacing_small"
-            android:tag="0"
-            android:src="@drawable/ic_spotify_white_24dp"/>
 
         <ImageView
             android:id="@+id/favorite"
@@ -101,9 +84,10 @@
             android:onClick="@{(view) -> vm.onClickFavorite(view, track.trackId)}"
             favorite="@{favorited}"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="@id/songName"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintDimensionRatio="1:1"
+            android:padding="@dimen/spacing_small"
             android:tag="0"
             android:src="@drawable/ic_favorite_border_white_24dp"/>
 

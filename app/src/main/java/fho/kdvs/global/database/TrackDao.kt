@@ -60,6 +60,9 @@ interface TrackDao {
     @Query("UPDATE trackData SET label= :label WHERE trackId = :id")
     fun updateLabel(id: Int?, label: String?)
 
+    @Query("UPDATE trackData SET spotifyUri = :spotifyUri WHERE trackId = :id")
+    fun updateSpotifyUri(id: Int?, spotifyUri: String?)
+
     @Query("UPDATE trackData SET year = :year WHERE trackId = :id")
     fun updateYear(id: Int?, year: Int?)
 

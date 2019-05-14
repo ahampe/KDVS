@@ -47,6 +47,7 @@ dependencies {
     implementation "com.google.android.material:material:1.0.0"
     implementation "androidx.constraintlayout:constraintlayout:2.0.0-alpha2"
     implementation 'com.android.support:palette-v7:28.0.0'
+    implementation "com.google.code.gson:gson:2.8.5"
 
     // Testing
     testImplementation "androidx.test:core:1.1.0"
@@ -121,10 +122,9 @@ dependencies {
     // Spring
     implementation "org.springframework.android:spring-android-rest-template:$spring_android_version"
 
-    // Jackson
-    implementation "com.fasterxml.jackson.core:jackson-core:$jackson_version"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
-
     // Apache
     implementation 'org.apache.commons:commons-text:1.6'
+
+    // Spotify
+    implementation project(':spotify-app-remote')
 }

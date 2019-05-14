@@ -56,6 +56,8 @@ class TrackRepository @Inject constructor(
 
     fun updateTrackLabel(trackId: Int?, label: String?) = trackDao.updateLabel(trackId, label)
 
+    fun updateTrackSpotifyUri(trackId: Int?, spotifyUri: String?) = trackDao.updateSpotifyUri(trackId, spotifyUri)
+
     fun updateTrackYear(trackId: Int?, year: Int?) = trackDao.updateYear(trackId, year)
 
     fun onScrapeMetadata(trackId: Int?) = trackDao.onScrapeMetadata(trackId)

@@ -1,8 +1,11 @@
 package fho.kdvs.global.util
 
+import android.util.Base64
 import org.apache.commons.text.StringEscapeUtils
 import org.jetbrains.anko.doAsync
 import org.json.JSONObject
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
 import org.springframework.web.client.RestTemplate
 import org.w3c.dom.Document
 import java.net.HttpURLConnection
@@ -24,35 +27,27 @@ object HttpHelper {
         return (response == HttpURLConnection.HTTP_OK)
     }
 
-    private fun getResponse(url: String?): String {
+    fun makeGETRequest(url: String?): JSONObject {
         val restTemplate = RestTemplate(true)
         var response = "{}"
 
         try {
-            response = restTemplate.getForObject(url, String::class.java)
+            if (!url.isNullOrEmpty())
+                response = restTemplate.getForObject(url, String::class.java)
         } catch (e: Exception) {}
 
-        return response
+        return JSONObject(response)
     }
 
-    fun getDocumentResponse(url: String?): Document {
-        val response = HttpHelper.getResponse(url)
+    fun makePOSTRequest(url: String?, request: Any?): JSONObject {
+        val restTemplate = RestTemplate(true)
+        var response = "{}"
 
-        val factory = DocumentBuilderFactory.newInstance()
-        factory.isValidating = true
-        factory.isIgnoringElementContentWhitespace = true
+        try {
+            if (!url.isNullOrEmpty())
+                response = restTemplate.postForObject(url, request, String::class.java)
+        } catch (e: Exception) {}
 
-        val builder = factory.newDocumentBuilder()
-        return builder.parse(response)
-    }
-
-    fun getJsonResponse(url: String?): JSONObject {
-        return JSONObject(HttpHelper.getResponse(url))
-    }
-
-    fun String.htmlEncode(): String {
-        return StringEscapeUtils.escapeHtml4(this)
-            .replace(" ", "%20")
-            .replace("&quot;", "%22")
+        return JSONObject(response)
     }
 }

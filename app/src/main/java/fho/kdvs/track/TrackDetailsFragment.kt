@@ -113,6 +113,7 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
         val binding = FragmentTrackDetailsBinding.inflate(inflater, container, false)
         binding.apply {
             vm = viewModel
+            sharedVm = sharedViewModel
             trackData = track
         }
         binding.lifecycleOwner = this
@@ -144,7 +145,6 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
         viewModel.liveTrack.observe(this, Observer { liveTrack ->
             Timber.d("Got updated track: $liveTrack")
 
-            spotifyIcon.setOnClickListener { sharedViewModel.openSpotify(liveTrack) }
             spotifyIcon.visibility = View.VISIBLE
 
             // TODO: replace some of these with binding adapters
