@@ -10,11 +10,16 @@ import androidx.lifecycle.LiveData
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.extensions.id
 import fho.kdvs.global.extensions.isPlayEnabled
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
 import fho.kdvs.global.util.URLs
+import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
+import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
+import fho.kdvs.global.util.URLs.YOUTUBE_QUERYSTRING
+import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
 import fho.kdvs.services.LiveShowUpdater
 import fho.kdvs.services.MediaSessionConnection
 import fho.kdvs.show.ShowRepository
@@ -110,6 +115,16 @@ class SharedViewModel @Inject constructor(
         }
     }
 
+    fun onClickDiscogs(view: View, track: TrackEntity?) {
+        if (track == null) return
+        openBrowser(view, "$DISCOGS_SEARCH_URL${track.artist} ${track.song}$DISCOGS_QUERYSTRING")
+    }
+
+    fun onClickYoutube(view: View, track: TrackEntity?) {
+        if (track == null) return
+        openBrowser(view, "$YOUTUBE_SEARCH_URL${track.artist} ${track.song}$YOUTUBE_QUERYSTRING")
+    }
+
     fun openSpotifyApp(view: View, spotifyUri: String?) {
         val intent = Intent(Intent.ACTION_VIEW).apply{
             data = Uri.parse(spotifyUri)
@@ -119,14 +134,6 @@ class SharedViewModel @Inject constructor(
             startActivity(view.context, intent, null)
         }
     }
-
-    // endregion
-
-    // region Spotify
-
-    // TODO: refactor this code to Spotify.kt
-
-
 
     // endregion
 }

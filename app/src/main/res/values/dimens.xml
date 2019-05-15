@@ -6,6 +6,8 @@
     <dimen name="spacing_extra_large">32dp</dimen>
     <dimen name="spacing_64dp">64dp</dimen>
 
+    <dimen name="external_link_icon">40dp</dimen>
+
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>

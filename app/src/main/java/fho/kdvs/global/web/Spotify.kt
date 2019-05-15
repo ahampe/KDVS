@@ -40,28 +40,14 @@ class Spotify @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = parentJob + Dispatchers.IO
 
-    fun onTrackSpotifyClick(view: View, track: TrackEntity?) {
-        Timber.d("Spotify icon clicked for ${track?.song}")
+    fun initializeSpotifyUri(track: TrackEntity) {
+        val response = searchForTrack(track)
+        val newSpotifyUri = parseSpotifyTrackUri(response)
 
-        if (track == null) return
-
-        val spotifyUri = track.spotifyUri
-        if (track.spotifyUri.isNullOrEmpty()) {
-            launch {
-                val response = searchForTrack(track)
-                val newSpotifyUri = parseSpotifyTrackUri(response)
-
-                launch { trackRepository.updateTrackSpotifyUri(track.trackId, newSpotifyUri) }
-                    .invokeOnCompletion{
-                        if (newSpotifyUri.isNotEmpty())
-                            openSpotify(view, newSpotifyUri) }
-            }
-        } else {
-            openSpotify(view, spotifyUri ?: "")
-        }
+        launch { trackRepository.updateTrackSpotifyUri(track?.trackId, newSpotifyUri) }
     }
 
-    private fun openSpotify(view: View, spotifyUri: String) {
+    fun openSpotify(view: View, spotifyUri: String) {
         if (isSpotifyInstalledOnDevice(view)) {
             sharedViewModel.openSpotifyApp(view, spotifyUri)
         }
@@ -96,6 +82,7 @@ class Spotify @Inject constructor(
         return url
     }
 
+    // TODO: setup playlist building
     fun authorizeUser() {
         val connectionParams = ConnectionParams.Builder(SPOTIFY_CLIENT_ID)
             .setRedirectUri(SPOTIFY_REDIRECT_URI)

@@ -117,6 +117,7 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
         val binding = FragmentTrackDetailsBinding.inflate(inflater, container, false)
         binding.apply {
             vm = viewModel
+            sharedVm = sharedViewModel
             spotifyObj = spotify
             trackData = track
         }
@@ -149,7 +150,15 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
         viewModel.liveTrack.observe(this, Observer { liveTrack ->
             Timber.d("Got updated track: $liveTrack")
 
-            spotifyIcon.visibility = View.VISIBLE
+            if (liveTrack.spotifyUri?.isNotEmpty() == true) {
+                spotifyIcon.setOnClickListener {
+                    val spotifyUri = liveTrack.spotifyUri
+                    Timber.d("Spotify icon clicked for ${liveTrack?.song}")
+                    spotify.openSpotify(spotifyIcon, spotifyUri!!)
+                }
+                spotifyIcon.visibility = View.VISIBLE
+            }
+
 
             // TODO: replace some of these with binding adapters
 
@@ -181,7 +190,9 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
 
             if ((liveTrack.imageHref ?: "").isNotEmpty()) {
                 ImageHelper.loadImageWithGlide(artwork, liveTrack.imageHref)
+                //ImageHelper.loadImageAndReflectionWithGlide(artwork, liveTrack.imageHref) // TODO: finish setting this up
             }
+
         })
     }
 }

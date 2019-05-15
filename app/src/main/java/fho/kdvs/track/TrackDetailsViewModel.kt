@@ -10,6 +10,7 @@ import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.favorite.FavoriteRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.web.MusicBrainz
+import fho.kdvs.global.web.Spotify
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -22,6 +23,7 @@ class TrackDetailsViewModel @Inject constructor(
     private val broadcastRepository: BroadcastRepository,
     private val favoriteRepository: FavoriteRepository,
     private val favoriteDao: FavoriteDao,
+    private val spotify: Spotify,
     application: Application
 ) : AndroidViewModel(application), CoroutineScope {
 
@@ -38,6 +40,10 @@ class TrackDetailsViewModel @Inject constructor(
         favorite = favoriteRepository.favoriteByTrackId(track.trackId)
         broadcast = broadcastRepository.broadcastById(track.broadcastId)
         show = broadcastRepository.showByBroadcastId(track.broadcastId)
+
+        if (track.spotifyUri.isNullOrEmpty()) {
+            launch { spotify.initializeSpotifyUri(track) }
+        }
 
         if (!track.hasScrapedMetadata) {
             val hasAlbum = !track.album.isNullOrEmpty()

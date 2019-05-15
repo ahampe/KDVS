@@ -29,7 +29,7 @@ class TimeSlotRequestListener (
     private var color = 0
     private var seed = Long.MIN_VALUE
 
-    override fun onLoadFailed( // TODO: fails for fbcdn images
+    override fun onLoadFailed(
         e: GlideException?,
         model: Any,
         target: Target<Bitmap>,

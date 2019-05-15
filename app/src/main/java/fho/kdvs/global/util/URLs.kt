@@ -30,6 +30,14 @@ object URLs {
 
     const val SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
 
+    const val DISCOGS_SEARCH_URL = "https://www.discogs.com/search/?q="
+
+    const val DISCOGS_QUERYSTRING = "&type=all"
+
+    const val YOUTUBE_SEARCH_URL = "https://www.youtube.com/results?search_query="
+
+    const val YOUTUBE_QUERYSTRING = "&sp=EgIQAQ%253D%253D"
+
     fun showDetails(id: String) = "https://kdvs.org/past-playlists/$id/"
 
     fun broadcastDetails(id: String) = "https://kdvs.org/playlist-details/$id/"
