@@ -25,6 +25,7 @@ import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.util.ImageHelper
 import fho.kdvs.global.util.TimeHelper
+import fho.kdvs.global.web.Spotify
 import fho.kdvs.injection.ViewModelKey
 import kotlinx.android.synthetic.main.fragment_track_details.*
 import kotlinx.coroutines.CoroutineScope
@@ -60,6 +61,7 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
     lateinit var vmFactory: KdvsViewModelFactory
     private lateinit var viewModel: TrackDetailsViewModel
     private lateinit var sharedViewModel: SharedViewModel
+    private lateinit var spotify: Spotify
 
     private val job = Job()
     override val coroutineContext: CoroutineContext
@@ -105,6 +107,8 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
         sharedViewModel = ViewModelProviders.of(this, vmFactory)
             .get(SharedViewModel::class.java)
 
+        spotify = Spotify(viewModel.trackRepository, sharedViewModel)
+
         setStyle(BottomSheetDialogFragment.STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme)
         subscribeToViewModel()
     }
@@ -113,7 +117,7 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
         val binding = FragmentTrackDetailsBinding.inflate(inflater, container, false)
         binding.apply {
             vm = viewModel
-            sharedVm = sharedViewModel
+            spotifyObj = spotify
             trackData = track
         }
         binding.lifecycleOwner = this

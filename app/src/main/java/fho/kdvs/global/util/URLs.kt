@@ -24,6 +24,12 @@ object URLs {
 
     const val FUNDRAISER = "https://fundraiser.kdvs.org/"
 
+    const val SPOTIFY_REDIRECT_URI = "http://com.yourdomain.yourapp/callback"
+
+    const val SPOTIFY_SEARCH_URL = "https://api.spotify.com/v1/search?q="
+
+    const val SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
+
     fun showDetails(id: String) = "https://kdvs.org/past-playlists/$id/"
 
     fun broadcastDetails(id: String) = "https://kdvs.org/playlist-details/$id/"

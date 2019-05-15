@@ -10,7 +10,6 @@ import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.favorite.FavoriteRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.web.MusicBrainz
-import fho.kdvs.show.ShowRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -19,7 +18,7 @@ import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 class TrackDetailsViewModel @Inject constructor(
-    private val trackRepository: TrackRepository,
+    val trackRepository: TrackRepository,
     private val broadcastRepository: BroadcastRepository,
     private val favoriteRepository: FavoriteRepository,
     private val favoriteDao: FavoriteDao,

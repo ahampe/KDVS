@@ -1,35 +1,104 @@
 package fho.kdvs.global.web
 
+import android.content.pm.PackageManager
 import android.util.Base64
+import android.view.View
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.SpotifyAppRemote
+import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.extensions.urlEncoded
 import fho.kdvs.global.util.HttpHelper
+import fho.kdvs.global.util.Keys.SPOTIFY_CLIENT_ID
+import fho.kdvs.global.util.Keys.SPOTIFY_CLIENT_SECRET
+import fho.kdvs.global.util.URLs.SPOTIFY_REDIRECT_URI
+import fho.kdvs.global.util.URLs.SPOTIFY_SEARCH_URL
+import fho.kdvs.global.util.URLs.SPOTIFY_TOKEN_URL
+import fho.kdvs.track.TrackRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.util.LinkedMultiValueMap
 import timber.log.Timber
+import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
-enum class SearchType {
-    ALBUM, TRACK
-}
-
-object Spotify {
-    private const val CLIENT_ID = "7f214830ba524ae1a8b1b8181ad4c2a4"
-    private const val CLIENT_SECRET = "70f0fbddfb38481b8b604fa920a230ce"
-    private const val REDIRECT_URI = "http://com.yourdomain.yourapp/callback" // TODO: set redirect
-
-    private const val SEARCH_URL = "https://api.spotify.com/v1/search?q="
-    private const val TOKEN_URL = "https://accounts.spotify.com/api/token"
-
+class Spotify @Inject constructor(
+    private val trackRepository: TrackRepository,
+    private val sharedViewModel: SharedViewModel
+): CoroutineScope {
     private lateinit var mSpotifyAppRemote: SpotifyAppRemote
 
+    private var job: Job? = null
+
+    private val parentJob = Job()
+    override val coroutineContext: CoroutineContext
+        get() = parentJob + Dispatchers.IO
+
+    fun onTrackSpotifyClick(view: View, track: TrackEntity?) {
+        Timber.d("Spotify icon clicked for ${track?.song}")
+
+        if (track == null) return
+
+        val spotifyUri = track.spotifyUri
+        if (track.spotifyUri.isNullOrEmpty()) {
+            launch {
+                val response = searchForTrack(track)
+                val newSpotifyUri = parseSpotifyTrackUri(response)
+
+                launch { trackRepository.updateTrackSpotifyUri(track.trackId, newSpotifyUri) }
+                    .invokeOnCompletion{
+                        if (newSpotifyUri.isNotEmpty())
+                            openSpotify(view, newSpotifyUri) }
+            }
+        } else {
+            openSpotify(view, spotifyUri ?: "")
+        }
+    }
+
+    private fun openSpotify(view: View, spotifyUri: String) {
+        if (isSpotifyInstalledOnDevice(view)) {
+            sharedViewModel.openSpotifyApp(view, spotifyUri)
+        }
+        else {
+            val url = makeSpotifyUrl(spotifyUri)
+            if (url.isNotEmpty())
+                sharedViewModel.openBrowser(view, url)
+        }
+    }
+
+    private fun isSpotifyInstalledOnDevice(view: View): Boolean {
+        var isSpotifyInstalled = false
+
+        try {
+            view.context.packageManager.getPackageInfo("com.spotify.music", 0)
+            isSpotifyInstalled = true
+        } catch (e: PackageManager.NameNotFoundException) {}
+
+        return isSpotifyInstalled
+    }
+
+    private fun makeSpotifyUrl(spotifyUri: String): String {
+        var url = ""
+
+        val re = "spotify:(\\w+):(.+)".toRegex().find(spotifyUri)
+        val type = re?.groupValues?.getOrNull(1)
+        val id = re?.groupValues?.getOrNull(2)
+
+        if (!type.isNullOrEmpty() && !id.isNullOrEmpty())
+            url = "https://open.spotify.com/$type/$id"
+
+        return url
+    }
+
     fun authorizeUser() {
-        val connectionParams = ConnectionParams.Builder(CLIENT_ID)
-            .setRedirectUri(REDIRECT_URI)
+        val connectionParams = ConnectionParams.Builder(SPOTIFY_CLIENT_ID)
+            .setRedirectUri(SPOTIFY_REDIRECT_URI)
             .showAuthView(true)
             .build()
     }
@@ -41,7 +110,7 @@ object Spotify {
         body.add("grant_type", "client_credentials")
 
         val encoded = Base64.encodeToString(
-            "$CLIENT_ID:$CLIENT_SECRET".toByteArray(),
+            "$SPOTIFY_CLIENT_ID:$SPOTIFY_CLIENT_SECRET".toByteArray(),
             Base64.NO_WRAP
         )
 
@@ -50,7 +119,7 @@ object Spotify {
         headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
 
         val request = HttpEntity(body, headers)
-        return HttpHelper.makePOSTRequest(TOKEN_URL, request)
+        return HttpHelper.makePOSTRequest(SPOTIFY_TOKEN_URL, request)
     }
 
     // Authorization Code Flow
@@ -58,12 +127,12 @@ object Spotify {
 
     }
 
-    fun searchForAlbum(artist: String, album: String): JSONObject {
+    private fun searchForAlbum(artist: String, album: String): JSONObject {
         val query = getAlbumQuery(artist, album)
         return search(query)
     }
 
-    fun searchForTrack(track: TrackEntity): JSONObject {
+    private fun searchForTrack(track: TrackEntity): JSONObject {
         val query = getTrackQuery(track)
         return search(query)
     }
@@ -81,7 +150,7 @@ object Spotify {
             val headers = HttpHeaders()
             headers.set("Authorization", "Bearer $token")
 
-            val url = "$SEARCH_URL$query"
+            val url = "$SPOTIFY_SEARCH_URL$query"
             val request = HttpEntity<String>(headers)
 
             item = HttpHelper.makeParameterizedGETRequest(url, request)
@@ -108,7 +177,7 @@ object Spotify {
         return uri
     }
 
-    fun parseSpotifyTrackUri(json: JSONObject): String {
+    private fun parseSpotifyTrackUri(json: JSONObject): String {
         var uri = ""
 
         if (json.has("tracks")) {

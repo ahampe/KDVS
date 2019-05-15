@@ -9,8 +9,8 @@
             type="fho.kdvs.track.TrackDetailsViewModel" />
 
         <variable
-            name="sharedVm"
-            type="fho.kdvs.global.SharedViewModel" />
+            name="spotifyObj"
+            type="fho.kdvs.global.web.Spotify" />
 
         <variable
             name="trackData"
@@ -103,7 +103,7 @@
             android:id="@+id/spotifyIcon"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:onClick="@{(view) -> sharedVm.onTrackSpotifyClick(view, trackData)}"
+            android:onClick="@{(view) -> spotifyObj.onTrackSpotifyClick(view, trackData)}"
             app:layout_constraintDimensionRatio="1:1"
             android:padding="@dimen/spacing_small"
             android:tag="0"
