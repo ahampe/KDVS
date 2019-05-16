@@ -65,7 +65,6 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
     private lateinit var sharedViewModel: SharedViewModel
 
     private lateinit var spotify: Spotify
-    private val hiddenViews = mutableListOf<View>()
 
     private val job = Job()
     override val coroutineContext: CoroutineContext
@@ -134,7 +133,7 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        showProgressBar() // TODO: refactor this to be reused
+        progressBar.visibility = View.VISIBLE
     }
 
     private fun subscribeToViewModel() {
@@ -168,14 +167,14 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
             if (liveTrack.hasScrapedMetadata) {
                 musicBrainzFetchComplete = true
                 if (spotifyFetchComplete)
-                    hideProgressBar()
+                    progressBar.visibility = View.GONE
             }
 
             val spotifyUri = liveTrack.spotifyUri
             if (spotifyUri != null) {
                 spotifyFetchComplete = true
                 if (musicBrainzFetchComplete)
-                    hideProgressBar()
+                    progressBar.visibility = View.GONE
 
                 if (spotifyUri.isNotEmpty()) {
                     spotifyIcon.setOnClickListener {
@@ -218,30 +217,5 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
                 ImageHelper.loadImageWithGlide(artwork, liveTrack.imageHref)
             }
         })
-    }
-
-    private fun hideProgressBar() {
-        base?.forEachChild { v ->
-            if (v is ProgressBar){
-                v.visibility = View.GONE
-            } else {
-                if (v in hiddenViews)
-                    v.visibility = View.GONE
-                else
-                    v.visibility = View.VISIBLE
-            }
-        }
-    }
-
-    private fun showProgressBar() {
-        base?.forEachChild { v ->
-            if (v is ProgressBar) {
-                v.visibility = View.VISIBLE
-            } else {
-                if (v.visibility == View.GONE)
-                    hiddenViews.add(v)
-                v.visibility = View.GONE
-            }
-        }
     }
 }
