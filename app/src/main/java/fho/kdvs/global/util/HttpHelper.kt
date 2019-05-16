@@ -9,7 +9,7 @@ import timber.log.Timber
 import java.net.HttpURLConnection
 import java.net.URL
 
-object HttpHelper {
+object HttpHelper {  // TODO: retry on connection fail?
     /* Returns true if good HTTP request. */
     fun isConnectionAvailable(url: String?): Boolean {
         val con = URL(url).openConnection() as HttpURLConnection

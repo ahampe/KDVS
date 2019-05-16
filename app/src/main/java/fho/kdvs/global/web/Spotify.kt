@@ -207,10 +207,6 @@ class Spotify @Inject constructor(
         return topResult
     }
 
-    private fun updateImageHref(href: String) {
-
-    }
-
     private fun getAlbumQuery(artist: String, album: String): String {
         return "album:${album.encode()} artist:${artist.encode()}&type=album&limit=1"
     }

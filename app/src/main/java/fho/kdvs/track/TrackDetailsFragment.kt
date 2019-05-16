@@ -63,7 +63,9 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
     lateinit var vmFactory: KdvsViewModelFactory
     private lateinit var viewModel: TrackDetailsViewModel
     private lateinit var sharedViewModel: SharedViewModel
+
     private lateinit var spotify: Spotify
+    private val hiddenViews = mutableListOf<View>()
 
     private val job = Job()
     override val coroutineContext: CoroutineContext
@@ -220,19 +222,26 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
 
     private fun hideProgressBar() {
         base?.forEachChild { v ->
-            if (v is ProgressBar)
+            if (v is ProgressBar){
                 v.visibility = View.GONE
-            else
-                v.visibility = View.VISIBLE
+            } else {
+                if (v in hiddenViews)
+                    v.visibility = View.GONE
+                else
+                    v.visibility = View.VISIBLE
+            }
         }
     }
 
     private fun showProgressBar() {
         base?.forEachChild { v ->
-            if (v is ProgressBar)
+            if (v is ProgressBar) {
                 v.visibility = View.VISIBLE
-            else
+            } else {
+                if (v.visibility == View.GONE)
+                    hiddenViews.add(v)
                 v.visibility = View.GONE
+            }
         }
     }
 }
