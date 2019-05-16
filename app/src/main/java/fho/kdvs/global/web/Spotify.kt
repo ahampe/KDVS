@@ -41,6 +41,8 @@ class Spotify @Inject constructor(
 
         if (topResult.has("id"))
             track.spotifyUri = topResult.getString("id")
+        else
+            track.spotifyUri = ""
 
         if (topResult.has("album")) {
             val album = topResult.getJSONObject("album")

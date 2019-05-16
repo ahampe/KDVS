@@ -1,4 +1,4 @@
-package fho.kdvs.global.extensions
+package fho.kdvs.global.ui
 
 import android.graphics.Bitmap
 import android.graphics.Color

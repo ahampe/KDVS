@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.ImageView
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.favorite.FavoriteRepository
@@ -64,10 +65,8 @@ class TrackDetailsViewModel @Inject constructor(
                         launch { trackRepository.updateTrackAlbum(track.trackId, trackWithSpotifyData.album)}
                 }
 
-                if (!hasLabel) {
-                    if (!trackWithMBData.label.isNullOrBlank())
-                        launch { trackRepository.updateTrackLabel(track.trackId, trackWithMBData.label)}
-                }
+                if (!hasLabel && !trackWithMBData.label.isNullOrBlank())
+                    launch { trackRepository.updateTrackLabel(track.trackId, trackWithMBData.label)}
 
                 if (!trackWithMBData.imageHref.isNullOrBlank())
                     launch { trackRepository.updateTrackImageHref(track.trackId, trackWithMBData.imageHref)}
@@ -79,8 +78,8 @@ class TrackDetailsViewModel @Inject constructor(
                 else if (trackWithSpotifyData.year != null && trackWithSpotifyData.year != -1)
                     launch { trackRepository.updateTrackYear(track.trackId, trackWithSpotifyData.year)}
 
-                if (!trackWithSpotifyData.spotifyUri.isNullOrBlank())
-                    trackRepository.updateTrackSpotifyUri(track.trackId, trackWithSpotifyData.spotifyUri)
+                if (trackWithSpotifyData.spotifyUri != null)
+                    launch { trackRepository.updateTrackSpotifyUri(track.trackId, trackWithSpotifyData.spotifyUri) }
 
                 launch { trackRepository.onScrapeMetadata(track.trackId) }
             }

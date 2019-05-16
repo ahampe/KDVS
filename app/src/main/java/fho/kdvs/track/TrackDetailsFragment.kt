@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -31,6 +32,7 @@ import kotlinx.android.synthetic.main.fragment_track_details.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import org.jetbrains.anko.forEachChild
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -110,6 +112,7 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
         spotify = Spotify(sharedViewModel)
 
         setStyle(BottomSheetDialogFragment.STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme)
+
         subscribeToViewModel()
     }
 
@@ -122,10 +125,20 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
             trackData = track
         }
         binding.lifecycleOwner = this
+
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        showProgressBar() // TODO: refactor this to be reused
+    }
+
     private fun subscribeToViewModel() {
+        var musicBrainzFetchComplete = false
+        var spotifyFetchComplete = false
+
         viewModel.favorite.observe(this, Observer { favorite ->
             if (favorite != null && favorite.trackId != -1) {
                 favoriteIcon.setImageResource(R.drawable.ic_favorite_white_24dp)
@@ -150,15 +163,26 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
         viewModel.liveTrack.observe(this, Observer { liveTrack ->
             Timber.d("Got updated track: $liveTrack")
 
-            if (liveTrack.spotifyUri?.isNotEmpty() == true) {
-                spotifyIcon.setOnClickListener {
-                    val spotifyUri = liveTrack.spotifyUri
-                    Timber.d("Spotify icon clicked for ${liveTrack?.song}")
-                    spotify.openSpotify(spotifyIcon, spotifyUri!!)
-                }
-                spotifyIcon.visibility = View.VISIBLE
+            if (liveTrack.hasScrapedMetadata) {
+                musicBrainzFetchComplete = true
+                if (spotifyFetchComplete)
+                    hideProgressBar()
             }
 
+            val spotifyUri = liveTrack.spotifyUri
+            if (spotifyUri != null) {
+                spotifyFetchComplete = true
+                if (musicBrainzFetchComplete)
+                    hideProgressBar()
+
+                if (spotifyUri.isNotEmpty()) {
+                    spotifyIcon.setOnClickListener {
+                        Timber.d("Spotify icon clicked for ${liveTrack?.song}")
+                        spotify.openSpotify(spotifyIcon, spotifyUri)
+                    }
+                    spotifyIcon.visibility = View.VISIBLE
+                }
+            }
 
             // TODO: replace some of these with binding adapters
 
@@ -190,9 +214,25 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
 
             if ((liveTrack.imageHref ?: "").isNotEmpty()) {
                 ImageHelper.loadImageWithGlide(artwork, liveTrack.imageHref)
-                //ImageHelper.loadImageAndReflectionWithGlide(artwork, liveTrack.imageHref) // TODO: finish setting this up
             }
-
         })
+    }
+
+    private fun hideProgressBar() {
+        base?.forEachChild { v ->
+            if (v is ProgressBar)
+                v.visibility = View.GONE
+            else
+                v.visibility = View.VISIBLE
+        }
+    }
+
+    private fun showProgressBar() {
+        base?.forEachChild { v ->
+            if (v is ProgressBar)
+                v.visibility = View.VISIBLE
+            else
+                v.visibility = View.GONE
+        }
     }
 }
