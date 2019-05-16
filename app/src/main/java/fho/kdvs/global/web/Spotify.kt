@@ -14,11 +14,9 @@ import fho.kdvs.global.util.Keys.SPOTIFY_CLIENT_SECRET
 import fho.kdvs.global.util.URLs.SPOTIFY_REDIRECT_URI
 import fho.kdvs.global.util.URLs.SPOTIFY_SEARCH_URL
 import fho.kdvs.global.util.URLs.SPOTIFY_TOKEN_URL
-import fho.kdvs.track.TrackRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import org.json.JSONObject
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -29,22 +27,49 @@ import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 class Spotify @Inject constructor(
-    private val trackRepository: TrackRepository,
     private val sharedViewModel: SharedViewModel
 ): CoroutineScope {
     private lateinit var mSpotifyAppRemote: SpotifyAppRemote
-
-    private var job: Job? = null
 
     private val parentJob = Job()
     override val coroutineContext: CoroutineContext
         get() = parentJob + Dispatchers.IO
 
-    fun initializeSpotifyUri(track: TrackEntity) {
+    fun fetchSpotifyData(track: TrackEntity): TrackEntity {
         val response = searchForTrack(track)
-        val newSpotifyUri = parseSpotifyTrackUri(response)
+        val topResult = parseSpotifyTrackSearchResponse(response)
 
-        launch { trackRepository.updateTrackSpotifyUri(track?.trackId, newSpotifyUri) }
+        if (topResult.has("id"))
+            track.spotifyUri = topResult.getString("id")
+
+        if (topResult.has("album")) {
+            val album = topResult.getJSONObject("album")
+
+            if (track.imageHref.isNullOrEmpty()) {
+                if (album.has("images")) {
+                    val images = album.getJSONArray("images")
+                    val topImage = images.getJSONObject(0)
+                    if (topImage.has("url"))
+                        track.imageHref = topImage.getString("url")
+                }
+            }
+
+            if (track.album.isNullOrEmpty()) {
+                if (album.has("name")) {
+                    track.album = album.getString("name")
+                }
+            }
+
+            if (track.year == null) {
+                if (album.has("release_date")) {
+                    val year = album.getString("release_date").toIntOrNull()
+                    if (year != null)
+                        track.year = year
+                }
+            }
+        }
+
+        return track
     }
 
     fun openSpotify(view: View, spotifyUri: String) {
@@ -164,24 +189,24 @@ class Spotify @Inject constructor(
         return uri
     }
 
-    private fun parseSpotifyTrackUri(json: JSONObject): String {
-        var uri = ""
+    private fun parseSpotifyTrackSearchResponse(json: JSONObject): JSONObject {
+        var topResult = JSONObject("{}")
 
         if (json.has("tracks")) {
             val tracks = json.getJSONObject("tracks")
             if (tracks.has("items")) {
                 val items = tracks.getJSONArray("items")
                 if (items.length() > 0) {
-                    val topResult = items.getJSONObject(0)
-                    if (topResult.has("id"))
-                        uri = "spotify:track:" + topResult.getString("id")
+                    topResult = items.getJSONObject(0)
                 }
             }
         }
 
-        // TODO : parse artwork if it's available
+        return topResult
+    }
 
-        return uri
+    private fun updateImageHref(href: String) {
+
     }
 
     private fun getAlbumQuery(artist: String, album: String): String {

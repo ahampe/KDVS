@@ -11,10 +11,7 @@ import fho.kdvs.favorite.FavoriteRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.web.MusicBrainz
 import fho.kdvs.global.web.Spotify
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -40,26 +37,51 @@ class TrackDetailsViewModel @Inject constructor(
         favorite = favoriteRepository.favoriteByTrackId(track.trackId)
         broadcast = broadcastRepository.broadcastById(track.broadcastId)
         show = broadcastRepository.showByBroadcastId(track.broadcastId)
-
-        if (track.spotifyUri.isNullOrEmpty()) {
-            launch { spotify.initializeSpotifyUri(track) }
-        }
-
+        
         if (!track.hasScrapedMetadata) {
             val hasAlbum = !track.album.isNullOrEmpty()
             val hasLabel = !track.label.isNullOrEmpty()
-            var trackWithMetadata: TrackEntity = track
-            val job = launch { trackWithMetadata = MusicBrainz.fetchTrackInfo(track) }
+            
+            var trackWithMBData: TrackEntity = track
+            var trackWithSpotifyData: TrackEntity = track
 
-            job.invokeOnCompletion {
-                if (!hasAlbum && !trackWithMetadata.album.isNullOrBlank())
-                    launch { trackRepository.updateTrackAlbum(track.trackId, trackWithMetadata.album)}
-                if (!hasLabel && !trackWithMetadata.label.isNullOrBlank())
-                    launch { trackRepository.updateTrackLabel(track.trackId, trackWithMetadata.label)}
-                if (!trackWithMetadata.imageHref.isNullOrBlank())
-                    launch { trackRepository.updateTrackImageHref(track.trackId, trackWithMetadata.imageHref) }
-                if (trackWithMetadata.year != null && trackWithMetadata.year != -1)
-                    launch { trackRepository.updateTrackYear(track.trackId, trackWithMetadata.year)}
+            val musicBrainzJob = launch { trackWithMBData = MusicBrainz.fetchMusicBrainzData(track) }
+
+            val spotifyJob = launch {
+                if (track.spotifyUri.isNullOrEmpty()) {
+                    trackWithSpotifyData = spotify.fetchSpotifyData(track)
+                }
+            }
+
+            launch {
+                musicBrainzJob.join()
+                spotifyJob.join()
+
+                if (!hasAlbum) {
+                    if (!trackWithMBData.album.isNullOrBlank())
+                        launch { trackRepository.updateTrackAlbum(track.trackId, trackWithMBData.album)}
+                    else if (!trackWithSpotifyData.album.isNullOrBlank())
+                        launch { trackRepository.updateTrackAlbum(track.trackId, trackWithSpotifyData.album)}
+                }
+
+                if (!hasLabel) {
+                    if (!trackWithMBData.label.isNullOrBlank())
+                        launch { trackRepository.updateTrackLabel(track.trackId, trackWithMBData.label)}
+                }
+
+                if (!trackWithMBData.imageHref.isNullOrBlank())
+                    launch { trackRepository.updateTrackImageHref(track.trackId, trackWithMBData.imageHref)}
+                else if (!trackWithSpotifyData.imageHref.isNullOrBlank())
+                    launch { trackRepository.updateTrackImageHref(track.trackId, trackWithSpotifyData.imageHref)}
+
+                if (trackWithMBData.year != null && trackWithMBData.year != -1)
+                    launch { trackRepository.updateTrackYear(track.trackId, trackWithMBData.year)}
+                else if (trackWithSpotifyData.year != null && trackWithSpotifyData.year != -1)
+                    launch { trackRepository.updateTrackYear(track.trackId, trackWithSpotifyData.year)}
+
+                if (!trackWithSpotifyData.spotifyUri.isNullOrBlank())
+                    trackRepository.updateTrackSpotifyUri(track.trackId, trackWithSpotifyData.spotifyUri)
+
                 launch { trackRepository.onScrapeMetadata(track.trackId) }
             }
         }

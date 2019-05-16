@@ -107,7 +107,7 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
         sharedViewModel = ViewModelProviders.of(this, vmFactory)
             .get(SharedViewModel::class.java)
 
-        spotify = Spotify(viewModel.trackRepository, sharedViewModel)
+        spotify = Spotify(sharedViewModel)
 
         setStyle(BottomSheetDialogFragment.STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme)
         subscribeToViewModel()

@@ -17,19 +17,23 @@ object MusicBrainz {
     private var topRelease: JSONObject?= null
 
     @JvmStatic
-    fun fetchTrackInfo(track: TrackEntity): TrackEntity {
+    fun fetchMusicBrainzData(track: TrackEntity): TrackEntity {
         // TODO: clean-up logic to not rely on these objects
         releases = null
         topRelease = null
 
         getReleasesFromTrack(track)
 
-        if (topRelease == null && releases != null && !isResponseEmpty(releases)){
-            track.imageHref = attemptToGetImageFromReleases()
-        } else if (topRelease != null) { // GET with MBID will only have one release
-            val id: String? = getRootLevelElmFromJsonOfType("id", topRelease)
-            val covertArtArchiveJson = getCoverArtArchiveResponse(id)
-            track.imageHref = getHrefFromJson(covertArtArchiveJson)
+        if (track.imageHref.isNullOrBlank()) {
+            if (topRelease == null
+                && releases != null
+                && !isResponseEmpty(releases)){
+                track.imageHref = attemptToGetImageFromReleases()
+            } else if (topRelease != null) { // GET with MBID will only have one release
+                val id: String? = getRootLevelElmFromJsonOfType("id", topRelease)
+                val covertArtArchiveJson = getCoverArtArchiveResponse(id)
+                track.imageHref = getHrefFromJson(covertArtArchiveJson)
+            }
         }
 
         if (track.album.isNullOrBlank())
@@ -44,7 +48,6 @@ object MusicBrainz {
                 ?.substring(0,4)
                 ?.toIntOrNull()
 
-        track.hasScrapedMetadata = true
         return track
     }
 
