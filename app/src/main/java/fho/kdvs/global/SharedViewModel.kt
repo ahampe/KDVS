@@ -5,8 +5,10 @@ import android.content.Intent
 import android.net.Uri
 import android.view.View
 import androidx.core.content.ContextCompat.startActivity
+import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.navigation.NavController
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
@@ -20,6 +22,7 @@ import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
 import fho.kdvs.global.util.URLs.YOUTUBE_QUERYSTRING
 import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
+import fho.kdvs.home.HomeFragmentDirections
 import fho.kdvs.services.LiveShowUpdater
 import fho.kdvs.services.MediaSessionConnection
 import fho.kdvs.show.ShowRepository
@@ -71,6 +74,25 @@ class SharedViewModel @Inject constructor(
         prepareLivePlayback(URLs.LIVE_OGG)
     }
 
+    fun playOrPausePlayback() {
+        if (mediaSessionConnection.playbackState.value?.isPrepared == false)
+            changeToKdvsOgg()
+
+        val transportControls = mediaSessionConnection.transportControls ?: return
+        mediaSessionConnection.playbackState.value?.let { playbackState ->
+            if (playbackState.isPlaying)
+                transportControls.pause()
+            else
+                transportControls.play()
+        }
+    }
+
+    fun stopPlayback() {
+        val transportControls = mediaSessionConnection.transportControls ?: return
+        mediaSessionConnection.playbackState.value?.let { playbackState ->
+            if (playbackState.isPlaying) transportControls.stop() }
+    }
+
     private fun prepareLivePlayback(streamUrl: String) {
         val nowPlaying = mediaSessionConnection.nowPlaying.value
         val transportControls = mediaSessionConnection.transportControls ?: return
@@ -90,6 +112,18 @@ class SharedViewModel @Inject constructor(
         } else {
             transportControls.playFromMediaId(streamUrl, null)
         }
+    }
+
+    fun onClickNextShow(navController: NavController, show: ShowEntity) {
+        val navAction = HomeFragmentDirections
+            .actionHomeFragmentToShowDetailsFragment(show.id)
+        navController.navigate(navAction)
+    }
+
+    fun onClickShowImage(navController: NavController, broadcast: BroadcastEntity) {
+        val navAction = HomeFragmentDirections
+            .actionHomeFragmentToBroadcastDetailsFragment(broadcast.showId, broadcast.broadcastId)
+        navController.navigate(navAction)
     }
 
     // endregion
