@@ -16,7 +16,7 @@ class NowPlayingView @JvmOverloads constructor(context: Context, attrs: Attribut
         }
     }
 
-    fun setCurrentShowTitle(showTitle: String?) {
+    fun setCurrentShowName(showTitle: String?) {
         previewShowTitle.text = showTitle ?: "..."
     }
 
@@ -24,5 +24,21 @@ class NowPlayingView @JvmOverloads constructor(context: Context, attrs: Attribut
         Glide.with(context)
             .load(imageUrl)
             .into(playing_image)
+    }
+
+    fun setArchiveShowDate() {
+
+    }
+
+    fun setLiveShowTime(showTime: String?) {
+        //showTime.text = showTime ?: ""
+    }
+
+    fun setArchiveShow() {
+        //liveIcon.visibility = View.GONE
+    }
+
+    fun setLiveShow() {
+        //liveIcon.visibility = View.VISIBLE
     }
 }

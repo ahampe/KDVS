@@ -82,7 +82,7 @@ class LiveShowUpdater @Inject constructor(
      * [nextShowLiveData][ShowRepository.nextShowLiveData] based on the current time.
      * Returns a [Deferred] boolean indicating whether the computation was successful or not.
      */
-    fun updateLiveShowsAsync(): Deferred<Boolean> = async {
+    private fun updateLiveShowsAsync(): Deferred<Boolean> = async {
         val scheduleTime = TimeHelper.makeEpochRelativeTime(OffsetDateTime.now())
 
         // If we have the next show, we can use its value to update the live show

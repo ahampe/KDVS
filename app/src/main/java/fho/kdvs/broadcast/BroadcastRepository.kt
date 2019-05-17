@@ -67,6 +67,8 @@ class BroadcastRepository @Inject constructor(
         if (abs(ChronoUnit.DAYS.between(LocalDate.now(), broadcastDate)) < 3L) {
             Timber.d("broadcast is this week. posting...")
             liveBroadcastLiveData.postValue(broadcast)
+            if (_playingBroadcastLiveData.value == null)
+                _playingBroadcastLiveData.postValue(broadcast)
         }
     }
 

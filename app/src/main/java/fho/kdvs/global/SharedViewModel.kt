@@ -5,10 +5,9 @@ import android.content.Intent
 import android.net.Uri
 import android.view.View
 import androidx.core.content.ContextCompat.startActivity
-import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.navigation.NavController
+import androidx.lifecycle.MediatorLiveData
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
@@ -22,7 +21,6 @@ import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
 import fho.kdvs.global.util.URLs.YOUTUBE_QUERYSTRING
 import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
-import fho.kdvs.home.HomeFragmentDirections
 import fho.kdvs.services.LiveShowUpdater
 import fho.kdvs.services.MediaSessionConnection
 import fho.kdvs.show.ShowRepository
@@ -42,16 +40,25 @@ class SharedViewModel @Inject constructor(
     private val mediaSessionConnection: MediaSessionConnection
 ) : BaseViewModel(application) {
 
-    val nowPlaying: LiveData<ShowEntity>
+    val liveStreamLiveData: MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>
+        get() = showRepository.liveStreamLiveData
+
+    val nowPlayingStreamLiveData: MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>
+        get() = showRepository.nowPlayingStreamLiveData
+
+    val nowPlayingShow: LiveData<ShowEntity>
         get() = showRepository.playingShowLiveData
 
-    val currentShow: LiveData<ShowEntity>
+    val liveShow: LiveData<ShowEntity>
         get() = showRepository.playingShowLiveData
 
-    val nextShow: LiveData<ShowEntity>
+    val nextLiveShow: LiveData<ShowEntity>
         get() = showRepository.nextShowLiveData
 
-    val currentBroadcast: LiveData<BroadcastEntity>
+    val nowPlayingBroadcast: LiveData<BroadcastEntity>
+        get() = broadcastRepository.playingBroadcastLiveData
+
+    val liveBroadcast: LiveData<BroadcastEntity>
         get() = broadcastRepository.liveBroadcastLiveData
 
     val isLiveNow: LiveData<Boolean> = showRepository.isLiveNow
@@ -112,18 +119,6 @@ class SharedViewModel @Inject constructor(
         } else {
             transportControls.playFromMediaId(streamUrl, null)
         }
-    }
-
-    fun onClickNextShow(navController: NavController, show: ShowEntity) {
-        val navAction = HomeFragmentDirections
-            .actionHomeFragmentToShowDetailsFragment(show.id)
-        navController.navigate(navAction)
-    }
-
-    fun onClickShowImage(navController: NavController, broadcast: BroadcastEntity) {
-        val navAction = HomeFragmentDirections
-            .actionHomeFragmentToBroadcastDetailsFragment(broadcast.showId, broadcast.broadcastId)
-        navController.navigate(navAction)
     }
 
     // endregion

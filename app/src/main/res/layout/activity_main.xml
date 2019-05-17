@@ -24,12 +24,13 @@
             tools:layout="@layout/fragment_home" />
 
         <include
-            layout="@layout/view_now_playing"
+            layout="@layout/view_now_playing_preview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="@dimen/bottom_nav_height"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="@dimen/bottom_nav_height"
             app:behavior_hideable="false"
-            app:behavior_peekHeight="@dimen/double_bottom_nav"
-            app:layout_behavior="@string/bottom_sheet_behavior" />
+            app:behavior_peekHeight="@dimen/double_bottom_nav"/>
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigation"
@@ -37,9 +38,7 @@
             android:layout_height="@dimen/bottom_nav_height"
             android:layout_gravity="bottom"
             android:background="?android:attr/windowBackground"
-            app:layout_behavior="fho.kdvs.global.behavior.BottomNavigationBehavior"
-            app:menu="@menu/navigation"
-            app:labelVisibilityMode="unlabeled"/>
+            app:menu="@menu/navigation"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.constraintlayout.motion.widget.MotionLayout>

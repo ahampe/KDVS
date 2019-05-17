@@ -11,8 +11,11 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
+import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.view_now_playing.*
+import kotlinx.android.synthetic.main.view_now_playing_preview.*
+import org.threeten.bp.OffsetDateTime
 import javax.inject.Inject
 
 class MainActivity : DaggerAppCompatActivity() {
@@ -58,7 +61,7 @@ class MainActivity : DaggerAppCompatActivity() {
         volumeControlStream = AudioManager.STREAM_MUSIC
 
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
-        configureBottomSheet()
+        //configureBottomSheet()
         subscribeToViewModel()
     }
 
@@ -79,11 +82,40 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     private fun subscribeToViewModel() {
-        viewModel.nowPlaying.observe(this, Observer { show ->
-            if (viewModel.isLiveNow.value == true) {
-                nowPlayingView.apply {
-                    setCurrentShowTitle(show.name)
-                    setCurrentShowImage(show.defaultImageHref)
+        val fragment = this
+
+        viewModel.nowPlayingStreamLiveData.observe(fragment, Observer { (nowPlayingShow, nowPlayingBroadcast) ->
+            val nowPlayingBroadcastDate = nowPlayingBroadcast?.date
+            val nowPlayingShowTimeStart = nowPlayingShow.timeStart
+            val nowPlayingShowTimeEnd = nowPlayingShow.timeEnd
+
+            if (nowPlayingBroadcastDate != null && nowPlayingShowTimeStart != null && nowPlayingShowTimeEnd != null) {
+                val now = OffsetDateTime.now()
+                val isLive = nowPlayingBroadcastDate.year == now.year &&
+                    nowPlayingBroadcastDate.dayOfYear == now.dayOfYear &&
+                    (now.dayOfWeek == nowPlayingShowTimeStart.dayOfWeek ||
+                            now.dayOfWeek == nowPlayingShowTimeEnd.dayOfWeek)  &&
+                    now.hour >= nowPlayingShowTimeStart.hour &&
+                        (now.hour < nowPlayingShowTimeEnd.hour ||
+                                now.hour == 23 && nowPlayingShowTimeEnd.hour == 0)
+
+                nowPlayingPreviewView.apply {
+                    setCurrentShowName(nowPlayingShow.name)
+
+                    if (isLive) {
+                        val formatter = TimeHelper.showTimeFormatter
+                        val timeStr = formatter.format(nowPlayingShow.timeStart) +
+                                " - " +
+                                formatter.format(nowPlayingShow.timeEnd)
+
+                        setShowTimeOrBroadcastDate(timeStr)
+                        initLiveShow()
+                    } else {
+                        val formatter = TimeHelper.uiDateFormatter
+                        setShowTimeOrBroadcastDate(formatter.format(nowPlayingBroadcast?.date))
+
+                        initArchiveShow()
+                    }
                 }
             }
         })

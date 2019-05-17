@@ -16,7 +16,6 @@
     <!-- Bottom navigation view height, per Material guidelines. -->
     <dimen name="bottom_nav_height">56dp</dimen>
     <dimen name="double_bottom_nav">112dp</dimen>
-    <dimen name="bottom_sheet_preview_height">@dimen/bottom_nav_height</dimen>
 
     <dimen name="expanded_toolbar_height">200dp</dimen>
 
@@ -26,4 +25,6 @@
     <dimen name="timeslot_margin">8dp</dimen>
 
     <dimen name="divider_height">2dp</dimen>
+
+    <dimen name="text_small">14sp</dimen>
 </resources>

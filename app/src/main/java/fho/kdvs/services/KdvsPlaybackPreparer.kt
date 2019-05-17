@@ -42,10 +42,7 @@ import fho.kdvs.global.database.ShowDao
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.extensions.*
 import fho.kdvs.global.util.URLs
-import fho.kdvs.global.util.UiEvent
-import fho.kdvs.global.util.UiEventLiveData
 import kotlinx.coroutines.*
-import java.lang.Exception
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext

@@ -51,7 +51,7 @@ class ShowRepository @Inject constructor(
     val nextShowLiveData = MutableLiveData<ShowEntity>()
 
     /** A [MediatorLiveData] which merges the live show and live broadcast. */
-    private val liveStreamLiveData = MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>()
+    val liveStreamLiveData = MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>()
         .apply {
             var broadcast: BroadcastEntity? = null
             var show: ShowEntity? = null
@@ -62,6 +62,31 @@ class ShowRepository @Inject constructor(
             }
 
             addSource(broadcastRepository.liveBroadcastLiveData) { broadcastEntity ->
+                broadcast = broadcastEntity
+                val showEntity = show ?: return@addSource
+                postValue(Pair(showEntity, broadcastEntity))
+            }
+        }
+
+    init {
+        liveStreamLiveData.observeForever { (show, broadcast) ->
+            Timber.d("updating metadata for ${show.name} ${broadcast?.date}")
+            playbackPreparer.changeLiveMetadata(show, broadcast, isLiveNow.value ?: false)
+        }
+    }
+
+    /** A [MediatorLiveData] which merges the currently playing show and currently playing broadcast. */
+    val nowPlayingStreamLiveData = MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>()
+        .apply {
+            var broadcast: BroadcastEntity? = null
+            var show: ShowEntity? = null
+
+            addSource(playingShowLiveData) { showEntity ->
+                show = showEntity
+                postValue(Pair(showEntity, broadcast))
+            }
+
+            addSource(broadcastRepository.playingBroadcastLiveData) { broadcastEntity ->
                 broadcast = broadcastEntity
                 val showEntity = show ?: return@addSource
                 postValue(Pair(showEntity, broadcastEntity))
