@@ -18,6 +18,8 @@ import fho.kdvs.global.util.HttpHelper
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import kotlinx.android.synthetic.main.fragment_broadcast_details.*
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -106,7 +108,13 @@ class BroadcastDetailsFragment : DaggerFragment() {
     }
 
     private fun setPlayButton(broadcast: BroadcastEntity) {
-        if (HttpHelper.isConnectionAvailable(URLs.playlistForBroadcast(broadcast)))
-            archive_playButton.visibility = View.VISIBLE
+        doAsync {
+            val isConnAvailable = HttpHelper.isConnectionAvailable(URLs.playlistForBroadcast(broadcast))
+            uiThread {
+                if (isConnAvailable && archive_playButton != null)
+                    archive_playButton.visibility = View.VISIBLE
+            }
+        }
+
     }
 }

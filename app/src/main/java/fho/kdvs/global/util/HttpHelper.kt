@@ -10,18 +10,13 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 object HttpHelper {  // TODO: retry on connection fail?
-    /* Returns true if good HTTP request. */
+    /** Returns true if good HTTP request. Wrap in async block. */
     fun isConnectionAvailable(url: String?): Boolean {
         val con = URL(url).openConnection() as HttpURLConnection
-        var response = HttpURLConnection.HTTP_BAD_REQUEST
+        con.connectTimeout = 5000
+        con.connect()
 
-        doAsync {
-            con.connectTimeout = 5000
-            con.connect()
-            response = con.responseCode
-        }
-
-        return (response == HttpURLConnection.HTTP_OK)
+        return (con.responseCode == HttpURLConnection.HTTP_OK)
     }
 
     fun makeGETRequest(url: String?): JSONObject {
