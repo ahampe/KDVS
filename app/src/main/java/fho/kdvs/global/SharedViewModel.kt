@@ -125,6 +125,12 @@ class SharedViewModel @Inject constructor(
         openBrowser(view, "$YOUTUBE_SEARCH_URL${track.artist} ${track.song}$YOUTUBE_QUERYSTRING")
     }
 
+    fun onClickSpotifyNoApp(view: View, spotifyUri: String?) {
+        val url = makeSpotifyUrl(spotifyUri ?: "")
+        if (url.isNotEmpty())
+            openBrowser(view, url)
+    }
+
     fun openSpotifyApp(view: View, spotifyUri: String?) {
         val intent = Intent(Intent.ACTION_VIEW).apply{
             data = Uri.parse(spotifyUri)
@@ -132,7 +138,22 @@ class SharedViewModel @Inject constructor(
         }
         if (intent.resolveActivity(view.context.packageManager) != null) {
             startActivity(view.context, intent, null)
+        } else {
+            onClickSpotifyNoApp(view, spotifyUri)
         }
+    }
+
+    private fun makeSpotifyUrl(spotifyUri: String): String {
+        var url = ""
+
+        val re = "spotify:(\\w+):(.+)".toRegex().find(spotifyUri)
+        val type = re?.groupValues?.getOrNull(1)
+        val id = re?.groupValues?.getOrNull(2)
+
+        if (!type.isNullOrEmpty() && !id.isNullOrEmpty())
+            url = "https://open.spotify.com/$type/$id"
+
+        return url
     }
 
     // endregion

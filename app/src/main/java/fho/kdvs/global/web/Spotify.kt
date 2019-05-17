@@ -39,8 +39,8 @@ class Spotify @Inject constructor(
         val response = searchForTrack(track)
         val topResult = parseSpotifyTrackSearchResponse(response)
 
-        if (topResult.has("id"))
-            track.spotifyUri = topResult.getString("id")
+        if (topResult.has("uri"))
+            track.spotifyUri = topResult.getString("uri")
         else
             track.spotifyUri = ""
 
@@ -75,14 +75,10 @@ class Spotify @Inject constructor(
     }
 
     fun openSpotify(view: View, spotifyUri: String) {
-        if (isSpotifyInstalledOnDevice(view)) {
+        if (isSpotifyInstalledOnDevice(view))
             sharedViewModel.openSpotifyApp(view, spotifyUri)
-        }
-        else {
-            val url = makeSpotifyUrl(spotifyUri)
-            if (url.isNotEmpty())
-                sharedViewModel.openBrowser(view, url)
-        }
+        else
+            sharedViewModel.onClickSpotifyNoApp(view, spotifyUri)
     }
 
     private fun isSpotifyInstalledOnDevice(view: View): Boolean {
@@ -94,19 +90,6 @@ class Spotify @Inject constructor(
         } catch (e: PackageManager.NameNotFoundException) {}
 
         return isSpotifyInstalled
-    }
-
-    private fun makeSpotifyUrl(spotifyUri: String): String {
-        var url = ""
-
-        val re = "spotify:(\\w+):(.+)".toRegex().find(spotifyUri)
-        val type = re?.groupValues?.getOrNull(1)
-        val id = re?.groupValues?.getOrNull(2)
-
-        if (!type.isNullOrEmpty() && !id.isNullOrEmpty())
-            url = "https://open.spotify.com/$type/$id"
-
-        return url
     }
 
     // TODO: setup playlist building
