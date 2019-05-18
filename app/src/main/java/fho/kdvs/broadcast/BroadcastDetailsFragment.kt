@@ -115,6 +115,5 @@ class BroadcastDetailsFragment : DaggerFragment() {
                     archive_playButton.visibility = View.VISIBLE
             }
         }
-
     }
 }

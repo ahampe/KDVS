@@ -101,18 +101,19 @@ class MainActivity : DaggerAppCompatActivity() {
 
                 nowPlayingPreviewView.apply {
                     setCurrentShowName(nowPlayingShow.name)
+                    initButtonClickListener(viewModel)
 
                     if (isLive) {
                         val formatter = TimeHelper.showTimeFormatter
                         val timeStr = formatter.format(nowPlayingShow.timeStart) +
-                                " - " +
-                                formatter.format(nowPlayingShow.timeEnd)
+                            " - " +
+                            formatter.format(nowPlayingShow.timeEnd)
 
                         setShowTimeOrBroadcastDate(timeStr)
                         initLiveShow()
                     } else {
                         val formatter = TimeHelper.uiDateFormatter
-                        setShowTimeOrBroadcastDate(formatter.format(nowPlayingBroadcast?.date))
+                        setShowTimeOrBroadcastDate(formatter.format(nowPlayingBroadcast.date))
 
                         initArchiveShow()
                     }

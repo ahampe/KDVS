@@ -1,86 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fho.kdvs.nowplaying.NowPlayingPreviewView xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nowPlayingPreviewView"
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/bottom_nav_height"
-    android:background="@color/colorPrimary"
-    android:elevation="4dp"
-    android:orientation="vertical">
+    tools:context=".nowplaying.NowPlayingPreviewView">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <fho.kdvs.nowplaying.NowPlayingPreviewView
+        android:id="@+id/nowPlayingPreviewView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="@dimen/bottom_nav_height"
+        android:background="@color/colorPrimary"
+        android:elevation="4dp"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/showName"
-            style="@style/TextAppearance.MaterialComponents.Subtitle2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_medium"
-            android:layout_marginEnd="@dimen/spacing_medium"
-            android:ellipsize="marquee"
-            android:gravity="center_horizontal"
-            android:singleLine="true"
-            android:textSize="@dimen/text_small"
-            app:layout_constraintBottom_toTopOf="@+id/showTimeOrBroadcastDate"
-            app:layout_constraintEnd_toStartOf="@id/playPauseIcon"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@id/upIcon"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed"
-            tools:text="Testing a Very Long Show Name to See Ellipses Appear" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/showTimeOrBroadcastDate"
-            style="@style/TextAppearance.MaterialComponents.Overline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_medium"
-            android:layout_marginEnd="@dimen/spacing_medium"
-            android:ellipsize="marquee"
-            android:gravity="center_horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/playPauseIcon"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@id/upIcon"
-            app:layout_constraintTop_toBottomOf="@+id/showName"
-            tools:text="14:00 - 16:00" />
+            <TextView
+                android:id="@+id/showName"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_medium"
+                android:layout_marginEnd="@dimen/spacing_medium"
+                android:ellipsize="marquee"
+                android:gravity="center_horizontal"
+                android:singleLine="true"
+                android:textSize="@dimen/text_small"
+                app:layout_constraintBottom_toTopOf="@+id/showTimeOrBroadcastDate"
+                app:layout_constraintEnd_toStartOf="@id/playPauseIcon"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@id/upIcon"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="packed"
+                tools:text="Testing a Very Long Show Name to See Ellipses Appear" />
 
-        <ImageView
-            android:id="@+id/liveIcon"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintDimensionRatio="1:1"
-            android:src="@drawable/ic_live"
-            android:layout_marginEnd="@dimen/spacing_medium"
-            android:visibility="gone"
-            tools:visibility="visible"
-            app:layout_constraintEnd_toStartOf="@id/showTimeOrBroadcastDate"
-            app:layout_constraintTop_toTopOf="@id/showTimeOrBroadcastDate"
-            app:layout_constraintBottom_toBottomOf="@id/showTimeOrBroadcastDate"/>
+            <TextView
+                android:id="@+id/showTimeOrBroadcastDate"
+                style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:textSize="@dimen/text_small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_medium"
+                android:layout_marginEnd="@dimen/spacing_medium"
+                android:ellipsize="marquee"
+                android:gravity="center_horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/playPauseIcon"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@id/upIcon"
+                app:layout_constraintTop_toBottomOf="@+id/showName"
+                tools:text="14:00 - 16:00" />
 
-        <ImageView
-            android:id="@+id/upIcon"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="@dimen/spacing_medium"
-            android:src="@drawable/ic_keyboard_arrow_up_white_48dp"
-            app:layout_constraintBottom_toBottomOf="@id/showTimeOrBroadcastDate"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/showName" />
+            <ImageView
+                android:id="@+id/liveIcon"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="1:1"
+                android:src="@drawable/ic_live"
+                android:layout_marginEnd="@dimen/spacing_small"
+                android:visibility="gone"
+                tools:visibility="visible"
+                app:layout_constraintEnd_toStartOf="@id/showTimeOrBroadcastDate"
+                app:layout_constraintTop_toTopOf="@id/showTimeOrBroadcastDate"
+                app:layout_constraintBottom_toBottomOf="@id/showTimeOrBroadcastDate"/>
 
-        <ImageView
-            android:id="@+id/playPauseIcon"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginEnd="@dimen/spacing_medium"
-            android:src="@drawable/ic_play_circle_outline_white_48dp"
-            app:layout_constraintBottom_toBottomOf="@id/showTimeOrBroadcastDate"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/showName" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</fho.kdvs.nowplaying.NowPlayingPreviewView>
+            <ImageView
+                android:id="@+id/upIcon"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/spacing_medium"
+                android:src="@drawable/ic_keyboard_arrow_up_white_48dp"
+                app:layout_constraintBottom_toBottomOf="@id/showTimeOrBroadcastDate"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/showName" />
+
+            <ImageView
+                android:id="@+id/playPauseIcon"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="@dimen/spacing_medium"
+                android:src="@drawable/ic_play_circle_outline_white_48dp"
+                app:layout_constraintBottom_toBottomOf="@id/showTimeOrBroadcastDate"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/showName" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </fho.kdvs.nowplaying.NowPlayingPreviewView>
+</layout>

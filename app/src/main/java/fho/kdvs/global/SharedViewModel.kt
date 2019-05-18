@@ -4,10 +4,12 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.view.View
+import android.widget.ImageView
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
@@ -81,16 +83,21 @@ class SharedViewModel @Inject constructor(
         prepareLivePlayback(URLs.LIVE_OGG)
     }
 
-    fun playOrPausePlayback() {
+    fun playOrPausePlaybackAndToggleImage(view: View?) {
         if (mediaSessionConnection.playbackState.value?.isPrepared == false)
             changeToKdvsOgg()
 
         val transportControls = mediaSessionConnection.transportControls ?: return
         mediaSessionConnection.playbackState.value?.let { playbackState ->
-            if (playbackState.isPlaying)
+            val button = view as? ImageView
+            if (playbackState.isPlaying) {
                 transportControls.pause()
-            else
+                button?.setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
+            }
+            else {
                 transportControls.play()
+                button?.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp)
+            }
         }
     }
 
