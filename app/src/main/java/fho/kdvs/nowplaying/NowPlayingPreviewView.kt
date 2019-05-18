@@ -35,16 +35,8 @@ class NowPlayingPreviewView @JvmOverloads constructor(context: Context, attrs: A
     }
 
     fun initButtonClickListener(vm: SharedViewModel) {
-        playPauseIcon.setOnClickListener {
-            vm.playOrPausePlaybackAndToggleImage(it)
+        previewPlayPauseIcon.setOnClickListener {
+            vm.playOrPausePlayback()
         }
-    }
-
-    fun start() {
-        playPauseIcon.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp)
-    }
-
-    fun pause() {
-        playPauseIcon.setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
     }
 }

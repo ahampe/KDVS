@@ -12,9 +12,11 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
 import fho.kdvs.global.util.TimeHelper
+import fho.kdvs.nowplaying.NowPlayingView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.view_now_playing.*
 import kotlinx.android.synthetic.main.view_now_playing_preview.*
+import kotlinx.android.synthetic.main.view_now_playing_preview.view.*
 import org.threeten.bp.OffsetDateTime
 import javax.inject.Inject
 
@@ -102,6 +104,9 @@ class MainActivity : DaggerAppCompatActivity() {
                 nowPlayingPreviewView.apply {
                     setCurrentShowName(nowPlayingShow.name)
                     initButtonClickListener(viewModel)
+
+                    if (previewPlayPauseIcon != null)
+                        viewModel.nowPlayingPreviewPlayButton = previewPlayPauseIcon
 
                     if (isLive) {
                         val formatter = TimeHelper.showTimeFormatter

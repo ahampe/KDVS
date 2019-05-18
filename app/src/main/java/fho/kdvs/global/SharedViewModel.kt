@@ -42,6 +42,9 @@ class SharedViewModel @Inject constructor(
     private val mediaSessionConnection: MediaSessionConnection
 ) : BaseViewModel(application) {
 
+    var nowPlayingPreviewPlayButton: ImageView?= null
+    var nowPlayingPlayButton: ImageView?= null
+
     val liveStreamLiveData: MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>
         get() = showRepository.liveStreamLiveData
 
@@ -83,20 +86,19 @@ class SharedViewModel @Inject constructor(
         prepareLivePlayback(URLs.LIVE_OGG)
     }
 
-    fun playOrPausePlaybackAndToggleImage(view: View?) {
+    fun playOrPausePlayback() {
         if (mediaSessionConnection.playbackState.value?.isPrepared == false)
             changeToKdvsOgg()
 
         val transportControls = mediaSessionConnection.transportControls ?: return
         mediaSessionConnection.playbackState.value?.let { playbackState ->
-            val button = view as? ImageView
             if (playbackState.isPlaying) {
                 transportControls.pause()
-                button?.setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
+                onPause()
             }
             else {
                 transportControls.play()
-                button?.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp)
+                onPlay()
             }
         }
     }
@@ -116,8 +118,8 @@ class SharedViewModel @Inject constructor(
         if (isPrepared && streamUrl == nowPlaying?.id) {
             mediaSessionConnection.playbackState.value?.let { playbackState ->
                 when {
-                    playbackState.isPlaying -> transportControls.pause()
-                    playbackState.isPlayEnabled -> transportControls.play()
+                    playbackState.isPlaying -> { transportControls.pause(); onPause() }
+                    playbackState.isPlayEnabled -> { transportControls.play(); onPlay() }
                     else -> {
                         Timber.w("Playable item clicked but neither play nor pause are enabled! (mediaId=$streamUrl)")
                     }
@@ -125,7 +127,18 @@ class SharedViewModel @Inject constructor(
             }
         } else {
             transportControls.playFromMediaId(streamUrl, null)
+            onPlay()
         }
+    }
+
+    private fun onPause() {
+        nowPlayingPreviewPlayButton?.setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
+        nowPlayingPlayButton?.setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
+    }
+
+    private fun onPlay() {
+        nowPlayingPreviewPlayButton?.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp)
+        nowPlayingPlayButton?.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp)
     }
 
     // endregion
