@@ -19,7 +19,7 @@
 
             <TextView
                 android:id="@+id/showName"
-                style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_medium"

@@ -37,10 +37,10 @@ class ShowRepository @Inject constructor(
 ) : BaseRepository() {
 
     /**
-     * [MutableLiveData] listening for the currently playing show.
+     * [MutableLiveData] listening for the live show (not necessarily the currently playing show).
      * Whenever the value is set, a request to scrape its details is sent to [BroadcastRepository].
      */
-    val playingShowLiveData = object : MutableLiveData<ShowEntity>() {
+    val liveShowLiveData = object : MutableLiveData<ShowEntity>() {
         override fun setValue(value: ShowEntity?) {
             value?.let { broadcastRepository.scrapeShow(it.id.toString()) }
             super.setValue(value)
@@ -56,7 +56,7 @@ class ShowRepository @Inject constructor(
             var broadcast: BroadcastEntity? = null
             var show: ShowEntity? = null
 
-            addSource(playingShowLiveData) { showEntity ->
+            addSource(liveShowLiveData) { showEntity ->
                 show = showEntity
                 postValue(Pair(showEntity, broadcast))
             }
@@ -81,12 +81,12 @@ class ShowRepository @Inject constructor(
             var broadcast: BroadcastEntity? = null
             var show: ShowEntity? = null
 
-            addSource(playingShowLiveData) { showEntity ->
+            addSource(broadcastRepository.nowPlayingShowLiveData) { showEntity ->
                 show = showEntity
                 postValue(Pair(showEntity, broadcast))
             }
 
-            addSource(broadcastRepository.playingBroadcastLiveData) { broadcastEntity ->
+            addSource(broadcastRepository.nowPlayingBroadcastLiveData) { broadcastEntity ->
                 broadcast = broadcastEntity
                 val showEntity = show ?: return@addSource
                 postValue(Pair(showEntity, broadcastEntity))

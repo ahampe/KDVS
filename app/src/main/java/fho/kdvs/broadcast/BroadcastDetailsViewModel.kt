@@ -49,9 +49,9 @@ class BroadcastDetailsViewModel @Inject constructor(
     /** Callback which plays this recorded broadcast, if it is still available */
     fun onPlayBroadcast() {
         val toPlay = broadcast.value ?: return
-        val showId = show.value?.id ?: return
+        val show = show.value ?: return
 
-        broadcastRepository.playPastBroadcast(toPlay, showId)
+        broadcastRepository.playPastBroadcast(toPlay, show)
     }
 
     private fun fetchTracks(broadcastId: Int) {

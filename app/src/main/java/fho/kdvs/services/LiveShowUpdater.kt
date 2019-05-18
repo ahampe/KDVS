@@ -42,7 +42,7 @@ class LiveShowUpdater @Inject constructor(
                 val updateSuccess = updateLiveShowsAsync().await()
 
                 if (updateSuccess) {
-                    showRepository.playingShowLiveData.value?.let { show ->
+                    showRepository.liveShowLiveData.value?.let { show ->
                         val nowEpochSeconds = TimeHelper.makeEpochRelativeTime(OffsetDateTime.now())
                             .toEpochSecond()
 
@@ -78,7 +78,7 @@ class LiveShowUpdater @Inject constructor(
     }
 
     /**
-     * Asynchronously updates [playingShowLiveData][ShowRepository.playingShowLiveData] and
+     * Asynchronously updates [liveShowLiveData][ShowRepository.liveShowLiveData] and
      * [nextShowLiveData][ShowRepository.nextShowLiveData] based on the current time.
      * Returns a [Deferred] boolean indicating whether the computation was successful or not.
      */
@@ -115,7 +115,11 @@ class LiveShowUpdater @Inject constructor(
         // the broadcast repository will take care of getting the live broadcast:
         broadcastRepository.updateLiveBroadcast(currentShow.id)
 
-        showRepository.playingShowLiveData.postValue(currentShow)
+        showRepository.liveShowLiveData.postValue(currentShow)
+
+        // upon starting the app, we want the nowPlaying preview bar to display live show
+        if (broadcastRepository.nowPlayingShowLiveData.value == null)
+            broadcastRepository.nowPlayingShowLiveData.postValue(currentShow)
 
         // to get the next show, we need the database and
         val addedTime = currentShow.timeEnd?.plusMinutes(1L) ?: return@async false

@@ -83,8 +83,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="@{() -> vm.onPlayBroadcast()}"
-                android:text="@string/play"
-                tools:visibility="visible"/>
+                android:text="@string/play" />
 
             <TextView
                 android:id="@+id/noTracksMessage"

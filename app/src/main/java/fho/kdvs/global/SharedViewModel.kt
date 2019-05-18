@@ -52,16 +52,16 @@ class SharedViewModel @Inject constructor(
         get() = showRepository.nowPlayingStreamLiveData
 
     val nowPlayingShow: LiveData<ShowEntity>
-        get() = showRepository.playingShowLiveData
+        get() = broadcastRepository.nowPlayingShowLiveData
 
     val liveShow: LiveData<ShowEntity>
-        get() = showRepository.playingShowLiveData
+        get() = showRepository.liveShowLiveData
 
     val nextLiveShow: LiveData<ShowEntity>
         get() = showRepository.nextShowLiveData
 
     val nowPlayingBroadcast: LiveData<BroadcastEntity>
-        get() = broadcastRepository.playingBroadcastLiveData
+        get() = broadcastRepository.nowPlayingBroadcastLiveData
 
     val liveBroadcast: LiveData<BroadcastEntity>
         get() = broadcastRepository.liveBroadcastLiveData
@@ -101,6 +101,12 @@ class SharedViewModel @Inject constructor(
                 onPlay()
             }
         }
+    }
+
+    fun playLiveShowFromHome() {
+        broadcastRepository.nowPlayingShowLiveData.postValue(showRepository.liveShowLiveData.value)
+        broadcastRepository.nowPlayingBroadcastLiveData.postValue(broadcastRepository.liveBroadcastLiveData.value)
+        changeToKdvsOgg()
     }
 
     fun stopPlayback() {

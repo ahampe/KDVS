@@ -38,7 +38,7 @@ class HomeViewModel @Inject constructor(
         fetchStaff()
         fetchFundraiser()
 
-        currentShow = showRepository.playingShowLiveData
+        currentShow = showRepository.liveShowLiveData
         newsArticles = newsRepository.getAllNewsPastDate(
             OffsetDateTime.now().minusMonths(6).toLocalDate()) // TODO: Make this a preference?
         topMusicAdds = topMusicRepository.getMostRecentTopAdds()

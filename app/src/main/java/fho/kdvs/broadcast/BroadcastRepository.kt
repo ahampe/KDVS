@@ -12,6 +12,7 @@ import fho.kdvs.global.extensions.toLiveData
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
+import fho.kdvs.show.ShowRepository
 import fho.kdvs.track.TrackRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -33,15 +34,22 @@ class BroadcastRepository @Inject constructor(
 ) : BaseRepository() {
 
     /** The broadcast currently being played by the user. This may or may not be [liveBroadcastLiveData]. */
-    val playingBroadcastLiveData: LiveData<BroadcastEntity> get() = _playingBroadcastLiveData
+    val nowPlayingBroadcastLiveData = object : MutableLiveData<BroadcastEntity>() {
+        override fun setValue(value: BroadcastEntity?) {
+            value?.let {
+                trackRepository.scrapePlaylist(it.broadcastId.toString())
+            }
+            super.setValue(value)
+        }
+    }
 
     /**
-     * The currently playing broadcast.
-     * Whenever the value is set, a request to scrape its details is sent to [BroadcastRepository].
+     * [MutableLiveData] listening for the currently playing show.
+     * Whenever the value is set, the show's details are scraped.
      */
-    private val _playingBroadcastLiveData = object : MutableLiveData<BroadcastEntity>() {
-        override fun setValue(value: BroadcastEntity?) {
-            value?.let { trackRepository.scrapePlaylist(it.broadcastId.toString()) }
+    val nowPlayingShowLiveData = object : MutableLiveData<ShowEntity>() {
+        override fun setValue(value: ShowEntity?) {
+            value?.let { scrapeShow(it.id.toString()) }
             super.setValue(value)
         }
     }
@@ -67,8 +75,8 @@ class BroadcastRepository @Inject constructor(
         if (abs(ChronoUnit.DAYS.between(LocalDate.now(), broadcastDate)) < 3L) {
             Timber.d("broadcast is this week. posting...")
             liveBroadcastLiveData.postValue(broadcast)
-            if (_playingBroadcastLiveData.value == null)
-                _playingBroadcastLiveData.postValue(broadcast)
+            if (nowPlayingBroadcastLiveData.value == null)
+                nowPlayingBroadcastLiveData.postValue(broadcast)
         }
     }
 
@@ -78,13 +86,14 @@ class BroadcastRepository @Inject constructor(
 
 
     /** Changes playback to a selected past broadcast. */
-    fun playPastBroadcast(broadcast: BroadcastEntity, showId: Int) {
+    fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
         mediaSessionConnection.transportControls?.playFromMediaId(
             broadcast.broadcastId.toString(),
-            Bundle().apply { putInt("SHOW_ID", showId) }
+            Bundle().apply { putInt("SHOW_ID", show.id) }
         )
 
-        _playingBroadcastLiveData.postValue(broadcast)
+        nowPlayingBroadcastLiveData.postValue(broadcast)
+        nowPlayingShowLiveData.postValue(show)
     }
 
     /** Runs a show scrape if it hasn't been fetched recently. */
