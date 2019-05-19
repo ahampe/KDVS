@@ -10,6 +10,7 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.schedule.ShowSearchViewModel
 import fho.kdvs.home.HomeViewModel
+import fho.kdvs.player.PlayerViewModel
 import fho.kdvs.schedule.ScheduleSelectionViewModel
 import fho.kdvs.schedule.ScheduleViewModel
 import fho.kdvs.show.ShowDetailsViewModel
@@ -27,6 +28,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(HomeViewModel::class)
     abstract fun bindHomeViewModel(homeViewModel: HomeViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(PlayerViewModel::class)
+    abstract fun bindPlayerViewModel(playerViewModel: PlayerViewModel): ViewModel
 
     @Binds
     @IntoMap

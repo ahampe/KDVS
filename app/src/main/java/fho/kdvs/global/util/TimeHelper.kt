@@ -1,5 +1,7 @@
 package fho.kdvs.global.util
 
+import fho.kdvs.global.database.BroadcastEntity
+import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.enums.Day
 import fho.kdvs.schedule.TimeSlot
 import org.threeten.bp.*
@@ -118,6 +120,19 @@ object TimeHelper {
     fun isTimeSlotForCurrentShow(timeslot: TimeSlot): Boolean {
         val scheduleTime = TimeHelper.makeEpochRelativeTime(OffsetDateTime.now())
         return (scheduleTime >= timeslot?.timeStart) && (scheduleTime < timeslot?.timeEnd)
+    }
+
+    /** Returns true if broadcast is currently live on-air. */
+    @JvmStatic
+    fun isShowBroadcastLive(show: ShowEntity, broadcast: BroadcastEntity): Boolean {
+        val now = OffsetDateTime.now()
+        return broadcast.date!!.year == now.year &&
+                broadcast.date!!.dayOfYear == now.dayOfYear &&
+                (now.dayOfWeek == show.timeStart!!.dayOfWeek ||
+                        now.dayOfWeek == show.timeEnd!!.dayOfWeek)  &&
+                now.hour >= show.timeStart!!.hour &&
+                (now.hour < show.timeEnd!!.hour ||
+                        now.hour == 23 && show.timeEnd!!.hour == 0)
     }
 
     /**

@@ -1,20 +1,25 @@
-package fho.kdvs.nowplaying
+package fho.kdvs.player
 
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import fho.kdvs.R
 import fho.kdvs.global.SharedViewModel
-import kotlinx.android.synthetic.main.view_now_playing_preview.view.*
+import kotlinx.android.synthetic.main.player_bar_view.view.*
 import timber.log.Timber
 
-class NowPlayingPreviewView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+class PlayerBarView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     LinearLayout(context, attrs, defStyleAttr) {
+
+    lateinit var mNavController: NavController
 
     init {
         setOnClickListener {
-            Timber.d("Clicked it")
+            Timber.d("Clicked nowPlaying preview")
+            navigateToPlayer()
         }
     }
 
@@ -38,5 +43,9 @@ class NowPlayingPreviewView @JvmOverloads constructor(context: Context, attrs: A
         previewPlayPauseIcon.setOnClickListener {
             vm.playOrPausePlayback()
         }
+    }
+
+    private fun navigateToPlayer() {
+        mNavController.navigate(R.id.playerFragment)
     }
 }

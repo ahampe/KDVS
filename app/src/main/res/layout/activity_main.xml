@@ -24,7 +24,7 @@
             tools:layout="@layout/fragment_home" />
 
         <include
-            layout="@layout/view_now_playing_preview"
+            layout="@layout/player_bar_view"
             android:layout_width="match_parent"
             android:layout_height="@dimen/bottom_nav_height"
             android:layout_gravity="bottom"

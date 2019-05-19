@@ -3,10 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".nowplaying.NowPlayingPreviewView">
+    tools:context=".player.PlayerBarView">
 
-    <fho.kdvs.nowplaying.NowPlayingPreviewView
-        android:id="@+id/nowPlayingPreviewView"
+    <fho.kdvs.player.PlayerBarView
+        android:id="@+id/playerBarView"
         android:layout_width="match_parent"
         android:layout_height="@dimen/bottom_nav_height"
         android:background="@color/colorPrimary"
@@ -88,5 +88,5 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/showName" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </fho.kdvs.nowplaying.NowPlayingPreviewView>
+    </fho.kdvs.player.PlayerBarView>
 </layout>

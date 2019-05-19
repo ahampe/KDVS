@@ -20,6 +20,7 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import fho.kdvs.broadcast.BroadcastDetailsFragment
 import fho.kdvs.home.HomeFragment
+import fho.kdvs.player.PlayerFragment
 import fho.kdvs.schedule.ScheduleFragment
 import fho.kdvs.schedule.ScheduleSelectionFragment
 import fho.kdvs.schedule.ShowSearchFragment
@@ -31,6 +32,9 @@ import fho.kdvs.track.TrackDetailsFragment
 abstract class FragmentBuildersModule {
     @ContributesAndroidInjector
     abstract fun contributeHomeFragment(): HomeFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributePlayerFragment(): PlayerFragment
 
     @ContributesAndroidInjector
     abstract fun contributeScheduleFragment(): ScheduleFragment

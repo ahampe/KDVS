@@ -117,9 +117,11 @@ class LiveShowUpdater @Inject constructor(
 
         showRepository.liveShowLiveData.postValue(currentShow)
 
-        // upon starting the app, we want the nowPlaying preview bar to display live show
-        if (broadcastRepository.nowPlayingShowLiveData.value == null)
+        // upon starting the app, load in pre
+        if (showRepository.liveShowLiveData.value == null) {
+            showRepository.liveShowLiveData.postValue(currentShow)
             broadcastRepository.nowPlayingShowLiveData.postValue(currentShow)
+        }
 
         // to get the next show, we need the database and
         val addedTime = currentShow.timeEnd?.plusMinutes(1L) ?: return@async false

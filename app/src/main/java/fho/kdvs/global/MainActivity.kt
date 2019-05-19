@@ -8,15 +8,12 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
 import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.nowplaying.NowPlayingView
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.view_now_playing.*
-import kotlinx.android.synthetic.main.view_now_playing_preview.*
-import kotlinx.android.synthetic.main.view_now_playing_preview.view.*
+import kotlinx.android.synthetic.main.player_bar_view.*
+import kotlinx.android.synthetic.main.player_bar_view.view.*
 import org.threeten.bp.OffsetDateTime
 import javax.inject.Inject
 
@@ -69,46 +66,23 @@ class MainActivity : DaggerAppCompatActivity() {
 
     override fun onSupportNavigateUp() = navController.navigateUp()
 
-    private fun configureBottomSheet() {
-        val bottomSheetBehavior = BottomSheetBehavior.from(nowPlayingView)
-
-        bottomSheetBehavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onSlide(p0: View, p1: Float) {
-                // TODO
-            }
-
-            override fun onStateChanged(p0: View, p1: Int) {
-                // TODO
-            }
-        })
-    }
-
     private fun subscribeToViewModel() {
         val fragment = this
 
         viewModel.nowPlayingStreamLiveData.observe(fragment, Observer { (nowPlayingShow, nowPlayingBroadcast) ->
-            val nowPlayingBroadcastDate = nowPlayingBroadcast?.date
-            val nowPlayingShowTimeStart = nowPlayingShow.timeStart
-            val nowPlayingShowTimeEnd = nowPlayingShow.timeEnd
+            if (nowPlayingBroadcast?.date != null &&
+                nowPlayingShow.timeStart != null &&
+                nowPlayingShow.timeEnd != null) {
 
-            if (nowPlayingBroadcastDate != null && nowPlayingShowTimeStart != null && nowPlayingShowTimeEnd != null) {
-                val now = OffsetDateTime.now()
-                val isLive = nowPlayingBroadcastDate.year == now.year &&
-                    nowPlayingBroadcastDate.dayOfYear == now.dayOfYear &&
-                    (now.dayOfWeek == nowPlayingShowTimeStart.dayOfWeek ||
-                            now.dayOfWeek == nowPlayingShowTimeEnd.dayOfWeek)  &&
-                    now.hour >= nowPlayingShowTimeStart.hour &&
-                        (now.hour < nowPlayingShowTimeEnd.hour ||
-                                now.hour == 23 && nowPlayingShowTimeEnd.hour == 0)
-
-                nowPlayingPreviewView.apply {
+                playerBarView.apply {
                     setCurrentShowName(nowPlayingShow.name)
                     initButtonClickListener(viewModel)
+                    mNavController = navController
 
                     if (previewPlayPauseIcon != null)
                         viewModel.nowPlayingPreviewPlayButton = previewPlayPauseIcon
 
-                    if (isLive) {
+                    if (TimeHelper.isShowBroadcastLive(nowPlayingShow, nowPlayingBroadcast)) {
                         val formatter = TimeHelper.showTimeFormatter
                         val timeStr = formatter.format(nowPlayingShow.timeStart) +
                             " - " +
@@ -125,5 +99,19 @@ class MainActivity : DaggerAppCompatActivity() {
                 }
             }
         })
+    }
+
+    fun toggleBottomNavAndPlayerBar(visible: Boolean) {
+        bottomNavigation.visibility = if (visible) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+
+        playerBarView.visibility = if (visible) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
     }
 }
