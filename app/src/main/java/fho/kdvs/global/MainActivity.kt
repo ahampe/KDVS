@@ -70,13 +70,17 @@ class MainActivity : DaggerAppCompatActivity() {
         val fragment = this
 
         viewModel.nowPlayingStreamLiveData.observe(fragment, Observer { (nowPlayingShow, nowPlayingBroadcast) ->
+            val timeStart = nowPlayingShow.timeStart
+            val timeEnd = nowPlayingShow.timeEnd
+
             if (nowPlayingBroadcast?.date != null &&
-                nowPlayingShow.timeStart != null &&
-                nowPlayingShow.timeEnd != null) {
+                timeStart != null &&
+                timeEnd != null) {
 
                 playerBarView.apply {
                     setCurrentShowName(nowPlayingShow.name)
                     initButtonClickListener(viewModel)
+                    initProgressBar(timeStart, timeEnd)
                     mNavController = navController
 
                     if (previewPlayPauseIcon != null)

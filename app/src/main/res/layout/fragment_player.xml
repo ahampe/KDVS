@@ -121,7 +121,7 @@
             app:layout_constraintTop_toBottomOf="@id/showName"/>
 
         <com.google.android.exoplayer2.ui.PlayerControlView
-            android:id="@+id/exoPlayer"
+            android:id="@+id/customExoPlayer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
