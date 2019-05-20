@@ -117,8 +117,8 @@ class LiveShowUpdater @Inject constructor(
 
         showRepository.liveShowLiveData.postValue(currentShow)
 
-        // upon starting the app, load in pre
-        if (showRepository.liveShowLiveData.value == null) {
+        // upon starting the app, bind playerBar with live show if repo doesn't already have value
+        if (broadcastRepository.nowPlayingShowLiveData.value == null) {
             showRepository.liveShowLiveData.postValue(currentShow)
             broadcastRepository.nowPlayingShowLiveData.postValue(currentShow)
         }

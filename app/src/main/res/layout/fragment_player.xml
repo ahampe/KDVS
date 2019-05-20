@@ -64,12 +64,13 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            android:text="@string/viewPlaylist"
             tools:text="View Playlist" />
 
         <ImageView
             android:id="@+id/playing_image"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             app:layout_constraintDimensionRatio="1:1"
             android:adjustViewBounds="true"
             android:src="@drawable/show_placeholder"
@@ -83,7 +84,7 @@
             tools:ignore="ContentDescription" />
 
         <TextView
-            android:id="@+id/showName"
+            android:id="@+id/playerShowName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="start"
@@ -92,6 +93,8 @@
             android:textAlignment="textStart"
             android:singleLine="true"
             android:ellipsize="marquee"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             style="@style/TextAppearance.MaterialComponents.Headline5"
             app:layout_constraintStart_toStartOf="@id/playing_image"
             app:layout_constraintEnd_toStartOf="@id/star"
@@ -104,8 +107,8 @@
             app:layout_constraintDimensionRatio="1:1"
             android:src="@drawable/ic_star_border_white_24dp"
             app:layout_constraintEnd_toEndOf="@id/playing_image"
-            app:layout_constraintTop_toTopOf="@id/showName"
-            app:layout_constraintBottom_toBottomOf="@id/showName"/>
+            app:layout_constraintTop_toTopOf="@id/playerShowName"
+            app:layout_constraintBottom_toBottomOf="@id/playerShowName"/>
 
         <TextView
             android:id="@+id/showHost"
@@ -118,7 +121,7 @@
             style="@style/TextAppearance.MaterialComponents.Subtitle2"
             app:layout_constraintStart_toStartOf="@id/playing_image"
             app:layout_constraintEnd_toEndOf="@id/playing_image"
-            app:layout_constraintTop_toBottomOf="@id/showName"/>
+            app:layout_constraintTop_toBottomOf="@id/playerShowName"/>
 
         <com.google.android.exoplayer2.ui.PlayerControlView
             android:id="@+id/customExoPlayer"

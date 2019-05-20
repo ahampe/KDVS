@@ -53,12 +53,15 @@ class PlayerPaletteRequestListener (
         isFirstResource: Boolean
     ): Boolean {
         if (resource == null) return false
+
+        setPaletteColor(resource)
         setTargetView()
+
         return false
     }
 
     override fun setPaletteColor(bitmap: Bitmap) {
-        selectedColor = Palette.from(bitmap).generate().getDarkVibrantColor(selectedColor)
+        selectedColor = Palette.from(bitmap).generate().getLightMutedColor(selectedColor)
     }
 
     override fun setTargetView() {
@@ -68,7 +71,7 @@ class PlayerPaletteRequestListener (
     /** Set color to black Top->Down gradient */
     private fun setViewGradient() {
         val backgroundColors = intArrayOf(selectedColor, Color.BLACK)
-        viewWithColor.foreground = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, backgroundColors)
+        viewToColor.background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, backgroundColors)
     }
 }
 

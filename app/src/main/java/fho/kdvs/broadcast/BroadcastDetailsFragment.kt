@@ -109,7 +109,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
     private fun setPlayButton(broadcast: BroadcastEntity) {
         doAsync {
-            val isConnAvailable = HttpHelper.isConnectionAvailable(URLs.playlistForBroadcast(broadcast))
+            val isConnAvailable = HttpHelper.isConnectionAvailable(URLs.archiveForBroadcast(broadcast))
             uiThread {
                 if (isConnAvailable && archive_playButton != null)
                     archive_playButton.visibility = View.VISIBLE

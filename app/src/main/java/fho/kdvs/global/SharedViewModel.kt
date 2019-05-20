@@ -9,6 +9,10 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.BroadcastEntity
@@ -113,6 +117,18 @@ class SharedViewModel @Inject constructor(
         val transportControls = mediaSessionConnection.transportControls ?: return
         mediaSessionConnection.playbackState.value?.let { playbackState ->
             if (playbackState.isPlaying) transportControls.stop() }
+    }
+
+    fun prepareExoPlayerStreamForBroadcast(player: ExoPlayer, broadcast: BroadcastEntity) {
+        val uri = URLs.archiveForBroadcast(broadcast) ?: return
+        val mediaSource = buildMediaSource(uri)
+        player.prepare(mediaSource, true, false)
+    }
+
+    private fun buildMediaSource(uri: String): MediaSource {
+        return ExtractorMediaSource.Factory(
+            DefaultHttpDataSourceFactory("exoplayer-codelab"))
+                .createMediaSource(Uri.parse(uri))
     }
 
     private fun prepareLivePlayback(streamUrl: String) {

@@ -42,7 +42,7 @@ object URLs {
 
     fun broadcastDetails(id: String) = "https://kdvs.org/playlist-details/$id/"
 
-    fun playlistForBroadcast(broadcast: BroadcastEntity): String? {
+    fun archiveForBroadcast(broadcast: BroadcastEntity): String? {
         val dateString = broadcast.date?.let { TimeHelper.dateFormatter.format(it) } ?: return null
         return "https://archives.kdvs.org/archives/${dateString}_${broadcast.showId}_320kbps.mp3"
     }

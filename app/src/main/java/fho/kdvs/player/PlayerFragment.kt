@@ -11,15 +11,17 @@ import androidx.lifecycle.ViewModelProviders
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.exoplayer2.ExoPlayer
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.databinding.FragmentPlayerBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.MainActivity
+import fho.kdvs.global.SharedViewModel
+import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.ui.PlayerPaletteRequestListener
 import fho.kdvs.global.util.TimeHelper
-import kotlinx.android.synthetic.main.exo_playback_control_view.*
 import kotlinx.android.synthetic.main.exo_playback_control_view.view.*
 import kotlinx.android.synthetic.main.fragment_player.*
 import timber.log.Timber
@@ -29,9 +31,8 @@ import javax.inject.Inject
 class PlayerFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
-
     private lateinit var viewModel: PlayerViewModel
-    private lateinit var pb: ProgressBar
+    private lateinit var sharedViewModel: SharedViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,19 +63,18 @@ class PlayerFragment : DaggerFragment() {
     }
 
     private fun subscribeToViewModel() {
-        pb = progressBar
-
         viewModel.broadcastLiveData.observe(this, Observer { broadcast ->
             Timber.d("got currently playing broadcast: $broadcast")
             viewModel.showLiveData.observe(this, Observer { show ->
                 Timber.d("got currently playing show: $show")
-                showName.text = show.name
+                playerShowName.text = show.name
                 showHost.text = show.host
 
-                if ((show.defaultImageHref ?: "").isNotEmpty()) {
+                if ((broadcast.imageHref ?: "").isNotEmpty()) {
                     val parent = playing_image.parent as ConstraintLayout
                     Glide.with(playing_image)
                         .asBitmap()
+                        .load(broadcast.imageHref)
                         .apply(
                             RequestOptions()
                                 .error(R.drawable.show_placeholder)
@@ -90,15 +90,16 @@ class PlayerFragment : DaggerFragment() {
                 if (TimeHelper.isShowBroadcastLive(show, broadcast))
                     configureLiveExoPlayer(show)
                 else
-                    configureArchiveExoPlayer()
+                    configureArchiveExoPlayer(broadcast)
             })
         })
     }
 
-    private fun configureArchiveExoPlayer() {
+    private fun configureArchiveExoPlayer(broadcast: BroadcastEntity) {
         // hide progress bar, show time bar
         customExoPlayer.progress.progressBar.visibility = View.GONE
         customExoPlayer.progress.exo_progress.visibility = View.VISIBLE
+        sharedViewModel.prepareExoPlayerStreamForBroadcast(customExoPlayer.player as ExoPlayer, broadcast)
     }
 
     private fun configureLiveExoPlayer(show: ShowEntity) {
@@ -121,6 +122,4 @@ class PlayerFragment : DaggerFragment() {
         customExoPlayer.exo_position.text = formatter.format(show.timeStart)
         customExoPlayer.exo_duration.text = formatter.format(show.timeEnd)
     }
-
-
 }

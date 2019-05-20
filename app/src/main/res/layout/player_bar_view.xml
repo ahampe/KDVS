@@ -18,7 +18,7 @@
             android:layout_height="match_parent">
 
             <ProgressBar
-                android:id="@id/progressBar"
+                android:id="@+id/barProgressBar"
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:layout_weight="1"
@@ -28,7 +28,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/showName"
+                android:id="@+id/barShowName"
                 style="@style/TextAppearance.MaterialComponents.Headline6"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -60,7 +60,7 @@
                 app:layout_constraintEnd_toStartOf="@id/previewPlayPauseIcon"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@id/upIcon"
-                app:layout_constraintTop_toBottomOf="@+id/showName"
+                app:layout_constraintTop_toBottomOf="@+id/barShowName"
                 tools:text="14:00 - 16:00" />
 
             <ImageView
@@ -85,7 +85,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/showTimeOrBroadcastDate"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/showName" />
+                app:layout_constraintTop_toTopOf="@id/barShowName" />
 
             <ImageView
                 android:id="@+id/previewPlayPauseIcon"
@@ -96,7 +96,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/showTimeOrBroadcastDate"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/showName" />
+                app:layout_constraintTop_toTopOf="@id/barShowName" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </fho.kdvs.player.PlayerBarView>
 </layout>

@@ -293,7 +293,7 @@ fun MediaMetadataCompat.Builder.from(
     artist = show.name
     album = show.host
     genre = show.genre
-    mediaUri = URLs.playlistForBroadcast(broadcast)
+    mediaUri = URLs.archiveForBroadcast(broadcast)
     albumArtUri = broadcast.imageHref ?: show.defaultImageHref
     trackNumber = 1 // TODO
     trackCount = 1

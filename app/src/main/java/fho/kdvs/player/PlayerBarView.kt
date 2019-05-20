@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import fho.kdvs.R
 import fho.kdvs.global.SharedViewModel
 import kotlinx.android.synthetic.main.player_bar_view.view.*
@@ -27,7 +26,7 @@ class PlayerBarView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun setCurrentShowName(name: String?) {
-        showName.text = name ?: ""
+        barShowName.text = name ?: ""
     }
 
     fun setShowTimeOrBroadcastDate(timeOrDate: String?) {
@@ -49,7 +48,7 @@ class PlayerBarView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun initProgressBar(timeStart: OffsetDateTime, timeEnd: OffsetDateTime) {
-        val weakPB = WeakReference<ProgressBar>(progressBar)
+        val weakPB = WeakReference<ProgressBar>(barProgressBar)
         val progressAsyncTask = TimeProgressAsyncTask(weakPB, timeStart, timeEnd)
         progressAsyncTask.execute()
     }

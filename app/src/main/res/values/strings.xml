@@ -66,6 +66,9 @@
     <string name="nextWeek">Next week:</string>
     <string name="thenWeek">Then:</string>
 
+    <!-- Player -->
+    <string name="viewPlaylist">View Playlist</string>
+
     <string name="show_time_range">%1$s - %2$s</string>
     <string name="past_playlists">Past Playlists:</string>
     <string name="hosts">Hosts:</string>
