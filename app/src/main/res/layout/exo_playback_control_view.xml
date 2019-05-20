@@ -78,7 +78,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/exo_stop" />
 
-    <ImageButton
+    <ImageView
         android:id="@+id/exo_live"
         android:layout_width="0dp"
         android:layout_height="0dp"
