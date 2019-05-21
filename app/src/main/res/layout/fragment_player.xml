@@ -84,6 +84,20 @@
             tools:ignore="ContentDescription" />
 
         <TextView
+            android:id="@+id/liveOrBroadcastDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            tools:text="live"
+            android:textAllCaps="true"
+            android:textAlignment="textStart"
+            android:textColor="@color/colorPrimary"
+            style="@style/TextAppearance.MaterialComponents.Overline"
+            app:layout_constraintStart_toStartOf="@id/playing_image"
+            app:layout_constraintEnd_toEndOf="@id/playing_image"
+            app:layout_constraintBottom_toTopOf="@id/playerShowName"/>
+
+        <TextView
             android:id="@+id/playerShowName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

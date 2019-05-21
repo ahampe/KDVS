@@ -51,6 +51,7 @@ class BroadcastDetailsViewModel @Inject constructor(
         val toPlay = broadcast.value ?: return
         val show = show.value ?: return
 
+        broadcastRepository.playingLiveBroadcast = false
         broadcastRepository.playPastBroadcast(toPlay, show)
     }
 

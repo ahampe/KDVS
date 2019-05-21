@@ -72,10 +72,7 @@ class MainActivity : DaggerAppCompatActivity() {
             val timeStart = nowPlayingShow.timeStart
             val timeEnd = nowPlayingShow.timeEnd
 
-            if (nowPlayingBroadcast != null &&
-                timeStart != null &&
-                timeEnd != null) {
-
+            if (timeStart != null && timeEnd != null) {
                 playerBarView.apply {
                     setCurrentShowName(nowPlayingShow.name)
                     initButtonClickListener(viewModel)
@@ -85,7 +82,9 @@ class MainActivity : DaggerAppCompatActivity() {
                     if (previewPlayPauseIcon != null)
                         viewModel.nowPlayingPreviewPlayButton = previewPlayPauseIcon
 
-                    if (TimeHelper.isShowBroadcastLive(nowPlayingShow, nowPlayingBroadcast)) {
+                    if (viewModel.isLiveNow.value == null ||
+                        (nowPlayingBroadcast != null &&
+                                TimeHelper.isShowBroadcastLive(nowPlayingShow, nowPlayingBroadcast))) {
                         val formatter = TimeHelper.showTimeFormatter
                         val timeStr = formatter.format(nowPlayingShow.timeStart) +
                             " - " +
@@ -94,7 +93,7 @@ class MainActivity : DaggerAppCompatActivity() {
                         setShowTimeOrBroadcastDate(timeStr)
                         initLiveShow()
                     } else {
-                        nowPlayingBroadcast.date.let {
+                        nowPlayingBroadcast?.let {
                             val formatter = TimeHelper.uiDateFormatter
                             setShowTimeOrBroadcastDate(formatter.format(nowPlayingBroadcast.date))
 

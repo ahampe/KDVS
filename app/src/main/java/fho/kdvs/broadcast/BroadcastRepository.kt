@@ -16,6 +16,7 @@ import fho.kdvs.show.ShowRepository
 import fho.kdvs.track.TrackRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import org.apache.commons.lang3.mutable.Mutable
 import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
 import org.threeten.bp.temporal.ChronoUnit
@@ -32,6 +33,12 @@ class BroadcastRepository @Inject constructor(
     private val scraperManager: WebScraperManager,
     private val kdvsPreferences: KdvsPreferences
 ) : BaseRepository() {
+
+    /**
+     * Nullable bool to update when pressing 'Play Live' button, because we won't necessarily have a
+     * [liveBroadcastLiveData] for the live broadcast yet.
+     */
+    var playingLiveBroadcast: Boolean?= null
 
     /** The broadcast currently being played by the user. This may or may not be [liveBroadcastLiveData]. */
     val nowPlayingBroadcastLiveData = object : MutableLiveData<BroadcastEntity>() {
@@ -91,6 +98,8 @@ class BroadcastRepository @Inject constructor(
             broadcast.broadcastId.toString(),
             Bundle().apply { putInt("SHOW_ID", show.id) }
         )
+
+        mediaSessionConnection.isLiveNow.postValue(false)
 
         nowPlayingBroadcastLiveData.postValue(broadcast)
         nowPlayingShowLiveData.postValue(show)

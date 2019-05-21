@@ -118,10 +118,9 @@ class LiveShowUpdater @Inject constructor(
         showRepository.liveShowLiveData.postValue(currentShow)
 
         // upon starting the app, bind playerBar with live broadcast
-        if (broadcastRepository.nowPlayingShowLiveData.value == null) {
-            broadcastRepository.nowPlayingShowLiveData.postValue(currentShow)
-            broadcastRepository.nowPlayingBroadcastLiveData.postValue(broadcastRepository.liveBroadcastLiveData.value)
-        }
+        broadcastRepository.nowPlayingShowLiveData.postValue(currentShow)
+        broadcastRepository.nowPlayingBroadcastLiveData.postValue(broadcastRepository.liveBroadcastLiveData.value)
+        // TODO: if user was last playing an archive stream, load that stream and its progress instead
 
         // to get the next show, we need the database and
         val addedTime = currentShow.timeEnd?.plusMinutes(1L) ?: return@async false

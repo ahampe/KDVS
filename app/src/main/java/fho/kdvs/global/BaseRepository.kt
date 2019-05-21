@@ -31,32 +31,9 @@ abstract class BaseRepository : CoroutineScope {
     val mainContext: CoroutineContext
         get() = Dispatchers.Main + job
 
-    /** Whether or not the user is playing KDVS live */
-//    val isLiveNow: Boolean
-//        get() {
-//            val nowPlaying = mediaSessionConnection.nowPlaying.value ?: return false
-//            val playingUri = nowPlaying.id
-//            return URLs.liveStreamUrls.contains(playingUri)
-//        }
-
-    val isLiveNow: LiveData<Boolean> get() = mediaSessionConnection.isLiveNow
-
-    /** Listener for both playback state (first in pair) and "live now" state (second in pair) */
-    val statusLiveData by lazy {
-        MediatorLiveData<Pair<PlaybackStateCompat, Boolean>>()
-            .apply {
-                var playbackState = EMPTY_PLAYBACK_STATE
-                var isLiveNow = false
-
-                addSource(mediaSessionConnection.playbackState) { state ->
-                    playbackState = state
-                    postValue(Pair(state, isLiveNow))
-                }
-
-                addSource(mediaSessionConnection.isLiveNow) { isLive ->
-                    isLiveNow = isLive
-                    postValue(Pair(playbackState, isLive))
-                }
-            }
-    }
+    /**
+     * Whether or not the user is playing KDVS live. If null, this means that user has not initialized playback of
+     * livestream or an archive (i.e. on startup).
+     * */
+    val isLiveNow: LiveData<Boolean?> get() = mediaSessionConnection.isLiveNow
 }

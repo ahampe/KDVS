@@ -70,7 +70,7 @@ class SharedViewModel @Inject constructor(
     val liveBroadcast: LiveData<BroadcastEntity>
         get() = broadcastRepository.liveBroadcastLiveData
 
-    val isLiveNow: LiveData<Boolean> = showRepository.isLiveNow
+    val isLiveNow: LiveData<Boolean?> = showRepository.isLiveNow
 
     fun updateLiveShows() = liveShowUpdater.beginUpdating()
 
@@ -108,6 +108,7 @@ class SharedViewModel @Inject constructor(
     }
 
     fun playLiveShowFromHome() {
+        broadcastRepository.playingLiveBroadcast = true
         broadcastRepository.nowPlayingShowLiveData.postValue(showRepository.liveShowLiveData.value)
         broadcastRepository.nowPlayingBroadcastLiveData.postValue(broadcastRepository.liveBroadcastLiveData.value)
         changeToKdvsOgg()
@@ -119,8 +120,14 @@ class SharedViewModel @Inject constructor(
             if (playbackState.isPlaying) transportControls.stop() }
     }
 
-    fun prepareExoPlayerStreamForBroadcast(player: ExoPlayer, broadcast: BroadcastEntity) {
+    fun prepareExoPlayerForBroadcast(player: ExoPlayer, broadcast: BroadcastEntity) {
         val uri = URLs.archiveForBroadcast(broadcast) ?: return
+        val mediaSource = buildMediaSource(uri)
+        player.prepare(mediaSource, true, false)
+    }
+
+    fun prepareExoPlayerForLiveStream(player: ExoPlayer) {
+        val uri = URLs.LIVE_OGG
         val mediaSource = buildMediaSource(uri)
         player.prepare(mediaSource, true, false)
     }

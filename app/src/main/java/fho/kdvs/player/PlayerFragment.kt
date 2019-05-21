@@ -11,7 +11,12 @@ import androidx.lifecycle.ViewModelProviders
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.exoplayer2.DefaultLoadControl
+import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.ui.PlayerControlView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.databinding.FragmentPlayerBinding
@@ -90,7 +95,7 @@ class PlayerFragment : DaggerFragment() {
                         .into(playing_image)
                 }
 
-                if (TimeHelper.isShowBroadcastLive(show, broadcast))
+                if (TimeHelper.isShowBroadcastLive(show, broadcast) || sharedViewModel.isLiveNow.value == null)
                     configureLiveExoPlayer(show)
                 else
                     configureArchiveExoPlayer(broadcast)
@@ -99,10 +104,15 @@ class PlayerFragment : DaggerFragment() {
     }
 
     private fun configureArchiveExoPlayer(broadcast: BroadcastEntity) {
+        val formatter = TimeHelper.uiDateFormatter
+        liveOrBroadcastDate.text = formatter.format(broadcast.date)
+
         // hide progress bar, show time bar
         customExoPlayer.progress.progressBar.visibility = View.GONE
         customExoPlayer.progress.exo_progress.visibility = View.VISIBLE
-        sharedViewModel.prepareExoPlayerStreamForBroadcast(customExoPlayer.player as ExoPlayer, broadcast)
+
+        val player = getPlayer()
+        sharedViewModel.prepareExoPlayerForBroadcast(player, broadcast)
     }
 
     private fun configureLiveExoPlayer(show: ShowEntity) {
@@ -110,6 +120,8 @@ class PlayerFragment : DaggerFragment() {
         val timeEnd = show.timeEnd
 
         if (timeStart == null || timeEnd == null) return
+
+        liveOrBroadcastDate.text = resources.getString(R.string.live)
 
         // bind custom progress logic
         val weakPB = WeakReference<ProgressBar>(customExoPlayer.progress.progressBar)
@@ -124,5 +136,14 @@ class PlayerFragment : DaggerFragment() {
         val formatter = TimeHelper.showTimeFormatter
         customExoPlayer.exo_position.text = formatter.format(show.timeStart)
         customExoPlayer.exo_duration.text = formatter.format(show.timeEnd)
+
+        val player = getPlayer()
+        sharedViewModel.prepareExoPlayerForLiveStream(player)
+    }
+
+    private fun getPlayer(): ExoPlayer {
+        return ExoPlayerFactory.newSimpleInstance(
+            context
+        )
     }
 }
