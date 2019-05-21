@@ -18,7 +18,6 @@
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="@dimen/bottom_nav_height"
             app:defaultNavHost="true"
             app:navGraph="@navigation/nav_graph"
             tools:layout="@layout/fragment_home" />
@@ -28,6 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/bottom_nav_height"
             android:layout_gravity="bottom"
+            android:layout_marginTop="@dimen/bottom_nav_height"
             android:layout_marginBottom="@dimen/bottom_nav_height"
             app:behavior_hideable="false"
             app:behavior_peekHeight="@dimen/double_bottom_nav"/>
