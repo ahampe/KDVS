@@ -14,7 +14,6 @@ import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.player_bar_view.*
 import kotlinx.android.synthetic.main.player_bar_view.view.*
-import org.threeten.bp.OffsetDateTime
 import javax.inject.Inject
 
 class MainActivity : DaggerAppCompatActivity() {
@@ -73,7 +72,7 @@ class MainActivity : DaggerAppCompatActivity() {
             val timeStart = nowPlayingShow.timeStart
             val timeEnd = nowPlayingShow.timeEnd
 
-            if (nowPlayingBroadcast?.date != null &&
+            if (nowPlayingBroadcast != null &&
                 timeStart != null &&
                 timeEnd != null) {
 
@@ -95,10 +94,12 @@ class MainActivity : DaggerAppCompatActivity() {
                         setShowTimeOrBroadcastDate(timeStr)
                         initLiveShow()
                     } else {
-                        val formatter = TimeHelper.uiDateFormatter
-                        setShowTimeOrBroadcastDate(formatter.format(nowPlayingBroadcast.date))
+                        nowPlayingBroadcast.date.let {
+                            val formatter = TimeHelper.uiDateFormatter
+                            setShowTimeOrBroadcastDate(formatter.format(nowPlayingBroadcast.date))
 
-                        initArchiveShow()
+                            initArchiveShow()
+                        }
                     }
                 }
             }

@@ -117,10 +117,10 @@ class LiveShowUpdater @Inject constructor(
 
         showRepository.liveShowLiveData.postValue(currentShow)
 
-        // upon starting the app, bind playerBar with live show if repo doesn't already have value
+        // upon starting the app, bind playerBar with live broadcast
         if (broadcastRepository.nowPlayingShowLiveData.value == null) {
-            showRepository.liveShowLiveData.postValue(currentShow)
             broadcastRepository.nowPlayingShowLiveData.postValue(currentShow)
+            broadcastRepository.nowPlayingBroadcastLiveData.postValue(broadcastRepository.liveBroadcastLiveData.value)
         }
 
         // to get the next show, we need the database and

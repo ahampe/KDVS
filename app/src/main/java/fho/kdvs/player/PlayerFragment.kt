@@ -45,6 +45,9 @@ class PlayerFragment : DaggerFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        sharedViewModel = ViewModelProviders.of(requireActivity(), vmFactory)
+            .get(SharedViewModel::class.java)
+
         val binding = FragmentPlayerBinding.inflate(inflater, container, false)
             .apply { vm = viewModel }
         binding.lifecycleOwner = this
