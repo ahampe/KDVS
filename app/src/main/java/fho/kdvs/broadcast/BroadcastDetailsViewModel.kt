@@ -39,7 +39,7 @@ class BroadcastDetailsViewModel @Inject constructor(
     private lateinit var favoritesLiveData: LiveData<List<FavoriteEntity>>
 
     lateinit var tracksWithFavorites: MediatorLiveData<Pair<List<TrackEntity>,List<FavoriteEntity>?>>
-    lateinit var favorites: List<FavoriteEntity>
+    var favorites: List<FavoriteEntity>?= null
 
     fun initialize(showId: Int, broadcastId: Int) {
         fetchTracks(broadcastId)
@@ -55,13 +55,15 @@ class BroadcastDetailsViewModel @Inject constructor(
 
                 addSource(tracksLiveData) { trackEntities ->
                     tracks = trackEntities
-                    postValue(Pair(trackEntities, favorites))
+                    val favoriteEntities = favorites ?: return@addSource
+                    postValue(Pair(trackEntities, favoriteEntities))
                 }
 
                 addSource(favoritesLiveData) { favoriteEntities ->
                     favorites = favoriteEntities
+
                     val trackEntities = tracks ?: return@addSource
-                    postValue(Pair(trackEntities, favorites))
+                    postValue(Pair(trackEntities, favoriteEntities))
                 }
             }
     }
