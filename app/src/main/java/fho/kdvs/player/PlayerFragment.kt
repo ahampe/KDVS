@@ -108,6 +108,9 @@ class PlayerFragment : DaggerFragment() {
             star.setOnClickListener { sharedViewModel.onClickStar(star, show.id) }
             arrow.setOnClickListener { fragmentManager?.popBackStack() }
 
+            if (broadcast == null)
+                viewPlaylist.visibility = View.GONE
+
             val imageHref = broadcast?.imageHref ?: show.defaultImageHref
             imageHref?.let {
                 val parent = playing_image.parent as ConstraintLayout

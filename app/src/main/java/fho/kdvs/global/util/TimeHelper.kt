@@ -132,7 +132,7 @@ object TimeHelper {
                         now.dayOfWeek == show.timeEnd!!.dayOfWeek)  &&
                 now.hour >= show.timeStart!!.hour &&
                 (now.hour < show.timeEnd!!.hour ||
-                        now.hour == 23 && show.timeEnd!!.hour == 0)
+                        now.dayOfWeek != show.timeEnd!!.dayOfWeek)
     }
 
     /**

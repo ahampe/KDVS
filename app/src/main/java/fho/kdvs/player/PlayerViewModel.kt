@@ -1,7 +1,6 @@
 package fho.kdvs.player
 
 import android.app.Application
-import android.widget.ImageView
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -10,20 +9,17 @@ import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.global.database.SubscriptionDao
 import fho.kdvs.global.database.SubscriptionEntity
 import fho.kdvs.subscription.SubscriptionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 class PlayerViewModel @Inject constructor(
     private val broadcastRepository: BroadcastRepository,
     private val subscriptionRepository: SubscriptionRepository,
-    private val subscriptionDao: SubscriptionDao,
     application: Application
 ) : AndroidViewModel(application), CoroutineScope {
 
