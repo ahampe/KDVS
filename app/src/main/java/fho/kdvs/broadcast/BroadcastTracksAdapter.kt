@@ -47,7 +47,10 @@ class BroadcastTracksAdapter(
                 track = item
                 clickListener = listener
                 vm = viewModel
-                favorited = viewModel.favoritedTracks.contains(item.trackId)
+                sharedVm = sharedViewModel
+                favorited = viewModel.favorites
+                    .map { f -> f.trackId }
+                    .contains(item.trackId)
             }
         }
     }

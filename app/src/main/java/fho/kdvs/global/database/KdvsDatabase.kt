@@ -13,7 +13,8 @@ import java.io.File
 
 @Database(
     entities = [ShowEntity::class, BroadcastEntity::class, FavoriteEntity::class, TrackEntity::class,
-        StaffEntity::class, NewsEntity::class, TopMusicEntity::class, FundraiserEntity::class],
+        StaffEntity::class, NewsEntity::class, TopMusicEntity::class, FundraiserEntity::class,
+        SubscriptionEntity::class],
     version = 1,
     exportSchema = false
 )
@@ -32,6 +33,7 @@ abstract class KdvsDatabase : RoomDatabase() {
     abstract fun staffDao(): StaffDao
     abstract fun newsDao(): NewsDao
     abstract fun fundraiserDao(): FundraiserDao
+    abstract fun subscriptionDao(): SubscriptionDao
 
     companion object {
         private const val FILE_NAME = "kdvs.db"

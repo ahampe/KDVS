@@ -84,6 +84,20 @@ class PlayerFragment : DaggerFragment() {
         viewModel.nowPlayingLiveData.observe(this, Observer { (show, broadcast) ->
             Timber.d("got currently playing show: $show and broadcast: $broadcast")
 
+            viewModel.setSubscription(show.id)
+            viewModel.subscription.observe(this, Observer {
+                when(it != null) {
+                    true -> {
+                        star.setImageResource(R.drawable.ic_star_white_24dp)
+                        star.tag = 1
+                    }
+                    false -> {
+                        star.setImageResource(R.drawable.ic_star_border_white_24dp)
+                        star.tag = 0
+                    }
+                }
+            })
+
             playerShowName.text = show.name
             showHost.text = show.host
 
@@ -91,7 +105,7 @@ class PlayerFragment : DaggerFragment() {
             playerShowName.setOnClickListener { viewModel.onClickShowInfo(findNavController(), show) }
             showHost.setOnClickListener { viewModel.onClickShowInfo(findNavController(), show) }
             viewPlaylist.setOnClickListener { viewModel.onClickPlaylist(findNavController(), broadcast) }
-            star.setOnClickListener { viewModel.onClickStar() }
+            star.setOnClickListener { sharedViewModel.onClickStar(star, show.id) }
             arrow.setOnClickListener { fragmentManager?.popBackStack() }
 
             val imageHref = broadcast?.imageHref ?: show.defaultImageHref

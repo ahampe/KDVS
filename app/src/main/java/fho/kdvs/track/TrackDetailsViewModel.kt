@@ -5,14 +5,16 @@ import android.view.View
 import android.widget.ImageView
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.favorite.FavoriteRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.web.MusicBrainz
 import fho.kdvs.global.web.Spotify
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -86,20 +88,5 @@ class TrackDetailsViewModel @Inject constructor(
         }
 
         liveTrack = trackRepository.trackById(track.trackId)
-    }
-
-    // TODO: refactor this block (shared with BroadcastDetailsViewModel)
-    fun onClickFavorite(view: View, trackId: Int) {
-        val imageView = view as? ImageView
-
-        if (imageView?.tag == 0) {
-            imageView.setImageResource(R.drawable.ic_favorite_white_24dp)
-            imageView.tag = 1
-            launch { favoriteDao.insert(FavoriteEntity(0, trackId)) }
-        } else if (imageView?.tag == 1) {
-            imageView.setImageResource(R.drawable.ic_favorite_border_white_24dp)
-            imageView.tag = 0
-            launch { favoriteDao.deleteByTrackId(trackId) }
-        }
     }
 }

@@ -112,7 +112,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginEnd="@dimen/spacing_extra_large"
-            android:onClick="@{(view) -> vm.onClickFavorite(view, trackData.trackId)}"
+            android:onClick="@{(view) -> sharedVm.onClickFavorite(view, trackData.trackId)}"
             android:src="@drawable/ic_favorite_border_white_24dp"
             android:tag="0"
             app:layout_constraintBottom_toBottomOf="@id/song"

@@ -5,10 +5,10 @@ import android.view.View
 import android.widget.ImageView
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.navigation.NavController
 import fho.kdvs.R
 import fho.kdvs.favorite.FavoriteRepository
-import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.*
 import fho.kdvs.show.ShowRepository
 import fho.kdvs.track.TrackRepository
@@ -25,7 +25,6 @@ class BroadcastDetailsViewModel @Inject constructor(
     private val favoriteRepository: FavoriteRepository,
     private val trackRepository: TrackRepository,
     private val favoriteDao: FavoriteDao,
-    private val sharedViewModel: SharedViewModel,
     application: Application
 ) : AndroidViewModel(application), CoroutineScope {
 
@@ -36,16 +35,35 @@ class BroadcastDetailsViewModel @Inject constructor(
 
     lateinit var show: LiveData<ShowEntity>
     lateinit var broadcast: LiveData<BroadcastEntity>
-    lateinit var tracks: LiveData<List<TrackEntity>>
-    lateinit var favorites: List<LiveData<FavoriteEntity>>
+    private lateinit var tracksLiveData: LiveData<List<TrackEntity>>
+    private lateinit var favoritesLiveData: LiveData<List<FavoriteEntity>>
 
-    val favoritedTracks = mutableListOf<Int>()
+    lateinit var tracksWithFavorites: MediatorLiveData<Pair<List<TrackEntity>,List<FavoriteEntity>?>>
+    lateinit var favorites: List<FavoriteEntity>
 
     fun initialize(showId: Int, broadcastId: Int) {
         fetchTracks(broadcastId)
         show = showRepository.showById(showId)
         broadcast = broadcastRepository.broadcastById(broadcastId)
-        tracks = trackRepository.tracksForBroadcast(broadcastId)
+        tracksLiveData = trackRepository.tracksForBroadcast(broadcastId)
+        favoritesLiveData = favoriteRepository.allFavoritesByBroadcast(broadcastId)
+
+        // Ensure that we have all tracks and favorites at same time
+        tracksWithFavorites = MediatorLiveData<Pair<List<TrackEntity>,List<FavoriteEntity>?>>()
+            .apply {
+                var tracks: List<TrackEntity>? = null
+
+                addSource(tracksLiveData) { trackEntities ->
+                    tracks = trackEntities
+                    postValue(Pair(trackEntities, favorites))
+                }
+
+                addSource(favoritesLiveData) { favoriteEntities ->
+                    favorites = favoriteEntities
+                    val trackEntities = tracks ?: return@addSource
+                    postValue(Pair(trackEntities, favorites))
+                }
+            }
     }
 
     /** Callback which plays this recorded broadcast, if it is still available */
@@ -61,23 +79,6 @@ class BroadcastDetailsViewModel @Inject constructor(
         trackRepository.scrapePlaylist(broadcastId.toString())
     }
 
-    fun getFavoritesForTracks(tracks: List<TrackEntity>) {
-        favorites = favoriteRepository.favoritesForTracks(tracks)
-    }
-
-    fun onClickFavorite(view: View, trackId: Int) {
-        val imageView = view as? ImageView
-
-        if (imageView?.tag == 0) {
-            imageView.setImageResource(R.drawable.ic_favorite_white_24dp)
-            imageView.tag = 1
-            launch { favoriteDao.insert(FavoriteEntity(0, trackId)) }
-        } else if (imageView?.tag == 1) {
-            imageView.setImageResource(R.drawable.ic_favorite_border_white_24dp)
-            imageView.tag = 0
-            launch { favoriteDao.deleteByTrackId(trackId) }
-        }
-    }
 
     fun onClickTrack(navController: NavController, track: TrackEntity) {
         val navAction = BroadcastDetailsFragmentDirections

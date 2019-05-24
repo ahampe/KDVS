@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.view.View
+import android.widget.ImageView
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -15,9 +16,7 @@ import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
-import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.database.*
 import fho.kdvs.global.extensions.id
 import fho.kdvs.global.extensions.isPlayEnabled
 import fho.kdvs.global.extensions.isPlaying
@@ -30,6 +29,7 @@ import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
 import fho.kdvs.services.LiveShowUpdater
 import fho.kdvs.services.MediaSessionConnection
 import fho.kdvs.show.ShowRepository
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.max
@@ -41,6 +41,8 @@ class SharedViewModel @Inject constructor(
     application: Application,
     private val showRepository: ShowRepository,
     private val broadcastRepository: BroadcastRepository,
+    private val favoriteDao: FavoriteDao,
+    private val subscriptionDao: SubscriptionDao,
     private val liveShowUpdater: LiveShowUpdater,
     private val mediaSessionConnection: MediaSessionConnection
 ) : BaseViewModel(application) {
@@ -250,6 +252,36 @@ class SharedViewModel @Inject constructor(
             url = "https://open.spotify.com/$type/$id"
 
         return url
+    }
+
+    // endregion
+
+    // region UI
+
+    fun onClickFavorite(view: View, trackId: Int) {
+        val imageView = view as? ImageView
+
+        if (imageView?.tag == 0) {
+            imageView.setImageResource(R.drawable.ic_favorite_white_24dp)
+            imageView.tag = 1
+            launch { favoriteDao.insert(FavoriteEntity(0, trackId)) }
+        } else if (imageView?.tag == 1) {
+            imageView.setImageResource(R.drawable.ic_favorite_border_white_24dp)
+            imageView.tag = 0
+            launch { favoriteDao.deleteByTrackId(trackId) }
+        }
+    }
+
+    fun onClickStar(imageView: ImageView, showId: Int) {
+        if (imageView.tag == 0) {
+            imageView.setImageResource(R.drawable.ic_star_border_white_24dp)
+            imageView.tag = 1
+            launch { subscriptionDao.insert(SubscriptionEntity(0, showId)) }
+        } else if (imageView.tag == 1) {
+            imageView.setImageResource(R.drawable.ic_star_white_24dp)
+            imageView.tag = 0
+            launch { subscriptionDao.deleteByShowId(showId) }
+        }
     }
 
     // endregion

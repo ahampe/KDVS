@@ -4,7 +4,9 @@ import androidx.lifecycle.LiveData
 import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.FavoriteDao
 import fho.kdvs.global.database.FavoriteEntity
-import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.extensions.toLiveData
+import io.reactivex.Flowable
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,11 +19,9 @@ class FavoriteRepository @Inject constructor(
         return favoriteDao.getByTrackId(trackId)
     }
 
-    fun favoritesForTracks(tracks: List<TrackEntity>): List<LiveData<FavoriteEntity>> {
-        val favorites = mutableListOf<LiveData<FavoriteEntity>>()
-        tracks.forEach {
-            favorites.add(favoriteByTrackId(it.trackId))
-        }
-        return favorites
+    fun allFavoritesByBroadcast(broadcastId: Int): LiveData<List<FavoriteEntity>> {
+        return favoriteDao.allFavoritesByBroadcast(broadcastId)
+            .debounce(100L, TimeUnit.MILLISECONDS)
+            .toLiveData()
     }
 }

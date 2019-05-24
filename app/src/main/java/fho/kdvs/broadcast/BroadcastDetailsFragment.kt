@@ -94,8 +94,8 @@ class BroadcastDetailsFragment : DaggerFragment() {
             setPlayButtonAndHideProgressBar(broadcast)
         })
 
-        viewModel.tracks.observe(fragment, Observer { tracks ->
-            Timber.d("Got tracks: $tracks")
+        viewModel.tracksWithFavorites.observe(fragment, Observer { (tracks, _) ->
+            Timber.d("Got tracks: $tracks with favorites")
 
             if (tracks.isEmpty())
                 noTracksMessage.visibility = View.VISIBLE
@@ -103,15 +103,6 @@ class BroadcastDetailsFragment : DaggerFragment() {
                 noTracksMessage.visibility = View.GONE
 
             tracksAdapter?.onTracksChanged(tracks)
-
-            viewModel.getFavoritesForTracks(tracks)
-
-            viewModel.favorites.forEach {
-                it.observe(fragment, Observer { favorite ->
-                    if (favorite != null)
-                        viewModel.favoritedTracks.add(favorite.trackId)
-                })
-            }
         })
     }
 
