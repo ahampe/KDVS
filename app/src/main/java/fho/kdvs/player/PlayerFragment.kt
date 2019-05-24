@@ -75,6 +75,11 @@ class PlayerFragment : DaggerFragment() {
         activity?.toggleBottomNavAndPlayerBar(true)
     }
 
+    override fun onResume() {
+        super.onResume()
+        subscribeToViewModel()
+    }
+
     private fun subscribeToViewModel() {
         viewModel.nowPlayingLiveData.observe(this, Observer { (show, broadcast) ->
             Timber.d("got currently playing show: $show and broadcast: $broadcast")
