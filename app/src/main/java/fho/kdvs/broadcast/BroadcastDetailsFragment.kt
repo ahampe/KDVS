@@ -68,6 +68,9 @@ class BroadcastDetailsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        if (viewModel.broadcast.value == null)
+            progressBar.visibility = View.VISIBLE
+
         tracksAdapter = BroadcastTracksAdapter(viewModel, sharedViewModel) {
             Timber.d("Clicked ${it.item}")
             viewModel.onClickTrack(this.findNavController(), it.item)
@@ -88,7 +91,6 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
         viewModel.broadcast.observe(fragment, Observer { broadcast ->
             Timber.d("Got broadcast: $broadcast")
-            progressBar.visibility = View.VISIBLE
             setPlayButtonAndHideProgressBar(broadcast)
         })
 

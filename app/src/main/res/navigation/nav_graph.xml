@@ -20,6 +20,9 @@
         <action
             android:id="@+id/action_playerFragment_to_broadcastDetailsFragment"
             app:destination="@id/broadcastDetailsFragment" />
+        <action
+            android:id="@+id/action_playerFragment_to_showDetailsFragment"
+            app:destination="@id/showDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/scheduleFragment"

@@ -8,6 +8,7 @@ import android.widget.ProgressBar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestOptions
@@ -75,38 +76,43 @@ class PlayerFragment : DaggerFragment() {
     }
 
     private fun subscribeToViewModel() {
-        viewModel.broadcastLiveData.observe(this, Observer { broadcast ->
-            Timber.d("got currently playing broadcast: $broadcast")
-            viewModel.showLiveData.observe(this, Observer { show ->
-                Timber.d("got currently playing show: $show")
-                playerShowName.text = show.name
-                showHost.text = show.host
+        viewModel.nowPlayingLiveData.observe(this, Observer { (show, broadcast) ->
+            Timber.d("got currently playing show: $show and broadcast: $broadcast")
 
-                val imageHref = broadcast?.imageHref ?: show?.defaultImageHref
-                imageHref?.let {
-                    val parent = playing_image.parent as ConstraintLayout
-                    Glide.with(playing_image)
-                        .asBitmap()
-                        .load(imageHref)
-                        .apply(
-                            RequestOptions()
-                                .error(R.drawable.show_placeholder)
-                                .apply(RequestOptions.centerCropTransform())
-                        )
-                        .transition(BitmapTransitionOptions.withCrossFade())
-                        .listener(
-                            PlayerPaletteRequestListener(parent)
-                        )
-                        .into(playing_image)
-                }
+            playerShowName.text = show.name
+            showHost.text = show.host
 
-                if (broadcast == null ||
-                    TimeHelper.isShowBroadcastLive(show, broadcast) ||
-                    sharedViewModel.isLiveNow.value == null)
-                    configureLiveExoPlayer(show)
-                else
-                    configureArchiveExoPlayer(broadcast)
-            })
+            liveOrBroadcastDate.setOnClickListener { viewModel.onClickShowInfo(findNavController(), show) }
+            playerShowName.setOnClickListener { viewModel.onClickShowInfo(findNavController(), show) }
+            showHost.setOnClickListener { viewModel.onClickShowInfo(findNavController(), show) }
+            viewPlaylist.setOnClickListener { viewModel.onClickPlaylist(findNavController(), broadcast) }
+            star.setOnClickListener { viewModel.onClickStar() }
+            arrow.setOnClickListener { fragmentManager?.popBackStack() }
+
+            val imageHref = broadcast?.imageHref ?: show.defaultImageHref
+            imageHref?.let {
+                val parent = playing_image.parent as ConstraintLayout
+                Glide.with(playing_image)
+                    .asBitmap()
+                    .load(imageHref)
+                    .apply(
+                        RequestOptions()
+                            .error(R.drawable.show_placeholder)
+                            .apply(RequestOptions.centerCropTransform())
+                    )
+                    .transition(BitmapTransitionOptions.withCrossFade())
+                    .listener(
+                        PlayerPaletteRequestListener(parent)
+                    )
+                    .into(playing_image)
+            }
+
+            if (broadcast == null ||
+                TimeHelper.isShowBroadcastLive(show, broadcast) ||
+                sharedViewModel.isLiveNow.value == null)
+                configureLiveExoPlayer(show)
+            else
+                configureArchiveExoPlayer(broadcast)
         })
     }
 

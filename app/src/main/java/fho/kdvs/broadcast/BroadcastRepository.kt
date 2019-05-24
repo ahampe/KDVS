@@ -2,6 +2,7 @@ package fho.kdvs.broadcast
 
 import android.os.Bundle
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import fho.kdvs.global.BaseRepository
@@ -58,6 +59,30 @@ class BroadcastRepository @Inject constructor(
         override fun setValue(value: ShowEntity?) {
             value?.let { scrapeShow(it.id.toString()) }
             super.setValue(value)
+        }
+    }
+
+    /** A [MediatorLiveData] which merges the currently playing show and currently playing broadcast. */
+    val nowPlayingLiveData = MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>()
+        .apply {
+            var broadcast: BroadcastEntity? = null
+            var show: ShowEntity? = null
+
+            addSource(nowPlayingShowLiveData) { showEntity ->
+                show = showEntity
+                postValue(Pair(showEntity, broadcast))
+            }
+
+            addSource(nowPlayingBroadcastLiveData) { broadcastEntity ->
+                broadcast = broadcastEntity
+                val showEntity = show ?: return@addSource
+                postValue(Pair(showEntity, broadcastEntity))
+            }
+        }
+
+    init {
+        nowPlayingLiveData.observeForever { (show, broadcast) ->
+            Timber.d("updating metadata for ${show.name} ${broadcast?.date}")
         }
     }
 

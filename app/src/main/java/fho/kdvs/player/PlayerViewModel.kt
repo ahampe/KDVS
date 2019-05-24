@@ -2,7 +2,7 @@ package fho.kdvs.player
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.navigation.NavController
 import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
@@ -15,23 +15,25 @@ class PlayerViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
 
-    lateinit var showLiveData: LiveData<ShowEntity>
-    lateinit var broadcastLiveData: LiveData<BroadcastEntity>
+    lateinit var nowPlayingLiveData: MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>
 
     fun initialize() {
-        showLiveData = broadcastRepository.nowPlayingShowLiveData
-        broadcastLiveData = broadcastRepository.nowPlayingBroadcastLiveData
+        nowPlayingLiveData = broadcastRepository.nowPlayingLiveData
     }
 
-
-    fun onClickArrow() {
-
+    fun onClickPlaylist(navController: NavController, broadcast: BroadcastEntity?) {
+        broadcast?.let {
+            val navAction = PlayerFragmentDirections
+                .actionPlayerFragmentToBroadcastDetailsFragment(broadcast.showId, broadcast.broadcastId)
+            if (navController.currentDestination?.id == R.id.playerFragment)
+                navController.navigate(navAction)
+        }
     }
 
-    fun onClickPlaylist(navController: NavController, broadcast: BroadcastEntity) {
+    fun onClickShowInfo(navController: NavController, show: ShowEntity) {
         val navAction = PlayerFragmentDirections
-            .actionPlayerFragmentToBroadcastDetailsFragment(broadcast.showId, broadcast.broadcastId)
-        if (navController.currentDestination?.id == R.id.broadcastDetailsFragment)
+            .actionPlayerFragmentToShowDetailsFragment(show.id)
+        if (navController.currentDestination?.id == R.id.playerFragment)
             navController.navigate(navAction)
     }
 
