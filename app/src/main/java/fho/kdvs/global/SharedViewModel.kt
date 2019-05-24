@@ -4,11 +4,11 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.view.View
-import android.widget.ImageView
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.navigation.NavController
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.MediaSource
@@ -30,9 +30,9 @@ import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
 import fho.kdvs.services.LiveShowUpdater
 import fho.kdvs.services.MediaSessionConnection
 import fho.kdvs.show.ShowRepository
-import fho.kdvs.track.TrackRepository
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.math.max
 
 
 /** An [AndroidViewModel] scoped to the main activity.
@@ -41,13 +41,9 @@ class SharedViewModel @Inject constructor(
     application: Application,
     private val showRepository: ShowRepository,
     private val broadcastRepository: BroadcastRepository,
-    private val trackRepository: TrackRepository,
     private val liveShowUpdater: LiveShowUpdater,
     private val mediaSessionConnection: MediaSessionConnection
 ) : BaseViewModel(application) {
-
-    var nowPlayingPreviewPlayButton: ImageView?= null
-    var nowPlayingPlayButton: ImageView?= null
 
     val liveStreamLiveData: MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>
         get() = showRepository.liveStreamLiveData
@@ -70,6 +66,8 @@ class SharedViewModel @Inject constructor(
     val liveBroadcast: LiveData<BroadcastEntity>
         get() = broadcastRepository.liveBroadcastLiveData
 
+    val isPlayingAudioNow = mediaSessionConnection.playbackState
+
     val isLiveNow: LiveData<Boolean?> = showRepository.isLiveNow
 
     fun updateLiveShows() = liveShowUpdater.beginUpdating()
@@ -90,6 +88,37 @@ class SharedViewModel @Inject constructor(
         prepareLivePlayback(URLs.LIVE_OGG)
     }
 
+
+    fun jumpBack30Seconds(player: ExoPlayer) {
+        val transportControls = mediaSessionConnection.transportControls ?: return
+        mediaSessionConnection.playbackState.value?.let { playbackState ->
+            if (playbackState.isPlaying) {
+                val currentPos = playbackState.bufferedPosition
+                val newPos = max(0, currentPos - 30000)
+                transportControls.seekTo(newPos)
+            }
+       }
+    }
+
+    fun jumpForward30Seconds(player: ExoPlayer) {
+        val transportControls = mediaSessionConnection.transportControls ?: return
+        mediaSessionConnection.playbackState.value?.let { playbackState ->
+            if (playbackState.isPlaying) {
+                val currentPos = playbackState.position
+                val newPos = currentPos + 30000
+                transportControls.seekTo(newPos)
+            }
+        }
+    }
+
+    fun jumpToLivePlayback() {
+        changeToKdvsOgg()
+    }
+
+    fun navigateToPlayer(navController: NavController) {
+        navController.navigate(R.id.playerFragment)
+    }
+
     fun playOrPausePlayback() {
         if (mediaSessionConnection.playbackState.value?.isPrepared == false)
             changeToKdvsOgg()
@@ -98,11 +127,9 @@ class SharedViewModel @Inject constructor(
         mediaSessionConnection.playbackState.value?.let { playbackState ->
             if (playbackState.isPlaying) {
                 transportControls.pause()
-                onPause()
             }
             else {
                 transportControls.play()
-                onPlay()
             }
         }
     }
@@ -121,15 +148,17 @@ class SharedViewModel @Inject constructor(
     }
 
     fun prepareExoPlayerForBroadcast(player: ExoPlayer, broadcast: BroadcastEntity) {
-        val uri = URLs.archiveForBroadcast(broadcast) ?: return
-        val mediaSource = buildMediaSource(uri)
-        player.prepare(mediaSource, true, false)
+//        val uri = URLs.archiveForBroadcast(broadcast) ?: return
+//        val mediaSource = buildMediaSource(uri)
+//        player.prepare(mediaSource, true, false)
+//        mediaSessionConnection.
+//        val mediaSource = MediaSource()
     }
 
     fun prepareExoPlayerForLiveStream(player: ExoPlayer) {
-        val uri = URLs.LIVE_OGG
-        val mediaSource = buildMediaSource(uri)
-        player.prepare(mediaSource, true, false)
+//        val uri = URLs.LIVE_OGG
+//        val mediaSource = buildMediaSource(uri)
+//        player.prepare(mediaSource, true, false)
     }
 
     private fun buildMediaSource(uri: String): MediaSource {
@@ -147,8 +176,8 @@ class SharedViewModel @Inject constructor(
         if (isPrepared && streamUrl == nowPlaying?.id) {
             mediaSessionConnection.playbackState.value?.let { playbackState ->
                 when {
-                    playbackState.isPlaying -> { transportControls.pause(); onPause() }
-                    playbackState.isPlayEnabled -> { transportControls.play(); onPlay() }
+                    playbackState.isPlaying -> { transportControls.pause() }
+                    playbackState.isPlayEnabled -> { transportControls.play() }
                     else -> {
                         Timber.w("Playable item clicked but neither play nor pause are enabled! (mediaId=$streamUrl)")
                     }
@@ -156,18 +185,7 @@ class SharedViewModel @Inject constructor(
             }
         } else {
             transportControls.playFromMediaId(streamUrl, null)
-            onPlay()
         }
-    }
-
-    private fun onPause() {
-        nowPlayingPreviewPlayButton?.setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
-        nowPlayingPlayButton?.setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
-    }
-
-    private fun onPlay() {
-        nowPlayingPreviewPlayButton?.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp)
-        nowPlayingPlayButton?.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp)
     }
 
     // endregion

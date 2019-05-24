@@ -1,5 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+<layout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-</LinearLayout>
+        <ImageButton
+            android:id="@+id/exo_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintDimensionRatio="1:1"
+            style="@style/ExoMediaButton.Play"
+            android:src="@drawable/ic_stop_white_24dp"
+            app:layout_constraintEnd_toStartOf="@+id/exo_play_pause_live"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/exo_play_pause_live"
+            app:layout_constraintTop_toTopOf="@id/exo_play_pause_live" />
+
+        <ImageButton
+            android:id="@+id/exo_play_pause_live"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintDimensionRatio="1:1"
+            style="@style/ExoMediaButton.Play"
+            android:src="@drawable/ic_play_circle_outline_white_48dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/exo_live"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/exo_stop" />
+
+        <ImageView
+            android:id="@+id/exo_live"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintDimensionRatio="1:1"
+            style="@style/ExoMediaButton.Play"
+            android:src="@drawable/ic_live"
+            app:layout_constraintTop_toTopOf="@id/exo_stop"
+            app:layout_constraintBottom_toBottomOf="@id/exo_stop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/exo_play_pause_live" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

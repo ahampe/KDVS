@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
 import fho.kdvs.R
 import fho.kdvs.favorite.FavoriteRepository
+import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.*
 import fho.kdvs.show.ShowRepository
 import fho.kdvs.track.TrackRepository
@@ -24,6 +25,7 @@ class BroadcastDetailsViewModel @Inject constructor(
     private val favoriteRepository: FavoriteRepository,
     private val trackRepository: TrackRepository,
     private val favoriteDao: FavoriteDao,
+    private val sharedViewModel: SharedViewModel,
     application: Application
 ) : AndroidViewModel(application), CoroutineScope {
 

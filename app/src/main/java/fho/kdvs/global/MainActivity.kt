@@ -10,6 +10,7 @@ import androidx.navigation.findNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
+import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.player_bar_view.*
@@ -68,19 +69,30 @@ class MainActivity : DaggerAppCompatActivity() {
     private fun subscribeToViewModel() {
         val fragment = this
 
+        viewModel.isPlayingAudioNow.observe(fragment, Observer {
+            if (it.isPlaying) {
+                playerBarView
+                    .playerBayPlayPause
+                    .setImageResource(R.drawable.ic_pause_circle_outline_white_48dp)
+            } else {
+                playerBarView
+                    .playerBayPlayPause
+                    .setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
+            }
+        })
+
         viewModel.nowPlayingStreamLiveData.observe(fragment, Observer { (nowPlayingShow, nowPlayingBroadcast) ->
             val timeStart = nowPlayingShow.timeStart
             val timeEnd = nowPlayingShow.timeEnd
 
             if (timeStart != null && timeEnd != null) {
                 playerBarView.apply {
-                    setCurrentShowName(nowPlayingShow.name)
-                    initButtonClickListener(viewModel)
-                    initProgressBar(timeStart, timeEnd)
                     mNavController = navController
+                    sharedViewModel = viewModel
 
-                    if (previewPlayPauseIcon != null)
-                        viewModel.nowPlayingPreviewPlayButton = previewPlayPauseIcon
+                    setCurrentShowName(nowPlayingShow.name)
+                    initButtonClickListener()
+                    initProgressBar(timeStart, timeEnd)
 
                     if (viewModel.isLiveNow.value == null ||
                         (nowPlayingBroadcast != null &&

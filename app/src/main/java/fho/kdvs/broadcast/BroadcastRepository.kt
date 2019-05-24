@@ -91,7 +91,6 @@ class BroadcastRepository @Inject constructor(
 
     }
 
-
     /** Changes playback to a selected past broadcast. */
     fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
         mediaSessionConnection.transportControls?.playFromMediaId(

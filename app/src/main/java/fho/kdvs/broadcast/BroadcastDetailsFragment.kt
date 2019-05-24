@@ -77,13 +77,19 @@ class BroadcastDetailsFragment : DaggerFragment() {
             layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             adapter = tracksAdapter
         }
+
+        archive_playButton.setOnClickListener {
+            viewModel.onPlayBroadcast()
+        }
     }
 
     private fun subscribeToViewModel() {
         val fragment = this
+
         viewModel.broadcast.observe(fragment, Observer { broadcast ->
             Timber.d("Got broadcast: $broadcast")
-            setPlayButton(broadcast)
+            progressBar.visibility = View.VISIBLE
+            setPlayButtonAndHideProgressBar(broadcast)
         })
 
         viewModel.tracks.observe(fragment, Observer { tracks ->
@@ -107,12 +113,13 @@ class BroadcastDetailsFragment : DaggerFragment() {
         })
     }
 
-    private fun setPlayButton(broadcast: BroadcastEntity) {
+    private fun setPlayButtonAndHideProgressBar(broadcast: BroadcastEntity) {
         doAsync {
             val isConnAvailable = HttpHelper.isConnectionAvailable(URLs.archiveForBroadcast(broadcast))
             uiThread {
-                if (isConnAvailable && archive_playButton != null)
-                    archive_playButton.visibility = View.VISIBLE
+                if (!isConnAvailable)
+                    archive_playButton?.let { it.visibility = View.GONE }
+                progressBar?.let { it.visibility = View.GONE }
             }
         }
     }

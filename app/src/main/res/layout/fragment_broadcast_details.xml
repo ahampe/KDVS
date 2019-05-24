@@ -11,6 +11,10 @@
             type="fho.kdvs.broadcast.BroadcastDetailsViewModel" />
 
         <variable
+            name="sharedVm"
+            type="fho.kdvs.global.SharedViewModel" />
+
+        <variable
             name="dateFormatter"
             type="org.threeten.bp.format.DateTimeFormatter" />
     </data>
@@ -18,8 +22,30 @@
     <androidx.constraintlayout.motion.widget.MotionLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginHorizontal="@dimen/spacing_large"
+        android:layout_marginStart="@dimen/spacing_large"
+        android:layout_marginEnd="@dimen/spacing_large"
         app:layoutDescription="@xml/scene_broadcast_details">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimaryDark"
+            android:elevation="2dp"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                tools:visibility="visible"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!--header region-->
         <ImageView
@@ -79,10 +105,8 @@
 
             <Button
                 android:id="@+id/archive_playButton"
-                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="@{() -> vm.onPlayBroadcast()}"
                 android:text="@string/play" />
 
             <TextView

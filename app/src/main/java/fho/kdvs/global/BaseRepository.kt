@@ -3,7 +3,9 @@ package fho.kdvs.global
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import fho.kdvs.global.extensions.id
+import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.util.URLs
 import fho.kdvs.services.EMPTY_PLAYBACK_STATE
 import fho.kdvs.services.MediaSessionConnection
@@ -31,9 +33,5 @@ abstract class BaseRepository : CoroutineScope {
     val mainContext: CoroutineContext
         get() = Dispatchers.Main + job
 
-    /**
-     * Whether or not the user is playing KDVS live. If null, this means that user has not initialized playback of
-     * livestream or an archive (i.e. on startup).
-     * */
     val isLiveNow: LiveData<Boolean?> get() = mediaSessionConnection.isLiveNow
 }

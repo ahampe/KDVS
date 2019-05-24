@@ -16,24 +16,22 @@ import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.schedule.TimeSlot
 import timber.log.Timber
 
-/**
- * Abstract class for basic [Palette] color setting.
- */
-
-abstract class PaletteRequestListener (val viewWithColor: View, val viewToColor: View) {
-    abstract var selectedColor: Int
-
-    abstract fun setPaletteColor(bitmap: Bitmap)
-    abstract fun setTargetView()
+interface IPaletteRequestListener  {
+    fun getColorFromPalette(bitmap: Bitmap)
+    fun setTargetView()
 }
 
 /** Class for applying dynamic [Palette] coloration and gradient to Player. */
 class PlayerPaletteRequestListener (
-    viewWithColor: View,
-    viewToColor: View
-) : RequestListener<Bitmap>, PaletteRequestListener(viewWithColor, viewToColor) {
+    private val viewToColor: View
+) : RequestListener<Bitmap>, IPaletteRequestListener {
 
-    override var selectedColor: Int = 0
+    private var selectedColorLight: Int = viewToColor.resources.getColor(
+        R.color.colorPrimary,
+        viewToColor.context.theme)
+    private var selectedColorDark: Int = viewToColor.resources.getColor(
+        R.color.colorPrimaryDark,
+        viewToColor.context.theme)
 
     override fun onLoadFailed(
         e: GlideException?,
@@ -54,14 +52,15 @@ class PlayerPaletteRequestListener (
     ): Boolean {
         if (resource == null) return false
 
-        setPaletteColor(resource)
+        getColorFromPalette(resource)
         setTargetView()
 
         return false
     }
 
-    override fun setPaletteColor(bitmap: Bitmap) {
-        selectedColor = Palette.from(bitmap).generate().getLightMutedColor(selectedColor)
+    override fun getColorFromPalette(bitmap: Bitmap) {
+        selectedColorLight = Palette.from(bitmap).generate().getLightMutedColor(selectedColorLight)
+        selectedColorDark = Palette.from(bitmap).generate().getDarkMutedColor(selectedColorDark)
     }
 
     override fun setTargetView() {
@@ -70,7 +69,7 @@ class PlayerPaletteRequestListener (
 
     /** Set color to black Top->Down gradient */
     private fun setViewGradient() {
-        val backgroundColors = intArrayOf(selectedColor, Color.BLACK)
+        val backgroundColors = intArrayOf(selectedColorLight, selectedColorDark)
         viewToColor.background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, backgroundColors)
     }
 }
@@ -82,13 +81,13 @@ class PlayerPaletteRequestListener (
  * */
 
 class TimeSlotPaletteRequestListener (
-    viewWithColor: View,
-    viewToColor: View,
+    private val viewWithColor: View,
+    private val viewToColor: View,
     private val timeslot: TimeSlot?
-) : RequestListener<Bitmap>, PaletteRequestListener(viewWithColor, viewToColor) {
+) : RequestListener<Bitmap>, IPaletteRequestListener {
     
     private var isPlaceholder = false
-    override var selectedColor = 0
+    private var selectedColor = 0
     private var seed = Long.MIN_VALUE
 
     override fun onLoadFailed(
@@ -118,7 +117,7 @@ class TimeSlotPaletteRequestListener (
 
         setSeed()
         setRandomColor()
-        if (!isPlaceholder()) setPaletteColor(resource)
+        if (!isPlaceholder()) getColorFromPalette(resource)
         setTargetView()
 
         return false
@@ -134,7 +133,7 @@ class TimeSlotPaletteRequestListener (
         seed = (timeslot?.names?.first() ?: "").hashCode().toLong()
     }
 
-    override fun setPaletteColor(bitmap: Bitmap) {
+    override fun getColorFromPalette(bitmap: Bitmap) {
         selectedColor = Palette.from(bitmap).generate().getDarkVibrantColor(selectedColor)
     }
 

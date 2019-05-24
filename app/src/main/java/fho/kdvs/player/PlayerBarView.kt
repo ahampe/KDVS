@@ -17,6 +17,7 @@ class PlayerBarView @JvmOverloads constructor(context: Context, attrs: Attribute
     LinearLayout(context, attrs, defStyleAttr) {
 
     lateinit var mNavController: NavController
+    lateinit var sharedViewModel: SharedViewModel
 
     init {
         setOnClickListener {
@@ -41,9 +42,9 @@ class PlayerBarView @JvmOverloads constructor(context: Context, attrs: Attribute
         liveIcon.visibility = View.VISIBLE
     }
 
-    fun initButtonClickListener(vm: SharedViewModel) {
-        previewPlayPauseIcon.setOnClickListener {
-            vm.playOrPausePlayback()
+    fun initButtonClickListener() {
+        playerBayPlayPause.setOnClickListener {
+            sharedViewModel.playOrPausePlayback()
         }
     }
 
@@ -54,6 +55,6 @@ class PlayerBarView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     private fun navigateToPlayer() {
-        mNavController.navigate(R.id.playerFragment)
+        sharedViewModel.navigateToPlayer(mNavController)
     }
 }

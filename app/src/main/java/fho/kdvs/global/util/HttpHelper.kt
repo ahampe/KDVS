@@ -1,6 +1,5 @@
 package fho.kdvs.global.util
 
-import org.jetbrains.anko.doAsync
 import org.json.JSONObject
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
@@ -13,7 +12,7 @@ object HttpHelper {  // TODO: retry on connection fail?
     /** Returns true if good HTTP request. Wrap in async block. */
     fun isConnectionAvailable(url: String?): Boolean {
         val con = URL(url).openConnection() as HttpURLConnection
-        con.connectTimeout = 5000
+        con.connectTimeout = 500
         con.connect()
 
         return (con.responseCode == HttpURLConnection.HTTP_OK)

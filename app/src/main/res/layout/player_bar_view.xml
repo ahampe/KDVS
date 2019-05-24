@@ -39,7 +39,7 @@
                 android:singleLine="true"
                 android:textSize="@dimen/text_small"
                 app:layout_constraintBottom_toTopOf="@+id/showTimeOrBroadcastDate"
-                app:layout_constraintEnd_toStartOf="@id/previewPlayPauseIcon"
+                app:layout_constraintEnd_toStartOf="@id/playerBayPlayPause"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@id/upIcon"
                 app:layout_constraintTop_toTopOf="parent"
@@ -57,7 +57,7 @@
                 android:ellipsize="marquee"
                 android:gravity="center_horizontal"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/previewPlayPauseIcon"
+                app:layout_constraintEnd_toStartOf="@id/playerBayPlayPause"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@id/upIcon"
                 app:layout_constraintTop_toBottomOf="@+id/barShowName"
@@ -88,7 +88,7 @@
                 app:layout_constraintTop_toTopOf="@id/barShowName" />
 
             <ImageView
-                android:id="@+id/previewPlayPauseIcon"
+                android:id="@+id/playerBayPlayPause"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginEnd="@dimen/spacing_medium"

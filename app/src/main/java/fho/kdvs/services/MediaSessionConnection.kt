@@ -54,9 +54,6 @@ class MediaSessionConnection(context: Context, serviceComponent: ComponentName) 
     val playbackState = MutableLiveData<PlaybackStateCompat>()
         .apply { postValue(EMPTY_PLAYBACK_STATE) }
 
-    /**
-     * Whether or not playback is currently on a live stream URL.
-     */
     val isLiveNow = MutableLiveData<Boolean?>()
 
     val nowPlaying = MutableLiveData<MediaMetadataCompat>()

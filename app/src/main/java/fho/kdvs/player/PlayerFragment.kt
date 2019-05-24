@@ -11,12 +11,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestOptions
-import com.google.android.exoplayer2.DefaultLoadControl
-import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.ExoPlayerFactory
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.ui.PlayerControlView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.databinding.FragmentPlayerBinding
@@ -25,9 +20,12 @@ import fho.kdvs.global.MainActivity
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.ui.PlayerPaletteRequestListener
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.exo_playback_control_view.view.*
+import kotlinx.android.synthetic.main.exo_player_archive_controls.view.*
+import kotlinx.android.synthetic.main.exo_player_live_controls.view.*
 import kotlinx.android.synthetic.main.fragment_player.*
 import timber.log.Timber
 import java.lang.ref.WeakReference
@@ -36,6 +34,10 @@ import javax.inject.Inject
 class PlayerFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
+
+    @Inject
+    lateinit var exoPlayer: ExoPlayer
+
     private lateinit var viewModel: PlayerViewModel
     private lateinit var sharedViewModel: SharedViewModel
 
@@ -52,6 +54,8 @@ class PlayerFragment : DaggerFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         sharedViewModel = ViewModelProviders.of(requireActivity(), vmFactory)
             .get(SharedViewModel::class.java)
+
+        subscribeToSharedViewModel()
 
         val binding = FragmentPlayerBinding.inflate(inflater, container, false)
             .apply { vm = viewModel }
@@ -78,11 +82,12 @@ class PlayerFragment : DaggerFragment() {
                 playerShowName.text = show.name
                 showHost.text = show.host
 
-                if ((broadcast.imageHref ?: "").isNotEmpty()) {
+                val imageHref = broadcast?.imageHref ?: show?.defaultImageHref
+                imageHref?.let {
                     val parent = playing_image.parent as ConstraintLayout
                     Glide.with(playing_image)
                         .asBitmap()
-                        .load(broadcast.imageHref)
+                        .load(imageHref)
                         .apply(
                             RequestOptions()
                                 .error(R.drawable.show_placeholder)
@@ -90,16 +95,38 @@ class PlayerFragment : DaggerFragment() {
                         )
                         .transition(BitmapTransitionOptions.withCrossFade())
                         .listener(
-                            PlayerPaletteRequestListener(playing_image, parent)
+                            PlayerPaletteRequestListener(parent)
                         )
                         .into(playing_image)
                 }
 
-                if (TimeHelper.isShowBroadcastLive(show, broadcast) || sharedViewModel.isLiveNow.value == null)
+                if (broadcast == null ||
+                    TimeHelper.isShowBroadcastLive(show, broadcast) ||
+                    sharedViewModel.isLiveNow.value == null)
                     configureLiveExoPlayer(show)
                 else
                     configureArchiveExoPlayer(broadcast)
             })
+        })
+    }
+
+    private fun subscribeToSharedViewModel() {
+        sharedViewModel.isPlayingAudioNow.observe(this, Observer {
+            if (it.isPlaying) {
+                archiveControls
+                    ?.exo_play_pause_archive
+                    ?.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp)
+                liveControls
+                    ?.exo_play_pause_live
+                    ?.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp)
+            } else {
+                archiveControls
+                    ?.exo_play_pause_archive
+                    ?.setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
+                liveControls
+                    ?.exo_play_pause_live
+                    ?.setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
+            }
         })
     }
 
@@ -111,8 +138,26 @@ class PlayerFragment : DaggerFragment() {
         customExoPlayer.progress.progressBar.visibility = View.GONE
         customExoPlayer.progress.exo_progress.visibility = View.VISIBLE
 
-        val player = getPlayer()
-        sharedViewModel.prepareExoPlayerForBroadcast(player, broadcast)
+        customExoPlayer.player = exoPlayer
+        customExoPlayer.showTimeoutMs = 0
+
+        customExoPlayer.timeStartLabel.visibility = View.GONE
+        customExoPlayer.timeEndLabel.visibility = View.GONE
+        customExoPlayer.exo_position.visibility = View.VISIBLE
+        customExoPlayer.exo_duration.visibility = View.VISIBLE
+
+        archiveControls.exo_back30.setOnClickListener {
+            sharedViewModel.jumpBack30Seconds(exoPlayer)
+        }
+        archiveControls.exo_play_pause_archive.setOnClickListener {
+            sharedViewModel.playOrPausePlayback()
+        }
+        archiveControls.exo_forward30.setOnClickListener {
+            sharedViewModel.jumpForward30Seconds(exoPlayer)
+        }
+
+        archiveControls.visibility = View.VISIBLE
+        liveControls.visibility = View.GONE
     }
 
     private fun configureLiveExoPlayer(show: ShowEntity) {
@@ -128,22 +173,32 @@ class PlayerFragment : DaggerFragment() {
         val progressAsyncTask = TimeProgressAsyncTask(weakPB, timeStart, timeEnd)
         progressAsyncTask.execute()
 
+        customExoPlayer.player = exoPlayer
+        customExoPlayer.showTimeoutMs = 0
+
         // hide time bar, show progress bar
         customExoPlayer.progress.progressBar.visibility = View.VISIBLE
         customExoPlayer.progress.exo_progress.visibility = View.GONE
 
         // set time labels
-        val formatter = TimeHelper.showTimeFormatter
-        customExoPlayer.exo_position.text = formatter.format(show.timeStart)
-        customExoPlayer.exo_duration.text = formatter.format(show.timeEnd)
+        customExoPlayer.timeStartLabel.text = TimeHelper.showTimeFormatter.format(show.timeStart)
+        customExoPlayer.timeEndLabel.text = TimeHelper.showTimeFormatter.format(show.timeEnd)
+        customExoPlayer.timeStartLabel.visibility = View.VISIBLE
+        customExoPlayer.timeEndLabel.visibility = View.VISIBLE
+        customExoPlayer.exo_position.visibility = View.GONE
+        customExoPlayer.exo_duration.visibility = View.GONE
 
-        val player = getPlayer()
-        sharedViewModel.prepareExoPlayerForLiveStream(player)
-    }
+        liveControls.exo_stop.setOnClickListener {
+            sharedViewModel.stopPlayback()
+        }
+        liveControls.exo_play_pause_live.setOnClickListener {
+            sharedViewModel.playOrPausePlayback()
+        }
+        liveControls.exo_live.setOnClickListener {
+            sharedViewModel.jumpToLivePlayback()
+        }
 
-    private fun getPlayer(): ExoPlayer {
-        return ExoPlayerFactory.newSimpleInstance(
-            context
-        )
+        archiveControls.visibility = View.GONE
+        liveControls.visibility = View.VISIBLE
     }
 }
