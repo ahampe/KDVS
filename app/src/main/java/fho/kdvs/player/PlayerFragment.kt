@@ -81,6 +81,31 @@ class PlayerFragment : DaggerFragment() {
     }
 
     private fun subscribeToViewModel() {
+        processShowBroadcast()
+        processTracks()
+    }
+
+    private fun subscribeToSharedViewModel() {
+        sharedViewModel.isPlayingAudioNow.observe(this, Observer {
+            if (it.isPlaying) {
+                archiveControls
+                    ?.exo_play_pause_archive
+                    ?.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp)
+                liveControls
+                    ?.exo_play_pause_live
+                    ?.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp)
+            } else {
+                archiveControls
+                    ?.exo_play_pause_archive
+                    ?.setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
+                liveControls
+                    ?.exo_play_pause_live
+                    ?.setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
+            }
+        })
+    }
+
+    private fun processShowBroadcast() {
         viewModel.nowPlayingLiveData.observe(this, Observer { (show, broadcast) ->
             Timber.d("got currently playing show: $show and broadcast: $broadcast")
 
@@ -109,7 +134,9 @@ class PlayerFragment : DaggerFragment() {
             arrow.setOnClickListener { fragmentManager?.popBackStack() }
 
             if (broadcast == null)
-                viewPlaylist.visibility = View.GONE
+                viewPlaylist.visibility = View.INVISIBLE
+            else
+                viewModel.setTracksLiveDataForBroadcast(broadcast.broadcastId)
 
             val imageHref = broadcast?.imageHref ?: show.defaultImageHref
             imageHref?.let {
@@ -138,24 +165,17 @@ class PlayerFragment : DaggerFragment() {
         })
     }
 
-    private fun subscribeToSharedViewModel() {
-        sharedViewModel.isPlayingAudioNow.observe(this, Observer {
-            if (it.isPlaying) {
-                archiveControls
-                    ?.exo_play_pause_archive
-                    ?.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp)
-                liveControls
-                    ?.exo_play_pause_live
-                    ?.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp)
+    private fun processTracks() {
+        viewModel.tracksLiveData?.let{ it.observe(this, Observer { tracks ->
+            if (sharedViewModel.scrapedTracksForBroadcast.containsAll(tracks) ||
+                sharedViewModel.scrapedTracksForBroadcast.count() == 0) {
+                info.visibility = View.INVISIBLE
             } else {
-                archiveControls
-                    ?.exo_play_pause_archive
-                    ?.setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
-                liveControls
-                    ?.exo_play_pause_live
-                    ?.setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
+                sharedViewModel.scrapedTracksForBroadcast = mutableListOf()
+                sharedViewModel.scrapedTracksForBroadcast.addAll(tracks)
+                info.visibility = View.VISIBLE
             }
-        })
+        })}
     }
 
     private fun configureArchiveExoPlayer(broadcast: BroadcastEntity) {

@@ -72,6 +72,9 @@ class SharedViewModel @Inject constructor(
 
     val isLiveNow: LiveData<Boolean?> = showRepository.isLiveNow
 
+    /** Use across various lifecycles of PlayerFragment to maintain list of scraped tracks for live broadcast. */
+    var scrapedTracksForBroadcast= mutableListOf<TrackEntity>()
+
     fun updateLiveShows() = liveShowUpdater.beginUpdating()
 
     fun fetchShows() = showRepository.scrapeSchedule()

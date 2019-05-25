@@ -10,7 +10,9 @@ import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.SubscriptionEntity
+import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.subscription.SubscriptionRepository
+import fho.kdvs.track.TrackRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,6 +22,7 @@ import kotlin.coroutines.CoroutineContext
 class PlayerViewModel @Inject constructor(
     private val broadcastRepository: BroadcastRepository,
     private val subscriptionRepository: SubscriptionRepository,
+    private val trackRepository: TrackRepository,
     application: Application
 ) : AndroidViewModel(application), CoroutineScope {
 
@@ -30,9 +33,14 @@ class PlayerViewModel @Inject constructor(
 
     lateinit var nowPlayingLiveData: MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>
     lateinit var subscription: LiveData<SubscriptionEntity>
+    var tracksLiveData: LiveData<List<TrackEntity>>?= null
 
     fun initialize() {
         nowPlayingLiveData = broadcastRepository.nowPlayingLiveData
+    }
+
+    fun setTracksLiveDataForBroadcast(broadcastId: Int) {
+        tracksLiveData = trackRepository.tracksForBroadcast(broadcastId)
     }
 
     fun onClickPlaylist(navController: NavController, broadcast: BroadcastEntity?) {

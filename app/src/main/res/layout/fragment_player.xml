@@ -132,6 +132,8 @@
             tools:text="DJ Tron"
             android:textAlignment="textStart"
             android:textColor="@color/colorPrimary"
+            android:maxLines="1"
+            android:ellipsize="end"
             style="@style/TextAppearance.MaterialComponents.Subtitle2"
             app:layout_constraintStart_toStartOf="@id/playing_image"
             app:layout_constraintEnd_toEndOf="@id/playing_image"
