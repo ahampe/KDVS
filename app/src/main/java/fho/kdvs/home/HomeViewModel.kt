@@ -3,12 +3,11 @@ package fho.kdvs.home
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.navigation.NavController
+import fho.kdvs.R
 import fho.kdvs.global.database.*
 import fho.kdvs.show.*
 import org.threeten.bp.OffsetDateTime
-import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -62,6 +61,7 @@ class HomeViewModel @Inject constructor(
     fun onClickCurrentShow(navController: NavController, showId: Int) {
         val navAction = HomeFragmentDirections
             .actionHomeFragmentToShowDetailsFragment(showId)
-        navController.navigate(navAction)
+        if (navController.currentDestination?.id == R.id.homeFragment)
+            navController.navigate(navAction)
     }
 }

@@ -59,8 +59,6 @@ class PlayerViewModel @Inject constructor(
             navController.navigate(navAction)
     }
 
-
-
     fun setSubscription(showId: Int) {
         subscription = subscriptionRepository.subscriptionByShowId(showId)
     }

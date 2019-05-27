@@ -3,6 +3,7 @@ package fho.kdvs.global
 import android.app.Application
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import androidx.core.content.ContextCompat.startActivity
@@ -11,9 +12,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.navigation.NavController
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.source.ExtractorMediaSource
-import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.*
@@ -21,6 +19,7 @@ import fho.kdvs.global.extensions.id
 import fho.kdvs.global.extensions.isPlayEnabled
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
+import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
@@ -146,30 +145,24 @@ class SharedViewModel @Inject constructor(
         changeToKdvsOgg()
     }
 
+    fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
+        mediaSessionConnection.transportControls?.playFromMediaId(
+            broadcast.broadcastId.toString(),
+            Bundle().apply { putInt("SHOW_ID", show.id) }
+        )
+
+        mediaSessionConnection.isLiveNow.postValue(false)
+        broadcastRepository.playingLiveBroadcast = false
+
+        broadcastRepository.nowPlayingBroadcastLiveData.postValue(broadcast)
+        broadcastRepository.nowPlayingShowLiveData.postValue(show)
+    }
+
+
     fun stopPlayback() {
         val transportControls = mediaSessionConnection.transportControls ?: return
         mediaSessionConnection.playbackState.value?.let { playbackState ->
             if (playbackState.isPlaying) transportControls.stop() }
-    }
-
-    fun prepareExoPlayerForBroadcast(player: ExoPlayer, broadcast: BroadcastEntity) {
-//        val uri = URLs.archiveForBroadcast(broadcast) ?: return
-//        val mediaSource = buildMediaSource(uri)
-//        player.prepare(mediaSource, true, false)
-//        mediaSessionConnection.
-//        val mediaSource = MediaSource()
-    }
-
-    fun prepareExoPlayerForLiveStream(player: ExoPlayer) {
-//        val uri = URLs.LIVE_OGG
-//        val mediaSource = buildMediaSource(uri)
-//        player.prepare(mediaSource, true, false)
-    }
-
-    private fun buildMediaSource(uri: String): MediaSource {
-        return ExtractorMediaSource.Factory(
-            DefaultHttpDataSourceFactory("exoplayer-codelab"))
-                .createMediaSource(Uri.parse(uri))
     }
 
     private fun prepareLivePlayback(streamUrl: String) {
@@ -191,6 +184,12 @@ class SharedViewModel @Inject constructor(
         } else {
             transportControls.playFromMediaId(streamUrl, null)
         }
+    }
+
+    fun isShowBroadcastLiveNow(show: ShowEntity, broadcast: BroadcastEntity?): Boolean{
+        return isLiveNow.value == null ||
+            broadcast == null ||
+                TimeHelper.isShowBroadcastLive(show, broadcast)
     }
 
     // endregion

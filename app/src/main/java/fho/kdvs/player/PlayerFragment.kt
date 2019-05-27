@@ -133,10 +133,12 @@ class PlayerFragment : DaggerFragment() {
             star.setOnClickListener { sharedViewModel.onClickStar(star, show.id) }
             arrow.setOnClickListener { fragmentManager?.popBackStack() }
 
-            if (broadcast == null)
+            if (broadcast == null) {
                 viewPlaylist.visibility = View.INVISIBLE
-            else
+            } else {
+                viewPlaylist.visibility = View.VISIBLE
                 viewModel.setTracksLiveDataForBroadcast(broadcast.broadcastId)
+            }
 
             val imageHref = broadcast?.imageHref ?: show.defaultImageHref
             imageHref?.let {
@@ -156,12 +158,13 @@ class PlayerFragment : DaggerFragment() {
                     .into(playing_image)
             }
 
-            if (broadcast == null ||
-                TimeHelper.isShowBroadcastLive(show, broadcast) ||
-                sharedViewModel.isLiveNow.value == null)
+            if (sharedViewModel.isShowBroadcastLiveNow(show, broadcast)) {
                 configureLiveExoPlayer(show)
-            else
-                configureArchiveExoPlayer(broadcast)
+            } else {
+                broadcast?.let {
+                    configureArchiveExoPlayer(broadcast)
+                }
+            }
         })
     }
 
@@ -182,7 +185,6 @@ class PlayerFragment : DaggerFragment() {
         val formatter = TimeHelper.uiDateFormatter
         liveOrBroadcastDate.text = formatter.format(broadcast.date)
 
-        // hide progress bar, show time bar
         customExoPlayer.progress.progressBar.visibility = View.GONE
         customExoPlayer.progress.exo_progress.visibility = View.VISIBLE
 
@@ -216,19 +218,15 @@ class PlayerFragment : DaggerFragment() {
 
         liveOrBroadcastDate.text = resources.getString(R.string.live)
 
-        // bind custom progress logic
-        val weakPB = WeakReference<ProgressBar>(customExoPlayer.progress.progressBar)
-        val progressAsyncTask = TimeProgressAsyncTask(weakPB, timeStart, timeEnd)
-        progressAsyncTask.execute()
+        (activity as MainActivity)
+            .initLiveProgress(customExoPlayer.progress.progressBar, timeStart, timeEnd)
 
         customExoPlayer.player = exoPlayer
         customExoPlayer.showTimeoutMs = 0
 
-        // hide time bar, show progress bar
         customExoPlayer.progress.progressBar.visibility = View.VISIBLE
         customExoPlayer.progress.exo_progress.visibility = View.GONE
 
-        // set time labels
         customExoPlayer.timeStartLabel.text = TimeHelper.showTimeFormatter.format(show.timeStart)
         customExoPlayer.timeEndLabel.text = TimeHelper.showTimeFormatter.format(show.timeEnd)
         customExoPlayer.timeStartLabel.visibility = View.VISIBLE

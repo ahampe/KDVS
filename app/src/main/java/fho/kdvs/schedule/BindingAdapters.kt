@@ -59,10 +59,10 @@ fun setShowSearchTimes(view: TextView, timeStart: OffsetDateTime, timeEnd: Offse
         view.resources.getString(R.string.sat)
     )
 
-    var dayText = dayAbbrs.getOrNull(timeStart.dayOfWeek.value % 6)
+    var dayText = dayAbbrs.getOrNull(timeStart.dayOfWeek.value % 7)
 
     if (timeEnd.dayOfWeek != timeStart.dayOfWeek)
-        dayText += "/" + dayAbbrs.getOrNull(timeEnd.dayOfWeek.value % 6)
+        dayText += "/" + dayAbbrs.getOrNull(timeEnd.dayOfWeek.value % 7)
 
     view.text = view.context.resources.getString(
         R.string.searchTimeLabel,

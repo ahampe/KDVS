@@ -112,23 +112,6 @@ class BroadcastRepository @Inject constructor(
         }
     }
 
-    init {
-
-    }
-
-    /** Changes playback to a selected past broadcast. */
-    fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
-        mediaSessionConnection.transportControls?.playFromMediaId(
-            broadcast.broadcastId.toString(),
-            Bundle().apply { putInt("SHOW_ID", show.id) }
-        )
-
-        mediaSessionConnection.isLiveNow.postValue(false)
-
-        nowPlayingBroadcastLiveData.postValue(broadcast)
-        nowPlayingShowLiveData.postValue(show)
-    }
-
     /** Runs a show scrape if it hasn't been fetched recently. */
     fun scrapeShow(showId: String): Job = launch {
         val now = OffsetDateTime.now().toEpochSecond()

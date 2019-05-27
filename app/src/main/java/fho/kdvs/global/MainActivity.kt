@@ -2,11 +2,14 @@ package fho.kdvs.global
 
 import android.media.AudioManager
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
+import android.widget.ProgressBar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
@@ -15,13 +18,22 @@ import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.player_bar_view.*
 import kotlinx.android.synthetic.main.player_bar_view.view.*
+import org.threeten.bp.OffsetDateTime
 import javax.inject.Inject
+
 
 class MainActivity : DaggerAppCompatActivity() {
     @Inject
     lateinit var viewModelFactory: KdvsViewModelFactory
 
+    @Inject
+    lateinit var exoPlayer: ExoPlayer
+
     private lateinit var viewModel: SharedViewModel
+
+    private lateinit var runnable: Runnable
+
+    private val handler = Handler()
 
     private val navController: NavController by lazy {
         findNavController(R.id.nav_host_fragment)
@@ -60,16 +72,18 @@ class MainActivity : DaggerAppCompatActivity() {
         volumeControlStream = AudioManager.STREAM_MUSIC
 
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
-        //configureBottomSheet()
         subscribeToViewModel()
     }
 
     override fun onSupportNavigateUp() = navController.navigateUp()
 
     private fun subscribeToViewModel() {
-        val fragment = this
+        initPlayerBarIcon(this)
+        initPlayerBarData(this)
+    }
 
-        viewModel.isPlayingAudioNow.observe(fragment, Observer {
+    private fun initPlayerBarIcon(activity: MainActivity) {
+        viewModel.isPlayingAudioNow.observe(activity, Observer {
             if (it.isPlaying) {
                 playerBarView
                     .playerBayPlayPause
@@ -80,54 +94,78 @@ class MainActivity : DaggerAppCompatActivity() {
                     .setImageResource(R.drawable.ic_play_circle_outline_white_48dp)
             }
         })
+    }
 
-        viewModel.nowPlayingStreamLiveData.observe(fragment, Observer { (nowPlayingShow, nowPlayingBroadcast) ->
-            val timeStart = nowPlayingShow.timeStart
-            val timeEnd = nowPlayingShow.timeEnd
+    private fun initPlayerBarData(activity: MainActivity) {
+        viewModel.nowPlayingStreamLiveData.observe(activity, Observer { (nowPlayingShow, nowPlayingBroadcast) ->
+            val timeStart = nowPlayingShow.timeStart ?: return@Observer
+            val timeEnd = nowPlayingShow.timeEnd ?: return@Observer
 
-            if (timeStart != null && timeEnd != null) {
-                playerBarView.apply {
-                    mNavController = navController
-                    sharedViewModel = viewModel
+            playerBarView.apply {
+                mNavController = navController
+                sharedViewModel = viewModel
+                mExoPlayer = exoPlayer
 
-                    setCurrentShowName(nowPlayingShow.name)
-                    initButtonClickListener()
-                    initProgressBar(timeStart, timeEnd)
+                setCurrentShowName(nowPlayingShow.name)
+                initButtonClickListener()
 
-                    if (viewModel.isLiveNow.value == null ||
-                        (nowPlayingBroadcast != null &&
-                                TimeHelper.isShowBroadcastLive(nowPlayingShow, nowPlayingBroadcast))) {
-                        val formatter = TimeHelper.showTimeFormatter
-                        val timeStr = formatter.format(nowPlayingShow.timeStart) +
-                            " - " +
-                            formatter.format(nowPlayingShow.timeEnd)
+                if (sharedViewModel.isShowBroadcastLiveNow(nowPlayingShow, nowPlayingBroadcast)) {
+                    val formatter = TimeHelper.showTimeFormatter
+                    val timeStr = formatter.format(nowPlayingShow.timeStart) +
+                        " - " +
+                        formatter.format(nowPlayingShow.timeEnd)
+                    setShowTimeOrBroadcastDate(timeStr)
 
-                        setShowTimeOrBroadcastDate(timeStr)
-                        initLiveShow()
-                    } else {
-                        nowPlayingBroadcast?.let {
-                            val formatter = TimeHelper.uiDateFormatter
-                            setShowTimeOrBroadcastDate(formatter.format(nowPlayingBroadcast.date))
+                    if (::runnable.isInitialized)
+                        handler.removeCallbacksAndMessages(null)
 
-                            initArchiveShow()
-                        }
+                    initLiveShow()
+                    initLiveProgress(barProgressBar, timeStart, timeEnd)
+                } else {
+                    nowPlayingBroadcast?.let {
+                        setShowTimeOrBroadcastDate(TimeHelper.uiDateFormatter
+                            .format(nowPlayingBroadcast.date))
+
+                        if (::runnable.isInitialized)
+                            handler.removeCallbacksAndMessages(null)
+
+                        initArchiveShow()
+                        initArchiveProgressBar()
                     }
                 }
             }
         })
     }
 
-    fun toggleBottomNavAndPlayerBar(visible: Boolean) {
-        bottomNavigation.visibility = if (visible) {
-            View.VISIBLE
-        } else {
-            View.GONE
+    fun initLiveProgress(pb: ProgressBar, timeStart: OffsetDateTime, timeEnd: OffsetDateTime) {
+        val interval = TimeHelper.getDurationInSecondsBetween(timeStart, timeEnd) / 100
+        val currentProgress = TimeHelper.getPercentageInDurationRelativeToNow(timeStart, timeEnd)
+
+        pb.progress = currentProgress
+
+        runnable = object: Runnable {
+            override fun run() {
+                handler.postDelayed(this, interval.toLong() * 1000)
+                pb.progress++
+            }
         }
 
-        playerBarView.visibility = if (visible) {
-            View.VISIBLE
-        } else {
-            View.GONE
+        handler.postDelayed(runnable, 0)
+    }
+
+    private fun initArchiveProgressBar() {
+        runnable = object: Runnable {
+            override fun run() {
+                barProgressBar.progress = ((exoPlayer.currentPosition * 100) / exoPlayer.duration).toInt()
+                handler.postDelayed(this, 1000)
+            }
         }
+
+        handler.postDelayed(runnable, 0)
+    }
+
+    fun toggleBottomNavAndPlayerBar(visible: Boolean) {
+        bottomNavigation.visibility = if (visible) View.VISIBLE else View.GONE
+        playerBarView.visibility    = if (visible) View.VISIBLE else View.GONE
     }
 }

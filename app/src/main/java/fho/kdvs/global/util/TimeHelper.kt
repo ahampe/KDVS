@@ -9,6 +9,7 @@ import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.temporal.ChronoUnit
 import java.lang.Math.abs
 import java.util.*
+import kotlin.math.roundToInt
 
 /**
  * Helper object that configures show times for the week.
@@ -115,6 +116,27 @@ object TimeHelper {
         }
     }
 
+    @JvmStatic
+    fun getDurationInSecondsBetween(start: OffsetDateTime, end: OffsetDateTime): Double {
+        return if (start.hour > end.hour) {
+            ((((24 - start.hour) + end.hour) * 3600 + end.minute * 60 + end.second)
+                    - (start.minute * 60 + start.second)).toDouble()
+        } else {
+            ((end.hour * 3600 + end.minute * 60 + end.second)
+                    - (start.hour * 3600 + start.minute * 60 + start.second)).toDouble()
+        }
+    }
+
+    @JvmStatic
+    fun getPercentageInDurationRelativeToNow(start: OffsetDateTime, end: OffsetDateTime): Int {
+        val now = getDurationInSecondsBetween(start, OffsetDateTime.now())
+        val duration = getDurationInSecondsBetween(start, end)
+
+        if (duration == 0.0) return 0
+        return if (duration < now) 0 else
+            (100 * (now / duration)).roundToInt()
+    }
+
     /** Returns true if current time falls within timeslot's time range. */
     @JvmStatic
     fun isTimeSlotForCurrentShow(timeslot: TimeSlot): Boolean {
@@ -132,7 +154,8 @@ object TimeHelper {
                         now.dayOfWeek == show.timeEnd!!.dayOfWeek)  &&
                 now.hour >= show.timeStart!!.hour &&
                 (now.hour < show.timeEnd!!.hour ||
-                        now.dayOfWeek != show.timeEnd!!.dayOfWeek)
+                        (now.hour == show.timeEnd!!.hour && now.minute < show.timeEnd!!.minute) ||
+                            now.dayOfWeek != show.timeEnd!!.dayOfWeek)
     }
 
     /**

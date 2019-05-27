@@ -82,7 +82,14 @@ class BroadcastDetailsFragment : DaggerFragment() {
         }
 
         archive_playButton.setOnClickListener {
-            viewModel.onPlayBroadcast()
+            val broadcast = viewModel.broadcast.value
+            val show = viewModel.show.value
+
+            broadcast?.let {
+                show?.let {
+                    sharedViewModel.playPastBroadcast(broadcast, show)
+                }
+            }
         }
     }
 
