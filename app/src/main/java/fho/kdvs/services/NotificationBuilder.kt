@@ -19,7 +19,9 @@ package fho.kdvs.services
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -31,67 +33,50 @@ import androidx.media.session.MediaButtonReceiver
 import fho.kdvs.R
 import fho.kdvs.global.extensions.isPlayEnabled
 import fho.kdvs.global.extensions.isPlaying
-import fho.kdvs.global.extensions.isSkipToNextEnabled
-import fho.kdvs.global.extensions.isSkipToPreviousEnabled
 
 const val NOW_PLAYING_CHANNEL: String = "fho.kdvs.NOW_PLAYING"
 const val NOW_PLAYING_NOTIFICATION: Int = 0xb339
 
 /**
- * Helper class to encapsulate code for building notifications.
+ * Abstract helper class to encapsulate code for building notifications.
+ * Concrete classes are instantiated based on [PlaybackType].
  */
-class NotificationBuilder(private val context: Context) {
+abstract class NotificationBuilder(private val context: Context) {
+    lateinit var builder: NotificationCompat.Builder
+
     private val platformNotificationManager: NotificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    private val skipToPreviousAction = NotificationCompat.Action(
-        R.drawable.exo_controls_previous,
-        context.getString(R.string.notification_skip_to_previous),
-        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_PREVIOUS)
-    )
-    private val playAction = NotificationCompat.Action(
+    val playAction = NotificationCompat.Action(
         R.drawable.exo_controls_play,
         context.getString(R.string.notification_play),
         MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PLAY)
     )
-    private val pauseAction = NotificationCompat.Action(
+    val pauseAction = NotificationCompat.Action(
         R.drawable.exo_controls_pause,
         context.getString(R.string.notification_pause),
         MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PAUSE)
     )
-    private val skipToNextAction = NotificationCompat.Action(
-        R.drawable.exo_controls_next,
-        context.getString(R.string.notification_skip_to_next),
-        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_NEXT)
-    )
+
     private val stopPendingIntent =
         MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_STOP)
 
+    abstract fun setBuilder(
+        sessionToken: MediaSessionCompat.Token,
+        controller: MediaControllerCompat
+    )
+
     fun buildNotification(sessionToken: MediaSessionCompat.Token): Notification {
+        val controller = MediaControllerCompat(context, sessionToken)
+
+        setBuilder(sessionToken, controller)
+
         if (shouldCreateNowPlayingChannel()) {
             createNowPlayingChannel()
         }
 
-        val controller = MediaControllerCompat(context, sessionToken)
         val description = controller.metadata.description
-        val playbackState = controller.playbackState
-
-        val builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
-
-        // Only add actions for skip back, play/pause, skip forward, based on what's enabled.
-        var playPauseIndex = 0
-        if (playbackState.isSkipToPreviousEnabled) {
-            builder.addAction(skipToPreviousAction)
-            ++playPauseIndex
-        }
-        if (playbackState.isPlaying) {
-            builder.addAction(pauseAction)
-        } else if (playbackState.isPlayEnabled) {
-            builder.addAction(playAction)
-        }
-        if (playbackState.isSkipToNextEnabled) {
-            builder.addAction(skipToNextAction)
-        }
+        val playPauseIndex = 1
 
         val mediaStyle = MediaStyle()
             .setCancelButtonIntent(stopPendingIntent)
@@ -116,11 +101,11 @@ class NotificationBuilder(private val context: Context) {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !nowPlayingChannelExists()
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun nowPlayingChannelExists() =
+    fun nowPlayingChannelExists() =
         platformNotificationManager.getNotificationChannel(NOW_PLAYING_CHANNEL) != null
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNowPlayingChannel() {
+    fun createNowPlayingChannel() {
         val notificationChannel = NotificationChannel(
             NOW_PLAYING_CHANNEL,
             context.getString(R.string.notification_channel),
@@ -134,3 +119,79 @@ class NotificationBuilder(private val context: Context) {
     }
 }
 
+class LiveNotificationBuilder(val context: Context): NotificationBuilder(context) {
+    private val stopAction = NotificationCompat.Action(
+        R.drawable.exo_icon_stop,
+        context.getString(R.string.notification_stop),
+        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_STOP)
+    )
+    private val liveAction = NotificationCompat.Action(
+        R.drawable.ic_live,
+        context.getString(R.string.notification_live),
+        PendingIntent.getBroadcast(
+            context,
+            0,
+            Intent("live").setPackage(context.packageName),
+            PendingIntent.FLAG_CANCEL_CURRENT
+        )
+    )
+
+    override fun setBuilder(
+        sessionToken: MediaSessionCompat.Token,
+        controller: MediaControllerCompat
+    ) {
+        val playbackState = controller.playbackState
+        builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
+
+        builder.addAction(stopAction)
+
+        if (playbackState.isPlaying) {
+            builder.addAction(pauseAction)
+        } else if (playbackState.isPlayEnabled) {
+            builder.addAction(playAction)
+        }
+
+        builder.addAction(liveAction)
+    }
+}
+
+class ArchiveNotificationBuilder(val context: Context): NotificationBuilder(context) {
+    private val replayAction = NotificationCompat.Action(
+        R.drawable.ic_replay_30_white_24dp,
+        context.getString(R.string.notification_replay),
+        PendingIntent.getBroadcast(
+            context,
+            0,
+            Intent("replay").setPackage(context.packageName),
+            PendingIntent.FLAG_CANCEL_CURRENT
+        )
+    )
+    private val forwardAction = NotificationCompat.Action(
+        R.drawable.ic_forward_30_white_24dp,
+        context.getString(R.string.notification_forward),
+        PendingIntent.getBroadcast(
+            context,
+            0,
+            Intent("forward").setPackage(context.packageName),
+            PendingIntent.FLAG_CANCEL_CURRENT
+        )
+    )
+
+    override fun setBuilder(
+        sessionToken: MediaSessionCompat.Token,
+        controller: MediaControllerCompat
+    ) {
+        val playbackState = controller.playbackState
+        builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
+
+        builder.addAction(replayAction)
+
+        if (playbackState.isPlaying) {
+            builder.addAction(pauseAction)
+        } else if (playbackState.isPlayEnabled) {
+            builder.addAction(playAction)
+        }
+
+        builder.addAction(forwardAction)
+    }
+}

@@ -23,7 +23,7 @@
             tools:layout="@layout/fragment_home" />
 
         <include
-            layout="@layout/player_bar_view"
+            layout="@layout/view_player_bar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/bottom_nav_height"
             android:layout_gravity="bottom"

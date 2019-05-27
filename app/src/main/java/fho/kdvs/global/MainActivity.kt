@@ -1,5 +1,7 @@
 package fho.kdvs.global
 
+import android.app.PendingIntent
+import android.content.Intent
 import android.media.AudioManager
 import android.os.Bundle
 import android.os.Handler
@@ -16,8 +18,8 @@ import fho.kdvs.R
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.player_bar_view.*
-import kotlinx.android.synthetic.main.player_bar_view.view.*
+import kotlinx.android.synthetic.main.view_player_bar.*
+import kotlinx.android.synthetic.main.view_player_bar.view.*
 import org.threeten.bp.OffsetDateTime
 import javax.inject.Inject
 
@@ -30,8 +32,6 @@ class MainActivity : DaggerAppCompatActivity() {
     lateinit var exoPlayer: ExoPlayer
 
     private lateinit var viewModel: SharedViewModel
-
-    private lateinit var runnable: Runnable
 
     private val handler = Handler()
 
@@ -116,37 +116,33 @@ class MainActivity : DaggerAppCompatActivity() {
                         formatter.format(nowPlayingShow.timeEnd)
                     setShowTimeOrBroadcastDate(timeStr)
 
-                    if (::runnable.isInitialized)
-                        handler.removeCallbacksAndMessages(null)
-
+                    initLiveProgressBar(barProgressBar, timeStart, timeEnd)
                     initLiveShow()
-                    initLiveProgress(barProgressBar, timeStart, timeEnd)
                 } else {
                     nowPlayingBroadcast?.let {
                         setShowTimeOrBroadcastDate(TimeHelper.uiDateFormatter
                             .format(nowPlayingBroadcast.date))
 
-                        if (::runnable.isInitialized)
-                            handler.removeCallbacksAndMessages(null)
-
-                        initArchiveShow()
                         initArchiveProgressBar()
+                        initArchiveShow()
                     }
                 }
             }
         })
     }
 
-    fun initLiveProgress(pb: ProgressBar, timeStart: OffsetDateTime, timeEnd: OffsetDateTime) {
+    fun initLiveProgressBar(pb: ProgressBar, timeStart: OffsetDateTime, timeEnd: OffsetDateTime) {
         val interval = TimeHelper.getDurationInSecondsBetween(timeStart, timeEnd) / 100
         val currentProgress = TimeHelper.getPercentageInDurationRelativeToNow(timeStart, timeEnd)
 
+        handler.removeCallbacksAndMessages(null)
+
         pb.progress = currentProgress
 
-        runnable = object: Runnable {
+        val runnable = object: Runnable {
             override fun run() {
                 handler.postDelayed(this, interval.toLong() * 1000)
-                pb.progress++
+                pb.progress++ // TODO: for some reason this resets to 0 when switching from archive to live
             }
         }
 
@@ -154,7 +150,9 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     private fun initArchiveProgressBar() {
-        runnable = object: Runnable {
+        handler.removeCallbacksAndMessages(null)
+
+        val runnable = object: Runnable {
             override fun run() {
                 barProgressBar.progress = ((exoPlayer.currentPosition * 100) / exoPlayer.duration).toInt()
                 handler.postDelayed(this, 1000)

@@ -82,7 +82,6 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
             it.registerCallback(MediaControllerCallback())
         }
 
-        notificationBuilder = NotificationBuilder(this)
         notificationManager = NotificationManagerCompat.from(this)
 
         becomingNoisyReceiver =
@@ -192,8 +191,16 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                 return
             }
 
+            // TODO determine live or archive
+            val playbackType = PlaybackType.ARCHIVE
+
             // Skip building a notification when state is "none".
             val notification = if (updatedState != PlaybackStateCompat.STATE_NONE) {
+                when(playbackType) {
+                    PlaybackType.LIVE    -> notificationBuilder = LiveNotificationBuilder(baseContext)
+                    PlaybackType.ARCHIVE -> notificationBuilder = ArchiveNotificationBuilder(baseContext)
+                }
+
                 notificationBuilder.buildNotification(mediaSession.sessionToken)
             } else {
                 null

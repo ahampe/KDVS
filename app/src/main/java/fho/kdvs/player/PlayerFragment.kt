@@ -219,7 +219,7 @@ class PlayerFragment : DaggerFragment() {
         liveOrBroadcastDate.text = resources.getString(R.string.live)
 
         (activity as MainActivity)
-            .initLiveProgress(customExoPlayer.progress.progressBar, timeStart, timeEnd)
+            .initLiveProgressBar(customExoPlayer.progress.progressBar, timeStart, timeEnd)
 
         customExoPlayer.player = exoPlayer
         customExoPlayer.showTimeoutMs = 0

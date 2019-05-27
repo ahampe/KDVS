@@ -7,7 +7,7 @@ import android.widget.LinearLayout
 import androidx.navigation.NavController
 import com.google.android.exoplayer2.ExoPlayer
 import fho.kdvs.global.SharedViewModel
-import kotlinx.android.synthetic.main.player_bar_view.view.*
+import kotlinx.android.synthetic.main.view_player_bar.view.*
 import timber.log.Timber
 
 class PlayerBarView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
