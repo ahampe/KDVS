@@ -19,12 +19,11 @@ package fho.kdvs.services
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -110,40 +109,28 @@ abstract class NotificationBuilder(private val context: Context) {
             NOW_PLAYING_CHANNEL,
             context.getString(R.string.notification_channel),
             NotificationManager.IMPORTANCE_LOW
-        )
-            .apply {
-                description = context.getString(R.string.notification_channel_description)
-            }
+        ).apply {
+            description = context.getString(R.string.notification_channel_description)
+        }
 
         platformNotificationManager.createNotificationChannel(notificationChannel)
     }
 }
 
 class LiveNotificationBuilder(val context: Context): NotificationBuilder(context) {
-    private val stopAction = NotificationCompat.Action(
-        R.drawable.exo_icon_stop,
-        context.getString(R.string.notification_stop),
-        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_STOP)
-    )
-    private val liveAction = NotificationCompat.Action(
-        R.drawable.ic_live,
-        context.getString(R.string.notification_live),
-        PendingIntent.getBroadcast(
-            context,
-            0,
-            Intent("live").setPackage(context.packageName),
-            PendingIntent.FLAG_CANCEL_CURRENT
-        )
-    )
-
     override fun setBuilder(
         sessionToken: MediaSessionCompat.Token,
         controller: MediaControllerCompat
     ) {
+        val customActions = CustomActions(context)
         val playbackState = controller.playbackState
         builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
 
-        builder.addAction(stopAction)
+        builder.addAction(NotificationCompat.Action(
+            R.drawable.exo_icon_stop,
+            context.getString(R.string.notification_stop),
+            MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_STOP)
+        ))
 
         if (playbackState.isPlaying) {
             builder.addAction(pauseAction)
@@ -151,40 +138,20 @@ class LiveNotificationBuilder(val context: Context): NotificationBuilder(context
             builder.addAction(playAction)
         }
 
-        builder.addAction(liveAction)
+        builder.addAction(customActions.liveAction)
     }
 }
 
 class ArchiveNotificationBuilder(val context: Context): NotificationBuilder(context) {
-    private val replayAction = NotificationCompat.Action(
-        R.drawable.ic_replay_30_white_24dp,
-        context.getString(R.string.notification_replay),
-        PendingIntent.getBroadcast(
-            context,
-            0,
-            Intent("replay").setPackage(context.packageName),
-            PendingIntent.FLAG_CANCEL_CURRENT
-        )
-    )
-    private val forwardAction = NotificationCompat.Action(
-        R.drawable.ic_forward_30_white_24dp,
-        context.getString(R.string.notification_forward),
-        PendingIntent.getBroadcast(
-            context,
-            0,
-            Intent("forward").setPackage(context.packageName),
-            PendingIntent.FLAG_CANCEL_CURRENT
-        )
-    )
-
     override fun setBuilder(
         sessionToken: MediaSessionCompat.Token,
         controller: MediaControllerCompat
     ) {
+        val customActions = CustomActions(context)
         val playbackState = controller.playbackState
         builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
 
-        builder.addAction(replayAction)
+        builder.addAction(customActions.replayAction)
 
         if (playbackState.isPlaying) {
             builder.addAction(pauseAction)
@@ -192,6 +159,6 @@ class ArchiveNotificationBuilder(val context: Context): NotificationBuilder(cont
             builder.addAction(playAction)
         }
 
-        builder.addAction(forwardAction)
+        builder.addAction(customActions.forwardAction)
     }
 }

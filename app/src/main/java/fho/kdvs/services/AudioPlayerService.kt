@@ -1,11 +1,13 @@
 package fho.kdvs.services
 
+import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Bitmap
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
@@ -16,6 +18,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
 import com.google.android.exoplayer2.ExoPlaybackException
@@ -24,6 +27,7 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
+import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import dagger.android.AndroidInjection
 import timber.log.Timber
 import javax.inject.Inject
@@ -54,6 +58,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                 Timber.d("Player error: $error")
             }
         })
+
         // Build a PendingIntent that can be used to launch the UI.
         val sessionIntent = packageManager?.getLaunchIntentForPackage(packageName)
         val sessionActivityPendingIntent = PendingIntent.getActivity(this, 0, sessionIntent, 0)
@@ -76,6 +81,73 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
          */
         sessionToken = mediaSession.sessionToken
 
+        // Override default PlayerNotificationManager to allow for custom actions
+        val playerNotificationManager = PlayerNotificationManager(
+            this,
+            NOW_PLAYING_CHANNEL,
+            NOW_PLAYING_NOTIFICATION,
+            object: PlayerNotificationManager.MediaDescriptionAdapter {
+                override fun createCurrentContentIntent(player: Player?): PendingIntent? {
+                    return null
+                }
+
+                override fun getCurrentContentText(player: Player?): String? {
+                    return if (::mediaController.isInitialized)
+                        mediaController.metadata.description.subtitle.toString()
+                    else null
+                }
+
+                override fun getCurrentContentTitle(player: Player?): String {
+                    return if (::mediaController.isInitialized)
+                        mediaController.metadata.description.title.toString()
+                    else ""
+                }
+
+                override fun getCurrentLargeIcon(
+                    player: Player?,
+                    callback: PlayerNotificationManager.BitmapCallback?
+                ): Bitmap? {
+                    return if (::mediaController.isInitialized)
+                        mediaController.metadata.description.iconBitmap
+                    else null
+                }
+            },
+            object: PlayerNotificationManager.CustomActionReceiver {
+                override fun createCustomActions(
+                    context: Context?,
+                    instanceId: Int
+                ): MutableMap<String, NotificationCompat.Action> {
+                    return if (context != null)
+                        CustomActions(context).getActionMap()
+                    else
+                        mutableMapOf()
+                }
+
+                override fun getCustomActions(player: Player?): MutableList<String> {
+                    return CustomActionNames.actionNames
+                }
+
+                override fun onCustomAction(player: Player?, action: String?, intent: Intent?) {
+                    Timber.d("Custom action $action performed")
+                }
+            }
+        )
+
+        playerNotificationManager.setNotificationListener(object: PlayerNotificationManager.NotificationListener {
+            override fun onNotificationCancelled(notificationId: Int) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onNotificationStarted(notificationId: Int, notification: Notification?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+        })
+
+        playerNotificationManager.setFastForwardIncrementMs(0)
+        playerNotificationManager.setRewindIncrementMs(0)
+        playerNotificationManager.setPlayer(exoPlayer)
+        playerNotificationManager.setMediaSessionToken(sessionToken)
+
         // Because ExoPlayer will manage the MediaSession, add the service as a callback for
         // state changes.
         mediaController = MediaControllerCompat(this, mediaSession).also {
@@ -94,7 +166,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
         }
 
         //
-        playbackPreparer.streamMetadataChangedLiveData.observeForever {  metadata ->
+        playbackPreparer.streamMetadataChangedLiveData.observeForever { metadata ->
             mediaSession.setMetadata(metadata)
         }
     }
