@@ -241,7 +241,7 @@ class PlayerFragment : DaggerFragment() {
             sharedViewModel.playOrPausePlayback()
         }
         liveControls.exo_live.setOnClickListener {
-            sharedViewModel.jumpToLivePlayback()
+            sharedViewModel.prepareLivePlayback()
         }
 
         archiveControls.visibility = View.GONE

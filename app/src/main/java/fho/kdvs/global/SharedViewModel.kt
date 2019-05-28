@@ -15,23 +15,20 @@ import com.google.android.exoplayer2.ExoPlayer
 import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.*
-import fho.kdvs.global.extensions.id
-import fho.kdvs.global.extensions.isPlayEnabled
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
 import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.global.util.URLs
 import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
 import fho.kdvs.global.util.URLs.YOUTUBE_QUERYSTRING
 import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
+import fho.kdvs.services.CustomAction
 import fho.kdvs.services.LiveShowUpdater
 import fho.kdvs.services.MediaSessionConnection
+import fho.kdvs.services.PlaybackType
 import fho.kdvs.show.ShowRepository
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
-import kotlin.math.max
 
 
 /** An [AndroidViewModel] scoped to the main activity.
@@ -80,52 +77,13 @@ class SharedViewModel @Inject constructor(
 
     // region playback
 
-    fun changeToKdvsMp3() {
-        prepareLivePlayback(URLs.LIVE_MP3)
-    }
-
-    fun changeToKdvsAac() {
-        prepareLivePlayback(URLs.LIVE_AAC)
-    }
-
-    fun changeToKdvsOgg() {
-        prepareLivePlayback(URLs.LIVE_OGG)
-    }
-
-
-    fun jumpBack30Seconds(player: ExoPlayer) {
-        val transportControls = mediaSessionConnection.transportControls ?: return
-        mediaSessionConnection.playbackState.value?.let { playbackState ->
-            if (playbackState.isPlaying) {
-                val currentPos = playbackState.bufferedPosition
-                val newPos = max(0, currentPos - 30000)
-                transportControls.seekTo(newPos)
-            }
-       }
-    }
-
-    fun jumpForward30Seconds(player: ExoPlayer) {
-        val transportControls = mediaSessionConnection.transportControls ?: return
-        mediaSessionConnection.playbackState.value?.let { playbackState ->
-            if (playbackState.isPlaying) {
-                val currentPos = playbackState.position
-                val newPos = currentPos + 30000
-                transportControls.seekTo(newPos)
-            }
-        }
-    }
-
-    fun jumpToLivePlayback() {
-        changeToKdvsOgg()
-    }
-
     fun navigateToPlayer(navController: NavController) {
         navController.navigate(R.id.playerFragment)
     }
 
     fun playOrPausePlayback() {
         if (mediaSessionConnection.playbackState.value?.isPrepared == false)
-            changeToKdvsOgg()
+            prepareLivePlayback()
 
         val transportControls = mediaSessionConnection.transportControls ?: return
         mediaSessionConnection.playbackState.value?.let { playbackState ->
@@ -142,13 +100,16 @@ class SharedViewModel @Inject constructor(
         broadcastRepository.playingLiveBroadcast = true
         broadcastRepository.nowPlayingShowLiveData.postValue(showRepository.liveShowLiveData.value)
         broadcastRepository.nowPlayingBroadcastLiveData.postValue(broadcastRepository.liveBroadcastLiveData.value)
-        changeToKdvsOgg()
+        prepareLivePlayback()
     }
 
     fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
         mediaSessionConnection.transportControls?.playFromMediaId(
             broadcast.broadcastId.toString(),
-            Bundle().apply { putInt("SHOW_ID", show.id) }
+            Bundle().apply {
+                putInt("SHOW_ID", show.id)
+                putString("TYPE", PlaybackType.ARCHIVE.type)
+            }
         )
 
         mediaSessionConnection.isLiveNow.postValue(false)
@@ -158,32 +119,39 @@ class SharedViewModel @Inject constructor(
         broadcastRepository.nowPlayingShowLiveData.postValue(show)
     }
 
-
     fun stopPlayback() {
         val transportControls = mediaSessionConnection.transportControls ?: return
         mediaSessionConnection.playbackState.value?.let { playbackState ->
             if (playbackState.isPlaying) transportControls.stop() }
     }
 
-    private fun prepareLivePlayback(streamUrl: String) {
-        val nowPlaying = mediaSessionConnection.nowPlaying.value
-        val transportControls = mediaSessionConnection.transportControls ?: return
+    fun prepareLivePlayback() {
+        val customAction = CustomAction(getApplication(),
+            mediaSessionConnection.transportControls,
+            mediaSessionConnection.playbackState.value,
+            mediaSessionConnection)
 
-        val isPrepared = mediaSessionConnection.playbackState.value?.isPrepared ?: false
+        customAction.live()
+    }
 
-        if (isPrepared && streamUrl == nowPlaying?.id) {
-            mediaSessionConnection.playbackState.value?.let { playbackState ->
-                when {
-                    playbackState.isPlaying -> { transportControls.pause() }
-                    playbackState.isPlayEnabled -> { transportControls.play() }
-                    else -> {
-                        Timber.w("Playable item clicked but neither play nor pause are enabled! (mediaId=$streamUrl)")
-                    }
-                }
-            }
-        } else {
-            transportControls.playFromMediaId(streamUrl, null)
-        }
+    fun jumpBack30Seconds(player: ExoPlayer) {
+
+
+        val customAction = CustomAction(getApplication(),
+            mediaSessionConnection.transportControls,
+            mediaSessionConnection.playbackState.value,
+            mediaSessionConnection)
+
+        customAction.replay()
+    }
+
+    fun jumpForward30Seconds(player: ExoPlayer) {
+        val customAction = CustomAction(getApplication(),
+            mediaSessionConnection.transportControls,
+            mediaSessionConnection.playbackState.value,
+            mediaSessionConnection)
+
+        customAction.forward()
     }
 
     fun isShowBroadcastLiveNow(show: ShowEntity, broadcast: BroadcastEntity?): Boolean{

@@ -46,6 +46,9 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
     @Inject
     lateinit var exoPlayer: ExoPlayer
 
+    @Inject
+    lateinit var mediaSessionConnection: MediaSessionConnection
+
     private var isForegroundService = false
 
     override fun onCreate() {
@@ -93,13 +96,13 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
 
                 override fun getCurrentContentText(player: Player?): String? {
                     return if (::mediaController.isInitialized)
-                        mediaController.metadata.description.subtitle.toString()
+                        mediaController.metadata?.description?.subtitle.toString()
                     else null
                 }
 
                 override fun getCurrentContentTitle(player: Player?): String {
                     return if (::mediaController.isInitialized)
-                        mediaController.metadata.description.title.toString()
+                        mediaController.metadata?.description?.title.toString()
                     else ""
                 }
 
@@ -108,7 +111,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                     callback: PlayerNotificationManager.BitmapCallback?
                 ): Bitmap? {
                     return if (::mediaController.isInitialized)
-                        mediaController.metadata.description.iconBitmap
+                        mediaController.metadata?.description?.iconBitmap
                     else null
                 }
             },
@@ -118,28 +121,57 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                     instanceId: Int
                 ): MutableMap<String, NotificationCompat.Action> {
                     return if (context != null)
-                        CustomActions(context).getActionMap()
+                        CustomActionDefinitions(context).getActionMap()
                     else
                         mutableMapOf()
                 }
 
                 override fun getCustomActions(player: Player?): MutableList<String> {
-                    return CustomActionNames.actionNames
+                    //TODO: more elegant way of determining live or archive, without injecting other components?
+                    val liveRegex = "^LIVE, "
+                        .toRegex()
+                    val archiveRegex = "^\\w{3} \\d{2}, \\d{4}"
+                        .toRegex()
+                    val tag = player?.currentTag
+                        .toString()
+                        .toUpperCase()
+
+                    return if (liveRegex.containsMatchIn(tag)) {
+                        CustomActionNames.liveActionNames
+                    } else if (archiveRegex.containsMatchIn(tag)) {
+                        CustomActionNames.archiveActionNames
+                    } else mutableListOf()
                 }
 
                 override fun onCustomAction(player: Player?, action: String?, intent: Intent?) {
                     Timber.d("Custom action $action performed")
+                    val token = sessionToken
+
+                    token?.let {
+                        val controller = MediaControllerCompat(baseContext, token)
+                        val customAction = CustomAction(application,
+                            controller.transportControls,
+                            mediaController.playbackState,
+                            mediaSessionConnection)
+
+                        when (action) {
+                            CustomActionEnum.LIVE.name -> customAction.live()
+                            CustomActionEnum.REPLAY.name -> customAction.replay()
+                            CustomActionEnum.FORWARD.name -> customAction.forward()
+                            else -> null
+                        }
+                    }
                 }
             }
         )
 
         playerNotificationManager.setNotificationListener(object: PlayerNotificationManager.NotificationListener {
             override fun onNotificationCancelled(notificationId: Int) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                stopSelf()
             }
 
             override fun onNotificationStarted(notificationId: Int, notification: Notification?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                startForeground(notificationId, notification)
             }
         })
 
@@ -165,7 +197,6 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
             it.setQueueNavigator(KdvsQueueNavigator(mediaSession))
         }
 
-        //
         playbackPreparer.streamMetadataChangedLiveData.observeForever { metadata ->
             mediaSession.setMetadata(metadata)
         }
@@ -263,14 +294,15 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                 return
             }
 
-            // TODO determine live or archive
-            val playbackType = PlaybackType.ARCHIVE
-
             // Skip building a notification when state is "none".
             val notification = if (updatedState != PlaybackStateCompat.STATE_NONE) {
-                when(playbackType) {
-                    PlaybackType.LIVE    -> notificationBuilder = LiveNotificationBuilder(baseContext)
-                    PlaybackType.ARCHIVE -> notificationBuilder = ArchiveNotificationBuilder(baseContext)
+                val playbackType = "LIVE" // TODO find a way to include type in state extras
+                val show = state.extras?.getInt("SHOW_ID")
+
+                notificationBuilder = when(playbackType ?: "") {
+                    PlaybackType.ARCHIVE.type -> ArchiveNotificationBuilder(baseContext)
+                    PlaybackType.LIVE.type    -> LiveNotificationBuilder(baseContext)
+                    else                      -> LiveNotificationBuilder(baseContext)
                 }
 
                 notificationBuilder.buildNotification(mediaSession.sessionToken)

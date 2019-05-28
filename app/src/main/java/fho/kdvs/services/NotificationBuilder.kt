@@ -118,11 +118,8 @@ abstract class NotificationBuilder(private val context: Context) {
 }
 
 class LiveNotificationBuilder(val context: Context): NotificationBuilder(context) {
-    override fun setBuilder(
-        sessionToken: MediaSessionCompat.Token,
-        controller: MediaControllerCompat
-    ) {
-        val customActions = CustomActions(context)
+    override fun setBuilder(sessionToken: MediaSessionCompat.Token, controller: MediaControllerCompat) {
+        val customActions = CustomActionDefinitions(context)
         val playbackState = controller.playbackState
         builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
 
@@ -143,11 +140,8 @@ class LiveNotificationBuilder(val context: Context): NotificationBuilder(context
 }
 
 class ArchiveNotificationBuilder(val context: Context): NotificationBuilder(context) {
-    override fun setBuilder(
-        sessionToken: MediaSessionCompat.Token,
-        controller: MediaControllerCompat
-    ) {
-        val customActions = CustomActions(context)
+    override fun setBuilder(sessionToken: MediaSessionCompat.Token, controller: MediaControllerCompat) {
+        val customActions = CustomActionDefinitions(context)
         val playbackState = controller.playbackState
         builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
 
