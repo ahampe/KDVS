@@ -38,7 +38,7 @@ object CustomActionNames {
 
 class CustomActionDefinitions(val context: Context) {
     val liveAction = NotificationCompat.Action(
-        R.drawable.ic_live,
+        R.drawable.ic_live_white_24dp,
         context.getString(R.string.notification_live),
         PendingIntent.getBroadcast(
             context,
@@ -87,7 +87,7 @@ class CustomAction @Inject constructor(
     private val playbackState: PlaybackStateCompat?,
     private val mediaSessionConnection: MediaSessionConnection
 ) {
-    fun live() {
+   fun live() {
         val preferences = KdvsPreferences(application)
         val streamUrl = preferences.streamUrl ?: URLs.LIVE_OGG
         val isPrepared = playbackState?.isPrepared ?: false

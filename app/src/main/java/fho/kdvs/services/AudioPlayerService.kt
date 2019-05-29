@@ -39,6 +39,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
     private lateinit var notificationManager: NotificationManagerCompat
     private lateinit var notificationBuilder: NotificationBuilder
     private lateinit var mediaSessionConnector: MediaSessionConnector
+    private lateinit var lastPlaybackType: PlaybackType
 
     @Inject
     lateinit var playbackPreparer: KdvsPlaybackPreparer
@@ -48,6 +49,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
 
     @Inject
     lateinit var mediaSessionConnection: MediaSessionConnection
+
 
     private var isForegroundService = false
 
@@ -127,20 +129,14 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                 }
 
                 override fun getCustomActions(player: Player?): MutableList<String> {
-                    //TODO: more elegant way of determining live or archive, without injecting other components?
-                    val liveRegex = "^LIVE, "
-                        .toRegex()
-                    val archiveRegex = "^\\w{3} \\d{2}, \\d{4}"
-                        .toRegex()
-                    val tag = player?.currentTag
-                        .toString()
-                        .toUpperCase()
+                    val playbackType = PlaybackTypeHelper.getPlaybackTypeFromTag(
+                        player?.currentTag.toString())
 
-                    return if (liveRegex.containsMatchIn(tag)) {
-                        CustomActionNames.liveActionNames
-                    } else if (archiveRegex.containsMatchIn(tag)) {
-                        CustomActionNames.archiveActionNames
-                    } else mutableListOf()
+                    return when (playbackType) {
+                        PlaybackType.LIVE    -> CustomActionNames.liveActionNames
+                        PlaybackType.ARCHIVE -> CustomActionNames.archiveActionNames
+                        else -> mutableListOf()
+                    }
                 }
 
                 override fun onCustomAction(player: Player?, action: String?, intent: Intent?) {
@@ -155,8 +151,8 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                             mediaSessionConnection)
 
                         when (action) {
-                            CustomActionEnum.LIVE.name -> customAction.live()
-                            CustomActionEnum.REPLAY.name -> customAction.replay()
+                            CustomActionEnum.LIVE.name    -> customAction.live()
+                            CustomActionEnum.REPLAY.name  -> customAction.replay()
                             CustomActionEnum.FORWARD.name -> customAction.forward()
                             else -> null
                         }
@@ -168,6 +164,9 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
         playerNotificationManager.setNotificationListener(object: PlayerNotificationManager.NotificationListener {
             override fun onNotificationCancelled(notificationId: Int) {
                 stopSelf()
+                removeNowPlayingNotification()
+                isForegroundService = false
+                // TODO: fix bug with notification not disappearing after the first reset
             }
 
             override fun onNotificationStarted(notificationId: Int, notification: Notification?) {
@@ -291,18 +290,18 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
         private fun updateNotification(state: PlaybackStateCompat) {
             val updatedState = state.state
             if (mediaController.metadata == null) {
+                removeNowPlayingNotification()
                 return
             }
 
-            // Skip building a notification when state is "none".
-            val notification = if (updatedState != PlaybackStateCompat.STATE_NONE) {
-                val playbackType = "LIVE" // TODO find a way to include type in state extras
-                val show = state.extras?.getInt("SHOW_ID")
+            val playbackType = PlaybackTypeHelper.getPlaybackTypeFromTag(
+                mediaController.metadata.description.title.toString())
 
-                notificationBuilder = when(playbackType ?: "") {
-                    PlaybackType.ARCHIVE.type -> ArchiveNotificationBuilder(baseContext)
-                    PlaybackType.LIVE.type    -> LiveNotificationBuilder(baseContext)
-                    else                      -> LiveNotificationBuilder(baseContext)
+            // Skip building a notification when state is "none".
+            val notification = if (updatedState != PlaybackStateCompat.STATE_NONE && playbackType != null) {
+                notificationBuilder = when(playbackType) {
+                    PlaybackType.ARCHIVE -> ArchiveNotificationBuilder(baseContext)
+                    PlaybackType.LIVE    -> LiveNotificationBuilder(baseContext)
                 }
 
                 notificationBuilder.buildNotification(mediaSession.sessionToken)

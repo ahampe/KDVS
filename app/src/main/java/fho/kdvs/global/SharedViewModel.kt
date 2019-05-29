@@ -134,9 +134,7 @@ class SharedViewModel @Inject constructor(
         customAction.live()
     }
 
-    fun jumpBack30Seconds(player: ExoPlayer) {
-
-
+    fun jumpBack30Seconds() {
         val customAction = CustomAction(getApplication(),
             mediaSessionConnection.transportControls,
             mediaSessionConnection.playbackState.value,
@@ -145,7 +143,7 @@ class SharedViewModel @Inject constructor(
         customAction.replay()
     }
 
-    fun jumpForward30Seconds(player: ExoPlayer) {
+    fun jumpForward30Seconds() {
         val customAction = CustomAction(getApplication(),
             mediaSessionConnection.transportControls,
             mediaSessionConnection.playbackState.value,

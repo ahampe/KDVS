@@ -51,13 +51,14 @@ abstract class NotificationBuilder(private val context: Context) {
         context.getString(R.string.notification_play),
         MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PLAY)
     )
+
     val pauseAction = NotificationCompat.Action(
         R.drawable.exo_controls_pause,
         context.getString(R.string.notification_pause),
         MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PAUSE)
     )
 
-    private val stopPendingIntent =
+    val stopPendingIntent =
         MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_STOP)
 
     abstract fun setBuilder(
@@ -75,13 +76,10 @@ abstract class NotificationBuilder(private val context: Context) {
         }
 
         val description = controller.metadata.description
-        val playPauseIndex = 1
 
         val mediaStyle = MediaStyle()
             .setCancelButtonIntent(stopPendingIntent)
             .setMediaSession(sessionToken)
-            .setShowActionsInCompactView(playPauseIndex)
-            .setShowCancelButton(true)
 
         // TODO change content text / title, etc.
         return builder.setContentIntent(controller.sessionActivity)
@@ -126,7 +124,7 @@ class LiveNotificationBuilder(val context: Context): NotificationBuilder(context
         builder.addAction(NotificationCompat.Action(
             R.drawable.exo_icon_stop,
             context.getString(R.string.notification_stop),
-            MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_STOP)
+            stopPendingIntent
         ))
 
         if (playbackState.isPlaying) {
@@ -154,5 +152,18 @@ class ArchiveNotificationBuilder(val context: Context): NotificationBuilder(cont
         }
 
         builder.addAction(customActions.forwardAction)
+    }
+}
+
+class DefaultNotificationBuilder(val context: Context): NotificationBuilder(context) {
+    override fun setBuilder(sessionToken: MediaSessionCompat.Token, controller: MediaControllerCompat) {
+        val playbackState = controller.playbackState
+        builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
+
+        if (playbackState.isPlaying) {
+            builder.addAction(pauseAction)
+        } else if (playbackState.isPlayEnabled) {
+            builder.addAction(playAction)
+        }
     }
 }

@@ -197,13 +197,13 @@ class PlayerFragment : DaggerFragment() {
         customExoPlayer.exo_duration.visibility = View.VISIBLE
 
         archiveControls.exo_back30.setOnClickListener {
-            sharedViewModel.jumpBack30Seconds(exoPlayer)
+            sharedViewModel.jumpBack30Seconds()
         }
         archiveControls.exo_play_pause_archive.setOnClickListener {
             sharedViewModel.playOrPausePlayback()
         }
         archiveControls.exo_forward30.setOnClickListener {
-            sharedViewModel.jumpForward30Seconds(exoPlayer)
+            sharedViewModel.jumpForward30Seconds()
         }
 
         archiveControls.visibility = View.VISIBLE
