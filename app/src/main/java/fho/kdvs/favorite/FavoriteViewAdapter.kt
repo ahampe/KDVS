@@ -6,27 +6,48 @@ import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
 import fho.kdvs.databinding.CellFavoriteTrackBinding
-import fho.kdvs.global.database.ShowBroadcastTrackFavoriteJoin
-import fho.kdvs.global.database.getFavorite
-import fho.kdvs.global.database.getTrack
+import fho.kdvs.global.database.*
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
 import timber.log.Timber
 
 class FavoriteViewAdapter(
-    private val favoriteTracks: List<ShowBroadcastTrackFavoriteJoin>?,
+    private val joins: List<ShowBroadcastTrackFavoriteJoin>?,
     private val fragment: FavoriteFragment,
     onClick: (ClickData<ShowBroadcastTrackFavoriteJoin>) -> Unit
-) : BindingRecyclerViewAdapter<ShowBroadcastTrackFavoriteJoin, FavoriteViewAdapter.ViewHolder>(onClick, FavoriteTrackDiffCallback()), Filterable {
+) : BindingRecyclerViewAdapter<Pair<FavoriteEntity?, TrackEntity?>, FavoriteViewAdapter.ViewHolder>(onClick, FavoriteTrackDiffCallback()), Filterable {
 
     var query: String = ""
     private var sortType = SortType.RECENT
-    private var tracksFilteredAndSorted: List<ShowBroadcastTrackFavoriteJoin>? = null
+    private var tracksFilteredAndSorted: List<Pair<FavoriteEntity?, TrackEntity?>>? = null
+
+    private var show: ShowEntity? = null
+    private var broadcasts: List<BroadcastEntity?>? = null
+    private var tracks: List<TrackEntity?>? = null
+    private var favorites: List<FavoriteEntity?>? = null
+    private var favoriteTracks: List<Pair<FavoriteEntity?, TrackEntity?>>? = null
 
     init {
+        show = joins
+            ?.map { it.show }
+            ?.first()
+        broadcasts = joins
+            ?.flatMap { it.getBroadcasts() }
+        tracks = joins
+            ?.flatMap { it.getTracks() }
+        favorites = joins
+            ?.flatMap { it.getFavorites()}
+
+        val favoritedTracks = tracks
+            ?.filter { (favorites
+                ?.count { f -> f?.trackId == it?.trackId } ?: 0) > 0}
+        favoriteTracks = favoritedTracks
+            ?.map { val favorite = favorites?.first { f -> f.trackId == it.trackId }
+                Pair(favorite, it) }
+
         tracksFilteredAndSorted = favoriteTracks
-            ?.sortedBy { it.getFavorite()?.favoriteId }
+            ?.sortedBy { it.first.favoriteId }
 
         submitList(tracksFilteredAndSorted)
     }
@@ -80,9 +101,9 @@ class FavoriteViewAdapter(
                 return filterResults
             }
 
-            private fun sortList(filteredResults: List<ShowBroadcastTrackFavoriteJoin>): List<ShowBroadcastTrackFavoriteJoin> {
+            private fun sortList(filteredResults: List<Pair<FavoriteEntity?, TrackEntity?>>): List<ShowBroadcastTrackFavoriteJoin> {
                 return when (sortType) {
-                    SortType.RECENT -> filteredResults.sortedBy{it.getFavorite()?.favoriteId}
+                    SortType.RECENT -> filteredResults.sortedBy{it()?.favoriteId}
                     SortType.ALBUM  -> filteredResults.sortedBy{it.getTrack()?.album}
                     SortType.ARTIST -> filteredResults.sortedBy{it.getTrack()?.artist}
                     SortType.SONG   -> filteredResults.sortedBy{it.getTrack()?.song}
@@ -111,11 +132,11 @@ class FavoriteViewAdapter(
     class ViewHolder(
         private val binding: CellFavoriteTrackBinding,
         private val queryStr: String
-    ) : BindingViewHolder<ShowBroadcastTrackFavoriteJoin>(binding.root) {
-        override fun bind(listener: View.OnClickListener, item: ShowBroadcastTrackFavoriteJoin) {
+    ) : BindingViewHolder<Pair<FavoriteEntity?, TrackEntity?>>(binding.root) {
+        override fun bind(listener: View.OnClickListener, item:  Pair<FavoriteEntity?, TrackEntity?>) {
             binding.apply {
                 clickListener = listener
-                track = item.getTrack()
+                track = item.second
                 query = queryStr
             }
         }

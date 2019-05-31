@@ -17,7 +17,7 @@ interface FavoriteDao {
         INNER JOIN broadcastData on broadcastData.broadcastId = trackData.broadcastId
         INNER JOIN showData on showData.id = broadcastData.showId"""
     )
-    fun allFavoritedTracks(): Flowable<List<ShowBroadcastTrackFavoriteJoin>>
+    fun allShowBroadcastTrackFavoriteJoins(): Flowable<List<ShowBroadcastTrackFavoriteJoin>>
 
     @Query("SELECT * from favoriteData where trackId = :trackId LIMIT 1")
     fun getByTrackId(trackId: Int?): LiveData<FavoriteEntity>

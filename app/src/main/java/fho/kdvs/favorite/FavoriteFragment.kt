@@ -51,8 +51,8 @@ class FavoriteFragment : DaggerFragment() {
         val fragment = this
 
         viewModel.run {
-            getFavoritedTracks().observe(fragment, Observer { favoriteTracks ->
-                favoriteViewAdapter = FavoriteViewAdapter(favoriteTracks, fragment) {
+            getShowBroadcastTrackFavoriteJoins().observe(fragment, Observer { joins ->
+                favoriteViewAdapter = FavoriteViewAdapter(joins, fragment) {
                     Timber.d("clicked ${it.item}")
                     viewModel.onClickTrack(findNavController(), it.item.getTrack())
                 }

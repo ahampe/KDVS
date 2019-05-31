@@ -12,7 +12,7 @@ class FavoriteViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
 
-    fun getFavoritedTracks() = favoriteRepository.allFavoritedTracks()
+    fun getShowBroadcastTrackFavoriteJoins() = favoriteRepository.allShowBroadcastTrackFavoriteJoins()
 
     fun onClickTrack(navController: NavController, track: TrackEntity?) {
         track?.let {

@@ -14,7 +14,7 @@ import javax.inject.Singleton
 class FavoriteRepository @Inject constructor(
     private val favoriteDao: FavoriteDao
 ) : BaseRepository() {
-    fun allFavoritedTracks(): LiveData<List<ShowBroadcastTrackFavoriteJoin>> {
+    fun allShowBroadcastTrackFavoriteJoins(): LiveData<List<ShowBroadcastTrackFavoriteJoin>> {
         return favoriteDao.allFavoritedTracks()
             .debounce(100L, TimeUnit.MILLISECONDS)
             .toLiveData()
