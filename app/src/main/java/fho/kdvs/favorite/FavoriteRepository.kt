@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.FavoriteDao
 import fho.kdvs.global.database.FavoriteEntity
+import fho.kdvs.global.database.ShowBroadcastTrackFavoriteJoin
 import fho.kdvs.global.extensions.toLiveData
-import io.reactivex.Flowable
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,6 +14,11 @@ import javax.inject.Singleton
 class FavoriteRepository @Inject constructor(
     private val favoriteDao: FavoriteDao
 ) : BaseRepository() {
+    fun allFavoritedTracks(): LiveData<List<ShowBroadcastTrackFavoriteJoin>> {
+        return favoriteDao.allFavoritedTracks()
+            .debounce(100L, TimeUnit.MILLISECONDS)
+            .toLiveData()
+    }
 
     fun favoriteByTrackId(trackId: Int): LiveData<FavoriteEntity> {
         return favoriteDao.getByTrackId(trackId)

@@ -5,7 +5,7 @@
 
     <string name="title_home">Home</string>
     <string name="title_schedule">Schedule</string>
-    <string name="title_settings">Settings</string>
+    <string name="title_favorites">Favorites</string>
 
     <string name="now_playing">Now Playing:</string>
 
@@ -61,6 +61,7 @@
     <string name="alternating_num">Every %1$d weeks</string>
 
     <string name="search_query_hint">Enter a show name</string>
+    <string name="filter_query_hint">Filter by</string>
 
     <string name="hourLabel">%1$02d:00\u0020</string>
     <string name="searchTimeLabel">%1$s, %2$s - %3$s</string>

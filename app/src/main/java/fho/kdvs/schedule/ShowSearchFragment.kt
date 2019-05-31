@@ -93,14 +93,12 @@ class ShowSearchFragment : DaggerFragment() {
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
                 override fun onQueryTextSubmit(query: String): Boolean {
-                    // filter recycler view when query submitted
                     showSearchViewAdapter?.filter?.filter(query)
                     showSearchViewAdapter?.query = query
                     return false
                 }
 
                 override fun onQueryTextChange(query: String): Boolean {
-                    // filter recycler view when text is changed
                     showSearchViewAdapter?.filter?.filter(query)
                     showSearchViewAdapter?.query = query
                     return false

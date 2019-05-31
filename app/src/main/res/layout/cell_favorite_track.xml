@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+
+        <variable
+            name="track"
+            type="fho.kdvs.global.database.TrackEntity" />
+
+        <variable
+            name="show"
+            type="fho.kdvs.global.database.ShowEntity" />
+        
+        <variable
+            name="query"
+            type="String" />
+
+        <variable
+            name="clickListener"
+            type="android.view.View.OnClickListener" />
+
+        <import type="fho.kdvs.global.util.TimeHelper" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:onClick="@{clickListener}"
+        android:layout_marginTop="@dimen/timeslot_margin"
+        android:layout_marginStart="@dimen/timeslot_margin"
+        android:layout_marginEnd="@dimen/timeslot_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/charHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:paddingTop="@dimen/spacing_medium"
+            android:paddingBottom="@dimen/spacing_medium"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="D"/>
+
+        <ImageView
+            android:id="@+id/trackImage"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/timeslot_desc"
+            glideHref="@{track.imageHref}"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/charHeader"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:layout_width="60dp"
+            tools:layout_height="60dp"
+            tools:visibility="visible"
+            tools:background="@drawable/show_placeholder"/>
+
+        <TextView
+            android:id="@+id/song"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:layout_marginStart="@dimen/timeslot_margin"
+            android:layout_marginEnd="@dimen/timeslot_margin"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="@{track.song}"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            app:layout_constraintStart_toEndOf="@id/trackImage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/charHeader"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            tools:text="Name of the Song"/>
+
+        <TextView
+            android:id="@+id/trackInfo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginStart="@dimen/timeslot_margin"
+            android:layout_marginEnd="@dimen/timeslot_margin"
+            android:ellipsize="end"
+            android:maxLines="1"
+            trackInfo="@{track}"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            app:layout_constraintStart_toEndOf="@id/trackImage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/song"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            tools:text="Darkthrone"/>
+
+        <TextView
+            android:id="@+id/showName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginStart="@dimen/timeslot_margin"
+            android:layout_marginEnd="@dimen/timeslot_margin"
+            android:ellipsize="end"
+            android:textSize="12sp"
+            android:text="@{show.name}"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            app:layout_constraintStart_toEndOf="@id/trackImage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/trackInfo"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            tools:visibility="visible"
+            tools:text="Radio Fenriz"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
+

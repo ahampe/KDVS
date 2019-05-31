@@ -19,6 +19,7 @@ package fho.kdvs.injection
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import fho.kdvs.broadcast.BroadcastDetailsFragment
+import fho.kdvs.favorite.FavoriteFragment
 import fho.kdvs.home.HomeFragment
 import fho.kdvs.player.PlayerFragment
 import fho.kdvs.schedule.ScheduleFragment
@@ -53,4 +54,7 @@ abstract class FragmentBuildersModule {
 
     @ContributesAndroidInjector
     abstract fun contributeTrackDetailsFragment(): TrackDetailsFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributeFavoriteFragment(): FavoriteFragment
 }

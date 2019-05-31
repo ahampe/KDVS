@@ -54,7 +54,6 @@ class ShowSearchViewAdapter(
                         filteredList.addAll(fragment.hashedShows[query]!!)
                     } else {
                         shows?.forEach {
-                            //
                             if ("^$query".toRegex() // with articles
                                     .find(it.name?.toLowerCase() ?: "") != null ||
                                 "^$query".toRegex() // without articles
