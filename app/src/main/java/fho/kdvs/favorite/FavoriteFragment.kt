@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
+import kotlinx.android.synthetic.main.cell_favorite_track.view.*
 import kotlinx.android.synthetic.main.fragment_favorites.*
 import timber.log.Timber
 import javax.inject.Inject
@@ -92,10 +93,10 @@ class FavoriteFragment : DaggerFragment() {
             val layout = pair.first
             val button = layout.getChildAt(1) as? ImageView
 
-            sortType = pair.second
-
             layout.setOnClickListener {
                 button?.visibility = View.VISIBLE
+
+                sortType = pair.second
 
                 if (button?.tag == FavoriteViewAdapter.SortDirection.ASC.type) {
                     button.tag = FavoriteViewAdapter.SortDirection.DES.type
@@ -143,6 +144,30 @@ class FavoriteFragment : DaggerFragment() {
                     return false
                 }
             })
+        }
+    }
+
+    fun setSectionHeaders() {
+        val headers = mutableListOf<String>()
+
+        favoriteViewAdapter?.favoriteJoinsFiltered?.forEachIndexed { index, join ->
+            val key = when(sortType) {
+                FavoriteViewAdapter.SortType.RECENT -> return
+                FavoriteViewAdapter.SortType.SHOW   -> join.show?.name?.first().toString()
+                FavoriteViewAdapter.SortType.ARTIST -> join.track?.artist?.first().toString()
+                FavoriteViewAdapter.SortType.ALBUM  -> join.track?.album?.first().toString()
+                FavoriteViewAdapter.SortType.TRACK  -> join.track?.song?.first().toString()
+            }
+
+            val holder = resultsRecycler.findViewHolderForAdapterPosition(index) as? FavoriteViewAdapter.ViewHolder
+
+            if (!headers.contains(key)) {
+                holder?.itemView?.sectionHeader?.text = key.toUpperCase()
+                holder?.itemView?.sectionHeader?.visibility = View.VISIBLE
+                headers.add(key)
+            } else {
+                holder?.itemView?.sectionHeader?.visibility = View.GONE
+            }
         }
     }
 }

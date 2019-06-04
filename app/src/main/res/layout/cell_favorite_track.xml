@@ -10,7 +10,7 @@
         <variable
             name="show"
             type="fho.kdvs.global.database.ShowEntity" />
-        
+
         <variable
             name="query"
             type="String" />
@@ -34,11 +34,12 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/charHeader"
+            android:id="@+id/sectionHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            sectionHeader="@"
             style="@style/TextAppearance.MaterialComponents.Headline6"
             android:paddingTop="@dimen/spacing_medium"
             android:paddingBottom="@dimen/spacing_medium"
@@ -56,7 +57,7 @@
             glideHref="@{track.imageHref}"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/charHeader"
+            app:layout_constraintTop_toBottomOf="@id/sectionHeader"
             app:layout_constraintBottom_toBottomOf="parent"
             tools:layout_width="60dp"
             tools:layout_height="60dp"
@@ -76,7 +77,7 @@
             style="@style/TextAppearance.MaterialComponents.Headline6"
             app:layout_constraintStart_toEndOf="@id/trackImage"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/charHeader"
+            app:layout_constraintTop_toBottomOf="@id/sectionHeader"
             app:layout_constrainedWidth="true"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="packed"
@@ -86,7 +87,7 @@
             android:id="@+id/trackInfo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@android:color/white"
             android:layout_marginStart="@dimen/timeslot_margin"
             android:layout_marginEnd="@dimen/timeslot_margin"
             android:ellipsize="end"

@@ -16,7 +16,7 @@ import fho.kdvs.global.util.ClickData
 import timber.log.Timber
 
 class FavoriteViewAdapter(
-    private val joins: List<ShowBroadcastTrackFavoriteJoin>?,
+    joins: List<ShowBroadcastTrackFavoriteJoin>?,
     private val fragment: FavoriteFragment,
     onClick: (ClickData<FavoriteJoin>) -> Unit
 ) : BindingRecyclerViewAdapter<FavoriteJoin, FavoriteViewAdapter.ViewHolder>(onClick, FavoriteTrackDiffCallback()), Filterable {
@@ -24,7 +24,7 @@ class FavoriteViewAdapter(
     var query: String = ""
 
     private val favoriteJoins = mutableListOf<FavoriteJoin>()
-    private var favoriteJoinsFiltered: List<FavoriteJoin>? = null
+    val favoriteJoinsFiltered = mutableListOf<FavoriteJoin>()
     
     init {
         val shows = joins
@@ -57,8 +57,9 @@ class FavoriteViewAdapter(
             favoriteJoins.add(FavoriteJoin(favorite, track, broadcast, show))
         }
 
-        favoriteJoinsFiltered = favoriteJoins
-            .sortedBy { it.favorite?.favoriteId }
+        favoriteJoinsFiltered.clear()
+        favoriteJoinsFiltered.addAll(favoriteJoins
+            .sortedBy { it.favorite?.favoriteId })
         
         submitList(favoriteJoinsFiltered)
     }
@@ -70,7 +71,7 @@ class FavoriteViewAdapter(
     }
 
     override fun getItemCount(): Int {
-        return favoriteJoinsFiltered?.size ?: 0
+        return favoriteJoinsFiltered.size
     }
 
     override fun getFilter(): Filter {
@@ -99,18 +100,20 @@ class FavoriteViewAdapter(
                                 }
                             }
                         }
-                        favoriteJoinsFiltered = filteredList
+
+                        favoriteJoinsFiltered.clear()
+                        favoriteJoinsFiltered.addAll(filteredList)
                         fragment.hashedResults[query] = filteredList
                     }
                 } else {
-                    favoriteJoinsFiltered = mutableListOf()
+                    favoriteJoinsFiltered.clear()
                 }
 
                 sortList(SortDirection.ASC)
 
                 val filterResults = FilterResults()
                 filterResults.values = favoriteJoinsFiltered
-                filterResults.count = favoriteJoinsFiltered?.size ?: 0
+                filterResults.count = favoriteJoinsFiltered.size
 
                 return filterResults
             }
@@ -119,9 +122,6 @@ class FavoriteViewAdapter(
             override fun publishResults(charSeq: CharSequence, results: FilterResults) {
                 Timber.d("${results.count} results found")
                 if (results.values is List<*>) {
-                    //favoriteJoinsFiltered = results.values as? List<FavoriteJoin>? // TODO: safe cast?
-
-                    // alphabetical sort ignoring leading articles
                     submitList(favoriteJoinsFiltered)
                 }
             }
@@ -136,20 +136,22 @@ class FavoriteViewAdapter(
     fun sortList(direction: SortDirection) {
         submitList(when (direction) {
             SortDirection.ASC -> when (fragment.sortType) {
-                SortType.RECENT -> favoriteJoinsFiltered?.sortedBy{it.favorite?.favoriteId}
-                SortType.ALBUM  -> favoriteJoinsFiltered?.sortedBy{it.track?.album}
-                SortType.ARTIST -> favoriteJoinsFiltered?.sortedBy{it.track?.artist}
-                SortType.TRACK  -> favoriteJoinsFiltered?.sortedBy{it.track?.song}
-                SortType.SHOW   -> favoriteJoinsFiltered?.sortedBy{it.show?.name}
+                SortType.RECENT -> favoriteJoinsFiltered.sortedBy{it.favorite?.favoriteId}
+                SortType.ALBUM  -> favoriteJoinsFiltered.sortedBy{it.track?.album}
+                SortType.ARTIST -> favoriteJoinsFiltered.sortedBy{it.track?.artist}
+                SortType.TRACK  -> favoriteJoinsFiltered.sortedBy{it.track?.song}
+                SortType.SHOW   -> favoriteJoinsFiltered.sortedBy{it.show?.name}
             }
             SortDirection.DES -> when (fragment.sortType) {
-                SortType.RECENT -> favoriteJoinsFiltered?.sortedByDescending{it.favorite?.favoriteId}
-                SortType.ALBUM  -> favoriteJoinsFiltered?.sortedByDescending{it.track?.album}
-                SortType.ARTIST -> favoriteJoinsFiltered?.sortedByDescending{it.track?.artist}
-                SortType.TRACK  -> favoriteJoinsFiltered?.sortedByDescending{it.track?.song}
-                SortType.SHOW   -> favoriteJoinsFiltered?.sortedByDescending{it.show?.name}
+                SortType.RECENT -> favoriteJoinsFiltered.sortedByDescending{it.favorite?.favoriteId}
+                SortType.ALBUM  -> favoriteJoinsFiltered.sortedByDescending{it.track?.album}
+                SortType.ARTIST -> favoriteJoinsFiltered.sortedByDescending{it.track?.artist}
+                SortType.TRACK  -> favoriteJoinsFiltered.sortedByDescending{it.track?.song}
+                SortType.SHOW   -> favoriteJoinsFiltered.sortedByDescending{it.show?.name}
             }
         })
+
+        fragment.setSectionHeaders()
     }
 
     enum class SortDirection(val type: String) {
@@ -169,10 +171,11 @@ class FavoriteViewAdapter(
         private val binding: CellFavoriteTrackBinding,
         private val queryStr: String
     ) : BindingViewHolder<FavoriteJoin>(binding.root) {
-        override fun bind(listener: View.OnClickListener, item:  FavoriteJoin) {
+        override fun bind(listener: View.OnClickListener, item: FavoriteJoin) {
             binding.apply {
                 clickListener = listener
                 track = item.track
+                show = item.show
                 query = queryStr
             }
         }
