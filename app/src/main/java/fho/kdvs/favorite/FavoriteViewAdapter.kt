@@ -6,7 +6,10 @@ import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
 import fho.kdvs.databinding.CellFavoriteTrackBinding
-import fho.kdvs.global.database.*
+import fho.kdvs.global.database.ShowBroadcastTrackFavoriteJoin
+import fho.kdvs.global.database.getBroadcasts
+import fho.kdvs.global.database.getFavorites
+import fho.kdvs.global.database.getTracks
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
@@ -15,41 +18,49 @@ import timber.log.Timber
 class FavoriteViewAdapter(
     private val joins: List<ShowBroadcastTrackFavoriteJoin>?,
     private val fragment: FavoriteFragment,
-    onClick: (ClickData<ShowBroadcastTrackFavoriteJoin>) -> Unit
-) : BindingRecyclerViewAdapter<Pair<FavoriteEntity?, TrackEntity?>, FavoriteViewAdapter.ViewHolder>(onClick, FavoriteTrackDiffCallback()), Filterable {
+    onClick: (ClickData<FavoriteJoin>) -> Unit
+) : BindingRecyclerViewAdapter<FavoriteJoin, FavoriteViewAdapter.ViewHolder>(onClick, FavoriteTrackDiffCallback()), Filterable {
 
     var query: String = ""
-    private var sortType = SortType.RECENT
-    private var tracksFilteredAndSorted: List<Pair<FavoriteEntity?, TrackEntity?>>? = null
 
-    private var show: ShowEntity? = null
-    private var broadcasts: List<BroadcastEntity?>? = null
-    private var tracks: List<TrackEntity?>? = null
-    private var favorites: List<FavoriteEntity?>? = null
-    private var favoriteTracks: List<Pair<FavoriteEntity?, TrackEntity?>>? = null
-
+    private val favoriteJoins = mutableListOf<FavoriteJoin>()
+    private var favoriteJoinsFiltered: List<FavoriteJoin>? = null
+    
     init {
-        show = joins
+        val shows = joins
             ?.map { it.show }
-            ?.first()
-        broadcasts = joins
+            ?.distinct()
+        val broadcasts = joins
             ?.flatMap { it.getBroadcasts() }
-        tracks = joins
+            ?.distinct()
+        val tracks = joins
             ?.flatMap { it.getTracks() }
-        favorites = joins
+            ?.distinct()
+        val favorites = joins
             ?.flatMap { it.getFavorites()}
+            ?.distinct()
+        
+        favorites?.forEach { favorite ->
+            val track = tracks
+                ?.firstOrNull{ 
+                    it?.trackId == favorite?.trackId 
+                }
+            val broadcast = broadcasts
+                ?.firstOrNull {
+                    it?.broadcastId == track?.broadcastId
+                }
+            val show = shows
+                ?.firstOrNull { 
+                    it?.id == broadcast?.showId
+                }
+            
+            favoriteJoins.add(FavoriteJoin(favorite, track, broadcast, show))
+        }
 
-        val favoritedTracks = tracks
-            ?.filter { (favorites
-                ?.count { f -> f?.trackId == it?.trackId } ?: 0) > 0}
-        favoriteTracks = favoritedTracks
-            ?.map { val favorite = favorites?.first { f -> f.trackId == it.trackId }
-                Pair(favorite, it) }
-
-        tracksFilteredAndSorted = favoriteTracks
-            ?.sortedBy { it.first.favoriteId }
-
-        submitList(tracksFilteredAndSorted)
+        favoriteJoinsFiltered = favoriteJoins
+            .sortedBy { it.favorite?.favoriteId }
+        
+        submitList(favoriteJoinsFiltered)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -59,66 +70,59 @@ class FavoriteViewAdapter(
     }
 
     override fun getItemCount(): Int {
-        return tracksFilteredAndSorted?.size ?: 0
+        return favoriteJoinsFiltered?.size ?: 0
     }
 
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(charSeq: CharSequence): FilterResults {
-                val filteredList = ArrayList<ShowBroadcastTrackFavoriteJoin>()
+                val filteredList = ArrayList<FavoriteJoin>()
                 val query = charSeq.toString().trim()
 
                 if (query.isNotEmpty()){
-                    if (fragment.hashedTracks[query] != null) {
-                        filteredList.addAll(fragment.hashedTracks[query]!!)
+                    if (!fragment.hashedResults[query].isNullOrEmpty()) {
+                        filteredList.addAll(fragment.hashedResults[query]!!)
                     } else {
-                        favoriteTracks?.forEachIndexed {index, track ->
+                        favoriteJoins.forEach { join ->
                             val metadataFieldsToSearch = listOf(
-                                track.getTrack()?.song,
-                                track.getTrack()?.artist,
-                                track.getTrack()?.album)
+                                join.track?.song,
+                                join.track?.artist,
+                                join.track?.album
+                            )
+
                             metadataFieldsToSearch.forEach { field ->
                                 field?.let {
-                                    if ("^$query".toRegex()
+                                    if (!filteredList.contains(join) &&
+                                        "^$query".toRegex()
                                             .find(removeArticles(it.toLowerCase())) != null)
-                                        filteredList.add(track)
+                                        filteredList.add(join)
                                 }
                             }
                         }
-                        tracksFilteredAndSorted = filteredList
-                        fragment.hashedTracks[query] = filteredList
+                        favoriteJoinsFiltered = filteredList
+                        fragment.hashedResults[query] = filteredList
                     }
                 } else {
-                    tracksFilteredAndSorted = mutableListOf()
+                    favoriteJoinsFiltered = mutableListOf()
                 }
 
-                val sortedList = sortList(filteredList)
+                sortList(SortDirection.ASC)
 
                 val filterResults = FilterResults()
-                filterResults.values = sortedList
-                filterResults.count = sortedList.size
+                filterResults.values = favoriteJoinsFiltered
+                filterResults.count = favoriteJoinsFiltered?.size ?: 0
 
                 return filterResults
-            }
-
-            private fun sortList(filteredResults: List<Pair<FavoriteEntity?, TrackEntity?>>): List<ShowBroadcastTrackFavoriteJoin> {
-                return when (sortType) {
-                    SortType.RECENT -> filteredResults.sortedBy{it()?.favoriteId}
-                    SortType.ALBUM  -> filteredResults.sortedBy{it.getTrack()?.album}
-                    SortType.ARTIST -> filteredResults.sortedBy{it.getTrack()?.artist}
-                    SortType.SONG   -> filteredResults.sortedBy{it.getTrack()?.song}
-                    SortType.SHOW   -> filteredResults.sortedBy{it.show?.name}
-                }
             }
 
             @SuppressWarnings("unchecked")
             override fun publishResults(charSeq: CharSequence, results: FilterResults) {
                 Timber.d("${results.count} results found")
                 if (results.values is List<*>) {
-                    tracksFilteredAndSorted = results.values as? List<ShowBroadcastTrackFavoriteJoin>? // TODO: safe cast?
+                    //favoriteJoinsFiltered = results.values as? List<FavoriteJoin>? // TODO: safe cast?
 
                     // alphabetical sort ignoring leading articles
-                    submitList(tracksFilteredAndSorted)
+                    submitList(favoriteJoinsFiltered)
                 }
             }
         }
@@ -126,27 +130,51 @@ class FavoriteViewAdapter(
 
     private fun removeArticles(str: String?): String {
         return """^(?:(the|a|an) +)""".toRegex()
-            .replace(str ?: "", "")
+            .replace(str ?: "", "") // TODO: make extension
+    }
+
+    fun sortList(direction: SortDirection) {
+        submitList(when (direction) {
+            SortDirection.ASC -> when (fragment.sortType) {
+                SortType.RECENT -> favoriteJoinsFiltered?.sortedBy{it.favorite?.favoriteId}
+                SortType.ALBUM  -> favoriteJoinsFiltered?.sortedBy{it.track?.album}
+                SortType.ARTIST -> favoriteJoinsFiltered?.sortedBy{it.track?.artist}
+                SortType.TRACK  -> favoriteJoinsFiltered?.sortedBy{it.track?.song}
+                SortType.SHOW   -> favoriteJoinsFiltered?.sortedBy{it.show?.name}
+            }
+            SortDirection.DES -> when (fragment.sortType) {
+                SortType.RECENT -> favoriteJoinsFiltered?.sortedByDescending{it.favorite?.favoriteId}
+                SortType.ALBUM  -> favoriteJoinsFiltered?.sortedByDescending{it.track?.album}
+                SortType.ARTIST -> favoriteJoinsFiltered?.sortedByDescending{it.track?.artist}
+                SortType.TRACK  -> favoriteJoinsFiltered?.sortedByDescending{it.track?.song}
+                SortType.SHOW   -> favoriteJoinsFiltered?.sortedByDescending{it.show?.name}
+            }
+        })
+    }
+
+    enum class SortDirection(val type: String) {
+        ASC("asc"),
+        DES("des")
+    }
+
+    enum class SortType {
+        RECENT,
+        SHOW,
+        ARTIST,
+        ALBUM,
+        TRACK
     }
 
     class ViewHolder(
         private val binding: CellFavoriteTrackBinding,
         private val queryStr: String
-    ) : BindingViewHolder<Pair<FavoriteEntity?, TrackEntity?>>(binding.root) {
-        override fun bind(listener: View.OnClickListener, item:  Pair<FavoriteEntity?, TrackEntity?>) {
+    ) : BindingViewHolder<FavoriteJoin>(binding.root) {
+        override fun bind(listener: View.OnClickListener, item:  FavoriteJoin) {
             binding.apply {
                 clickListener = listener
-                track = item.second
+                track = item.track
                 query = queryStr
             }
         }
-    }
-
-    private enum class SortType {
-        RECENT,
-        SHOW,
-        ARTIST,
-        ALBUM,
-        SONG
     }
 }

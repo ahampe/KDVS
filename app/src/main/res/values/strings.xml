@@ -92,8 +92,14 @@
     <string name="track_info_middle">\u0020• %1$s</string>
     <string name="artist_album">%1$s • %2$s</string>
     <string name="album_info">%1$d, %2$s</string>
-
     <string name="track_comments">\"%1$s\"</string>
+
+    <string name="sort_header">Sort By</string>
+    <string name="sort_recent">Recently Added</string>
+    <string name="sort_show">Show</string>
+    <string name="sort_artist">Artist</string>
+    <string name="sort_album">Album</string>
+    <string name="sort_track">Track</string>
 
     <string name="user_agent">kdvsapp@gmail.com</string>
 </resources>

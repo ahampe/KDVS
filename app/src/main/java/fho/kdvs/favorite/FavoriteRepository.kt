@@ -15,7 +15,7 @@ class FavoriteRepository @Inject constructor(
     private val favoriteDao: FavoriteDao
 ) : BaseRepository() {
     fun allShowBroadcastTrackFavoriteJoins(): LiveData<List<ShowBroadcastTrackFavoriteJoin>> {
-        return favoriteDao.allFavoritedTracks()
+        return favoriteDao.allShowBroadcastTrackFavoriteJoins()
             .debounce(100L, TimeUnit.MILLISECONDS)
             .toLiveData()
     }
