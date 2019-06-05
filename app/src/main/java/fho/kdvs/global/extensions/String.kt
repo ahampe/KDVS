@@ -46,3 +46,6 @@ inline val String?.urlEncoded: String
         @Suppress("deprecation")
         URLEncoder.encode(this ?: "")
     }
+
+fun String?.removeLeadingArticles() = """^(?:(the|THE|a|A|an|AN) +)""".toRegex()
+    .replace(this ?: "", "")

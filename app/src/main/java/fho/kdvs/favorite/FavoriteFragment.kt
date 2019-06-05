@@ -27,8 +27,9 @@ class FavoriteFragment : DaggerFragment() {
 
     private var favoriteViewAdapter: FavoriteViewAdapter? = null
     
-    var hashedResults = mutableMapOf<String, ArrayList<FavoriteJoin>>()
+    val hashedResults = mutableMapOf<String, ArrayList<FavoriteJoin>>()
     var sortType = FavoriteViewAdapter.SortType.RECENT
+    var sortDirection = FavoriteViewAdapter.SortDirection.DES
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +51,56 @@ class FavoriteFragment : DaggerFragment() {
         initializeSearchBar()
     }
 
+    fun setSectionHeaders() {
+        val headers = mutableListOf<String>()
+
+        clearSectionHeaders()
+
+        if (sortType != FavoriteViewAdapter.SortType.RECENT) {
+            for (i in 0..resultsRecycler.childCount) {
+                val holder = resultsRecycler.findViewHolderForAdapterPosition(i)
+                val key = when(sortType) {
+                    FavoriteViewAdapter.SortType.SHOW   -> holder?.itemView?.showName?.text
+                        ?.firstOrNull()
+                        ?.toString()
+                    FavoriteViewAdapter.SortType.ARTIST -> holder?.itemView?.trackInfo?.text
+                        ?.split(getString(R.string.track_info_separator))
+                        ?.firstOrNull()
+                        ?.trim()
+                        ?.firstOrNull()
+                        ?.toString()
+                    FavoriteViewAdapter.SortType.ALBUM  -> holder?.itemView?.trackInfo?.text
+                        ?.split(getString(R.string.track_info_separator))
+                        ?.getOrNull(1)
+                        ?.trim()
+                        ?.firstOrNull()
+                        ?.toString()
+                    FavoriteViewAdapter.SortType.TRACK  -> holder?.itemView?.song?.text
+                        ?.firstOrNull()
+                        ?.toString()
+                    else -> return
+                }
+
+                key?.let {
+                    if (!headers.contains(key)) {
+                        holder?.itemView?.sectionHeader?.text = key.toUpperCase()
+                        holder?.itemView?.sectionHeader?.visibility = View.VISIBLE
+                        headers.add(key)
+                    } else {
+                        holder?.itemView?.sectionHeader?.visibility = View.GONE
+                    }
+                }
+            }
+        }
+    }
+
+    private fun clearSectionHeaders() {
+        for (i in 0..resultsRecycler.childCount) {
+            val holder = resultsRecycler.findViewHolderForAdapterPosition(i)
+            holder?.itemView?.sectionHeader?.visibility = View.GONE
+        }
+    }
+
     private fun subscribeToViewModel(){
         val fragment = this
 
@@ -67,7 +118,7 @@ class FavoriteFragment : DaggerFragment() {
             })
         }
     }
-    
+
     private fun initializeClickListeners(){
         val layoutToSortType = listOf(
             Pair(recent, FavoriteViewAdapter.SortType.RECENT),
@@ -81,11 +132,11 @@ class FavoriteFragment : DaggerFragment() {
             sortMenu.visibility = View.GONE
             dummy.visibility = View.GONE
         }
-        
-        filter.setOnClickListener { 
-            sortMenu.visibility = if (sortMenu.visibility == View.GONE) 
+
+        filter.setOnClickListener {
+            sortMenu.visibility = if (sortMenu.visibility == View.GONE)
                 View.VISIBLE else View.GONE
-            dummy.visibility = if (sortMenu.visibility == View.GONE)
+            dummy.visibility = if (sortMenu.visibility == View.VISIBLE)
                 View.VISIBLE else View.GONE
         }
 
@@ -95,25 +146,19 @@ class FavoriteFragment : DaggerFragment() {
 
             layout.setOnClickListener {
                 button?.visibility = View.VISIBLE
-
                 sortType = pair.second
 
                 if (button?.tag == FavoriteViewAdapter.SortDirection.ASC.type) {
                     button.tag = FavoriteViewAdapter.SortDirection.DES.type
                     button.setImageResource(R.drawable.ic_arrow_upward_white_24dp)
-                    favoriteViewAdapter?.sortList(FavoriteViewAdapter.SortDirection.DES)
+                    sortDirection = FavoriteViewAdapter.SortDirection.DES
+                    favoriteViewAdapter?.sortList()
                 } else if (button?.tag == FavoriteViewAdapter.SortDirection.DES.type) {
                     button.tag = FavoriteViewAdapter.SortDirection.ASC.type
                     button.setImageResource(R.drawable.ic_arrow_downward_white_24dp)
-                    favoriteViewAdapter?.sortList(FavoriteViewAdapter.SortDirection.ASC)
+                    sortDirection = FavoriteViewAdapter.SortDirection.ASC
+                    favoriteViewAdapter?.sortList()
                 }
-
-                favoriteViewAdapter?.sortList(
-                    if (button?.tag == FavoriteViewAdapter.SortDirection.ASC.type)
-                        FavoriteViewAdapter.SortDirection.ASC
-                    else
-                        FavoriteViewAdapter.SortDirection.DES
-                )
 
                 val otherPairs = layoutToSortType.filter { p -> p != pair }
                 otherPairs.forEach {p ->
@@ -126,10 +171,8 @@ class FavoriteFragment : DaggerFragment() {
 
     private fun initializeSearchBar(){
         searchBar?.run {
-            //isActivated = true
             queryHint = resources.getString(R.string.filter_query_hint)
-            //setIconifiedByDefault(false)
-            //onActionViewExpanded()
+            setIconifiedByDefault(false)
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
                 override fun onQueryTextSubmit(query: String): Boolean {
@@ -144,30 +187,6 @@ class FavoriteFragment : DaggerFragment() {
                     return false
                 }
             })
-        }
-    }
-
-    fun setSectionHeaders() {
-        val headers = mutableListOf<String>()
-
-        favoriteViewAdapter?.favoriteJoinsFiltered?.forEachIndexed { index, join ->
-            val key = when(sortType) {
-                FavoriteViewAdapter.SortType.RECENT -> return
-                FavoriteViewAdapter.SortType.SHOW   -> join.show?.name?.first().toString()
-                FavoriteViewAdapter.SortType.ARTIST -> join.track?.artist?.first().toString()
-                FavoriteViewAdapter.SortType.ALBUM  -> join.track?.album?.first().toString()
-                FavoriteViewAdapter.SortType.TRACK  -> join.track?.song?.first().toString()
-            }
-
-            val holder = resultsRecycler.findViewHolderForAdapterPosition(index) as? FavoriteViewAdapter.ViewHolder
-
-            if (!headers.contains(key)) {
-                holder?.itemView?.sectionHeader?.text = key.toUpperCase()
-                holder?.itemView?.sectionHeader?.visibility = View.VISIBLE
-                headers.add(key)
-            } else {
-                holder?.itemView?.sectionHeader?.visibility = View.GONE
-            }
         }
     }
 }

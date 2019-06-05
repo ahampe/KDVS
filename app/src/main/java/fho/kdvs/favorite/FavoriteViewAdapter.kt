@@ -10,6 +10,7 @@ import fho.kdvs.global.database.ShowBroadcastTrackFavoriteJoin
 import fho.kdvs.global.database.getBroadcasts
 import fho.kdvs.global.database.getFavorites
 import fho.kdvs.global.database.getTracks
+import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
@@ -58,9 +59,9 @@ class FavoriteViewAdapter(
         }
 
         favoriteJoinsFiltered.clear()
-        favoriteJoinsFiltered.addAll(favoriteJoins
-            .sortedBy { it.favorite?.favoriteId })
-        
+        favoriteJoinsFiltered.addAll(favoriteJoins)
+
+        sortList()
         submitList(favoriteJoinsFiltered)
     }
 
@@ -85,17 +86,18 @@ class FavoriteViewAdapter(
                         filteredList.addAll(fragment.hashedResults[query]!!)
                     } else {
                         favoriteJoins.forEach { join ->
-                            val metadataFieldsToSearch = listOf(
+                            val fieldsToSearch = listOf(
                                 join.track?.song,
                                 join.track?.artist,
-                                join.track?.album
+                                join.track?.album,
+                                join.show?.name
                             )
 
-                            metadataFieldsToSearch.forEach { field ->
+                            fieldsToSearch.forEach { field ->
                                 field?.let {
                                     if (!filteredList.contains(join) &&
                                         "^$query".toRegex()
-                                            .find(removeArticles(it.toLowerCase())) != null)
+                                            .find(it.toLowerCase().removeLeadingArticles()) != null)
                                         filteredList.add(join)
                                 }
                             }
@@ -106,10 +108,10 @@ class FavoriteViewAdapter(
                         fragment.hashedResults[query] = filteredList
                     }
                 } else {
-                    favoriteJoinsFiltered.clear()
+                    favoriteJoinsFiltered.addAll(favoriteJoins)
                 }
 
-                sortList(SortDirection.ASC)
+                sortList()
 
                 val filterResults = FilterResults()
                 filterResults.values = favoriteJoinsFiltered
@@ -128,13 +130,8 @@ class FavoriteViewAdapter(
         }
     }
 
-    private fun removeArticles(str: String?): String {
-        return """^(?:(the|a|an) +)""".toRegex()
-            .replace(str ?: "", "") // TODO: make extension
-    }
-
-    fun sortList(direction: SortDirection) {
-        submitList(when (direction) {
+    fun sortList() {
+        submitList(when (fragment.sortDirection) {
             SortDirection.ASC -> when (fragment.sortType) {
                 SortType.RECENT -> favoriteJoinsFiltered.sortedBy{it.favorite?.favoriteId}
                 SortType.ALBUM  -> favoriteJoinsFiltered.sortedBy{it.track?.album}

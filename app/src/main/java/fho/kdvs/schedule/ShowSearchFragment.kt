@@ -86,10 +86,8 @@ class ShowSearchFragment : DaggerFragment() {
 
     private fun initializeSearchBar(){
         searchBar?.run {
-            isActivated = true
             queryHint = resources.getString(R.string.search_query_hint)
             setIconifiedByDefault(false)
-            onActionViewExpanded()
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
                 override fun onQueryTextSubmit(query: String): Boolean {

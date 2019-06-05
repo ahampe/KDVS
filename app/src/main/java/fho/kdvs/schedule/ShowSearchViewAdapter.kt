@@ -7,6 +7,7 @@ import android.widget.Filter
 import android.widget.Filterable
 import fho.kdvs.databinding.CellShowSearchResultBinding
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
@@ -57,14 +58,14 @@ class ShowSearchViewAdapter(
                             if ("^$query".toRegex() // with articles
                                     .find(it.name?.toLowerCase() ?: "") != null ||
                                 "^$query".toRegex() // without articles
-                                    .find(removeArticles(it.name?.toLowerCase())) != null)
+                                    .find(it.name?.toLowerCase()?.removeLeadingArticles() ?: "") != null)
                                 filteredList.add(it)
                         }
                         showsFiltered = filteredList
                         fragment.hashedShows[query] = filteredList
                     }
                 } else {
-                    showsFiltered = mutableListOf()
+                    showsFiltered = shows
                 }
 
                 val filterResults = FilterResults()
@@ -80,18 +81,15 @@ class ShowSearchViewAdapter(
                 if (results.values is List<*>) {
                     showsFiltered = results.values as? List<ShowEntity>? // TODO: safe cast?
 
-                    // alphabetical sort ignoring leading articles
-                    submitList(showsFiltered?.sortedBy { s ->
-                        removeArticles(s.name?.toLowerCase()?.trim()) })
+                    submitList(showsFiltered?.sortedBy { s -> s.name
+                        ?.toLowerCase()
+                        ?.trim()
+                        ?.removeLeadingArticles()})
                 }
             }
         }
     }
 
-    private fun removeArticles(str: String?): String {
-        return """^(?:(the|a|an) +)""".toRegex()
-            .replace(str ?: "", "")
-    }
 
     class ViewHolder(
         private val binding: CellShowSearchResultBinding,
