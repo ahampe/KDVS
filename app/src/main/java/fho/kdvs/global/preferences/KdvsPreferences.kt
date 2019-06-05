@@ -56,7 +56,10 @@ open class KdvsPreferences @Inject constructor(application: Application) {
 
         // to persist user's selection of quarter (internally a String) and year (an Int)
         SELECTED_QUARTER,
-        SELECTED_YEAR
+        SELECTED_YEAR,
+
+        // the gap of time between the notification for an event and the real time of the event (e.g. show start)
+        ALARM_NOTICE_INTERVAL
 
         // TODO others like alert frequencies, wifi only usage, etc
     }
@@ -76,6 +79,8 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     var lastTopThirtyAlbumsScrape: Long? by LongPreference(Key.LAST_TOP_THIRTY_ALBUMS_SCRAPE)
 
     var lastFundraiserScraper: Long? by LongPreference(Key.LAST_FUNDRAISER_SCRAPE)
+
+    var alarmNoticeInterval: Long? by LongPreference(Key.ALARM_NOTICE_INTERVAL)
 
     fun getLastShowScrape(showId: String): Long? {
         val pref by LongPreference(Key.LAST_SHOW_SCRAPE, showId)

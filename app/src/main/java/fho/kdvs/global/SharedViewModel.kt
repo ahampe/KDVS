@@ -22,10 +22,7 @@ import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
 import fho.kdvs.global.util.URLs.YOUTUBE_QUERYSTRING
 import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
-import fho.kdvs.services.CustomAction
-import fho.kdvs.services.LiveShowUpdater
-import fho.kdvs.services.MediaSessionConnection
-import fho.kdvs.services.PlaybackType
+import fho.kdvs.services.*
 import fho.kdvs.show.ShowRepository
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -240,15 +237,23 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun onClickStar(imageView: ImageView, showId: Int) {
+    fun onClickStar(imageView: ImageView, show: ShowEntity) {
         if (imageView.tag == 0) {
             imageView.setImageResource(R.drawable.ic_star_border_white_24dp)
             imageView.tag = 1
-            launch { subscriptionDao.insert(SubscriptionEntity(0, showId)) }
+            launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
+            launch {
+                val alarmMgr = KdvsAlarmManager(getApplication())
+                alarmMgr.registerShowAlarm(show)
+            }
         } else if (imageView.tag == 1) {
             imageView.setImageResource(R.drawable.ic_star_white_24dp)
             imageView.tag = 0
-            launch { subscriptionDao.deleteByShowId(showId) }
+            launch { subscriptionDao.deleteByShowId(show.id) }
+            launch {
+                val alarmMgr = KdvsAlarmManager(getApplication())
+                alarmMgr.cancelShowAlarm(show)
+            }
         }
     }
 

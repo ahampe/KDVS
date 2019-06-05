@@ -37,7 +37,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
     private lateinit var mediaController: MediaControllerCompat
     private lateinit var becomingNoisyReceiver: BecomingNoisyReceiver
     private lateinit var notificationManager: NotificationManagerCompat
-    private lateinit var notificationBuilder: NotificationBuilder
+    private lateinit var playbackNotificationBuilder: PlaybackNotificationBuilder
     private lateinit var mediaSessionConnector: MediaSessionConnector
     private lateinit var lastPlaybackType: PlaybackType
 
@@ -299,12 +299,12 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
 
             // Skip building a notification when state is "none".
             val notification = if (updatedState != PlaybackStateCompat.STATE_NONE && playbackType != null) {
-                notificationBuilder = when(playbackType) {
-                    PlaybackType.ARCHIVE -> ArchiveNotificationBuilder(baseContext)
-                    PlaybackType.LIVE    -> LiveNotificationBuilder(baseContext)
+                playbackNotificationBuilder = when(playbackType) {
+                    PlaybackType.ARCHIVE -> ArchivePlaybackNotificationBuilder(baseContext)
+                    PlaybackType.LIVE    -> LivePlaybackNotificationBuilder(baseContext)
                 }
 
-                notificationBuilder.buildNotification(mediaSession.sessionToken)
+                playbackNotificationBuilder.buildNotification(mediaSession.sessionToken)
             } else {
                 null
             }

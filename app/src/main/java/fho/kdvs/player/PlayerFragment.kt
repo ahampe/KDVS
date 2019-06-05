@@ -130,7 +130,7 @@ class PlayerFragment : DaggerFragment() {
             playerShowName.setOnClickListener { viewModel.onClickShowInfo(findNavController(), show) }
             showHost.setOnClickListener { viewModel.onClickShowInfo(findNavController(), show) }
             viewPlaylist.setOnClickListener { viewModel.onClickPlaylist(findNavController(), broadcast) }
-            star.setOnClickListener { sharedViewModel.onClickStar(star, show.id) }
+            star.setOnClickListener { sharedViewModel.onClickStar(star, show) }
             arrow.setOnClickListener { fragmentManager?.popBackStack() }
 
             if (broadcast == null) {

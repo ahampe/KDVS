@@ -45,6 +45,8 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
+
+        <receiver android:name="fho.kdvs.services.AlarmReceiver" />
     </application>
 
 </manifest>
