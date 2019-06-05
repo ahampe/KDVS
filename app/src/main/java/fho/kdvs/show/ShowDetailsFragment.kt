@@ -10,8 +10,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
+import fho.kdvs.R
 import fho.kdvs.databinding.FragmentShowDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
+import fho.kdvs.global.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_show_details.*
 import timber.log.Timber
 import javax.inject.Inject
@@ -21,6 +23,7 @@ class ShowDetailsFragment : DaggerFragment() {
     lateinit var vmFactory: KdvsViewModelFactory
 
     private lateinit var viewModel: ShowDetailsViewModel
+    private lateinit var sharedViewModel: SharedViewModel
 
     private var broadcastListAdapter: ShowBroadcastsAdapter? = null
 
@@ -41,6 +44,9 @@ class ShowDetailsFragment : DaggerFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        sharedViewModel = ViewModelProviders.of(requireActivity(), vmFactory)
+            .get(SharedViewModel::class.java)
+
         val binding = FragmentShowDetailsBinding.inflate(inflater, container, false)
             .apply { vm = viewModel }
         binding.lifecycleOwner = this
@@ -65,6 +71,23 @@ class ShowDetailsFragment : DaggerFragment() {
         viewModel.broadcastsLiveData.observe(this, Observer { broadcasts ->
             Timber.d("got broadcasts: $broadcasts")
             broadcastListAdapter?.onBroadcastsChanged(broadcasts)
+        })
+
+        viewModel.show.observe(this, Observer { show ->
+            star.setOnClickListener { sharedViewModel.onClickStar(star, show) }
+        })
+
+        viewModel.subscription.observe(this, Observer {
+            when(it != null) {
+                true -> {
+                    star.setImageResource(R.drawable.ic_star_white_24dp)
+                    star.tag = 1
+                }
+                false -> {
+                    star.setImageResource(R.drawable.ic_star_border_white_24dp)
+                    star.tag = 0
+                }
+            }
         })
     }
 }

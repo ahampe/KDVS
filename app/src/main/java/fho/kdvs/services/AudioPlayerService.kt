@@ -39,7 +39,6 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
     private lateinit var notificationManager: NotificationManagerCompat
     private lateinit var playbackNotificationBuilder: PlaybackNotificationBuilder
     private lateinit var mediaSessionConnector: MediaSessionConnector
-    private lateinit var lastPlaybackType: PlaybackType
 
     @Inject
     lateinit var playbackPreparer: KdvsPlaybackPreparer
@@ -49,7 +48,6 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
 
     @Inject
     lateinit var mediaSessionConnection: MediaSessionConnection
-
 
     private var isForegroundService = false
 

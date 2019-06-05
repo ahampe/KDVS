@@ -21,11 +21,7 @@ class KdvsAlarmManager @Inject constructor(val application: Application) {
         val timeStart = show.timeStart
 
         timeStart?.let {
-            alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-            alarmIntent = Intent(context, AlarmReceiver::class.java).let { intent ->
-                PendingIntent.getBroadcast(context, show.id, intent, 0)
-            }
+            initShowAlarm(show)
 
             val alarmTime = timeStart.minusMinutes(kdvsPreferences.alarmNoticeInterval ?: 0)
 
@@ -48,15 +44,20 @@ class KdvsAlarmManager @Inject constructor(val application: Application) {
     }
 
     fun cancelShowAlarm(show: ShowEntity) {
+        initShowAlarm(show)
+        alarmMgr?.cancel(alarmIntent)
+    }
+
+    private fun initShowAlarm(show: ShowEntity) {
         if (alarmMgr == null)
             alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         if (!::alarmIntent.isInitialized) {
             alarmIntent = Intent(context, AlarmReceiver::class.java).let { intent ->
+                intent.putExtra("showName", show.name)
+                intent.putExtra("interval", kdvsPreferences.alarmNoticeInterval?.toInt())
                 PendingIntent.getBroadcast(context, show.id, intent, 0)
             }
         }
-
-        alarmMgr?.cancel(alarmIntent)
     }
 }
