@@ -28,7 +28,7 @@ class KdvsAlarmManager @Inject constructor(
     private var alarmMgr: AlarmManager? = null
     private lateinit var alarmIntent: PendingIntent
 
-    suspend fun registerShowAlarm(show: ShowEntity) = coroutineScope{
+    suspend fun registerShowAlarmAsync(show: ShowEntity): Deferred<Boolean> = async{
         val timeStart = show.timeStart
 
         timeStart?.let {
@@ -62,8 +62,12 @@ class KdvsAlarmManager @Inject constructor(
                     WEEK_IN_MILLIS * showsAtTime.size,
                     alarmIntent
                 )
+
+                return@async true
             }
         }
+
+        return@async false
     }
 
     fun cancelShowAlarm(show: ShowEntity) {

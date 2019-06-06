@@ -11,7 +11,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.navigation.NavController
-import com.google.android.exoplayer2.ExoPlayer
 import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.*
@@ -244,7 +243,7 @@ class SharedViewModel @Inject constructor(
             launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
             launch {
                 val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
-                alarmMgr.registerShowAlarm(show)
+                alarmMgr.registerShowAlarmAsync(show)
             }
         } else if (imageView.tag == 1) {
             imageView.setImageResource(R.drawable.ic_star_white_24dp)

@@ -3,7 +3,6 @@ package fho.kdvs.show
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.BroadcastEntity
@@ -155,6 +154,7 @@ class ShowRepository @Inject constructor(
 
     suspend fun allShowsAtTimeOrderedRelativeToCurrentWeek(timeStart: OffsetDateTime): List<ShowEntity?> {
         val liveShowUpdater = LiveShowUpdater(this, broadcastRepository, showDao)
-        return liveShowUpdater.orderShowsAtTimeRelativeToCurrentWeek(timeStart)
+        return liveShowUpdater.orderShowsAtTimeRelativeToCurrentWeekAsync(timeStart)
+            .await()
     }
 }

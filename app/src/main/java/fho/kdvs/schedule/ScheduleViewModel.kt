@@ -57,8 +57,9 @@ class ScheduleViewModel @Inject constructor(
      * */
     fun onClickTimeSlot(navController: NavController, timeslot: TimeSlot) {
         val navAction = ScheduleFragmentDirections
-                .actionScheduleFragmentToShowDetailsFragment(timeslot.ids.first())
-        navController.navigate(navAction)
+            .actionScheduleFragmentToShowDetailsFragment(timeslot.ids.first())
+        if (navController.currentDestination?.id == R.id.scheduleFragment)
+            navController.navigate(navAction)
     }
 
     /** Called when the search icon is clicked. */

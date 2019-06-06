@@ -198,53 +198,49 @@ class LiveShowUpdater @Inject constructor(
     }
 
     /**
-     * Takes a timeslot, returns its shows in the order in which they are scheduled to air from current week.
-     * Defaults to the order returned by the database .
+     * Takes a time, returns shows at this time in the order in which they are scheduled to air from current week.
+     * Defaults to the order returned by database.
+     * Note: a show having already aired this week (or currently airing) will still be first.
      * */
-    suspend fun orderShowsAtTimeRelativeToCurrentWeek(timeStart: OffsetDateTime): List<ShowEntity> {
-        val shows = mutableListOf<ShowEntity>()
+    fun orderShowsAtTimeRelativeToCurrentWeekAsync(timeStart: OffsetDateTime): Deferred<List<ShowEntity>> = async {
+        Timber.d("Ordering shows in timeslot by their order of appearance relative to current week")
 
-        shows.addAll(getAllShowsAtTime(timeStart))
+        val showsAtTime = getAllShowsAtTime(timeStart)
 
-        if (isActive) {
-            Timber.d("Ordering shows in timeslot by their order of appearance relative to current week")
-            if (shows.isEmpty()) return mutableListOf()
+        val latestBroadcasts = getLatestBroadcastsForShowsAtTime(showsAtTime)
+
+        if (latestBroadcasts.isNotEmpty() &&
+            latestBroadcasts.size >= (showsAtTime.size - 1)) {
 
             val orderedShows = mutableListOf<ShowEntity>()
-            
-            val latestBroadcasts = getLatestBroadcastsForShowsAtTime(shows)
 
-            if (latestBroadcasts.isNotEmpty() &&
-                latestBroadcasts.size >= (shows.size - 1)) {
+            showsAtTime.forEachIndexed { i, _ ->
+                val now = LocalDate.now()
 
-                shows.forEachIndexed { i, _ ->
-                    val now = LocalDate.now()
-
-                    val matchingBroadcast = latestBroadcasts
-                        .filter { it.date != null }
-                        .find {
-                            ChronoUnit.WEEKS.between(it.date, now) % shows.size == i.toLong()
-                        }
-
-                    val matchingShow = shows.find {
-                        it.id == matchingBroadcast?.showId
+                val matchingBroadcast = latestBroadcasts
+                    .filter { it.date != null }
+                    .find {
+                        ChronoUnit.WEEKS.between(it.date, now) % showsAtTime.size == i.toLong()
                     }
 
-                    matchingShow?.let {
-                        orderedShows.add(matchingShow)
-                    }
+                val matchingShow = showsAtTime.find {
+                    it.id == matchingBroadcast?.showId
                 }
 
-                if (latestBroadcasts.size == (shows.size - 1)) {
-                    orderedShows.add(shows.first { s -> !orderedShows.contains(s)})
+                matchingShow?.let {
+                    orderedShows.add(matchingShow)
                 }
-
-                shows.clear()
-                shows.addAll(orderedShows)
             }
-        }
 
-        return shows
+            // if scraped broadcasts do not include show S, assume S to be this week's show
+            if (latestBroadcasts.size == (showsAtTime.size - 1)) {
+                orderedShows.add(0, showsAtTime.first { s -> !orderedShows.contains(s)})
+            }
+
+            return@async orderedShows
+        } else {
+            return@async showsAtTime
+        }
     }
 
     companion object {
