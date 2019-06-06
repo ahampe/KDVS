@@ -5,7 +5,6 @@ import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowDao
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.schedule.TimeSlot
 import fho.kdvs.show.ShowRepository
 import kotlinx.coroutines.*
 import org.threeten.bp.DayOfWeek
@@ -198,37 +197,57 @@ class LiveShowUpdater @Inject constructor(
         }
     }
 
-    /** Takes a timeslot, returns its shows in the order in which they are scheduled to air from current time.*/
-    fun orderShowsInTimeSlotRelativeToCurrentWeek(timeslot: TimeSlot): List<ShowEntity?> {
-        job.cancelChildren()
+    /**
+     * Takes a timeslot, returns its shows in the order in which they are scheduled to air from current week.
+     * Defaults to the order returned by the database .
+     * */
+    suspend fun orderShowsAtTimeRelativeToCurrentWeek(timeStart: OffsetDateTime): List<ShowEntity> {
+        val shows = mutableListOf<ShowEntity>()
 
-        val orderedShows = mutableListOf<ShowEntity?>()
+        shows.addAll(getAllShowsAtTime(timeStart))
 
-        launch {
-            if (isActive) {
-                Timber.d("Attempting to order shows in timeslot by their relative order of appearance")
-                val allShowsAtTime = getAllShowsAtTime(timeslot.timeStart!!)
-                val latestBroadcasts = getLatestBroadcastsForShowsAtTime(allShowsAtTime)
+        if (isActive) {
+            Timber.d("Ordering shows in timeslot by their order of appearance relative to current week")
+            if (shows.isEmpty()) return mutableListOf()
 
-                if (timeslot.ids.count() > 0 && latestBroadcasts.isNotEmpty() &&
-                    latestBroadcasts.size >= (timeslot.ids.count() - 1)) {
-                    timeslot.ids.forEachIndexed { i, _ ->
-                        val n = allShowsAtTime.size
-                        val now = LocalDate.now()
-                        val matchingBroadcast = latestBroadcasts.filter { it.date != null }
-                            .find { ChronoUnit.WEEKS.between(it.date, now) % n == i.toLong() }
-                        val matchingShow = allShowsAtTime.find { it.id == matchingBroadcast?.showId }
+            val orderedShows = mutableListOf<ShowEntity>()
+            
+            val latestBroadcasts = getLatestBroadcastsForShowsAtTime(shows)
 
+            if (latestBroadcasts.isNotEmpty() &&
+                latestBroadcasts.size >= (shows.size - 1)) {
+
+                shows.forEachIndexed { i, _ ->
+                    val now = LocalDate.now()
+
+                    val matchingBroadcast = latestBroadcasts
+                        .filter { it.date != null }
+                        .find {
+                            ChronoUnit.WEEKS.between(it.date, now) % shows.size == i.toLong()
+                        }
+
+                    val matchingShow = shows.find {
+                        it.id == matchingBroadcast?.showId
+                    }
+
+                    matchingShow?.let {
                         orderedShows.add(matchingShow)
                     }
                 }
+
+                if (latestBroadcasts.size == (shows.size - 1)) {
+                    orderedShows.add(shows.first { s -> !orderedShows.contains(s)})
+                }
+
+                shows.clear()
+                shows.addAll(orderedShows)
             }
         }
 
-        return orderedShows
+        return shows
     }
 
     companion object {
-        private const val WEEK_IN_MILLIS = 7L * 24L * 60L * 60L * 1000L
+        const val WEEK_IN_MILLIS = 7L * 24L * 60L * 60L * 1000L
     }
 }

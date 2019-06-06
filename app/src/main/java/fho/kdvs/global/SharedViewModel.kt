@@ -243,7 +243,7 @@ class SharedViewModel @Inject constructor(
             imageView.tag = 1
             launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
             launch {
-                val alarmMgr = KdvsAlarmManager(getApplication())
+                val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
                 alarmMgr.registerShowAlarm(show)
             }
         } else if (imageView.tag == 1) {
@@ -251,7 +251,7 @@ class SharedViewModel @Inject constructor(
             imageView.tag = 0
             launch { subscriptionDao.deleteByShowId(show.id) }
             launch {
-                val alarmMgr = KdvsAlarmManager(getApplication())
+                val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
                 alarmMgr.cancelShowAlarm(show)
             }
         }

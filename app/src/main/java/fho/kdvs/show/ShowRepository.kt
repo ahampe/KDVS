@@ -18,6 +18,7 @@ import fho.kdvs.global.web.WebScraperManager
 import fho.kdvs.schedule.QuarterYear
 import fho.kdvs.schedule.TimeSlot
 import fho.kdvs.services.KdvsPlaybackPreparer
+import fho.kdvs.services.LiveShowUpdater
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Job
@@ -150,5 +151,10 @@ class ShowRepository @Inject constructor(
                         TimeSlot(showGroup, isFirstHalfOrEntireSegment)
                     }
             }
+    }
+
+    suspend fun allShowsAtTimeOrderedRelativeToCurrentWeek(timeStart: OffsetDateTime): List<ShowEntity?> {
+        val liveShowUpdater = LiveShowUpdater(this, broadcastRepository, showDao)
+        return liveShowUpdater.orderShowsAtTimeRelativeToCurrentWeek(timeStart)
     }
 }

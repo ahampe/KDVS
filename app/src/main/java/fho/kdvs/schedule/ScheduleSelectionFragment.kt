@@ -29,6 +29,8 @@ import kotlinx.android.synthetic.main.fragment_schedule_selection.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -100,7 +102,7 @@ class ScheduleSelectionFragment : BottomSheetDialogFragment(), CoroutineScope {
         viewModel = ViewModelProviders.of(this, vmFactory)
             .get(ScheduleSelectionViewModel::class.java)
             .also {
-                it.initialize(timeslot)
+                it.initialize()
             }
 
         setStyle(BottomSheetDialogFragment.STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme)
@@ -130,6 +132,16 @@ class ScheduleSelectionFragment : BottomSheetDialogFragment(), CoroutineScope {
             addItemDecoration(dividerItemDecoration)
         }
 
-        showSelectionViewAdapter?.submitList(viewModel.pairedIdsAndNames)
+        activity?.runOnUiThread {
+            timeslot.timeStart?.let {
+                launch {
+                    val shows = viewModel.allOrderedShowsForTime(it)
+                    if (shows.isNotEmpty()) {
+                        val pairs = viewModel.getPairedIdsAndNamesForShows(shows)
+                        showSelectionViewAdapter?.submitList(pairs)
+                    }
+                }
+            }
+        }
     }
 }
