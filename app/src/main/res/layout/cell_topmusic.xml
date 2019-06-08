@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -9,54 +10,47 @@
             type="fho.kdvs.global.database.TopMusicEntity" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/artwork"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            glideHref="@{topMusic.imageHref}"
+            android:padding="@dimen/spacing_med_large"
+            tools:src="@drawable/show_placeholder" />
 
         <TextView
-            position="@{topMusic.position}"
-            android:layout_width="wrap_content"
+            android:id="@+id/title"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="1"
-            tools:text="01."/>
-
-        <Space
-            android:layout_width="@dimen/spacing_small"
-            android:layout_height="wrap_content"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/artwork"
+            app:layout_constraintStart_toStartOf="parent"
+            android:maxLines="2"
             android:ellipsize="end"
-            android:maxLines="1"
-            android:text="@{topMusic.artist}"
+            android:gravity="center"
             android:textStyle="bold"
-            tools:text="Testing Long Artist Name" />
-
-        <Space
-            android:layout_width="@dimen/spacing_small"
-            android:layout_height="wrap_content"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/top_music_artist_album_separator"
-            tools:text="-" />
-
-        <Space
-            android:layout_width="@dimen/spacing_small"
-            android:layout_height="wrap_content"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
             android:text="@{topMusic.album}"
-            android:textStyle="italic"
-            tools:text="Long Album Name With Many Words" />
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            tools:text="Blessed Are the Sick"/>
 
-    </LinearLayout>
-
+        <TextView
+            android:id="@+id/artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            app:layout_constraintStart_toStartOf="parent"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:textColor="@color/colorPrimary50a"
+            android:text="@{topMusic.artist}"
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            tools:text="Morbid Angel"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

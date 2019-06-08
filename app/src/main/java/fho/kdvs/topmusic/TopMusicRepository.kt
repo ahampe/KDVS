@@ -65,4 +65,34 @@ class TopMusicRepository @Inject constructor(
 
     fun getMostRecentTopAlbums(): LiveData<List<TopMusicEntity>> =
         topMusicDao.getMostRecentTopAlbums()
+
+    fun updateTopMusicAlbum(id: Int, title: String?) {
+        title?.let{
+            topMusicDao.updateTopMusicAlbum(id, title)
+        }
+    }
+
+    fun updateTopMusicLabel(id: Int, label: String?) {
+        label?.let{
+            topMusicDao.updateTopMusicLabel(id, label)
+        }
+    }
+
+    fun updateTopMusicImageHref(id: Int, imageHref: String?) {
+        imageHref?.let{
+            topMusicDao.updateTopMusicImageHref(id, imageHref)
+        }
+    }
+
+    fun updateTopMusicYear(id: Int, year: Int?) {
+        year?.let{
+            topMusicDao.updateTopMusicYear(id, year)
+        }
+    }
+
+    fun updateTopMusicSpotifyUri(id: Int, uri: String?) {
+        uri?.let{
+            topMusicDao.updateTopMusicSpotifyUri(id, uri)
+        }
+    }
 }

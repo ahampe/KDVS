@@ -16,6 +16,21 @@ abstract class TopMusicDao {
     @Query("SELECT * from topMusicData where isNewAdd = 0 order by weekOf desc limit 30")
     abstract fun getMostRecentTopAlbums(): LiveData<List<TopMusicEntity>>
 
+    @Query("UPDATE topMusicData SET album = :album where topMusicId = :id")
+    abstract fun updateTopMusicAlbum(id: Int, album: String)
+
+    @Query("UPDATE topMusicData SET label = :label where topMusicId = :id")
+    abstract fun updateTopMusicLabel(id: Int, label: String)
+
+    @Query("UPDATE topMusicData SET imageHref = :imageHref where topMusicId = :id")
+    abstract fun updateTopMusicImageHref(id: Int, imageHref: String)
+
+    @Query("UPDATE topMusicData SET year = :year where topMusicId = :id")
+    abstract fun updateTopMusicYear(id: Int, year: Int)
+
+    @Query("UPDATE topMusicData SET spotifyUri = :spotifyUri where topMusicId = :id")
+    abstract fun updateTopMusicSpotifyUri(id: Int, spotifyUri: String)
+
     @Insert
     abstract fun insert(topMusicEntity: TopMusicEntity)
 

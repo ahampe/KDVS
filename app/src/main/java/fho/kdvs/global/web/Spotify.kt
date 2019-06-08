@@ -1,103 +1,73 @@
 package fho.kdvs.global.web
 
-import android.content.pm.PackageManager
 import android.util.Base64
-import android.view.View
-import com.spotify.android.appremote.api.ConnectionParams
-import com.spotify.android.appremote.api.SpotifyAppRemote
-import fho.kdvs.global.SharedViewModel
-import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.extensions.urlEncoded
 import fho.kdvs.global.util.HttpHelper
+import fho.kdvs.global.util.HttpHelper.EMPTY_RESPONSE
 import fho.kdvs.global.util.Keys.SPOTIFY_CLIENT_ID
 import fho.kdvs.global.util.Keys.SPOTIFY_CLIENT_SECRET
-import fho.kdvs.global.util.URLs.SPOTIFY_REDIRECT_URI
 import fho.kdvs.global.util.URLs.SPOTIFY_SEARCH_URL
 import fho.kdvs.global.util.URLs.SPOTIFY_TOKEN_URL
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import org.json.JSONObject
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.util.LinkedMultiValueMap
 import timber.log.Timber
-import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
-class Spotify @Inject constructor(
-    private val sharedViewModel: SharedViewModel
-): CoroutineScope {
-    private lateinit var mSpotifyAppRemote: SpotifyAppRemote
+class SpotifyData(
+    val spotifyUri: String?,
+    override val albumTitle: String?,
+    override val imageHref: String?,
+    override val year: Int?
+): ThirdPartyData()
 
-    private val parentJob = Job()
-    override val coroutineContext: CoroutineContext
-        get() = parentJob + Dispatchers.IO
+object Spotify: IThirdPartyMusicAPI {
 
-    fun fetchSpotifyData(track: TrackEntity): TrackEntity {
-        val response = searchForTrack(track)
-        val topResult = parseSpotifyTrackSearchResponse(response)
+    override fun getMusicData(title: String?, artist: String?, type: ThirdPartyQueryType): SpotifyData? {
+        if (title.isNullOrEmpty() || artist.isNullOrEmpty())
+            return null
 
-        if (topResult.has("uri"))
-            track.spotifyUri = topResult.getString("uri")
-        else
-            track.spotifyUri = ""
-
-        if (topResult.has("album")) {
-            val album = topResult.getJSONObject("album")
-
-            if (track.imageHref.isNullOrEmpty()) {
-                if (album.has("images")) {
-                    val images = album.getJSONArray("images")
-                    val topImage = images.getJSONObject(0)
-                    if (topImage.has("url"))
-                        track.imageHref = topImage.getString("url")
-                }
-            }
-
-            if (track.album.isNullOrEmpty()) {
-                if (album.has("name")) {
-                    track.album = album.getString("name")
-                }
-            }
-
-            if (track.year == null) {
-                if (album.has("release_date")) {
-                    val year = album.getString("release_date").toIntOrNull()
-                    if (year != null)
-                        track.year = year
-                }
-            }
+        val response = when(type){
+            ThirdPartyQueryType.SONG  -> search(getTrackQuery(title, artist))
+            ThirdPartyQueryType.ALBUM -> search(getAlbumQuery(title, artist))
         }
 
-        return track
+        val topResult = when(type){
+            ThirdPartyQueryType.SONG  -> parseTopResultFromTrackResponse(response)
+            ThirdPartyQueryType.ALBUM -> parseTopResultFromAlbumResponse(response)
+        }
+
+        val uri = JsonHelper.getRootLevelElmOfType<String>("uri", topResult)
+        val albumObj = JsonHelper.getRootLevelElmOfType<JSONObject>("album", topResult)
+        val albumTitle = JsonHelper.getRootLevelElmOfType<String>("name", albumObj)
+        val year = JsonHelper.getRootLevelElmOfType<String>("release_date", topResult)
+            ?.toIntOrNull()
+        val imageHref = getImageHrefFromAlbumObj(albumObj)
+
+        return SpotifyData(uri, albumTitle, imageHref, year)
     }
 
-    fun openSpotify(view: View, spotifyUri: String) {
-        if (isSpotifyInstalledOnDevice(view))
-            sharedViewModel.openSpotifyApp(view, spotifyUri)
-        else
-            sharedViewModel.onClickSpotifyNoApp(view, spotifyUri)
-    }
+    // Client Credentials Flow
+    private fun search(query: String?): JSONObject { // TODO: fuzzy/dynamic search?
+        Timber.d("Spotify search $query")
 
-    private fun isSpotifyInstalledOnDevice(view: View): Boolean {
-        var isSpotifyInstalled = false
+        var item = JSONObject(EMPTY_RESPONSE)
 
-        try {
-            view.context.packageManager.getPackageInfo("com.spotify.music", 0)
-            isSpotifyInstalled = true
-        } catch (e: PackageManager.NameNotFoundException) {}
+        val authentication = requestAuthentication()
+        if (authentication.has("access_token")) {
+            val token = authentication.getString("access_token")
 
-        return isSpotifyInstalled
-    }
+            val headers = HttpHeaders()
+            headers.set("Authorization", "Bearer $token")
 
-    // TODO: setup playlist building
-    fun authorizeUser() {
-        val connectionParams = ConnectionParams.Builder(SPOTIFY_CLIENT_ID)
-            .setRedirectUri(SPOTIFY_REDIRECT_URI)
-            .showAuthView(true)
-            .build()
+            val url = "$SPOTIFY_SEARCH_URL$query"
+            val request = HttpEntity<String>(headers)
+
+            item = HttpHelper.makeParameterizedGETRequest(url, request)
+        }
+
+        return item
     }
 
     private fun requestAuthentication(): JSONObject {
@@ -119,84 +89,58 @@ class Spotify @Inject constructor(
         return HttpHelper.makePOSTRequest(SPOTIFY_TOKEN_URL, request)
     }
 
-    // Authorization Code Flow
-    fun generatePlaylist() {
-
-    }
-
-    private fun searchForAlbum(artist: String, album: String): JSONObject {
-        val query = getAlbumQuery(artist, album)
-        return search(query)
-    }
-
-    private fun searchForTrack(track: TrackEntity): JSONObject {
-        val query = getTrackQuery(track)
-        return search(query)
-    }
-
-    // Client Credentials Flow
-    private fun search(query: String?): JSONObject { // TODO: fuzzy/dynamic search
-        Timber.d("Spotify search $query")
-
-        var item = JSONObject("{}")
-
-        val authentication = requestAuthentication()
-        if (authentication.has("access_token")) {
-            val token = authentication.getString("access_token")
-
-            val headers = HttpHeaders()
-            headers.set("Authorization", "Bearer $token")
-
-            val url = "$SPOTIFY_SEARCH_URL$query"
-            val request = HttpEntity<String>(headers)
-
-            item = HttpHelper.makeParameterizedGETRequest(url, request)
-        }
-
-        return item
-    }
-
-    fun parseSpotifyAlbumUri(json: JSONObject): String {
-        var uri = ""
-
-        if (json.has("albums")) {
-            val tracks = json.getJSONObject("albums")
-            if (tracks.has("items")) {
-                val items = tracks.getJSONArray("items")
-                if (items.length() > 0) {
-                    val topResult = items.getJSONObject(0)
-                    if (topResult.has("id"))
-                        uri = "spotify:album:" + topResult.getString("id")
+    private fun parseTopResultFromAlbumResponse(json: JSONObject?): JSONObject? {
+        json?.let {
+            if (json.has("albums")) {
+                val tracks = json.getJSONObject("albums")
+                if (tracks.has("items")) {
+                    val items = tracks.getJSONArray("items")
+                    if (items.length() > 0) {
+                        return items.getJSONObject(0)
+                    }
                 }
             }
         }
 
-        return uri
+        return null
     }
 
-    private fun parseSpotifyTrackSearchResponse(json: JSONObject): JSONObject {
-        var topResult = JSONObject("{}")
-
-        if (json.has("tracks")) {
-            val tracks = json.getJSONObject("tracks")
-            if (tracks.has("items")) {
-                val items = tracks.getJSONArray("items")
-                if (items.length() > 0) {
-                    topResult = items.getJSONObject(0)
+    private fun parseTopResultFromTrackResponse(json: JSONObject?): JSONObject? {
+        json?.let {
+            if (json.has("tracks")) {
+                val tracks = json.getJSONObject("tracks")
+                if (tracks.has("items")) {
+                    val items = tracks.getJSONArray("items")
+                    if (items.length() > 0) {
+                        return items.getJSONObject(0)
+                    }
                 }
             }
         }
 
-        return topResult
+        return null
     }
 
-    private fun getAlbumQuery(artist: String, album: String): String {
+    private fun getImageHrefFromAlbumObj(json: JSONObject?): String? {
+        json?.let {
+            if (json.has("images")) {
+                val images = json.getJSONArray("images")
+                val topImage = images.getJSONObject(0)
+                if (topImage.has("url"))
+                    return topImage.getString("url")
+            }
+        }
+
+        return null
+    }
+
+    private fun getAlbumQuery(album: String, artist: String): String {
         return "album:${album.encode()} artist:${artist.encode()}&type=album&limit=1"
     }
 
-    private fun getTrackQuery(track: TrackEntity): String {
-        return ("track:${track.song.encode()} "
-            + "artist:${track.artist.encode()}&type=track&limit=1")
+    private fun getTrackQuery(song: String, artist: String): String {
+        return ("track:${song.encode()} "
+            + "artist:${artist.encode()}&type=track&limit=1")
     }
 
     private fun String?.encode(): String {

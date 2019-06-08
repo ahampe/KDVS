@@ -23,6 +23,7 @@ import fho.kdvs.news.NewsArticlesAdapter
 import fho.kdvs.news.StaffAdapter
 import fho.kdvs.news.TopMusicAdapter
 import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
 import timber.log.Timber
 import java.text.DecimalFormat
@@ -131,6 +132,7 @@ class HomeFragment : DaggerFragment() {
 
             topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
                 Timber.d("Got adds: $adds")
+                launch{ fetchThirdPartyData(adds) }
                 topAddsAdapter?.onTopAddsChanged(adds)
             })
 
@@ -149,6 +151,7 @@ class HomeFragment : DaggerFragment() {
                 val now = LocalDate.now()
 
                 // display fundraiser section only within a two-month window
+                // TODO: make preference?
                 if (fundraiser != null) {
                     if (fundraiser.dateStart ?: now > now.plusMonths(1) ||
                         fundraiser.dateEnd ?: now < now.minusMonths(1)

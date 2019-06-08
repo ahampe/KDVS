@@ -7,7 +7,6 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
 import android.widget.LinearLayout
-import android.widget.ProgressBar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -32,7 +31,6 @@ import kotlinx.android.synthetic.main.fragment_track_details.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import org.jetbrains.anko.forEachChild
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -110,9 +108,7 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
         sharedViewModel = ViewModelProviders.of(this, vmFactory)
             .get(SharedViewModel::class.java)
 
-        spotify = Spotify(sharedViewModel)
-
-        setStyle(BottomSheetDialogFragment.STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme)
+        setStyle(STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme)
 
         subscribeToViewModel()
     }
@@ -179,7 +175,7 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
                 if (spotifyUri.isNotEmpty()) {
                     spotifyIcon.setOnClickListener {
                         Timber.d("Spotify icon clicked for ${liveTrack?.song}")
-                        spotify.openSpotify(spotifyIcon, spotifyUri)
+                        sharedViewModel.openSpotify(spotifyIcon, spotifyUri)
                     }
                     spotifyIcon.visibility = View.VISIBLE
                 }

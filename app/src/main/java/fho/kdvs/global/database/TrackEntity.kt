@@ -17,6 +17,7 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )]
 )
+
 data class TrackEntity(
     @PrimaryKey(autoGenerate = true) val trackId: Int = 0,
     @ColumnInfo(name = "broadcastId") val broadcastId: Int = 0,

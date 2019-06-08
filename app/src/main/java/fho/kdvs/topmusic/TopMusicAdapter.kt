@@ -15,7 +15,7 @@ class TopMusicAdapter(onClick: (ClickData<TopMusicEntity>) -> Unit) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BindingViewHolder<TopMusicEntity> {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = fho.kdvs.databinding.CellTopmusicBinding.inflate(inflater, parent, false)
+        val binding = CellTopmusicBinding.inflate(inflater, parent, false)
         return TopMusicViewHolder(binding)
     }
 

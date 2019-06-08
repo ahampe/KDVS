@@ -2,6 +2,7 @@ package fho.kdvs.global
 
 import android.app.Application
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -191,6 +192,17 @@ class SharedViewModel @Inject constructor(
         openBrowser(view, "$YOUTUBE_SEARCH_URL${track.artist} ${track.song}$YOUTUBE_QUERYSTRING")
     }
 
+    private fun isSpotifyInstalledOnDevice(view: View): Boolean {
+        var isSpotifyInstalled = false
+
+        try {
+            view.context.packageManager.getPackageInfo("com.spotify.music", 0)
+            isSpotifyInstalled = true
+        } catch (e: PackageManager.NameNotFoundException) {}
+
+        return isSpotifyInstalled
+    }
+
     fun onClickSpotifyNoApp(view: View, spotifyUri: String?) {
         val url = makeSpotifyUrl(spotifyUri ?: "")
         if (url.isNotEmpty())
@@ -207,6 +219,13 @@ class SharedViewModel @Inject constructor(
         } else {
             onClickSpotifyNoApp(view, spotifyUri)
         }
+    }
+
+    fun openSpotify(view: View, spotifyUri: String) {
+        if (isSpotifyInstalledOnDevice(view))
+            openSpotifyApp(view, spotifyUri)
+        else
+            onClickSpotifyNoApp(view, spotifyUri)
     }
 
     private fun makeSpotifyUrl(spotifyUri: String): String {

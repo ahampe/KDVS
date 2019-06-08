@@ -9,6 +9,8 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 object HttpHelper {  // TODO: retry on connection fail?
+    const val EMPTY_RESPONSE = "{}"
+
     /** Returns true if good HTTP request. Wrap in async block. */
     fun isConnectionAvailable(url: String?): Boolean {
         val con = URL(url).openConnection() as HttpURLConnection
@@ -20,7 +22,7 @@ object HttpHelper {  // TODO: retry on connection fail?
 
     fun makeGETRequest(url: String?): JSONObject {
         val restTemplate = RestTemplate(true)
-        var response = "{}"
+        var response = EMPTY_RESPONSE
 
         try {
             if (!url.isNullOrEmpty()) {
@@ -36,7 +38,7 @@ object HttpHelper {  // TODO: retry on connection fail?
 
     fun makeParameterizedGETRequest(url: String?, request: HttpEntity<String>?): JSONObject {
         val restTemplate = RestTemplate(true)
-        var response = "{}"
+        var response = EMPTY_RESPONSE
 
         try {
             if (!url.isNullOrEmpty() && request != null) {
@@ -52,7 +54,7 @@ object HttpHelper {  // TODO: retry on connection fail?
 
     fun makePOSTRequest(url: String?, request: Any?): JSONObject {
         val restTemplate = RestTemplate(true)
-        var response = "{}"
+        var response = EMPTY_RESPONSE
 
         try {
             if (!url.isNullOrEmpty()) {
