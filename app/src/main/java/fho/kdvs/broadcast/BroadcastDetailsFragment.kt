@@ -1,9 +1,17 @@
 package fho.kdvs.broadcast
 
+import android.app.DownloadManager
+import android.app.DownloadManager.EXTRA_DOWNLOAD_ID
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Context.DOWNLOAD_SERVICE
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
@@ -12,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.databinding.FragmentBroadcastDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
+import fho.kdvs.global.MainActivity
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.util.HttpHelper
@@ -22,6 +31,7 @@ import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import timber.log.Timber
 import javax.inject.Inject
+
 
 class BroadcastDetailsFragment : DaggerFragment() {
     @Inject
@@ -41,6 +51,19 @@ class BroadcastDetailsFragment : DaggerFragment() {
             ?: throw IllegalArgumentException("Should have passed a showId to BroadcastDetailsFragment")
     }
 
+    private var downloadId: Long? = null
+    private lateinit var downloadManager: DownloadManager
+
+    private val onDownloadComplete = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val id = intent.getLongExtra(EXTRA_DOWNLOAD_ID, -1)
+
+            if (downloadId != null && downloadId == id) {
+                Toast.makeText(activity as? MainActivity, "Download Completed", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -51,7 +74,15 @@ class BroadcastDetailsFragment : DaggerFragment() {
         sharedViewModel = ViewModelProviders.of(this, vmFactory)
             .get(SharedViewModel::class.java)
 
+        context?.registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+
         subscribeToViewModel()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        context?.unregisterReceiver(onDownloadComplete)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -81,13 +112,62 @@ class BroadcastDetailsFragment : DaggerFragment() {
             adapter = tracksAdapter
         }
 
-        archive_playButton.setOnClickListener {
+        archivePlayButton.setOnClickListener {
             val broadcast = viewModel.broadcast.value
             val show = viewModel.show.value
 
             broadcast?.let {
                 show?.let {
                     sharedViewModel.playPastBroadcast(broadcast, show)
+                }
+            }
+        }
+
+        downloadSwitch.setOnCheckedChangeListener { _, isChecked ->
+            // skip event firing from programmatic checkedChange
+            if (downloadSwitch.tag != null) {
+                downloadSwitch.tag = null
+                return@setOnCheckedChangeListener
+            }
+
+            viewModel.broadcast.value?.let {broadcast ->
+                viewModel.show.value?.let {show ->
+                    val folder = sharedViewModel.getDestinationFolder()
+                    folder?.let {
+                        val title = sharedViewModel.makeBroadcastDownloadFilename(broadcast, show)
+
+                        when (isChecked) {
+                            true -> {
+                                (activity as? MainActivity)?.let { activity ->
+                                    if (activity.haveStoragePermission()) {
+                                        val url = URLs.archiveForBroadcast(broadcast)
+
+                                        url?.let {
+                                            if (!folder.exists())
+                                                folder.mkdir()
+
+                                            val file = sharedViewModel.getDestinationFile("$title.mp3")
+                                            val request = sharedViewModel.makeDownloadRequest(url, title, file)
+
+                                            downloadManager = context?.getSystemService(DOWNLOAD_SERVICE)
+                                                    as DownloadManager
+
+                                            downloadId = downloadManager.enqueue(request)
+                                        }
+                                    }
+                                }
+                            }
+                            false -> {
+                                val id = downloadId
+                                if (::downloadManager.isInitialized && id != null) {
+                                    downloadManager.remove(id)
+                                }
+
+                                val file = sharedViewModel.getDestinationFile("$title.mp3")
+                                sharedViewModel.deleteFile(file)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -98,27 +178,48 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
         viewModel.broadcast.observe(fragment, Observer { broadcast ->
             Timber.d("Got broadcast: $broadcast")
-            setPlayButtonAndHideProgressBar(broadcast)
+            setPlaybackViewsAndHideProgressBar(broadcast)
+
+            viewModel.show.observe(fragment, Observer { show ->
+                val folder = sharedViewModel.getDestinationFolder()
+
+                if (folder != null && folder.exists()) {
+                    val fileName = sharedViewModel.makeBroadcastDownloadFilename(broadcast, show)
+                    val files = folder.listFiles()
+
+                    if (files.count{ f -> f.name.contains(fileName)} > 0) {
+                        setSwitchForDownloadedBroadcast()
+                    }
+                }
+            })
         })
 
         viewModel.tracksWithFavorites.observe(fragment, Observer { (tracks, _) ->
             Timber.d("Got tracks: $tracks with favorites")
 
-            if (tracks.isEmpty())
-                noTracksMessage.visibility = View.VISIBLE
-            else
-                noTracksMessage.visibility = View.GONE
+            noTracksMessage.visibility = if (tracks.isEmpty()) View.VISIBLE
+                else View.GONE
 
             tracksAdapter?.onTracksChanged(tracks)
         })
     }
 
-    private fun setPlayButtonAndHideProgressBar(broadcast: BroadcastEntity) {
+    private fun setSwitchForDownloadedBroadcast() {
+        downloadSwitch.tag = "TAG"
+        downloadSwitch.isChecked = true
+    }
+
+    private fun setPlaybackViewsAndHideProgressBar(broadcast: BroadcastEntity) {
         doAsync {
             val isConnAvailable = HttpHelper.isConnectionAvailable(URLs.archiveForBroadcast(broadcast))
+
             uiThread {
-                if (!isConnAvailable)
-                    archive_playButton?.let { it.visibility = View.GONE }
+                if (!isConnAvailable) {
+                    archivePlayButton?.let { it.visibility = View.GONE }
+                    downloadSwitch?.let { it.visibility = View.GONE }
+                    downloaded?.let { it.visibility = View.GONE }
+                }
+
                 progressBar?.let { it.visibility = View.GONE }
             }
         }

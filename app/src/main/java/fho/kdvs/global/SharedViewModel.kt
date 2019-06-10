@@ -1,9 +1,11 @@
 package fho.kdvs.global
 
 import android.app.Application
+import android.app.DownloadManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.view.View
 import android.widget.ImageView
 import androidx.core.content.ContextCompat.startActivity
@@ -11,12 +13,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.navigation.NavController
-import com.google.android.exoplayer2.ExoPlayer
 import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
+import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
@@ -28,6 +30,8 @@ import fho.kdvs.services.MediaSessionConnection
 import fho.kdvs.services.PlaybackType
 import fho.kdvs.show.ShowRepository
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
 
 
@@ -40,7 +44,8 @@ class SharedViewModel @Inject constructor(
     private val favoriteDao: FavoriteDao,
     private val subscriptionDao: SubscriptionDao,
     private val liveShowUpdater: LiveShowUpdater,
-    private val mediaSessionConnection: MediaSessionConnection
+    private val mediaSessionConnection: MediaSessionConnection,
+    private val kdvsPreferences: KdvsPreferences
 ) : BaseViewModel(application) {
 
     val liveStreamLiveData: MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>
@@ -69,7 +74,7 @@ class SharedViewModel @Inject constructor(
     val isLiveNow: LiveData<Boolean?> = showRepository.isLiveNow
 
     /** Use across various lifecycles of PlayerFragment to maintain list of scraped tracks for live broadcast. */
-    var scrapedTracksForBroadcast= mutableListOf<TrackEntity>()
+    val scrapedTracksForBroadcast= mutableListOf<TrackEntity>()
 
     fun updateLiveShows() = liveShowUpdater.beginUpdating()
 
@@ -220,6 +225,50 @@ class SharedViewModel @Inject constructor(
             url = "https://open.spotify.com/$type/$id"
 
         return url
+    }
+
+    // endregion
+
+    // region Download
+
+    fun getDestinationFile(fileName: String): File {
+        val folder = getDestinationFolder()
+        return File(Uri.parse("${folder?.absolutePath}/$fileName").path)
+    }
+
+    fun getDestinationFolder(): File? {
+        if (isExternalStorageWritable()) {
+            return File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_MUSIC), "KDVS")
+        }
+
+        return null
+    }
+
+    fun makeDownloadRequest(url: String, title: String, file: File): DownloadManager.Request {
+        return DownloadManager.Request(Uri.parse(url))
+            .setTitle(title)
+            .setDescription("Downloading")
+            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
+            .setDestinationUri(Uri.fromFile(file))
+            .setAllowedOverMetered(kdvsPreferences.allowedOverMetered ?: false)
+            .setAllowedOverRoaming(kdvsPreferences.allowedOverRoaming ?: false)
+    }
+
+    fun deleteFile(file: File) {
+        try {
+            file.delete()
+        } catch (e: Exception) {
+            Timber.d("File deletion failed ${file.name}")
+        }
+    }
+
+    fun makeBroadcastDownloadFilename(broadcast: BroadcastEntity, show: ShowEntity): String {
+        return "${show.name} (${TimeHelper.dateFormatter.format(broadcast.date)})"
+    }
+
+    private fun isExternalStorageWritable(): Boolean {
+        return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
     }
 
     // endregion
