@@ -197,9 +197,6 @@
                 android:id="@+id/topAdds"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_large"
-
-                android:layout_marginEnd="@dimen/spacing_large"
                 android:orientation="vertical">
 
                 <TextView
@@ -207,6 +204,8 @@
                     style="@style/TextAppearance.MaterialComponents.Headline4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_large"
+                    android:layout_marginEnd="@dimen/spacing_large"
                     android:text="@string/top_adds" />
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -223,8 +222,6 @@
                 android:id="@+id/topAlbums"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_large"
-                android:layout_marginEnd="@dimen/spacing_large"
                 android:orientation="vertical">
 
                 <TextView
@@ -232,12 +229,15 @@
                     style="@style/TextAppearance.MaterialComponents.Headline4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_large"
+                    android:layout_marginEnd="@dimen/spacing_large"
                     android:text="@string/top_albums" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/topAlbumsRecycler"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="horizontal"
                     android:nestedScrollingEnabled="false"
                     android:layout_marginStart="@dimen/spacing_large"
                     android:layout_marginEnd="@dimen/spacing_large"/>

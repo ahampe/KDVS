@@ -63,12 +63,16 @@ class HomeViewModel @Inject constructor(
                 var spotifyData: SpotifyData? = null
 
                 launch {
+                    launch { topMusicRepository.onScrapeMetadata(item.topMusicId) }
+
                     val musicBrainzJob = launch {
-                        mbData = MusicBrainz.getMusicData(item.album, item.artist, ThirdPartyQueryType.ALBUM)
+                        val mb = MusicBrainzAlbum()
+                        mbData = mb.getMusicData(item.album, item.artist)
                     }
 
                     val spotifyJob = launch {
-                        spotifyData = Spotify.getMusicData(item.album, item.artist, ThirdPartyQueryType.ALBUM)
+                        val spotify = SpotifyAlbum()
+                        spotifyData = spotify.getMusicData(item.album, item.artist)
                     }
 
                     musicBrainzJob.join()

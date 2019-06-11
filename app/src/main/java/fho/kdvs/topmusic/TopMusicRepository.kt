@@ -60,6 +60,8 @@ class TopMusicRepository @Inject constructor(
 
     private fun forceScrapeTopAlbums(): Job? = scraperManager.scrape(URLs.TOP_ALBUMS)
 
+    fun onScrapeMetadata(topMusicId: Int?) = topMusicDao.onScrapeMetadata(topMusicId)
+
     fun getMostRecentTopAdds(): LiveData<List<TopMusicEntity>> =
         topMusicDao.getMostRecentTopAdds()
 

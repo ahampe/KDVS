@@ -33,64 +33,79 @@ class MusicBrainzData(
     override val year: Int?
 ): ThirdPartyData()
 
-object MusicBrainz: IThirdPartyMusicAPI {
+abstract class MusicBrainz: IThirdPartyMusicAPI {
 
-    private const val covertArtDomain = "http://coverartarchive.org/release/"
-    private const val searchDomain = "https://musicbrainz.org/ws/2/"
-    private const val jsonQs = "&fmt=json"
-    private const val releaseQs = "inc=labels"
+    private val covertArtDomain = "http://coverartarchive.org/release/"
+    private val searchDomain = "https://musicbrainz.org/ws/2/"
+    private val jsonQs = "&fmt=json"
+    private val releaseQs = "inc=labels"
 
-    override fun getMusicData(title: String?, artist: String?, type: ThirdPartyQueryType): MusicBrainzData? {
-        if (title.isNullOrEmpty() || artist.isNullOrEmpty())
-            return null
+    abstract override fun getMusicData(title: String?, artist: String?): MusicBrainzData?
 
-        val query = getQuery(title, artist)
-
-        var topResult: JSONObject? = null
-
-        var imageHref = ""
-
-        when (type) {
-            ThirdPartyQueryType.SONG  -> {
-                topResult = getTopResultFromSongQuery(query)
-                    .also { json ->
-                        json?.let {
-                            imageHref = getImageHrefFromRelease(json) ?: ""
-                        }
-                    }
-            }
-            ThirdPartyQueryType.ALBUM -> {
-                topResult = getTopResultFromAlbumQuery(query)
-                    .also { json ->
-                        json?.let {
-                            imageHref = getImageHrefFromReleases(json) ?: ""
-                        }
-                    }
-            }
-        }
-
-        return MusicBrainzData(
-            imageHref,
-            JsonHelper.getRootLevelElmOfType<String>("title", topResult),
-            getLabelFromTopResult(topResult),
-            getYearFromTopResult(topResult)
-        )
-    }
-
-    private fun isMusicBrainzSearchSuccessful(json: JSONObject?): Boolean {
-        return json != null &&
-                json.has("count") &&
-                json.getInt("count") > 0
-    }
-
-    private fun getTopResultFromSongQuery(query: String): JSONObject? {
+    protected fun getTopResultFromSongQuery(query: String): JSONObject? {
         val recording = getRecordingFromQuery(query)
         return getTopReleaseFromRecording(recording)
     }
 
-    private fun getTopResultFromAlbumQuery(query: String): JSONObject? {
+    protected fun getTopResultFromAlbumQuery(query: String): JSONObject? {
         val releases = getReleasesFromQuery(query)
         return getReleaseAtPosition(0, releases)
+    }
+
+    protected fun getLabelFromTopResult(json: JSONObject?): String? {
+        if (json?.has("label-info") == true){
+            val labelInfo = json.getJSONArray("label-info")
+            if (labelInfo.length() > 0) {
+                val topLabelInfo = labelInfo.getJSONObject(0)
+                if (topLabelInfo?.has("label") == true) {
+                    val labelObj = topLabelInfo.getJSONObject("label")
+                    if (labelObj?.has("name") == true)
+                        return labelObj.getString("name")
+                }
+            }
+        }
+
+        return null
+    }
+
+    protected fun getYearFromTopResult(json: JSONObject?): Int? {
+        val yearStr = JsonHelper.getRootLevelElmOfType<String>("date", json)
+        return if ((yearStr?.length ?: 0) >= 4)
+            yearStr
+                ?.substring(0,4)
+                ?.toIntOrNull()
+        else null
+    }
+
+    /** Iterate through releases and attempt to retrieve coverArt href.*/
+    protected fun getImageHrefFromReleases(json: JSONObject): String? {
+        var imageHref = ""
+        val releaseCount = JsonHelper.getRootLevelElmOfType<Int>("count", json) ?: 0
+        // TODO: cap this at a certain limit? make preference
+
+        (0 until releaseCount).asSequence()
+            .takeWhile { imageHref.isNullOrEmpty() }
+            .forEach {
+                val releaseAtPosition = getReleaseAtPosition(it, json)
+
+                releaseAtPosition?.let {
+                    imageHref = getImageHrefFromRelease(releaseAtPosition) ?: ""
+                }
+            }
+
+        return imageHref
+    }
+
+    protected fun getImageHrefFromRelease(json: JSONObject): String? {
+        val id: String? = JsonHelper.getRootLevelElmOfType("id", json)
+        val response = getCoverArtResponse(id)
+
+        return getHrefFromCoverArtResponse(response)
+    }
+
+    protected fun getQuery(title: String, artist: String): String {
+        return "\"" + title.makeStringFuzzyAndEncoded() +
+                "\" AND artist:" + "\"" + artist.makeStringFuzzyAndEncoded() + "\""
     }
 
     private fun getRecordingFromQuery(query: String): JSONObject? {
@@ -129,57 +144,6 @@ object MusicBrainz: IThirdPartyMusicAPI {
         return getMusicBrainzResponse(url)
     }
 
-    private fun getLabelFromTopResult(json: JSONObject?): String? {
-        if (json?.has("label-info") == true){
-            val labelInfo = json.getJSONArray("label-info")
-            if (labelInfo.length() > 0) {
-                val topLabelInfo = labelInfo.getJSONObject(0)
-                if (topLabelInfo?.has("label") == true) {
-                    val labelObj = topLabelInfo.getJSONObject("label")
-                    if (labelObj?.has("name") == true)
-                        return labelObj.getString("name")
-                }
-            }
-        }
-
-        return null
-    }
-
-    private fun getYearFromTopResult(json: JSONObject?): Int? {
-        val yearStr = JsonHelper.getRootLevelElmOfType<String>("date", json)
-        return if ((yearStr?.length ?: 0) >= 4)
-            yearStr
-            ?.substring(0,4)
-            ?.toIntOrNull()
-        else null
-    }
-
-    /** Iterate through releases and attempt to retrieve coverArt href.*/
-    private fun getImageHrefFromReleases(json: JSONObject): String? {
-        var imageHref = ""
-        val releaseCount = JsonHelper.getRootLevelElmOfType<Int>("count", json) ?: 0
-        // TODO: cap this at a certain limit? make preference
-
-        (0 until releaseCount).asSequence()
-            .takeWhile { imageHref.isNullOrEmpty() }
-            .forEach {
-                val releaseAtPosition = getReleaseAtPosition(it, json)
-
-                releaseAtPosition?.let {
-                    imageHref = getImageHrefFromRelease(releaseAtPosition) ?: ""
-                }
-            }
-
-        return imageHref
-    }
-
-    private fun getImageHrefFromRelease(json: JSONObject): String? {
-        val id: String? = JsonHelper.getRootLevelElmOfType("id", json)
-        val response = getCoverArtResponse(id)
-
-        return getHrefFromCoverArtResponse(response)
-    }
-
     private fun getMusicBrainzResponse(url: String): JSONObject? {
         Timber.d("GET $url")
         return HttpHelper.makeGETRequest(url)
@@ -206,21 +170,66 @@ object MusicBrainz: IThirdPartyMusicAPI {
     }
 
     private fun getReleaseAtPosition(position: Int, json: JSONObject?): JSONObject? {
-        return if (json?.has("releases") == true)
-            json
-            .getJSONArray("releases")
-            ?.getJSONObject(position)
+        return if (json?.has("releases") == true &&
+            json.getJSONArray("releases").length() > 0)
+                json.getJSONArray("releases")
+                ?.getJSONObject(position)
         else
             null
-    }
-
-    private fun getQuery(title: String, artist: String): String {
-        return "\"" + title.makeStringFuzzyAndEncoded() +
-                "\" AND artist:" + "\"" + artist.makeStringFuzzyAndEncoded() + "\""
     }
 
     /** Append '~' to each word to make fuzzy */
     private fun String?.makeStringFuzzyAndEncoded(): String? {
         return this?.urlEncoded?.replace(" ", " ~")?.replace("+", "~+") + "~"
+    }
+}
+
+class MusicBrainzAlbum: MusicBrainz() {
+    override fun getMusicData(title: String?, artist: String?): MusicBrainzData? {
+        if (title.isNullOrEmpty() || artist.isNullOrEmpty())
+            return null
+
+        val query = getQuery(title, artist)
+
+        var imageHref: String? = null
+
+        val topResult = getTopResultFromAlbumQuery(query)
+            .also { json ->
+                json?.let {
+                    imageHref = getImageHrefFromReleases(json) ?: ""
+                }
+            }
+
+        return MusicBrainzData(
+            imageHref,
+            JsonHelper.getRootLevelElmOfType<String>("title", topResult),
+            getLabelFromTopResult(topResult),
+            getYearFromTopResult(topResult)
+        )
+    }
+}
+
+class MusicBrainzSong: MusicBrainz() {
+    override fun getMusicData(title: String?, artist: String?): MusicBrainzData? {
+        if (title.isNullOrEmpty() || artist.isNullOrEmpty())
+            return null
+
+        val query = getQuery(title, artist)
+
+        var imageHref: String? = null
+
+        val topResult = getTopResultFromSongQuery(query)
+            .also { json ->
+                json?.let {
+                    imageHref = getImageHrefFromRelease(json) ?: ""
+                }
+            }
+
+        return MusicBrainzData(
+            imageHref,
+            JsonHelper.getRootLevelElmOfType<String>("title", topResult),
+            getLabelFromTopResult(topResult),
+            getYearFromTopResult(topResult)
+        )
     }
 }

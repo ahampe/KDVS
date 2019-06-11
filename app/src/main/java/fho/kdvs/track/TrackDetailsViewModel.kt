@@ -43,12 +43,24 @@ class TrackDetailsViewModel @Inject constructor(
             var spotifyData: SpotifyData? = null
 
             launch {
+                launch { trackRepository.onScrapeMetadata(track.trackId)}
+
                 val musicBrainzJob = launch {
-                    mbData = MusicBrainz.getMusicData(track.album, track.artist, ThirdPartyQueryType.ALBUM)
+                    if (!track.album.isNullOrBlank()) {
+                        val mb = MusicBrainzAlbum()
+                        mbData = mb.getMusicData(track.album, track.artist)
+                    }
+
+                    // if album query returns no results, attempt with song
+                    if (mbData?.albumTitle.isNullOrBlank()) {
+                        val mb = MusicBrainzSong()
+                        mbData = mb.getMusicData(track.song, track.artist)
+                    }
                 }
 
                 val spotifyJob = launch {
-                    spotifyData = Spotify.getMusicData(track.album, track.artist, ThirdPartyQueryType.ALBUM)
+                    val spotify = SpotifyAlbum()
+                    spotifyData = spotify.getMusicData(track.album, track.artist)
                 }
 
                 musicBrainzJob.join()

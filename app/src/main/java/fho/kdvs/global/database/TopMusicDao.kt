@@ -31,6 +31,9 @@ abstract class TopMusicDao {
     @Query("UPDATE topMusicData SET spotifyUri = :spotifyUri where topMusicId = :id")
     abstract fun updateTopMusicSpotifyUri(id: Int, spotifyUri: String)
 
+    @Query("UPDATE topMusicData SET hasScrapedMetadata = 1 WHERE topMusicId = :id")
+    abstract fun onScrapeMetadata(id: Int?)
+
     @Insert
     abstract fun insert(topMusicEntity: TopMusicEntity)
 
