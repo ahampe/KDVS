@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
+@kotlinx.serialization.UnstableDefault
 class TrackDetailsViewModel @Inject constructor(
     private val trackRepository: TrackRepository,
     private val broadcastRepository: BroadcastRepository,
@@ -39,45 +40,38 @@ class TrackDetailsViewModel @Inject constructor(
         show = broadcastRepository.showByBroadcastId(track.broadcastId)
 
         if (!track.hasScrapedMetadata) {
-            var mbData: MusicBrainzData? = null
+            var mbData: MusicBrainzReleaseData? = null
+            var mbImageHref: String? = null
             var spotifyData: SpotifyData? = null
 
             launch {
-                launch { trackRepository.onScrapeMetadata(track.trackId)}
+                launch { trackRepository.onScrapeMetadata(track.trackId) }
 
                 val musicBrainzJob = launch {
-                    if (!track.album.isNullOrBlank()) {
-                        val mb = MusicBrainzAlbum()
-                        mbData = mb.getMusicData(track.album, track.artist)
-                    }
-
-                    // if album query returns no results, attempt with song
-                    if (mbData?.albumTitle.isNullOrBlank()) {
-                        val mb = MusicBrainzSong()
-                        mbData = mb.getMusicData(track.song, track.artist)
-                    }
+                    mbData = MusicBrainz.searchFromAlbum(track.album, track.artist)
+                    mbImageHref = MusicBrainz.getCoverArtImage(mbData.id)
                 }
 
                 val spotifyJob = launch {
-                    val spotify = SpotifyAlbum()
-                    spotifyData = spotify.getMusicData(track.album, track.artist)
+                    val query = Spotify.getAlbumQuery(track.album, track.artist)
+                    spotifyData = Spotify.search(query)
                 }
 
                 musicBrainzJob.join()
                 spotifyJob.join()
 
-                if (!mbData?.albumTitle.isNullOrBlank()) {
-                    launch { trackRepository.updateTrackAlbum(track.trackId, mbData?.albumTitle)}
-                } else if (!spotifyData?.albumTitle.isNullOrBlank()) {
-                    launch { trackRepository.updateTrackAlbum(track.trackId, spotifyData?.albumTitle)}
+                if (!mbData.album.isNullOrBlank()) {
+                    launch { trackRepository.updateTrackAlbum(track.trackId, mbData?.album)}
+                } else if (!spotifyData?.album.isNullOrBlank()) {
+                    launch { trackRepository.updateTrackAlbum(track.trackId, spotifyData?.album)}
                 }
 
                 if (!mbData?.label.isNullOrBlank()) {
                     launch { trackRepository.updateTrackLabel(track.trackId, mbData?.label)}
                 }
 
-                if (!mbData?.imageHref.isNullOrBlank()) {
-                    launch { trackRepository.updateTrackImageHref(track.trackId, mbData?.imageHref)}
+                if (!mbImageHref.isNullOrBlank()) {
+                    launch { trackRepository.updateTrackImageHref(track.trackId, mbImageHref)}
                 } else if (!spotifyData?.imageHref.isNullOrBlank()) {
                     launch { trackRepository.updateTrackImageHref(track.trackId, spotifyData?.imageHref)}
                 }
@@ -88,8 +82,8 @@ class TrackDetailsViewModel @Inject constructor(
                     launch { trackRepository.updateTrackYear(track.trackId, spotifyData?.year)}
                 }
 
-                if (!spotifyData?.spotifyUri.isNullOrBlank()) {
-                    launch { trackRepository.updateTrackSpotifyUri(track.trackId, spotifyData?.spotifyUri)}
+                if (!spotifyData?.uri.isNullOrBlank()) {
+                    launch { trackRepository.updateTrackSpotifyUri(track.trackId, spotifyData?.uri)}
                 }
             }
         }

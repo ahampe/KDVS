@@ -1,6 +1,5 @@
 package fho.kdvs.global.util
 
-import org.json.JSONObject
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.web.client.RestTemplate
@@ -20,9 +19,9 @@ object HttpHelper {  // TODO: retry on connection fail?
         return (con.responseCode == HttpURLConnection.HTTP_OK)
     }
 
-    fun makeGETRequest(url: String?): JSONObject {
+    fun makeGETRequest(url: String?): String? {
         val restTemplate = RestTemplate(true)
-        var response = EMPTY_RESPONSE
+        var response: String? = null
 
         try {
             if (!url.isNullOrEmpty()) {
@@ -33,12 +32,12 @@ object HttpHelper {  // TODO: retry on connection fail?
             Timber.d("GET error $e")
         }
 
-        return JSONObject(response)
+        return response
     }
 
-    fun makeParameterizedGETRequest(url: String?, request: HttpEntity<String>?): JSONObject {
+    fun makeParameterizedGETRequest(url: String?, request: HttpEntity<String>?): String? {
         val restTemplate = RestTemplate(true)
-        var response = EMPTY_RESPONSE
+        var response: String? = null
 
         try {
             if (!url.isNullOrEmpty() && request != null) {
@@ -49,12 +48,12 @@ object HttpHelper {  // TODO: retry on connection fail?
             Timber.d("GET error $e")
         }
 
-        return JSONObject(response)
+        return response
     }
 
-    fun makePOSTRequest(url: String?, request: Any?): JSONObject {
+    fun makePOSTRequest(url: String?, request: Any?): String? {
         val restTemplate = RestTemplate(true)
-        var response = EMPTY_RESPONSE
+        var response: String? = null
 
         try {
             if (!url.isNullOrEmpty()) {
@@ -65,6 +64,6 @@ object HttpHelper {  // TODO: retry on connection fail?
             Timber.d("POST error $e")
         }
 
-        return JSONObject(response)
+        return response
     }
 }

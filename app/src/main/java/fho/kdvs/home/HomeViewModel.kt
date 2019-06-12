@@ -19,6 +19,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * [AndroidViewModel] for holding home-related data.
  */
+@kotlinx.serialization.UnstableDefault
 class HomeViewModel @Inject constructor(
     private val showRepository: ShowRepository,
     private val newsRepository: NewsRepository,
@@ -56,40 +57,41 @@ class HomeViewModel @Inject constructor(
         fundraiser = fundraiserRepository.getFundraiser()
     }
 
-    suspend fun fetchThirdPartyData(topMusicItems: List<TopMusicEntity>) {
+    fun fetchThirdPartyData(topMusicItems: List<TopMusicEntity>) {
         topMusicItems.forEach { item ->
             if (!item.hasScrapedMetadata) {
-                var mbData: MusicBrainzData? = null
+                var mbData: MusicBrainzReleaseData? = null
+                var mbImageHref: String? = null
                 var spotifyData: SpotifyData? = null
 
                 launch {
                     launch { topMusicRepository.onScrapeMetadata(item.topMusicId) }
 
                     val musicBrainzJob = launch {
-                        val mb = MusicBrainzAlbum()
-                        mbData = mb.getMusicData(item.album, item.artist)
+                        mbData = MusicBrainz.searchFromAlbum(item.album, item.artist)
+                        mbImageHref = MusicBrainz.getCoverArtImage(mbData.id)
                     }
 
                     val spotifyJob = launch {
-                        val spotify = SpotifyAlbum()
-                        spotifyData = spotify.getMusicData(item.album, item.artist)
+                        val query = Spotify.getAlbumQuery(item.album, item.artist)
+                        spotifyData = Spotify.search(query)
                     }
 
                     musicBrainzJob.join()
                     spotifyJob.join()
                     
-                    if (!mbData?.albumTitle.isNullOrBlank()) {
-                        launch { topMusicRepository.updateTopMusicAlbum(item.topMusicId, mbData?.albumTitle)}
-                    } else if (!spotifyData?.albumTitle.isNullOrBlank()) {
-                        launch { topMusicRepository.updateTopMusicAlbum(item.topMusicId, spotifyData?.albumTitle)}
+                    if (!mbData.album.isNullOrBlank()) {
+                        launch { topMusicRepository.updateTopMusicAlbum(item.topMusicId, mbData?.album)}
+                    } else if (!spotifyData?.album.isNullOrBlank()) {
+                        launch { topMusicRepository.updateTopMusicAlbum(item.topMusicId, spotifyData?.album)}
                     }
 
                     if (!mbData?.label.isNullOrBlank()) {
                         launch { topMusicRepository.updateTopMusicLabel(item.topMusicId, mbData?.label)}
                     }
 
-                    if (!mbData?.imageHref.isNullOrBlank()) {
-                        launch { topMusicRepository.updateTopMusicImageHref(item.topMusicId, mbData?.imageHref)}
+                    if (!mbImageHref.isNullOrBlank()) {
+                        launch { topMusicRepository.updateTopMusicImageHref(item.topMusicId, mbImageHref)}
                     } else if (!spotifyData?.imageHref.isNullOrBlank()) {
                         launch { topMusicRepository.updateTopMusicImageHref(item.topMusicId, spotifyData?.imageHref)}
                     }
@@ -100,8 +102,8 @@ class HomeViewModel @Inject constructor(
                         launch { topMusicRepository.updateTopMusicYear(item.topMusicId, spotifyData?.year)}
                     }
 
-                    if (!spotifyData?.spotifyUri.isNullOrBlank()) {
-                        launch { topMusicRepository.updateTopMusicSpotifyUri(item.topMusicId, spotifyData?.spotifyUri)}
+                    if (!spotifyData?.uri.isNullOrBlank()) {
+                        launch { topMusicRepository.updateTopMusicSpotifyUri(item.topMusicId, spotifyData?.uri)}
                     }
                 }
             }
