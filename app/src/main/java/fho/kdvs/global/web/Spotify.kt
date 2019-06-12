@@ -64,6 +64,17 @@ abstract class Spotify: IThirdPartyMusicAPI {
         return null
     }
 
+    protected fun parseDataFromAlbumResponse(json: JSONObject?): SpotifyData? {
+        val uri = JsonHelper.getValuesOfKeyOfType<String>("uri", json)?.firstOrNull()
+        val albumTitle = JsonHelper.getValuesOfKeyOfType<String>("name", json)?.firstOrNull()
+        val year = JsonHelper.getValuesOfKeyOfType<String>("release_date", json)?.firstOrNull()
+            ?.toIntOrNull()
+        val imageHref = JsonHelper.getValuesOfKeyOfType<String>("url", json)?.firstOrNull()
+
+
+        return SpotifyData(uri, albumTitle, imageHref, year)
+    }
+
     protected fun parseTopResultFromTrackResponse(json: JSONObject?): JSONObject? {
         json?.let {
             if (json.has("tracks")) {
@@ -83,7 +94,7 @@ abstract class Spotify: IThirdPartyMusicAPI {
     protected fun getDataFromTopResult(topResult: JSONObject?): SpotifyData? {
         val uri = JsonHelper.getRootLevelElmOfType<String>("uri", topResult)
         val albumObj = JsonHelper.getRootLevelElmOfType<JSONObject>("album", topResult)
-        val albumTitle = JsonHelper.getRootLevelElmOfType<String>("name", albumObj)
+        val albumTitle = JsonHelper.getRootLevelElmOfType<String>("name", topResult)
         val year = JsonHelper.getRootLevelElmOfType<String>("release_date", topResult)
             ?.toIntOrNull()
         val imageHref = getImageHrefFromAlbumObj(albumObj)
@@ -146,9 +157,7 @@ class SpotifyAlbum: Spotify() {
 
         val response = search(getAlbumQuery(title, artist))
 
-        val topResult = parseTopResultFromAlbumResponse(response)
-
-        return getDataFromTopResult(topResult)
+        return parseDataFromAlbumResponse(response)
     }
 }
 
