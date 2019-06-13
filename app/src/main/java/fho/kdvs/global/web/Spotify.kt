@@ -34,7 +34,7 @@ object Spotify {
 
             val response = HttpHelper.makeParameterizedGETRequest(url, request)
             response?.let {
-                return Json.parse(SpotifyData.serializer(), response)
+                return Json.nonstrict.parse(SpotifyData.serializer(), response)
             }
         }
 

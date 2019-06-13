@@ -46,7 +46,7 @@ object MusicBrainz {
         val response = HttpHelper.makeGETRequest(url)
 
         response?.let {
-            return Json.parse(MusicBrainzReleaseData.serializer(), response)
+            return Json.nonstrict.parse(MusicBrainzReleaseData.serializer(), response)
         }
 
         return null
@@ -61,7 +61,7 @@ object MusicBrainz {
         val response = HttpHelper.makeGETRequest(url)
 
         response?.let {
-            val recordingData = Json.parse(MusicBrainzRecordingData.serializer(), response) as? MusicBrainzRecordingData
+            val recordingData = Json.nonstrict.parse(MusicBrainzRecordingData.serializer(), response) as? MusicBrainzRecordingData
             val mbid = recordingData
                 ?.recordings?.firstOrNull()
                 ?.releases?.firstOrNull()
@@ -72,7 +72,7 @@ object MusicBrainz {
                 val mbidResponse = HttpHelper.makeGETRequest(mbid)
 
                 mbidResponse?.let {
-                    return Json.parse(MusicBrainzReleaseData.serializer(), mbidResponse)
+                    return Json.nonstrict.parse(MusicBrainzReleaseData.serializer(), mbidResponse)
                 }
             }
         }
@@ -93,7 +93,7 @@ object MusicBrainz {
 
         val response = HttpHelper.makeGETRequest(url)
         response?.let {
-            return Json.parse(CoverArtArchiveData.serializer(), response)
+            return Json.nonstrict.parse(CoverArtArchiveData.serializer(), response)
         }
 
         return null

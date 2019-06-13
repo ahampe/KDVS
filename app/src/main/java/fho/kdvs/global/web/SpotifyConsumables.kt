@@ -57,7 +57,7 @@ data class SpotifyItem(
     val href: String? = null,
     val id: String? = null,
     @SerialName("external_urls")
-    val externalUrls: List<SpotifyExternalUrl>? = null
+    val externalUrls: SpotifyExternalUrl? = null
 )
 
 @Serializable
@@ -67,7 +67,7 @@ data class SpotifyArtist(
     val id: String? = null,
     val type: String? = null,
     @SerialName("external_urls")
-    val externalUrls: List<SpotifyExternalUrl>? = null,
+    val externalUrls: SpotifyExternalUrl? = null,
     val uri: String? = null
 )
 

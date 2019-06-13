@@ -32,7 +32,7 @@ inline val MusicBrainzReleaseData?.id: String?
     get() = this?.releases?.firstOrNull()?.id
 
 inline val MusicBrainzReleaseData?.label: String?
-    get() = this?.releases?.firstOrNull()?.labelInfo?.label?.name
+    get() = this?.releases?.firstOrNull()?.labelInfo?.firstOrNull()?.label?.name
 
 inline val MusicBrainzReleaseData?.year: Int?
     get() = this?.releases?.firstOrNull()?.date?.toIntOrNull()
@@ -178,7 +178,7 @@ data class Release(
     val trackCount: String? = null,
     val status: String? = null,
     @SerialName("label-info")
-    val labelInfo: LabelInfo? = null
+    val labelInfo: List<LabelInfo>? = null
 )
 
 @Serializable
