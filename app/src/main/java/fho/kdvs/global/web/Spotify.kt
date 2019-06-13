@@ -8,7 +8,6 @@ import fho.kdvs.global.util.Keys.SPOTIFY_CLIENT_SECRET
 import fho.kdvs.global.util.URLs.SPOTIFY_SEARCH_URL
 import fho.kdvs.global.util.URLs.SPOTIFY_TOKEN_URL
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.parse
 import org.json.JSONObject
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders

@@ -5,27 +5,37 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SpotifyData(
-    val href: String? = null,
-    val items: List<SpotifyItem>? = null
+    val albums: SpotifyAlbum? = null
 )
 
 inline val SpotifyData?.album: String?
-    get() = this?.items?.firstOrNull()?.name
+    get() = this?.albums?.items?.firstOrNull()?.name
 
 inline val SpotifyData?.imageHref: String?
-    get() = this?.items?.firstOrNull()?.images?.firstOrNull()?.url
+    get() = this?.albums?.items?.firstOrNull()?.images?.firstOrNull()?.url
 
 inline val SpotifyData?.uri: String?
-    get() = this?.items?.firstOrNull()?.uri
+    get() = this?.albums?.items?.firstOrNull()?.uri
 
 inline val SpotifyData?.year: Int?
-    get() = this?.items?.firstOrNull()?.releaseDate?.let {
+    get() = this?.albums?.items?.firstOrNull()?.releaseDate?.let {
                 if (it.length >= 4) {
                     it.substring(0, 3).toIntOrNull()
                 } else {
                     null
                 }
             }
+
+@Serializable
+data class SpotifyAlbum(
+    val href: String? = null,
+    val items: List<SpotifyItem>? = null,
+    val next: String? = null,
+    val total: String? = null,
+    val offset: String? = null,
+    val previous: String? = null,
+    val limit: String? = null
+)
 
 @Serializable
 data class SpotifyItem(

@@ -13,10 +13,6 @@
             type="fho.kdvs.global.SharedViewModel" />
 
         <variable
-            name="spotifyObj"
-            type="fho.kdvs.global.web.Spotify" />
-
-        <variable
             name="trackData"
             type="fho.kdvs.global.database.TrackEntity" />
     </data>

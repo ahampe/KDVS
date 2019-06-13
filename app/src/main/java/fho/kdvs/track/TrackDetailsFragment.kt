@@ -118,7 +118,6 @@ class TrackDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
         binding.apply {
             vm = viewModel
             sharedVm = sharedViewModel
-            spotifyObj = spotify
             trackData = track
         }
         binding.lifecycleOwner = this

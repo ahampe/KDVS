@@ -122,7 +122,9 @@ data class Media(
     val trackOffset: String? = null,
     val track: List<Track>? = null,
     @SerialName("track-count")
-    val trackCount: String? = null
+    val trackCount: String? = null,
+    @SerialName("disc-count")
+    val discCount: String? = null
 )
 
 @Serializable
