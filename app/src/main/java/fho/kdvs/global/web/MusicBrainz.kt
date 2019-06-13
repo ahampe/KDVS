@@ -69,7 +69,7 @@ object MusicBrainz {
 
             mbid?.let {
                 val mbidUrl = getReleaseUrlFromMBID(mbid)
-                val mbidResponse = HttpHelper.makeGETRequest(mbid)
+                val mbidResponse = HttpHelper.makeGETRequest(mbidUrl)
 
                 mbidResponse?.let {
                     return Json.nonstrict.parse(MusicBrainzReleaseData.serializer(), mbidResponse)

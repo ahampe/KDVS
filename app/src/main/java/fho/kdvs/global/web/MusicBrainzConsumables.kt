@@ -47,11 +47,11 @@ data class CoverArtArchiveImage(
     val comment: String? = null,
     val front: String? = null,
     val id: String? = null,
-    val thumbnails: List<Thumbnail>? = null
+    val thumbnails: Thumbnails? = null
 )
 
 @Serializable
-data class Thumbnail(
+data class Thumbnails(
     val small: String? = null,
     val large: String? = null,
     @SerialName("500")

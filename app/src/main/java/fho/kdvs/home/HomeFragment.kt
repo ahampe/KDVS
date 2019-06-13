@@ -130,12 +130,13 @@ class HomeFragment : DaggerFragment() {
 
             topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
                 Timber.d("Got adds: $adds")
-                launch{ fetchThirdPartyData(adds) }
+                launch { fetchThirdPartyData(adds) }
                 topAddsAdapter?.onTopAddsChanged(adds)
             })
 
             topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
                 Timber.d("Got albums: $albums")
+                launch { fetchThirdPartyData(albums) }
                 topAlbumsAdapter?.onTopAlbumsChanged(albums)
             })
 
