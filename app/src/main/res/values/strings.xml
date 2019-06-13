@@ -29,8 +29,6 @@
     <string name="news">Recent News</string>
     <string name="top_adds">Weekly Top Adds</string>
     <string name="top_albums">Weekly Top Albums</string>
-    <string name="top_music_position">%1$s.</string>
-    <string name="top_music_artist_album_separator">-</string>
     <string name="staff">Staff</string>
     <string name="staff_email_icon">email</string>
     <string name="toggle_desc">Hide</string>

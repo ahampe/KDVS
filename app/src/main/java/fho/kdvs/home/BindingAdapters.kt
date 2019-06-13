@@ -25,15 +25,3 @@ fun loadImageWithGlideIfPresent(view: ImageView, imageHref: String?) {
         view.visibility = View.VISIBLE
     }
 }
-
-@BindingAdapter("position")
-fun bindTopMusicPositionCell(view: TextView, position: Int) {
-    val adjustedPosition = if ((position % 10) == position)
-        "0$position"
-    else position.toString()
-
-    view.text = view.context.resources.getString(
-        R.string.top_music_position,
-        adjustedPosition
-    )
-}

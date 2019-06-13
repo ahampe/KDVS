@@ -84,6 +84,8 @@ class HomeViewModel @Inject constructor(
                         launch { topMusicRepository.updateTopMusicAlbum(item.topMusicId, mbData?.album)}
                     } else if (!spotifyData?.album.isNullOrBlank()) {
                         launch { topMusicRepository.updateTopMusicAlbum(item.topMusicId, spotifyData?.album)}
+                    } else {
+                        // TODO: try searching for coverart from other IDs in the musicBrainz response
                     }
 
                     if (!mbData?.label.isNullOrBlank()) {

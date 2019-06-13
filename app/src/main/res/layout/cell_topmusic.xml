@@ -25,6 +25,27 @@
             android:padding="@dimen/spacing_med_large"
             tools:src="@drawable/show_placeholder" />
 
+        <ImageView
+            android:id="@+id/circle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/circle"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/circle"
+            app:layout_constraintBottom_toBottomOf="@id/circle"
+            app:layout_constraintStart_toStartOf="@+id/circle"
+            app:layout_constraintEnd_toEndOf="@id/circle"
+            android:textStyle="bold"
+            style="@style/TextAppearance.MaterialComponents.Overline"
+            android:text="@{topMusic.position.toString()}"
+            tools:text="24"/>
+
         <TextView
             android:id="@+id/title"
             android:layout_width="match_parent"
