@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -29,7 +28,6 @@ import kotlinx.android.synthetic.main.exo_player_archive_controls.view.*
 import kotlinx.android.synthetic.main.exo_player_live_controls.view.*
 import kotlinx.android.synthetic.main.fragment_player.*
 import timber.log.Timber
-import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 class PlayerFragment : DaggerFragment() {
@@ -130,7 +128,7 @@ class PlayerFragment : DaggerFragment() {
             playerShowName.setOnClickListener { viewModel.onClickShowInfo(findNavController(), show) }
             showHost.setOnClickListener { viewModel.onClickShowInfo(findNavController(), show) }
             viewPlaylist.setOnClickListener { viewModel.onClickPlaylist(findNavController(), broadcast) }
-            star.setOnClickListener { sharedViewModel.onClickStar(star, show.id) }
+            star.setOnClickListener { sharedViewModel.onClickSubscribe(star, show.id) }
             arrow.setOnClickListener { fragmentManager?.popBackStack() }
 
             if (broadcast == null) {

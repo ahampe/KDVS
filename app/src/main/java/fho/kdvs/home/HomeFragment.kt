@@ -18,8 +18,8 @@ import fho.kdvs.global.database.FundraiserEntity
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.news.NewsArticlesAdapter
-import fho.kdvs.news.StaffAdapter
-import fho.kdvs.news.TopMusicAdapter
+import fho.kdvs.staff.StaffAdapter
+import fho.kdvs.topmusic.TopMusicAdapter
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
@@ -38,7 +38,7 @@ class HomeFragment : DaggerFragment() {
     private var newsArticlesAdapter: NewsArticlesAdapter? = null
     private var topAddsAdapter: TopMusicAdapter? = null
     private var topAlbumsAdapter: TopMusicAdapter? = null
-    private var staffsAdapter: StaffAdapter? = null
+    private var staffAdapter: StaffAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,6 +90,7 @@ class HomeFragment : DaggerFragment() {
 
         topAddsAdapter = TopMusicAdapter {
             Timber.d("Clicked ${it.item}")
+            viewModel.onClickTopMusic(findNavController(), it.item)
         }
 
         topAddsRecycler.apply {
@@ -99,6 +100,7 @@ class HomeFragment : DaggerFragment() {
 
         topAlbumsAdapter = TopMusicAdapter {
             Timber.d("Clicked ${it.item}")
+            viewModel.onClickTopMusic(findNavController(), it.item)
         }
 
         topAlbumsRecycler.apply {
@@ -106,16 +108,17 @@ class HomeFragment : DaggerFragment() {
             adapter = topAlbumsAdapter
         }
 
-        staffsAdapter = StaffAdapter(sharedViewModel) {
+        staffAdapter = StaffAdapter(sharedViewModel) {
             Timber.d("Clicked ${it.item}")
         }
 
         staffsRecycler.apply {
             layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-            adapter = staffsAdapter
+            adapter = staffAdapter
         }
     }
 
+    @kotlinx.serialization.UnstableDefault
     private fun subscribeToViewModel() {
         viewModel.run {
             currentShow.observe(viewLifecycleOwner, Observer { show ->
@@ -130,19 +133,27 @@ class HomeFragment : DaggerFragment() {
 
             topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
                 Timber.d("Got adds: $adds")
-                launch { fetchThirdPartyData(adds) }
+                launch {
+                    adds.forEach {
+                        sharedViewModel.fetchThirdPartyDataForTopMusic(it, viewModel.topMusicRepository)
+                    }
+                }
                 topAddsAdapter?.onTopAddsChanged(adds)
             })
 
             topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
                 Timber.d("Got albums: $albums")
-                launch { fetchThirdPartyData(albums) }
+                launch {
+                    albums.forEach {
+                        sharedViewModel.fetchThirdPartyDataForTopMusic(it, viewModel.topMusicRepository)
+                    }
+                }
                 topAlbumsAdapter?.onTopAlbumsChanged(albums)
             })
 
             staff.observe(viewLifecycleOwner, Observer { staff ->
                 Timber.d("Got staff: $staff")
-                staffsAdapter?.onStaffChanged(staff)
+                staffAdapter?.onStaffChanged(staff)
             })
 
             fundraiser.observe(viewLifecycleOwner, Observer { fundraiser ->

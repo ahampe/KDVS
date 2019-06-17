@@ -1,4 +1,4 @@
-package fho.kdvs.news
+package fho.kdvs.topmusic
 
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +11,7 @@ import fho.kdvs.global.util.ClickData
 import fho.kdvs.home.TopMusicDiffCallback
 
 class TopMusicAdapter(onClick: (ClickData<TopMusicEntity>) -> Unit) :
-    BindingRecyclerViewAdapter<TopMusicEntity, BindingViewHolder<TopMusicEntity>>(onClick, TopMusicDiffCallback()){
+    BindingRecyclerViewAdapter<TopMusicEntity, BindingViewHolder<TopMusicEntity>>(onClick, TopMusicDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BindingViewHolder<TopMusicEntity> {
         val inflater = LayoutInflater.from(parent.context)
@@ -23,6 +23,7 @@ class TopMusicAdapter(onClick: (ClickData<TopMusicEntity>) -> Unit) :
         override fun bind(listener: View.OnClickListener, item: TopMusicEntity) {
             binding.apply {
                 topMusic = item
+                clickListener = listener
             }
         }
     }

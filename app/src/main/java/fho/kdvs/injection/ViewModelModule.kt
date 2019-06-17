@@ -14,6 +14,7 @@ import fho.kdvs.player.PlayerViewModel
 import fho.kdvs.schedule.ScheduleSelectionViewModel
 import fho.kdvs.schedule.ScheduleViewModel
 import fho.kdvs.show.ShowDetailsViewModel
+import fho.kdvs.topmusic.TopMusicDetailsViewModel
 import fho.kdvs.track.TrackDetailsViewModel
 
 @Suppress("unused")
@@ -63,6 +64,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(TrackDetailsViewModel::class)
     abstract fun bindTrackDetailsViewModel(trackDetailsViewModel: TrackDetailsViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(TopMusicDetailsViewModel::class)
+    abstract fun bindTopMusicDetailsViewModel(topMusicDetailsViewModel: TopMusicDetailsViewModel): ViewModel
 
     @Binds
     abstract fun bindViewModelFactory(factory: KdvsViewModelFactory): ViewModelProvider.Factory

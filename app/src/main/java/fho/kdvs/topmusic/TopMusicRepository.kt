@@ -2,13 +2,18 @@ package fho.kdvs.show
 
 import androidx.lifecycle.LiveData
 import fho.kdvs.global.BaseRepository
-import fho.kdvs.global.database.*
+import fho.kdvs.global.database.TopMusicDao
+import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.URLs
+import fho.kdvs.global.web.MusicBrainzReleaseData
+import fho.kdvs.global.web.SpotifyData
 import fho.kdvs.global.web.WebScraperManager
-import io.reactivex.Flowable
+import fho.kdvs.topmusic.TopMusicType
+import fho.kdvs.topmusic.limit
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 import javax.inject.Inject
@@ -21,8 +26,7 @@ class TopMusicRepository @Inject constructor(
     private val kdvsPreferences: KdvsPreferences
 ) : BaseRepository() {
 
-    // TODO: Make this weekly?
-    /** Runs top music scrapes if they haven't been fetched recently. */
+    /** Runs top music scrapes if they haven't been fetched in a week. */
     fun scrapeTopMusic(){
         scrapeTopAdds()
         scrapeTopAlbums()
@@ -31,7 +35,7 @@ class TopMusicRepository @Inject constructor(
     private fun scrapeTopAdds() = launch {
         val now = OffsetDateTime.now().toEpochSecond()
         val lastScrape = kdvsPreferences.lastTopFiveAddsScrape ?: 0L
-        val scrapeFreq = kdvsPreferences.scrapeFrequency ?: WebScraperManager.DEFAULT_SCRAPE_FREQ
+        val scrapeFreq = kdvsPreferences.scrapeFrequency ?: WebScraperManager.WEEKLY_SCRAPE_FREQ
 
         if (now - lastScrape > scrapeFreq) {
             forceScrapeTopAdds()?.join()
@@ -43,7 +47,7 @@ class TopMusicRepository @Inject constructor(
     private fun scrapeTopAlbums() = launch {
         val now = OffsetDateTime.now().toEpochSecond()
         val lastScrape = kdvsPreferences.lastTopThirtyAlbumsScrape ?: 0L
-        val scrapeFreq = kdvsPreferences.scrapeFrequency ?: WebScraperManager.DEFAULT_SCRAPE_FREQ
+        val scrapeFreq = kdvsPreferences.scrapeFrequency ?: WebScraperManager.WEEKLY_SCRAPE_FREQ
 
         if (now - lastScrape > scrapeFreq) {
             forceScrapeTopAlbums()?.join()
@@ -60,13 +64,14 @@ class TopMusicRepository @Inject constructor(
 
     private fun forceScrapeTopAlbums(): Job? = scraperManager.scrape(URLs.TOP_ALBUMS)
 
-    fun onScrapeMetadata(topMusicId: Int?) = topMusicDao.onScrapeMetadata(topMusicId)
-
     fun getMostRecentTopAdds(): LiveData<List<TopMusicEntity>> =
-        topMusicDao.getMostRecentTopAdds()
+        topMusicDao.getMostRecentTopMusicForType(TopMusicType.ADD, TopMusicType.ADD.limit)
 
     fun getMostRecentTopAlbums(): LiveData<List<TopMusicEntity>> =
-        topMusicDao.getMostRecentTopAlbums()
+        topMusicDao.getMostRecentTopMusicForType(TopMusicType.ALBUM, TopMusicType.ALBUM.limit)
+
+    fun getTopAddsForWeekOf(weekOf: LocalDate?, type: TopMusicType): LiveData<List<TopMusicEntity>> =
+        topMusicDao.getTopMusicForWeekOfType(weekOf, type)
 
     fun updateTopMusicAlbum(id: Int, title: String?) {
         title?.let{
@@ -80,21 +85,27 @@ class TopMusicRepository @Inject constructor(
         }
     }
 
-    fun updateTopMusicImageHref(id: Int, imageHref: String?) {
-        imageHref?.let{
-            topMusicDao.updateTopMusicImageHref(id, imageHref)
-        }
-    }
-
     fun updateTopMusicYear(id: Int, year: Int?) {
         year?.let{
             topMusicDao.updateTopMusicYear(id, year)
         }
     }
 
-    fun updateTopMusicSpotifyUri(id: Int, uri: String?) {
-        uri?.let{
-            topMusicDao.updateTopMusicSpotifyUri(id, uri)
+    fun updateTopMusicImageHref(id: Int, imageHref: String?) {
+        imageHref?.let{
+            topMusicDao.updateTopMusicImageHref(id, imageHref)
+        }
+    }
+
+    fun updateTopMusicMusicBrainzData(id: Int, mbData: MusicBrainzReleaseData?) {
+        mbData?.let {
+            topMusicDao.updateTopMusicMusicBrainzData(id, mbData)
+        }
+    }
+
+    fun updateTopMusicSpotifyData(id: Int, spotifyData: SpotifyData?) {
+        spotifyData?.let{
+            topMusicDao.updateTopMusicSpotifyData(id, spotifyData)
         }
     }
 }

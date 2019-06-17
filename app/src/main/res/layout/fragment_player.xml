@@ -18,7 +18,7 @@
         android:orientation="vertical">
 
         <ImageView
-            android:id="@+id/gradient"
+            android:id="@+id/defaultGradient"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"

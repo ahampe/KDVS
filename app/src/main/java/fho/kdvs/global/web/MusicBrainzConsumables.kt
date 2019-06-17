@@ -17,7 +17,7 @@ data class MusicBrainzRecordingData(
     val count: String? = null
 )
 
-@Serializable
+@Serializable // TODO: this is causing parcel issues for some reason
 data class MusicBrainzReleaseData(
     val offset: String? = null,
     val releases: List<Release>? = null,

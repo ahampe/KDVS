@@ -20,7 +20,7 @@ inline val SpotifyData?.uri: String?
 inline val SpotifyData?.year: Int?
     get() = this?.albums?.items?.firstOrNull()?.releaseDate?.let {
                 if (it.length >= 4) {
-                    it.substring(0, 3).toIntOrNull()
+                    it.substring(0, 4).toIntOrNull()
                 } else {
                     null
                 }

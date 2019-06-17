@@ -23,7 +23,7 @@ import kotlin.coroutines.CoroutineContext
 class HomeViewModel @Inject constructor(
     private val showRepository: ShowRepository,
     private val newsRepository: NewsRepository,
-    private val topMusicRepository: TopMusicRepository,
+    val topMusicRepository: TopMusicRepository,
     private val staffRepository: StaffRepository,
     private val fundraiserRepository: FundraiserRepository,
     application: Application
@@ -57,61 +57,6 @@ class HomeViewModel @Inject constructor(
         fundraiser = fundraiserRepository.getFundraiser()
     }
 
-    fun fetchThirdPartyData(topMusicItems: List<TopMusicEntity>) {
-        topMusicItems.forEach { item ->
-            if (!item.hasScrapedMetadata) {
-                var mbData: MusicBrainzReleaseData? = null
-                var mbImageHref: String? = null
-                var spotifyData: SpotifyData? = null
-
-                launch {
-                    launch { topMusicRepository.onScrapeMetadata(item.topMusicId) }
-
-                    val musicBrainzJob = launch {
-                        mbData = MusicBrainz.searchFromAlbum(item.album, item.artist)
-                        mbImageHref = MusicBrainz.getCoverArtImage(mbData.id)
-                    }
-
-                    val spotifyJob = launch {
-                        val query = Spotify.getAlbumQuery(item.album, item.artist)
-                        spotifyData = Spotify.search(query)
-                    }
-
-                    musicBrainzJob.join()
-                    spotifyJob.join()
-                    
-                    if (!mbData.album.isNullOrBlank()) {
-                        launch { topMusicRepository.updateTopMusicAlbum(item.topMusicId, mbData?.album)}
-                    } else if (!spotifyData?.album.isNullOrBlank()) {
-                        launch { topMusicRepository.updateTopMusicAlbum(item.topMusicId, spotifyData?.album)}
-                    } else {
-                        // TODO: try searching for coverart from other IDs in the musicBrainz response
-                    }
-
-                    if (!mbData?.label.isNullOrBlank()) {
-                        launch { topMusicRepository.updateTopMusicLabel(item.topMusicId, mbData?.label)}
-                    }
-
-                    if (!mbImageHref.isNullOrBlank()) {
-                        launch { topMusicRepository.updateTopMusicImageHref(item.topMusicId, mbImageHref)}
-                    } else if (!spotifyData?.imageHref.isNullOrBlank()) {
-                        launch { topMusicRepository.updateTopMusicImageHref(item.topMusicId, spotifyData?.imageHref)}
-                    }
-
-                    if (mbData?.year != null && mbData?.year != -1) {
-                        launch { topMusicRepository.updateTopMusicYear(item.topMusicId, mbData?.year)}
-                    } else if (spotifyData?.year != null && spotifyData?.year != -1) {
-                        launch { topMusicRepository.updateTopMusicYear(item.topMusicId, spotifyData?.year)}
-                    }
-
-                    if (!spotifyData?.uri.isNullOrBlank()) {
-                        launch { topMusicRepository.updateTopMusicSpotifyUri(item.topMusicId, spotifyData?.uri)}
-                    }
-                }
-            }
-        }
-    }
-
     /** Signals the [News Repository] to scrape the news page(s). */
     private fun fetchNewsArticles() = newsRepository.scrapeNews()
 
@@ -127,6 +72,13 @@ class HomeViewModel @Inject constructor(
     fun onClickCurrentShow(navController: NavController, showId: Int) {
         val navAction = HomeFragmentDirections
             .actionHomeFragmentToShowDetailsFragment(showId)
+        if (navController.currentDestination?.id == R.id.homeFragment)
+            navController.navigate(navAction)
+    }
+
+    fun onClickTopMusic(navController: NavController, topMusic: TopMusicEntity) {
+        val navAction = HomeFragmentDirections
+            .actionHomeFragmentToTopMusicDetailsFragment(topMusic)
         if (navController.currentDestination?.id == R.id.homeFragment)
             navController.navigate(navAction)
     }

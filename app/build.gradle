@@ -119,6 +119,9 @@ dependencies {
     // JSR-310 Android backport
     implementation "com.jakewharton.threetenabp:threetenabp:1.1.1"
 
+    // CarouselView
+    implementation 'com.synnapps:carouselview:0.1.4'
+
     // WaveView
     implementation 'com.narayanacharya:WaveView:0.9.3'
 

@@ -5,6 +5,10 @@ import android.content.Context
 import androidx.room.*
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.util.TimeHelper
+import fho.kdvs.global.web.MusicBrainzReleaseData
+import fho.kdvs.global.web.SpotifyData
+import fho.kdvs.topmusic.TopMusicType
+import kotlinx.serialization.json.Json
 import org.threeten.bp.Instant
 import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
@@ -21,7 +25,10 @@ import java.io.File
 @TypeConverters(
     OffsetDateTimeTypeConverter::class,
     LocalDateTypeConverter::class,
-    QuarterTypeConverter::class
+    QuarterTypeConverter::class,
+    TopMusicTypeConverter::class,
+    MusicBrainzDataConverter::class,
+    SpotifyDataConverter::class
 )
 abstract class KdvsDatabase : RoomDatabase() {
 
@@ -91,4 +98,41 @@ class QuarterTypeConverter {
 
     @TypeConverter
     fun toQuarter(value: Int?): Quarter? = value?.let { Quarter.values()[value] }
+}
+
+class TopMusicTypeConverter {
+
+    @TypeConverter
+    fun toInt(value: TopMusicType?): Int? = value?.ordinal
+
+    @TypeConverter
+    fun toTopMusicType(value: Int?): TopMusicType? = value?.let { TopMusicType.values()[value] }
+}
+
+@kotlinx.serialization.UnstableDefault
+class MusicBrainzDataConverter {
+
+    @TypeConverter
+    fun toString(value: MusicBrainzReleaseData?): String? = value?.let {
+        Json.stringify(MusicBrainzReleaseData.serializer(), value)
+    }
+
+    @TypeConverter
+    fun toMusicBrainzData(value: String?): MusicBrainzReleaseData? = value?.let {
+        Json.nonstrict.parse(MusicBrainzReleaseData.serializer(), value)
+    }
+}
+
+@kotlinx.serialization.UnstableDefault
+class SpotifyDataConverter {
+
+    @TypeConverter
+    fun toString(value: SpotifyData?): String? = value?.let {
+        Json.stringify(SpotifyData.serializer(), value)
+    }
+
+    @TypeConverter
+    fun toSpotifyData(value: String?): SpotifyData? = value?.let {
+        Json.nonstrict.parse(SpotifyData.serializer(), value)
+    }
 }

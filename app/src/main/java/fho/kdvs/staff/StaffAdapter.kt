@@ -1,4 +1,4 @@
-package fho.kdvs.news
+package fho.kdvs.staff
 
 import android.view.LayoutInflater
 import android.view.View
@@ -24,7 +24,7 @@ class StaffAdapter(private val viewModel: SharedViewModel, onClick: (ClickData<S
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BindingViewHolder<StaffEntity> {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = fho.kdvs.databinding.CellStaffBinding.inflate(inflater, parent, false)
+        val binding = CellStaffBinding.inflate(inflater, parent, false)
         return StaffViewHolder(binding, viewModel)
     }
 

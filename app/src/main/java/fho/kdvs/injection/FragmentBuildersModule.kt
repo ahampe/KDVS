@@ -25,6 +25,7 @@ import fho.kdvs.schedule.ScheduleFragment
 import fho.kdvs.schedule.ScheduleSelectionFragment
 import fho.kdvs.schedule.ShowSearchFragment
 import fho.kdvs.show.ShowDetailsFragment
+import fho.kdvs.topmusic.TopMusicDetailsFragment
 import fho.kdvs.track.TrackDetailsFragment
 
 @Suppress("unused")
@@ -53,4 +54,7 @@ abstract class FragmentBuildersModule {
 
     @ContributesAndroidInjector
     abstract fun contributeTrackDetailsFragment(): TrackDetailsFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributeTopMusicDetailsFragment(): TopMusicDetailsFragment
 }

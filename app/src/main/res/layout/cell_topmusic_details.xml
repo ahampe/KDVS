@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="topMusicData"
+            type="fho.kdvs.global.database.TopMusicEntity" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/artwork"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/spacing_64dp"
+            android:layout_marginEnd="@dimen/spacing_64dp"
+            android:src="@drawable/show_placeholder"
+            glideHrefGradient="@{topMusicData.imageHref}"
+            android:contentDescription="@string/artwork"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/circle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/circle"
+            app:layout_constraintTop_toTopOf="@id/artwork"
+            app:layout_constraintBottom_toTopOf="@id/artwork"
+            app:layout_constraintStart_toStartOf="@id/artwork"
+            app:layout_constraintEnd_toStartOf="@id/artwork"/>
+
+        <TextView
+            android:id="@+id/position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/circle"
+            app:layout_constraintBottom_toBottomOf="@id/circle"
+            app:layout_constraintStart_toStartOf="@+id/circle"
+            app:layout_constraintEnd_toEndOf="@id/circle"
+            android:textStyle="bold"
+            style="@style/TextAppearance.MaterialComponents.Overline"
+            position="@{topMusicData.position}"
+            tools:text="24"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

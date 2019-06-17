@@ -4,10 +4,15 @@ import android.text.Html
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
 import fho.kdvs.R
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.web.SpotifyData
+import fho.kdvs.global.web.uri
+import fho.kdvs.topmusic.TopMusicType
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 
@@ -16,6 +21,14 @@ import org.threeten.bp.format.DateTimeFormatter
 @BindingAdapter("glideHref")
 fun loadImageWithGlide(view: ImageView, imageHref: String?) {
     ImageHelper.loadImageWithGlide(view, imageHref)
+}
+
+@BindingAdapter("glideHrefGradient")
+fun loadTopMusicImageWithGlideAndApplyGradient(view: ImageView, imageHref: String?) {
+    val parent = view.parent.parent.parent as ConstraintLayout
+    imageHref?.let {
+        ImageHelper.loadImageWithGlideAndApplyGradient(view, parent, imageHref)
+    }
 }
 
 @BindingAdapter("localDate", "dateFormatter")
@@ -48,6 +61,54 @@ fun displayFavorite(view: ImageView, favorite: Boolean) {
         view.tag = 0
         view.setImageResource(R.drawable.ic_favorite_border_white_24dp)
     }
+}
+
+@BindingAdapter("topMusicAlbumInfo")
+fun formatTopMusicAlbumInfo(view: TextView, topMusic: TopMusicEntity?) {
+    topMusic?.let {
+        if (it.label != null || it.year != null) {
+            if (it.label == null) {
+                view.text = it.year?.toString()
+            } else if (it.year == null) {
+                view.text = it.label
+            } else {
+                view.text = view.resources.getString(
+                    R.string.album_info,
+                    it.year, it.label
+                )
+            }
+        }
+    }
+}
+
+@BindingAdapter("topMusicHeader")
+fun formatTopMusicHeader(view: TextView, type: TopMusicType) {
+    view.text = when (type) {
+        TopMusicType.ADD -> "Top adds"
+        TopMusicType.ALBUM -> "Top albums"
+    }
+}
+
+@BindingAdapter("position")
+fun formatTopMusicPosition(view: TextView, position: Int?) {
+    position?.let {
+        view.text = (it + 1).toString()
+    }
+}
+
+@BindingAdapter("weekOf")
+fun formatTopMusicWeekOf(view: TextView, weekOf: LocalDate?) {
+    weekOf?.let {
+        val formatter = TimeHelper.uiDateFormatter
+        view.text = formatter.format(weekOf)
+    }
+}
+
+@BindingAdapter("spotifyData")
+fun displaySpotifyIcon(view: ImageView, spotifyData: SpotifyData?) {
+    view.visibility = if (spotifyData != null && !spotifyData.uri.isNullOrBlank())
+        View.VISIBLE
+    else View.GONE
 }
 
 @BindingAdapter("trackInfo")

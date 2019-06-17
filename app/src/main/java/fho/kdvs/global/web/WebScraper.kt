@@ -12,6 +12,7 @@ import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.util.URLs.SHOW_IMAGE_PLACEHOLDER
 import fho.kdvs.schedule.QuarterYear
+import fho.kdvs.topmusic.TopMusicType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -60,7 +61,7 @@ class WebScraperManager @Inject constructor(
     }
 
     /** Runs a blocking version of [scrape] and returns a [ScrapeData]. This should not be called from the main thread. */
-    fun scrapeBlocking(url: String): ScrapeData? = try {
+    private fun scrapeBlocking(url: String): ScrapeData? = try {
         Timber.d("Scraping: $url")
         val document = Jsoup.connect(url).get()
 
@@ -306,7 +307,9 @@ class WebScraperManager @Inject constructor(
     }
 
     private fun scrapeTopMusic(document: Document, url: String?) : TopMusicScrapeData? {
-        val isNewAdd = url?.toLowerCase()?.contains("adds") ?: false
+        val type = if (url?.toLowerCase()?.contains("adds") == true)
+                TopMusicType.ADD
+            else TopMusicType.ALBUM
 
         val topMusicItemsScraped = mutableListOf<TopMusicEntity>()
 
@@ -320,8 +323,8 @@ class WebScraperManager @Inject constructor(
                 val date = LocalDate.of(year ?: 0, month ?: 0, day ?: 0)
 
                 val albums = element.nextElementSibling().select("li")
-                if (albums.size >= 5){ // ignore blank lists
-                    albums.forEachIndexed{ index, elm ->
+                if (albums.size >= 5) { // ignore blank lists
+                    albums.forEachIndexed { index, elm ->
                         val captures = "(.+)<br>.*>(.+)<.*>.*\\((.+)\\)".toRegex()
                             .find(elm.parseHtml() ?: "")
                             ?.groupValues
@@ -329,23 +332,30 @@ class WebScraperManager @Inject constructor(
                         val album = captures?.getOrNull(2)?.toString()
                         val label = captures?.getOrNull(3)?.toString()
 
-                        if (captures != null){
+                        if (captures != null) {
                             topMusicItemsScraped.add(TopMusicEntity(
+                                weekOf = date,
+                                type = type,
+                                position = index,
                                 artist = artist,
                                 album = album,
-                                label = label,
-                                weekOf = date,
-                                position = index + 1,
-                                isNewAdd = isNewAdd
+                                label = label
                             ))
                         }
                     }
+
+                    db.topMusicDao().deleteForTypeAndWeekOf(type, date)
 
                     topMusicItemsScraped.forEach { topMusic ->
                         db.topMusicDao().insert(topMusic)
                     }
                 }
             }
+        }
+
+        when (type) {
+            TopMusicType.ADD   -> kdvsPreferences.lastTopFiveAddsScrape = OffsetDateTime.now().toEpochSecond()
+            TopMusicType.ALBUM -> kdvsPreferences.lastTopThirtyAlbumsScrape = OffsetDateTime.now().toEpochSecond()
         }
 
         return TopMusicScrapeData(topMusicItemsScraped)
@@ -394,6 +404,8 @@ class WebScraperManager @Inject constructor(
                 db.staffDao().insert(staff)
             }
         }
+
+        kdvsPreferences.lastStaffScrape = OffsetDateTime.now().toEpochSecond()
 
         return StaffScrapeData(staffScraped)
     }
@@ -473,6 +485,8 @@ class WebScraperManager @Inject constructor(
             }
         }
 
+        kdvsPreferences.lastNewsScrape = OffsetDateTime.now().toEpochSecond()
+
         return NewsScrapeData(articlesScraped)
     }
 
@@ -518,6 +532,8 @@ class WebScraperManager @Inject constructor(
                 db.fundraiserDao().insert(fundraiser)
             }
         }
+
+        kdvsPreferences.lastFundraiserScraper = OffsetDateTime.now().toEpochSecond()
 
         return FundraiserScrapeData(fundraiser)
     }
@@ -580,6 +596,7 @@ class WebScraperManager @Inject constructor(
     companion object {
         private const val MINUTE_IN_SECONDS = 60L
         const val DEFAULT_SCRAPE_FREQ = 15L * MINUTE_IN_SECONDS
+        const val WEEKLY_SCRAPE_FREQ = 7L * 24L * 60L * MINUTE_IN_SECONDS
     }
 }
 

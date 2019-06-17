@@ -12,6 +12,9 @@
         <action
             android:id="@+id/action_homeFragment_to_showDetailsFragment"
             app:destination="@id/showDetailsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_topMusicDetailsFragment"
+            app:destination="@+id/topMusicDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/playerFragment"
@@ -100,5 +103,13 @@
         <argument
             android:name="track"
             app:argType="fho.kdvs.global.database.TrackEntity" />
+    </fragment>
+    <fragment
+        android:id="@+id/topMusicDetailsFragment"
+        android:name="fho.kdvs.topmusic.TopMusicDetailsFragment"
+        android:label="TopMusicDetailsFragment">
+        <argument
+            android:name="topMusic"
+            app:argType="fho.kdvs.global.database.TopMusicEntity" />
     </fragment>
 </navigation>

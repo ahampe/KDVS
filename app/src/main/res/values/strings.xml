@@ -85,10 +85,14 @@
     <string name="timeslot_desc">Show image</string>
     <string name="timeslot_placeholder">kdvs-image-placeholder</string>
 
+    <string name="artwork">artwork</string>
     <string name="track_info_start">%1$s</string>
     <string name="track_info_middle">\u0020• %1$s</string>
     <string name="artist_album">%1$s • %2$s</string>
     <string name="album_info">%1$d, %2$s</string>
+    <string name="discogs">discogs</string>
+    <string name="youtube">youtube</string>
+    <string name="spotify">spotify</string>
 
     <string name="track_comments">\"%1$s\"</string>
 

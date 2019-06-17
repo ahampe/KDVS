@@ -8,11 +8,16 @@
         <variable
             name="topMusic"
             type="fho.kdvs.global.database.TopMusicEntity" />
+
+        <variable
+            name="clickListener"
+            type="android.view.View.OnClickListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="@dimen/home_artwork_height"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:onClick="@{clickListener}">
 
         <ImageView
             android:id="@+id/artwork"
@@ -43,7 +48,7 @@
             app:layout_constraintEnd_toEndOf="@id/circle"
             android:textStyle="bold"
             style="@style/TextAppearance.MaterialComponents.Overline"
-            android:text="@{topMusic.position.toString()}"
+            position="@{topMusic.position}"
             tools:text="24"/>
 
         <TextView

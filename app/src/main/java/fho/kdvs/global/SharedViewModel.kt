@@ -12,7 +12,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.navigation.NavController
-import com.google.android.exoplayer2.ExoPlayer
 import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.*
@@ -23,17 +22,20 @@ import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
 import fho.kdvs.global.util.URLs.YOUTUBE_QUERYSTRING
 import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
+import fho.kdvs.global.web.*
 import fho.kdvs.services.CustomAction
 import fho.kdvs.services.LiveShowUpdater
 import fho.kdvs.services.MediaSessionConnection
 import fho.kdvs.services.PlaybackType
 import fho.kdvs.show.ShowRepository
+import fho.kdvs.show.TopMusicRepository
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 /** An [AndroidViewModel] scoped to the main activity.
  * Use this for data that will be consumed in many places. */
+@kotlinx.serialization.UnstableDefault
 class SharedViewModel @Inject constructor(
     application: Application,
     private val showRepository: ShowRepository,
@@ -183,30 +185,46 @@ class SharedViewModel @Inject constructor(
     }
 
     fun onClickDiscogs(view: View, track: TrackEntity?) {
-        if (track == null) return
-        openBrowser(view, "$DISCOGS_SEARCH_URL${track.artist} ${track.song}$DISCOGS_QUERYSTRING")
+        track?.let {
+            openBrowser(view, "$DISCOGS_SEARCH_URL${track.artist} ${track.song}$DISCOGS_QUERYSTRING")
+        }
+    }
+
+    fun onClickDiscogs(view: View, topMusic: TopMusicEntity?) {
+        topMusic?.let {
+            openBrowser(view, "$DISCOGS_SEARCH_URL${topMusic.artist} ${topMusic.album}$DISCOGS_QUERYSTRING")
+        }
     }
 
     fun onClickYoutube(view: View, track: TrackEntity?) {
-        if (track == null) return
-        openBrowser(view, "$YOUTUBE_SEARCH_URL${track.artist} ${track.song}$YOUTUBE_QUERYSTRING")
+        track?.let {
+            openBrowser(view, "$YOUTUBE_SEARCH_URL${track.artist} ${track.song}$YOUTUBE_QUERYSTRING")
+        }
     }
 
-    private fun isSpotifyInstalledOnDevice(view: View): Boolean {
-        var isSpotifyInstalled = false
-
-        try {
-            view.context.packageManager.getPackageInfo("com.spotify.music", 0)
-            isSpotifyInstalled = true
-        } catch (e: PackageManager.NameNotFoundException) {}
-
-        return isSpotifyInstalled
+    fun onClickYoutube(view: View, topMusic: TopMusicEntity?) {
+        topMusic?.let {
+            openBrowser(view, "$YOUTUBE_SEARCH_URL${topMusic.artist} ${topMusic.album}$YOUTUBE_QUERYSTRING")
+        }
     }
 
     fun onClickSpotifyNoApp(view: View, spotifyUri: String?) {
         val url = makeSpotifyUrl(spotifyUri ?: "")
         if (url.isNotEmpty())
             openBrowser(view, url)
+    }
+
+    fun openSpotify(view: View, spotifyData: SpotifyData?) {
+        spotifyData?.let {
+            openSpotify(view, it.uri)
+        }
+    }
+
+    fun openSpotify(view: View, spotifyUri: String?) {
+        if (isSpotifyInstalledOnDevice(view))
+            openSpotifyApp(view, spotifyUri)
+        else
+            onClickSpotifyNoApp(view, spotifyUri)
     }
 
     fun openSpotifyApp(view: View, spotifyUri: String?) {
@@ -221,13 +239,6 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun openSpotify(view: View, spotifyUri: String) {
-        if (isSpotifyInstalledOnDevice(view))
-            openSpotifyApp(view, spotifyUri)
-        else
-            onClickSpotifyNoApp(view, spotifyUri)
-    }
-
     private fun makeSpotifyUrl(spotifyUri: String): String {
         var url = ""
 
@@ -239,6 +250,72 @@ class SharedViewModel @Inject constructor(
             url = "https://open.spotify.com/$type/$id"
 
         return url
+    }
+
+    private fun isSpotifyInstalledOnDevice(view: View): Boolean {
+        var isSpotifyInstalled = false
+
+        try {
+            view.context.packageManager.getPackageInfo("com.spotify.music", 0)
+            isSpotifyInstalled = true
+        } catch (e: PackageManager.NameNotFoundException) {}
+
+        return isSpotifyInstalled
+    }
+
+    // endregion
+
+    // region Fetch
+
+    fun fetchThirdPartyDataForTopMusic(topMusic: TopMusicEntity, topMusicRepository: TopMusicRepository) {
+        if (topMusic.hasScrapedMetadata()) return
+
+        var mbData: MusicBrainzReleaseData? = null
+        var mbImageHref: String? = null
+        var spotifyData: SpotifyData? = null
+        
+        launch {
+            val musicBrainzJob = launch {
+                mbData = MusicBrainz.searchFromAlbum(topMusic.album, topMusic.artist)
+                mbImageHref = MusicBrainz.getCoverArtImage(mbData.id)
+            }
+
+            val spotifyJob = launch {
+                val query = Spotify.getAlbumQuery(topMusic.album, topMusic.artist)
+                spotifyData = Spotify.search(query)
+            }
+
+            musicBrainzJob.join()
+            spotifyJob.join()
+
+            val album = if (!mbData.album.isNullOrBlank()) mbData.album else spotifyData?.album
+            val year = if (mbData.year != null) mbData.year else spotifyData?.year
+            val imageHref = if (!mbImageHref.isNullOrBlank()) mbImageHref else spotifyData?.imageHref
+
+            if (!album.isNullOrBlank()) {
+                launch { topMusicRepository.updateTopMusicAlbum(topMusic.topMusicId, album)}
+            }
+
+            if (year != null) {
+                launch { topMusicRepository.updateTopMusicYear(topMusic.topMusicId, year)}
+            }
+
+            if (!mbData.label.isNullOrBlank()) {
+                launch { topMusicRepository.updateTopMusicLabel(topMusic.topMusicId, mbData.label)}
+            }
+
+            if (!imageHref.isNullOrBlank()) {
+                launch { topMusicRepository.updateTopMusicImageHref(topMusic.topMusicId, imageHref)}
+            }
+
+            mbData?.let {
+                launch { topMusicRepository.updateTopMusicMusicBrainzData(topMusic.topMusicId, mbData)}
+            }
+
+            spotifyData?.let {
+                launch { topMusicRepository.updateTopMusicSpotifyData(topMusic.topMusicId, spotifyData)}
+            }
+        }
     }
 
     // endregion
@@ -259,7 +336,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun onClickStar(imageView: ImageView, showId: Int) {
+    fun onClickSubscribe(imageView: ImageView, showId: Int) {
         if (imageView.tag == 0) {
             imageView.setImageResource(R.drawable.ic_star_border_white_24dp)
             imageView.tag = 1

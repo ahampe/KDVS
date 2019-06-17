@@ -5,47 +5,31 @@
 
     <data>
         <variable
-            name="vm"
-            type="fho.kdvs.track.TrackDetailsViewModel" />
+            name="topMusicData"
+            type="fho.kdvs.global.database.TopMusicEntity" />
 
         <variable
             name="sharedVm"
             type="fho.kdvs.global.SharedViewModel" />
-
-        <variable
-            name="trackData"
-            type="fho.kdvs.global.database.TrackEntity" />
     </data>
-
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/base"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/progressBar"
+        <ImageView
+            android:id="@+id/defaultGradient"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/colorPrimaryDark"
-            android:elevation="2dp"
-            tools:visibility="gone">
-
-            <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:indeterminate="true"
-                tools:visibility="visible"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_weight="1"
+            android:layout_gravity="top"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="@drawable/top_down_fade"/>
 
         <TextView
-            android:id="@+id/showName"
+            android:id="@+id/header"
             style="@style/TextAppearance.MaterialComponents.Overline"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -54,13 +38,14 @@
             android:gravity="center"
             android:maxLines="1"
             android:textAllCaps="true"
-            app:layout_constraintEnd_toEndOf="@id/artwork"
-            app:layout_constraintStart_toStartOf="@id/artwork"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Show Name" />
+            topMusicHeader="@{topMusicData.type}"
+            tools:text="Top Albums" />
 
         <TextView
-            android:id="@+id/broadcastDate"
+            android:id="@+id/weekOf"
             style="@style/TextAppearance.MaterialComponents.Overline"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -68,56 +53,41 @@
             android:gravity="center"
             android:maxLines="1"
             android:textAllCaps="true"
-            app:layout_constraintEnd_toEndOf="@id/artwork"
-            app:layout_constraintStart_toStartOf="@id/artwork"
-            app:layout_constraintTop_toBottomOf="@id/showName"
-            tools:text="Jan 2, 2019" />
-
-        <ImageView
-            android:id="@+id/artwork"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="@dimen/spacing_64dp"
-            android:layout_marginTop="@dimen/spacing_64dp"
-            android:layout_marginEnd="@dimen/spacing_64dp"
-            android:src="@drawable/show_placeholder"
-            app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible" />
+            app:layout_constraintTop_toBottomOf="@id/header"
+            weekOf="@{topMusicData.weekOf}"
+            tools:text="Jan 2, 2019" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/topMusicRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_64dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/header"/>
 
         <TextView
-            android:id="@+id/song"
+            android:id="@+id/album"
             style="@style/TextAppearance.MaterialComponents.Headline5"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_extra_large"
+            android:layout_marginEnd="@dimen/spacing_extra_large"
             android:layout_marginTop="@dimen/spacing_large"
             android:ellipsize="marquee"
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:singleLine="true"
-            app:layout_constraintEnd_toStartOf="@id/favoriteIcon"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/artwork"
-            tools:text="The Name of the Track" />
-
-        <ImageView
-            android:id="@+id/favoriteIcon"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginEnd="@dimen/spacing_extra_large"
-            android:onClick="@{(view) -> sharedVm.onClickFavorite(view, trackData.trackId)}"
-            android:src="@drawable/ic_favorite_border_white_24dp"
-            android:tag="0"
-            app:layout_constraintBottom_toBottomOf="@id/song"
-            app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/song" />
+            app:layout_constraintTop_toBottomOf="@id/topMusicRecyclerView"
+            android:text="@{topMusicData.album}"
+            tools:text="The Name of the Album" />
 
         <TextView
-            android:id="@+id/artistAlbum"
+            android:id="@+id/artist"
             style="@style/TextAppearance.MaterialComponents.Headline6"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -126,10 +96,11 @@
             android:ellipsize="end"
             android:gravity="start"
             android:singleLine="true"
+            android:text="@{topMusicData.artist}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/song"
-            tools:text="Artist • Album" />
+            app:layout_constraintTop_toBottomOf="@+id/album"
+            tools:text="Artist" />
 
         <TextView
             android:id="@+id/albumInfo"
@@ -141,56 +112,43 @@
             android:layout_marginEnd="@dimen/spacing_extra_large"
             android:ellipsize="marquee"
             android:singleLine="true"
+            topMusicAlbumInfo="@{topMusicData}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/artistAlbum"
+            app:layout_constraintTop_toBottomOf="@id/artist"
             tools:text="2019, Label Records" />
-
-        <TextView
-            android:id="@+id/comment"
-            style="@style/TextAppearance.MaterialComponents.Subtitle2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_extra_large"
-            android:layout_marginTop="@dimen/spacing_large"
-            android:layout_marginEnd="@dimen/spacing_extra_large"
-            android:textStyle="italic"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/albumInfo"
-            tools:text="Comments from the DJ"
-            tools:visibility="visible" />
 
         <ImageView
             android:id="@+id/discogsIcon"
             android:layout_width="@dimen/external_link_icon"
             android:layout_height="@dimen/external_link_icon"
             android:layout_marginTop="@dimen/spacing_extra_large"
-            android:onClick="@{(view) -> sharedVm.onClickDiscogs(view, trackData)}"
+            android:onClick="@{(view) -> sharedVm.onClickDiscogs(view, topMusicData)}"
             android:padding="@dimen/spacing_small"
             android:src="@drawable/ic_discogs_vinyl_record_mark"
             android:tag="0"
+            android:contentDescription="@string/discogs"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/youTubeIcon"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintTop_toBottomOf="@id/comment" />
+            app:layout_constraintTop_toBottomOf="@id/albumInfo" />
 
         <ImageView
             android:id="@+id/youTubeIcon"
             android:layout_width="@dimen/external_link_icon"
             android:layout_height="@dimen/external_link_icon"
             android:layout_marginTop="@dimen/spacing_extra_large"
-            android:onClick="@{(view) -> sharedVm.onClickYoutube(view, trackData)}"
+            android:onClick="@{(view) -> sharedVm.onClickYoutube(view, topMusicData)}"
             android:padding="@dimen/spacing_small"
             android:src="@drawable/ic_yt_icon_mono_dark"
             android:tag="0"
+            android:contentDescription="@string/youtube"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toStartOf="@+id/spotifyIcon"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/discogsIcon"
-            app:layout_constraintTop_toBottomOf="@id/comment" />
+            app:layout_constraintTop_toBottomOf="@id/albumInfo" />
 
         <ImageView
             android:id="@+id/spotifyIcon"
@@ -201,12 +159,14 @@
             android:src="@drawable/ic_spotify_icon_rgb_white"
             android:tag="0"
             android:visibility="gone"
+            android:contentDescription="@string/spotify"
+            android:onClick="@{(view) -> sharedVm.openSpotify(view, topMusicData.spotifyData)}"
+            spotifyData="@{topMusicData.spotifyData}"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/youTubeIcon"
-            app:layout_constraintTop_toBottomOf="@id/comment"
+            app:layout_constraintTop_toBottomOf="@id/albumInfo"
             tools:visibility="visible" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
