@@ -8,6 +8,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
@@ -15,6 +16,8 @@ import fho.kdvs.databinding.FragmentHomeBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.FundraiserEntity
+import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.news.NewsArticlesAdapter
@@ -34,7 +37,7 @@ class HomeFragment : DaggerFragment() {
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var fragmentHomeBinding: FragmentHomeBinding
 
-    private var currentShowAdapter: CurrentShowAdapter? = null
+    private var currentShowsAdapter: CurrentShowsAdapter? = null
     private var newsArticlesAdapter: NewsArticlesAdapter? = null
     private var topAddsAdapter: TopMusicAdapter? = null
     private var topAlbumsAdapter: TopMusicAdapter? = null
@@ -69,14 +72,28 @@ class HomeFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        currentShowAdapter = CurrentShowAdapter(viewModel) {
+        val snapHelper = PagerSnapHelper()
+
+        currentShowsAdapter = CurrentShowsAdapter(viewModel) {
             Timber.d("Clicked ${it.item}")
             viewModel.onClickCurrentShow(findNavController(), it.item.id)
         }
 
-        currentShowRecycler.apply {
-            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-            adapter = currentShowAdapter
+        currentShowsRecycler.apply {
+            val adapter = currentShowsAdapter as RecyclerView.Adapter<BindingViewHolder<ShowEntity>>
+
+            this.initialize(adapter)
+            this.setDefaultPos(1)
+            this.setViewsToChangeColor(listOf(
+                R.id.currentShowImage,
+                R.id.currentShowName,
+                R.id.currentShowTime
+            ))
+
+//            onFlingListener = null
+//            clearOnScrollListeners()
+//            snapHelper.attachToRecyclerView(this)
+//            setHasFixedSize(true)
         }
 
         newsArticlesAdapter = NewsArticlesAdapter(sharedViewModel) {
@@ -121,9 +138,9 @@ class HomeFragment : DaggerFragment() {
     @kotlinx.serialization.UnstableDefault
     private fun subscribeToViewModel() {
         viewModel.run {
-            currentShow.observe(viewLifecycleOwner, Observer { show ->
-                Timber.d("Got currently playing show: $show")
-                currentShowAdapter?.onCurrentShowChanged(show)
+            currentShows.observe(viewLifecycleOwner, Observer { shows ->
+                Timber.d("Got current shows: $shows")
+                currentShowsAdapter?.onCurrentShowsChanged(shows.toList())
             })
 
             newsArticles.observe(viewLifecycleOwner, Observer { articles ->

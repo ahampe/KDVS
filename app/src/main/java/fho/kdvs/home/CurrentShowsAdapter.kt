@@ -10,7 +10,7 @@ import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
 import fho.kdvs.show.ShowDiffCallback
 
-class CurrentShowAdapter(private val viewModel: HomeViewModel, onClick: (ClickData<ShowEntity>) -> Unit) :
+class CurrentShowsAdapter(private val viewModel: HomeViewModel, onClick: (ClickData<ShowEntity>) -> Unit) :
     BindingRecyclerViewAdapter<ShowEntity, BindingViewHolder<ShowEntity>>(onClick, ShowDiffCallback()){
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BindingViewHolder<ShowEntity> {
@@ -30,7 +30,7 @@ class CurrentShowAdapter(private val viewModel: HomeViewModel, onClick: (ClickDa
         }
     }
 
-    fun onCurrentShowChanged(show: ShowEntity) {
-        submitList(mutableListOf(show))
+    fun onCurrentShowsChanged(shows: List<ShowEntity>) {
+        submitList(shows)
     }
 }

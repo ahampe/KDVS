@@ -3,6 +3,7 @@ package fho.kdvs.home
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.navigation.NavController
 import fho.kdvs.R
 import fho.kdvs.global.database.*
@@ -31,7 +32,7 @@ class HomeViewModel @Inject constructor(
 
     // The news page will be updated with news articles at indeterminate (probably infrequent) intervals
     // but other pages will be weekly / quarterly, in monolithic updates
-    lateinit var currentShow: LiveData<ShowEntity>
+    lateinit var currentShows: MediatorLiveData<Triple<ShowEntity, ShowEntity, ShowEntity>>
     lateinit var newsArticles: LiveData<List<NewsEntity>>
     lateinit var topMusicAdds: LiveData<List<TopMusicEntity>>
     lateinit var topMusicAlbums: LiveData<List<TopMusicEntity>>
@@ -48,7 +49,7 @@ class HomeViewModel @Inject constructor(
         fetchStaff()
         fetchFundraiser()
 
-        currentShow = showRepository.liveShowLiveData
+        currentShows = showRepository.currentShowsLiveData
         newsArticles = newsRepository.getAllNewsPastDate(
             OffsetDateTime.now().minusMonths(6).toLocalDate()) // TODO: Make this a preference?
         topMusicAdds = topMusicRepository.getMostRecentTopAdds()

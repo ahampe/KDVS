@@ -67,8 +67,8 @@ fun setShowSearchTimes(view: TextView, timeStart: OffsetDateTime, timeEnd: Offse
     view.text = view.context.resources.getString(
         R.string.searchTimeLabel,
         dayText,
-        TimeHelper.showTimeFormatter.format(timeStart),
-        TimeHelper.showTimeFormatter.format(timeEnd)
+        TimeHelper.showTimeFormatter24.format(timeStart),
+        TimeHelper.showTimeFormatter24.format(timeEnd)
     )
 }
 

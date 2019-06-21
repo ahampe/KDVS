@@ -129,7 +129,13 @@ class LiveShowUpdater @Inject constructor(
 
         val nextShow = getShowAtTime(nextShowTime) ?: return@async false
 
+        val subtractedTime = currentShow.timeStart?.minusMinutes(1L) ?: return@async false
+        val previousShowTime = TimeHelper.makeEpochRelativeTime(subtractedTime)
+
+        val previousShow = getShowAtTime(previousShowTime) ?: return@async false
+
         showRepository.nextShowLiveData.postValue(nextShow)
+        showRepository.previousShowLiveData.postValue(previousShow)
 
         return@async true
     }

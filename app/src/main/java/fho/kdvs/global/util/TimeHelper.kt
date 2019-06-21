@@ -38,6 +38,11 @@ object TimeHelper {
         .ofPattern("hh:mm a", Locale.US)
         .withZone(UTC_ID)
 
+    /** A 24-hour time formatter, used for displaying show times (which are in UTC) in the UI. */
+    val showTimeFormatter24: DateTimeFormatter = DateTimeFormatter
+        .ofPattern("hh:mm", Locale.US)
+        .withZone(UTC_ID)
+
     // region Week Times (for Show entities)
     /** Offset in days from Jan 1 1970. Necessary because we want the week to begin on Sunday, Jan 4. */
     private const val DAY_OFFSET = 3

@@ -8,6 +8,7 @@
     <color name="colorPrimaryDark50a">#80333333</color>
     <color name="colorBlack50a">#80000000</color>
     <color name="colorWhite">#FFFFFFFF</color>
+    <color name="colorTransparent">#00000000</color>
 
     <array name="mdcolor_50">
         <item name="red_50" type="color">#fde0dc</item>

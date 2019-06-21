@@ -47,8 +47,40 @@ class ShowRepository @Inject constructor(
         }
     }
 
+    /** [MutableLiveData] listening for the show immediately preceding the current one. */
+    val previousShowLiveData = MutableLiveData<ShowEntity>()
+
     /** [MutableLiveData] listening for the show immediately following the current one. */
     val nextShowLiveData = MutableLiveData<ShowEntity>()
+
+    /** A [MediatorLiveData] which merges the previous show, live show, and next show. */
+    val currentShowsLiveData = MediatorLiveData<Triple<ShowEntity, ShowEntity, ShowEntity>>()
+        .apply {
+            var previous: ShowEntity? = null
+            var current: ShowEntity? = null
+            var next: ShowEntity? = null
+
+            addSource(previousShowLiveData) { prevShow ->
+                previous = prevShow
+                val currShow = current ?: return@addSource
+                val nextShow = next ?: return@addSource
+                postValue(Triple(prevShow, currShow, nextShow))
+            }
+
+            addSource(liveShowLiveData) { currShow ->
+                current = currShow
+                val prevShow = previous ?: return@addSource
+                val nextShow = next ?: return@addSource
+                postValue(Triple(prevShow, currShow, nextShow))
+            }
+
+            addSource(nextShowLiveData) { nextShow ->
+                next = nextShow
+                val prevShow = previous ?: return@addSource
+                val currShow = current ?: return@addSource
+                postValue(Triple(prevShow, currShow, nextShow))
+            }
+        }
 
     /** A [MediatorLiveData] which merges the live show and live broadcast. */
     val liveStreamLiveData = MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>()
