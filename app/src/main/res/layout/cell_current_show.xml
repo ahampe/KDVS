@@ -27,14 +27,17 @@
         <ImageView
             android:id="@+id/currentShowImage"
             android:layout_width="0dp"
-            android:layout_height="@dimen/home_artwork_height"
+            android:layout_height="@dimen/current_show_base_height"
             android:scaleType="centerCrop"
             android:contentDescription="@string/timeslot_desc"
+            android:layout_marginStart="@dimen/spacing_extra_large"
+            android:layout_marginEnd="@dimen/spacing_extra_large"
             glideHref="@{currentShow.defaultImageHref}"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:visibility="visible"
             tools:background="@drawable/show_placeholder"/>
 

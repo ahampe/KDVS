@@ -90,10 +90,10 @@ class HomeFragment : DaggerFragment() {
                 R.id.currentShowTime
             ))
 
-//            onFlingListener = null
-//            clearOnScrollListeners()
-//            snapHelper.attachToRecyclerView(this)
-//            setHasFixedSize(true)
+            onFlingListener = null
+            clearOnScrollListeners()
+            snapHelper.attachToRecyclerView(this)
+            setHasFixedSize(true)
         }
 
         newsArticlesAdapter = NewsArticlesAdapter(sharedViewModel) {

@@ -29,6 +29,16 @@ class HorizontalCarouselRecyclerView(
         layoutManager = LinearLayoutManager(context, HORIZONTAL, false)
 
         newAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                onChanged()
+            }
+
+            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+                super.onItemRangeRemoved(positionStart, itemCount)
+                onChanged()
+            }
+
             override fun onChanged() {
                 post {
                     val sidePadding = (width / 2) - (getChildAt(0).width / 2)
