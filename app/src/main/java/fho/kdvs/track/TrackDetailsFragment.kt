@@ -139,17 +139,17 @@ class TrackDetailsFragment : DaggerFragment(), CoroutineScope {
                 artistAlbum.text = artistAlbum.resources.getString(R.string.artist_album,
                     liveTrack.artist, liveTrack.album)
 
-            if (liveTrack.year != null || liveTrack.label != null) {
-                if (liveTrack.label == null) {
-                    albumInfo.text = liveTrack.year.toString()
-                } else if (liveTrack.year == null) {
-                    albumInfo.text = liveTrack.label
-                } else {
-                    albumInfo.text = albumInfo.resources.getString(R.string.album_info,
-                        liveTrack.year, liveTrack.label)
+            when {
+                liveTrack.year == null && liveTrack.label == null -> albumInfo.visibility = View.GONE
+                liveTrack.label == null -> albumInfo.text = liveTrack.year.toString()
+                liveTrack.year == null -> albumInfo.text = liveTrack.label
+                else -> {
+                    albumInfo.text = albumInfo.resources.getString(
+                        R.string.album_info,
+                        liveTrack.year, liveTrack.label
+                    )
                 }
-                albumInfo.visibility = View.VISIBLE
-            } else albumInfo.visibility = View.GONE
+            }
 
             if (!liveTrack.comment.isNullOrBlank()) {
                 comment.text = comment.resources.getString(R.string.track_comments, liveTrack.comment)

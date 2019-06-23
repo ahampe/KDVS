@@ -21,15 +21,15 @@ interface IPaletteRequestListener  {
     fun setTargetView()
 }
 
-/** Class for applying dynamic [Palette] coloration and gradient to Player. */
-class PlayerPaletteRequestListener (
+/** Abstract class for applying dynamic [Palette] coloration and gradient for different views. */
+abstract class PaletteRequestListener (
     private val viewToColor: View
 ) : RequestListener<Bitmap>, IPaletteRequestListener {
 
-    private var selectedColorLight: Int = viewToColor.resources.getColor(
+    protected var selectedColorLight: Int = viewToColor.resources.getColor(
         R.color.colorPrimary,
         viewToColor.context.theme)
-    private var selectedColorDark: Int = viewToColor.resources.getColor(
+    protected var selectedColorDark: Int = viewToColor.resources.getColor(
         R.color.colorPrimaryDark,
         viewToColor.context.theme)
 
@@ -58,19 +58,34 @@ class PlayerPaletteRequestListener (
         return false
     }
 
-    override fun getColorFromPalette(bitmap: Bitmap) {
-        selectedColorLight = Palette.from(bitmap).generate().getLightMutedColor(selectedColorLight)
-        selectedColorDark = Palette.from(bitmap).generate().getDarkMutedColor(selectedColorDark)
-    }
+    abstract override fun getColorFromPalette(bitmap: Bitmap)
 
     override fun setTargetView() {
         setViewGradient()
     }
 
-    /** Set color to black Top->Down gradient */
     private fun setViewGradient() {
         val backgroundColors = intArrayOf(selectedColorLight, selectedColorDark)
         viewToColor.background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, backgroundColors)
+    }
+}
+
+class CurrentShowPaletteRequestListener (
+    viewToColor: View
+) : PaletteRequestListener(viewToColor) {
+
+    override fun getColorFromPalette(bitmap: Bitmap) {
+        selectedColorLight = Palette.from(bitmap).generate().getLightMutedColor(selectedColorLight)
+    }
+}
+
+class PlayerPaletteRequestListener (
+    viewToColor: View
+) : PaletteRequestListener(viewToColor) {
+
+    override fun getColorFromPalette(bitmap: Bitmap) {
+        selectedColorLight = Palette.from(bitmap).generate().getLightMutedColor(selectedColorLight)
+        selectedColorDark = Palette.from(bitmap).generate().getDarkMutedColor(selectedColorDark)
     }
 }
 
@@ -84,7 +99,7 @@ class TimeSlotPaletteRequestListener (
     private val viewWithColor: View,
     private val viewToColor: View,
     private val timeslot: TimeSlot?
-) : RequestListener<Bitmap>, IPaletteRequestListener {
+) : PaletteRequestListener(viewToColor) {
     
     private var isPlaceholder = false
     private var selectedColor = 0

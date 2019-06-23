@@ -30,7 +30,19 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:background="@color/colorPrimaryDark">
+
+            <ImageView
+                android:id="@+id/defaultGradient"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/home_top_gradient_height"
+                android:layout_weight="1"
+                android:layout_gravity="top"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:background="@drawable/top_down_fade"/>
 
             <LinearLayout
                 android:id="@+id/nowPlayingSection"
@@ -42,19 +54,31 @@
 
                 <TextView
                     android:id="@+id/nowPlayingHeader"
-                    style="@style/TextAppearance.MaterialComponents.Headline4"
+                    style="@style/TextAppearance.MaterialComponents.Headline6"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/now_playing_header"
-                    tools:text="What's On Now"/>
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="@string/now_playing_header_current"
+                    tools:text="On Now"/>
 
-                <fho.kdvs.global.ui.HorizontalCarouselRecyclerView
+                <fho.kdvs.global.ui.CurrentShowsCarouselRecyclerView
                     android:id="@+id/currentShowsRecycler"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/current_show_max_height"
+                    android:layout_marginBottom="@dimen/spacing_large"
                     android:orientation="horizontal"
                     android:clipToPadding="false"
                     android:overScrollMode="never"/>
+
+                <Button
+                    android:id="@+id/playButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@drawable/button"
+                    android:contentDescription="@string/notification_live"
+                    android:text="@string/notification_live" />
             </LinearLayout>
 
             <LinearLayout

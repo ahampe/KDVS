@@ -22,7 +22,10 @@
     <string name="notification_forward">Forward</string>
 
     <!-- Home -->
-    <string name="now_playing_header">What\'s On Now</string>
+    <string name="now_playing_header_current">On Now</string>
+    <string name="now_playing_header_previous">Previously</string>
+    <string name="now_playing_header_next">Up Next</string>
+
     <string name="contact">Contact</string>
     <string name="duties">Duties</string>
     <string name="office_hours">Office Hours</string>
@@ -62,6 +65,7 @@
 
     <string name="hourLabel">%1$02d:00\u0020</string>
     <string name="searchTimeLabel">%1$s, %2$s - %3$s</string>
+    <string name="showTimeLabel">%1$s - %2$s</string>
     <string name="thisWeek">This week:</string>
     <string name="nextWeek">Next week:</string>
     <string name="thenWeek">Then:</string>

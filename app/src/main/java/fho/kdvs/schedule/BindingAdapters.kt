@@ -49,24 +49,8 @@ fun setShowTimeAlternatingText(view: TextView, size: Int) {
 
 @BindingAdapter("searchTimeStart", "searchTimeEnd")
 fun setShowSearchTimes(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDateTime){
-    val dayAbbrs = listOf(
-        view.resources.getString(R.string.sun),
-        view.resources.getString(R.string.mon),
-        view.resources.getString(R.string.tues),
-        view.resources.getString(R.string.wed),
-        view.resources.getString(R.string.thurs),
-        view.resources.getString(R.string.fri),
-        view.resources.getString(R.string.sat)
-    )
-
-    var dayText = dayAbbrs.getOrNull(timeStart.dayOfWeek.value % 7)
-
-    if (timeEnd.dayOfWeek != timeStart.dayOfWeek)
-        dayText += "/" + dayAbbrs.getOrNull(timeEnd.dayOfWeek.value % 7)
-
     view.text = view.context.resources.getString(
-        R.string.searchTimeLabel,
-        dayText,
+        R.string.showTimeLabel,
         TimeHelper.showTimeFormatter24.format(timeStart),
         TimeHelper.showTimeFormatter24.format(timeEnd)
     )

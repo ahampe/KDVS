@@ -54,7 +54,7 @@ class ShowRepository @Inject constructor(
     val nextShowLiveData = MutableLiveData<ShowEntity>()
 
     /** A [MediatorLiveData] which merges the previous show, live show, and next show. */
-    val currentShowsLiveData = MediatorLiveData<Triple<ShowEntity, ShowEntity, ShowEntity>>()
+    val currentShowsLiveData = MediatorLiveData<List<ShowEntity>>()
         .apply {
             var previous: ShowEntity? = null
             var current: ShowEntity? = null
@@ -64,21 +64,21 @@ class ShowRepository @Inject constructor(
                 previous = prevShow
                 val currShow = current ?: return@addSource
                 val nextShow = next ?: return@addSource
-                postValue(Triple(prevShow, currShow, nextShow))
+                postValue(listOf(prevShow, currShow, nextShow))
             }
 
             addSource(liveShowLiveData) { currShow ->
                 current = currShow
                 val prevShow = previous ?: return@addSource
                 val nextShow = next ?: return@addSource
-                postValue(Triple(prevShow, currShow, nextShow))
+                postValue(listOf(prevShow, currShow, nextShow))
             }
 
             addSource(nextShowLiveData) { nextShow ->
                 next = nextShow
                 val prevShow = previous ?: return@addSource
                 val currShow = current ?: return@addSource
-                postValue(Triple(prevShow, currShow, nextShow))
+                postValue(listOf(prevShow, currShow, nextShow))
             }
         }
 

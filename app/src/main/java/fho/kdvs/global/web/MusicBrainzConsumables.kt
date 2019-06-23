@@ -5,24 +5,24 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CoverArtArchiveData(
-    val images: List<CoverArtArchiveImage>? = null,
+    val images: List<CoverArtArchiveImage>?,
     val release: String
 )
 
 @Serializable
 data class MusicBrainzRecordingData(
-    val offset: String? = null,
-    val recordings: List<Recording>? = null,
-    val created: String? = null,
-    val count: String? = null
+    val offset: String?,
+    val recordings: List<Recording>?,
+    val created: String?,
+    val count: String?
 )
 
 @Serializable // TODO: this is causing parcel issues for some reason
 data class MusicBrainzReleaseData(
-    val offset: String? = null,
-    val releases: List<Release>? = null,
-    val created: String? = null,
-    val count: String? = null
+    val offset: String?,
+    val releases: List<Release>?,
+    val created: String?,
+    val count: String?
 )
 
 inline val MusicBrainzReleaseData?.album: String?
@@ -39,164 +39,164 @@ inline val MusicBrainzReleaseData?.year: Int?
 
 @Serializable
 data class CoverArtArchiveImage(
-    val image: String? = null,
-    val types: List<String>? = null,
-    val approved: String? = null,
-    val edit: String? = null,
-    val back: String? = null,
-    val comment: String? = null,
-    val front: String? = null,
-    val id: String? = null,
-    val thumbnails: Thumbnails? = null
+    val image: String?,
+    val types: List<String>?,
+    val approved: String?,
+    val edit: String?,
+    val back: String?,
+    val comment: String?,
+    val front: String?,
+    val id: String?,
+    val thumbnails: Thumbnails?
 )
 
 @Serializable
 data class Thumbnails(
-    val small: String? = null,
-    val large: String? = null,
+    val small: String?,
+    val large: String?,
     @SerialName("500")
-    val xxl: String? = null,
+    val xxl: String?,
     @SerialName("1200")
-    val xxxl: String? = null,
+    val xxxl: String?,
     @SerialName("250")
-    val xl: String? = null
+    val xl: String?
 )
 
 @Serializable
 data class Alias(
     @SerialName("begin-date")
-    val beginDate: String? = null,
+    val beginDate: String?,
     @SerialName("end-date")
-    val endDate: String? = null,
-    val name: String? = null,
+    val endDate: String?,
+    val name: String?,
     @SerialName("sort-name")
-    val sortName: String? = null,
-    val locale: String? = null,
-    val type: String? = null,
-    val primary: String? = null
+    val sortName: String?,
+    val locale: String?,
+    val type: String?,
+    val primary: String?
 )
 
 @Serializable
 data class Area(
     @SerialName("iso-3166-1-codes")
-    val isoCodes: List<String>? = null,
-    val name: String? = null,
-    val id: String? = null,
+    val isoCodes: List<String>?,
+    val name: String?,
+    val id: String?,
     @SerialName("sort-name")
-    val sortName: String? = null
+    val sortName: String?
 )
 
 @Serializable
 data class Artist(
-    val aliases: List<Alias>? = null,
-    val name: String? = null,
-    val disambiguation: String? = null,
-    val id: String? = null,
+    val aliases: List<Alias>?,
+    val name: String?,
+    val disambiguation: String?,
+    val id: String?,
     @SerialName("sort-name")
-    val sortName: String? = null
+    val sortName: String?
 )
 
 @Serializable
 data class ArtistCredit(
-    val artist: Artist? = null
+    val artist: Artist?
 )
 
 @Serializable
 data class Label(
-    val name: String? = null,
-    val id: String? = null
+    val name: String?,
+    val id: String?
 )
 
 @Serializable
 data class LabelInfo(
-    val label: Label? = null,
+    val label: Label?,
     @SerialName("catalog-number")
-    val catalogNumber: String? = null
+    val catalogNumber: String?
 )
 
 @Serializable
 data class Media(
-    val format: String? = null,
-    val position: String? = null,
+    val format: String?,
+    val position: String?,
     @SerialName("track-offset")
-    val trackOffset: String? = null,
-    val track: List<Track>? = null,
+    val trackOffset: String?,
+    val track: List<Track>?,
     @SerialName("track-count")
-    val trackCount: String? = null,
+    val trackCount: String?,
     @SerialName("disc-count")
-    val discCount: String? = null
+    val discCount: String?
 )
 
 @Serializable
 data class Recording(
-    val score: String? = null,
-    val length: String? = null,
+    val score: String?,
+    val length: String?,
     @SerialName("artist-credit")
-    val artistCredit: List<ArtistCredit>? = null,
-    val id: String? = null,
-    val video: String? = null,
-    val title: String? = null,
-    val releases: List<Release>? = null
+    val artistCredit: List<ArtistCredit>?,
+    val id: String?,
+    val video: String?,
+    val title: String?,
+    val releases: List<Release>?
 )
 
 @Serializable
 data class ReleaseEvent(
-    val date: String? = null,
-    val area: Area? = null
+    val date: String?,
+    val area: Area?
 )
 
 @Serializable
 data class ReleaseGroup(
     @SerialName("primary-type")
-    val primaryType: String? = null,
+    val primaryType: String?,
     @SerialName("secondary-types")
-    val secondaryTypes: List<String>? = null,
+    val secondaryTypes: List<String>?,
     @SerialName("type-id")
-    val typeId: String? = null,
-    val id: String? = null,
-    val title: String? = null
+    val typeId: String?,
+    val id: String?,
+    val title: String?
 )
 
 @Serializable
 data class Release(
     @SerialName("text-representation")
-    val textRepresentation: TextRepresentation? = null,
+    val textRepresentation: TextRepresentation?,
     @SerialName("release-group")
-    val releaseGroup: ReleaseGroup? = null,
-    val date: String? = null,
-    val country: String? = null,
+    val releaseGroup: ReleaseGroup?,
+    val date: String?,
+    val country: String?,
     @SerialName("release-events")
-    val releaseEvents: List<ReleaseEvent>? = null,
-    val count: String? = null,
+    val releaseEvents: List<ReleaseEvent>?,
+    val count: String?,
     @SerialName("artist-credit")
-    val artistCredit: List<ArtistCredit>? = null,
-    val score: String? = null,
-    val id: String? = null,
-    val media: List<Media>? = null,
-    val title: String? = null,
+    val artistCredit: List<ArtistCredit>?,
+    val score: String?,
+    val id: String?,
+    val media: List<Media>?,
+    val title: String?,
     @SerialName("track-count")
-    val trackCount: String? = null,
-    val status: String? = null,
+    val trackCount: String?,
+    val status: String?,
     @SerialName("label-info")
-    val labelInfo: List<LabelInfo>? = null
+    val labelInfo: List<LabelInfo>?
 )
 
 @Serializable
 data class Tag(
-    val count: String? = null,
-    val name: String? = null
+    val count: String?,
+    val name: String?
 )
 
 @Serializable
 data class TextRepresentation(
-    val language: String? = null,
-    val script: String? = null
+    val language: String?,
+    val script: String?
 )
 
 @Serializable
 data class Track(
-    val number: String? = null,
-    val length: String? = null,
-    val id: String? = null,
-    val title: String? = null
+    val number: String?,
+    val length: String?,
+    val id: String?,
+    val title: String?
 )

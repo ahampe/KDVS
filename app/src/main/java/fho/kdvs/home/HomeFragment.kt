@@ -84,6 +84,15 @@ class HomeFragment : DaggerFragment() {
 
             this.initialize(adapter)
             this.setDefaultPos(1)
+            this.setButton(playButton)
+            this.setLabel(nowPlayingHeader)
+            this.setPositionToTextMap(
+                mapOf(
+                    Pair(0, resources.getString(R.string.now_playing_header_previous)),
+                    Pair(1, resources.getString(R.string.now_playing_header_current)),
+                    Pair(2, resources.getString(R.string.now_playing_header_next))
+                )
+            )
             this.setViewsToChangeColor(listOf(
                 R.id.currentShowImage,
                 R.id.currentShowName,
@@ -140,7 +149,7 @@ class HomeFragment : DaggerFragment() {
         viewModel.run {
             currentShows.observe(viewLifecycleOwner, Observer { shows ->
                 Timber.d("Got current shows: $shows")
-                currentShowsAdapter?.onCurrentShowsChanged(shows.toList())
+                currentShowsAdapter?.onCurrentShowsChanged(shows)
             })
 
             newsArticles.observe(viewLifecycleOwner, Observer { articles ->

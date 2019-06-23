@@ -19,6 +19,11 @@ class CurrentShowsAdapter(private val viewModel: HomeViewModel, onClick: (ClickD
         return ShowViewHolder(binding, viewModel)
     }
 
+    override fun onViewAttachedToWindow(holder: BindingViewHolder<ShowEntity>) {
+        super.onViewAttachedToWindow(holder)
+        holder.itemView.requestFocus()
+    }
+
     class ShowViewHolder(private val binding: CellCurrentShowBinding, private val viewModel: HomeViewModel) :
         BindingViewHolder<ShowEntity>(binding.root){
         override fun bind(listener: View.OnClickListener, item: ShowEntity) {

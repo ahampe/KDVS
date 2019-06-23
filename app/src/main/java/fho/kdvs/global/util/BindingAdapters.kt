@@ -10,6 +10,7 @@ import fho.kdvs.R
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.ui.PlayerPaletteRequestListener
 import fho.kdvs.global.web.SpotifyData
 import fho.kdvs.global.web.uri
 import fho.kdvs.topmusic.TopMusicType
@@ -23,11 +24,12 @@ fun loadImageWithGlide(view: ImageView, imageHref: String?) {
     ImageHelper.loadImageWithGlide(view, imageHref)
 }
 
-@BindingAdapter("glideHrefGradient")
+@BindingAdapter("topMusicGlideHrefGradient")
 fun loadTopMusicImageWithGlideAndApplyGradient(view: ImageView, imageHref: String?) {
     val parent = view.parent.parent.parent as ConstraintLayout
     imageHref?.let {
-        ImageHelper.loadImageWithGlideAndApplyGradient(view, parent, imageHref)
+        val listener = PlayerPaletteRequestListener(parent)
+        ImageHelper.loadImageWithGlideAndApplyGradient(view, listener, imageHref)
     }
 }
 

@@ -289,7 +289,7 @@ class SharedViewModel @Inject constructor(
             spotifyJob.join()
 
             val album = if (!mbData.album.isNullOrBlank()) mbData.album else spotifyData?.album
-            val year = if (mbData.year != null) mbData.year else spotifyData?.year
+            val year = mbData.year ?: spotifyData?.year
             val imageHref = if (!mbImageHref.isNullOrBlank()) mbImageHref else spotifyData?.imageHref
 
             if (!album.isNullOrBlank()) {

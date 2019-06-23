@@ -6,7 +6,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import fho.kdvs.global.web.MusicBrainzReleaseData
-import fho.kdvs.global.web.Spotify
 import fho.kdvs.global.web.SpotifyData
 import fho.kdvs.topmusic.TopMusicType
 import org.threeten.bp.LocalDate

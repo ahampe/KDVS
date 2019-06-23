@@ -6,6 +6,7 @@ import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.util.AttributeSet
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -14,18 +15,18 @@ import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.R
 
 /** https://medium.com/@supahsoftware/custom-android-views-carousel-recyclerview-7b9318d23e9a */
-class HorizontalCarouselRecyclerView(
+abstract class HorizontalCarouselRecyclerView(
     context: Context,
     attrs: AttributeSet
 ) : RecyclerView(context, attrs) {
     private val activeColor
-            by lazy { ContextCompat.getColor(context, R.color.colorTransparent) }
+            by lazy { ContextCompat.getColor(context, R.color.colorWhite) }
     private val inactiveColor
-            by lazy { ContextCompat.getColor(context, R.color.colorBlack50a) }
-    private var viewsToChangeColor = listOf<Int>()
-    private var defaultPos = 0
+            by lazy { ContextCompat.getColor(context, R.color.colorTransparent) }
+    protected var _viewsToChangeColor = listOf<Int>()
+    protected var _defaultPos = 0
 
-    fun <T : ViewHolder> initialize(newAdapter: Adapter<T>) {
+    open fun <T : ViewHolder> initialize(newAdapter: Adapter<T>) {
         layoutManager = LinearLayoutManager(context, HORIZONTAL, false)
 
         newAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
@@ -41,9 +42,11 @@ class HorizontalCarouselRecyclerView(
 
             override fun onChanged() {
                 post {
+                    if (childCount == 0) return@post
+
                     val sidePadding = (width / 2) - (getChildAt(0).width / 2)
                     setPadding(sidePadding, 0, sidePadding, 0)
-                    scrollToPosition(defaultPos)
+                    smoothScrollToPosition(_defaultPos)
                     addOnScrollListener(object : OnScrollListener() {
                         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                             super.onScrolled(recyclerView, dx, dy)
@@ -58,37 +61,14 @@ class HorizontalCarouselRecyclerView(
     }
 
     fun setDefaultPos(pos: Int) {
-        defaultPos = pos
+        _defaultPos = pos
     }
 
     fun setViewsToChangeColor(viewIds: List<Int>) {
-        viewsToChangeColor = viewIds
+        _viewsToChangeColor = viewIds
     }
 
-    private fun colorView(child: View, scaleValue: Float) {
-        val saturationPercent = (scaleValue - 1) / 1f
-        val alphaPercent = scaleValue / 2f
-        val matrix = ColorMatrix()
-
-        matrix.setSaturation(saturationPercent)
-
-        viewsToChangeColor.forEach { viewId ->
-            val viewToChangeColor = child.findViewById<View>(viewId)
-
-            when (viewToChangeColor) {
-                is ImageView -> {
-                    viewToChangeColor.colorFilter = ColorMatrixColorFilter(matrix)
-                    viewToChangeColor.imageAlpha = (255 * alphaPercent).toInt()
-                }
-                is TextView -> {
-                    val textColor = ArgbEvaluator().evaluate(saturationPercent, inactiveColor, activeColor) as Int
-                    viewToChangeColor.setTextColor(textColor)
-                }
-            }
-        }
-    }
-
-    private fun onScrollChanged() {
+    open fun onScrollChanged() {
         post {
             (0 until childCount).forEach { position ->
                 val child = getChildAt(position)
@@ -98,12 +78,41 @@ class HorizontalCarouselRecyclerView(
                 child.scaleX = scaleValue
                 child.scaleY = scaleValue
 
-                colorView(child, scaleValue)
+                _viewsToChangeColor.forEach { viewId ->
+                    val view = child.findViewById<View>(viewId)
+                    colorView(view, scaleValue)
+                }
             }
         }
     }
 
-    private fun getGaussianScale(
+    protected fun colorView(view: View, scaleValue: Float) {
+        val saturationPercent = (scaleValue - 1) / 1f
+        val alphaPercent = scaleValue / 2f
+        val matrix = ColorMatrix()
+
+        matrix.setSaturation(saturationPercent)
+
+        when (view) {
+            is Button -> {
+                view.background.colorFilter = ColorMatrixColorFilter(matrix)
+                view.alpha = (255 * alphaPercent)
+
+                val textColor = ArgbEvaluator().evaluate(saturationPercent, inactiveColor, activeColor) as Int
+                view.setTextColor(textColor)
+            }
+            is ImageView -> {
+                view.colorFilter = ColorMatrixColorFilter(matrix)
+                view.imageAlpha = (255 * alphaPercent).toInt()
+            }
+            is TextView -> {
+                val textColor = ArgbEvaluator().evaluate(saturationPercent, inactiveColor, activeColor) as Int
+                view.setTextColor(textColor)
+            }
+        }
+    }
+
+    protected fun getGaussianScale(
         childCenterX: Int,
         minScaleOffest: Float,
         scaleFactor: Float,

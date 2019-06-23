@@ -25,12 +25,16 @@
     <dimen name="timeslot_image">70dp</dimen>
     <dimen name="timeslot_margin">8dp</dimen>
 
+    <dimen name="home_top_gradient_height">100dp</dimen>
     <dimen name="current_show_base_height">100dp</dimen>
+    <dimen name="current_show_max_height">300dp</dimen>
+    <dimen name="label_base_height">25dp</dimen>
     <dimen name="home_artwork_height">170dp</dimen>
 
     <dimen name="divider_height">2dp</dimen>
 
     <dimen name="text_small">14sp</dimen>
+    <dimen name="text_xsmall">10sp</dimen>
 
     <dimen name="exo_player_icon">48dp</dimen>
 </resources>
