@@ -19,6 +19,7 @@ import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
+import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.fragment_schedule.*
 import kotlinx.android.synthetic.main.fragment_schedule.view.*
 import org.threeten.bp.LocalDate
@@ -65,7 +66,7 @@ class ScheduleFragment : DaggerFragment() {
         // Scroll to today, only when the fragment is first created
         // TODO this could be done with a custom layout manager, without the ugly boolean
         if (scrollingToToday) {
-            val position = LocalDate.now().dayOfWeek.value
+            val position = TimeHelper.getLocalNow().dayOfWeek.value
             weekLayoutManager?.scrollToPosition(position)
             setDayAbbreviationsWithSelectedPos(position)
             scrollingToToday = false

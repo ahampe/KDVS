@@ -52,16 +52,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/nowPlayingHeader"
-                    style="@style/TextAppearance.MaterialComponents.Headline6"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:text="@string/now_playing_header_current"
-                    tools:text="On Now"/>
-
                 <fho.kdvs.global.ui.CurrentShowsCarouselRecyclerView
                     android:id="@+id/currentShowsRecycler"
                     android:layout_width="match_parent"
@@ -87,6 +77,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_large"
                 android:layout_marginEnd="@dimen/spacing_large"
+                android:visibility="gone"
+                tools:visibility="visible"
                 app:layout_constraintTop_toBottomOf="@+id/nowPlayingSection"
                 app:layout_constraintStart_toStartOf="parent"
                 android:orientation="vertical">

@@ -23,6 +23,21 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/current_show_max_height">
 
+        <TextView
+            android:id="@+id/currentShowHeader"
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/currentShowImage"
+            android:layout_marginBottom="@dimen/spacing_medium"
+            showTimeStart="@{currentShow.timeStart}"
+            showTimeEnd="@{currentShow.timeEnd}"
+            android:gravity="center"
+            android:text="@string/now_playing_header_current"
+            tools:text="On Now"/>
+
         <ImageView
             android:id="@+id/currentShowImage"
             currentShowGlideHrefGradient="@{currentShow.defaultImageHref}"

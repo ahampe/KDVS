@@ -5,6 +5,7 @@ import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.NewsDao
 import fho.kdvs.global.database.NewsEntity
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
 import kotlinx.coroutines.Job
@@ -24,7 +25,7 @@ class NewsRepository @Inject constructor(
 
     /** Runs a news scrape if it hasn't been fetched recently. */
     fun scrapeNews() = launch {
-        val now = OffsetDateTime.now().toEpochSecond()
+        val now = TimeHelper.getNow().toEpochSecond()
         val lastScrape = kdvsPreferences.lastNewsScrape ?: 0L
         val scrapeFreq = kdvsPreferences.scrapeFrequency ?: WebScraperManager.DEFAULT_SCRAPE_FREQ
 

@@ -43,7 +43,7 @@ class LiveShowUpdater @Inject constructor(
 
                 if (updateSuccess) {
                     showRepository.liveShowLiveData.value?.let { show ->
-                        val nowEpochSeconds = TimeHelper.makeEpochRelativeTime(OffsetDateTime.now())
+                        val nowEpochSeconds = TimeHelper.makeEpochRelativeTime(TimeHelper.getNow())
                             .toEpochSecond()
 
                         val timeEnd = show.timeEnd ?: return@let
@@ -83,7 +83,7 @@ class LiveShowUpdater @Inject constructor(
      * Returns a [Deferred] boolean indicating whether the computation was successful or not.
      */
     private fun updateLiveShowsAsync(): Deferred<Boolean> = async {
-        val scheduleTime = TimeHelper.makeEpochRelativeTime(OffsetDateTime.now())
+        val scheduleTime = TimeHelper.makeEpochRelativeTime(TimeHelper.getNow())
 
         // If we have the next show, we can use its value to update the live show
         val oldNextShow = showRepository.nextShowLiveData.value
@@ -192,7 +192,7 @@ class LiveShowUpdater @Inject constructor(
                 // Even if the dates don't match exactly,
                 // they will be equal by (difference in weeks) % (number of shows in timeslot)
                 val n = allShowsAtTime.size
-                val now = LocalDate.now()
+                val now = TimeHelper.getLocalNow()
 
                 val matchingBroadcast = latestBroadcasts.filter { it.date != null }
                     .find { ChronoUnit.WEEKS.between(it.date, now) % n == 0L }
@@ -220,7 +220,7 @@ class LiveShowUpdater @Inject constructor(
                     latestBroadcasts.size >= (timeslot.ids.count() - 1)) {
                     timeslot.ids.forEachIndexed { i, _ ->
                         val n = allShowsAtTime.size
-                        val now = LocalDate.now()
+                        val now = TimeHelper.getLocalNow()
                         val matchingBroadcast = latestBroadcasts.filter { it.date != null }
                             .find { ChronoUnit.WEEKS.between(it.date, now) % n == i.toLong() }
                         val matchingShow = allShowsAtTime.find { it.id == matchingBroadcast?.showId }

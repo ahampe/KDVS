@@ -5,6 +5,7 @@ import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.FundraiserDao
 import fho.kdvs.global.database.FundraiserEntity
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
 import kotlinx.coroutines.Job
@@ -23,7 +24,7 @@ class FundraiserRepository @Inject constructor(
 
     /** Runs a fundraiser scrape if it hasn't been fetched recently. */
     fun scrapeFundraiser() = launch {
-        val now = OffsetDateTime.now().toEpochSecond()
+        val now = TimeHelper.getNow().toEpochSecond()
         val lastScrape = kdvsPreferences.lastFundraiserScraper ?: 0L
         val scrapeFreq = kdvsPreferences.scrapeFrequency ?: WebScraperManager.DEFAULT_SCRAPE_FREQ
 

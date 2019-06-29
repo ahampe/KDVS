@@ -47,15 +47,6 @@ fun setShowTimeAlternatingText(view: TextView, size: Int) {
     } else view.text = ""
 }
 
-@BindingAdapter("searchTimeStart", "searchTimeEnd")
-fun setShowSearchTimes(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDateTime){
-    view.text = view.context.resources.getString(
-        R.string.showTimeLabel,
-        TimeHelper.showTimeFormatter24.format(timeStart),
-        TimeHelper.showTimeFormatter24.format(timeEnd)
-    )
-}
-
 @BindingAdapter("showNames", "layoutHeight")
 fun makeShowNames(view: TextView, showNames: List<String>, numHalfHours: Int) {
     if (showNames.isEmpty()) return

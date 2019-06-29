@@ -85,18 +85,11 @@ class HomeFragment : DaggerFragment() {
             this.initialize(adapter)
             this.setDefaultPos(1)
             this.setButton(playButton)
-            this.setLabel(nowPlayingHeader)
-            this.setPositionToTextMap(
-                mapOf(
-                    Pair(0, resources.getString(R.string.now_playing_header_previous)),
-                    Pair(1, resources.getString(R.string.now_playing_header_current)),
-                    Pair(2, resources.getString(R.string.now_playing_header_next))
-                )
-            )
             this.setViewsToChangeColor(listOf(
                 R.id.currentShowImage,
                 R.id.currentShowName,
-                R.id.currentShowTime
+                R.id.currentShowTime,
+                R.id.currentShowHeader
             ))
 
             onFlingListener = null
@@ -184,17 +177,18 @@ class HomeFragment : DaggerFragment() {
 
             fundraiser.observe(viewLifecycleOwner, Observer { fundraiser ->
                 Timber.d("Got fundraiser: $fundraiser")
-                val now = LocalDate.now()
+                val now = TimeHelper.getLocalNow()
 
-                // display fundraiser section only within a two-month window
+                // display fundraiser section only within an n-month window
                 // TODO: make preference?
                 if (fundraiser != null) {
-                    if (fundraiser.dateStart ?: now > now.plusMonths(1) ||
-                        fundraiser.dateEnd ?: now < now.minusMonths(1)
+                    if (fundraiser.dateStart ?: now > now.plusMonths(3) ||
+                        fundraiser.dateEnd ?: now < now.minusMonths(3)
                     ) {
                         fundraiserSection.visibility = View.GONE
                     } else {
                         setFundraiserView(fundraiser)
+                        fundraiserSection.visibility = View.VISIBLE
                     }
                 }
             })

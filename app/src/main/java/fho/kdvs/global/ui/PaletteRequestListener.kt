@@ -183,7 +183,7 @@ class TimeSlotPaletteRequestListener (
             Timber.d("currentShow $timeslot.names.firstOrNull()")
             if (waveView != null && waveView.visibility != View.VISIBLE){
                 waveView.backgroundColor = selectedColor
-                waveView.waveColor = ColorHelper.getComplementaryColor(selectedColor, viewWithColor.context)
+                waveView.waveColor = ColorHelper.getComplementaryColor(selectedColor)
                 waveView.visibility = View.VISIBLE
             }
         } else {

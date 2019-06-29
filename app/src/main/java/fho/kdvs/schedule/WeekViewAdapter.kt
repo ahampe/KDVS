@@ -73,7 +73,7 @@ class WeekViewAdapter(
             // Scroll to current show, only when the fragment is first created
             // TODO this could be done with a custom layout manager, without the ugly boolean
             if (scrollingToCurrentShow) { // TODO: fix this; nested scroll view broke it
-                val scheduleTime = TimeHelper.makeEpochRelativeTime(OffsetDateTime.now())
+                val scheduleTime = TimeHelper.makeEpochRelativeTime(TimeHelper.getNow())
                 if (scheduleTime.dayOfWeek.toString().capitalize() == day.dayName.capitalize()) {
                     childLayoutManager.stackFromEnd = true
                     val timeSlotPosition = timeslots.indexOfFirst { t -> TimeHelper.isTimeSlotForCurrentShow(t) }

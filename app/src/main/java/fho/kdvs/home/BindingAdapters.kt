@@ -2,6 +2,7 @@ package fho.kdvs.home
 
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
@@ -10,7 +11,9 @@ import com.bumptech.glide.request.RequestOptions
 import fho.kdvs.R
 import fho.kdvs.global.ui.CurrentShowPaletteRequestListener
 import fho.kdvs.global.util.ImageHelper
+import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.fragment_home.view.*
+import org.threeten.bp.OffsetDateTime
 
 @BindingAdapter("currentShowGlideHrefGradient")
 fun loadCurrentShowImageWithGlideAndApplyGradient(view: ImageView, imageHref: String?) {
@@ -46,5 +49,15 @@ fun loadImageWithGlideIfPresent(view: ImageView, imageHref: String?) {
             .into(view)
 
         view.visibility = View.VISIBLE
+    }
+}
+
+@BindingAdapter("showTimeStart", "showTimeEnd")
+fun setCurrentShowLabel(view: TextView, start: OffsetDateTime, end: OffsetDateTime) {
+    val now = TimeHelper.makeEpochRelativeTime(TimeHelper.getNow())
+    view.text = when {
+        end < now -> view.resources.getString(R.string.now_playing_header_previous)
+        now < start -> view.resources.getString(R.string.now_playing_header_next)
+        else -> view.resources.getString(R.string.now_playing_header_current)
     }
 }

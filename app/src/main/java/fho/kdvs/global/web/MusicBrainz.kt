@@ -45,8 +45,13 @@ object MusicBrainz {
         val url = getReleaseUrlFromQuery(query)
         val response = HttpHelper.makeGETRequest(url)
 
+
         response?.let {
-            return Json.nonstrict.parse(MusicBrainzReleaseData.serializer(), response)
+            try {
+                return Json.nonstrict.parse(MusicBrainzReleaseData.serializer(), it)
+            } catch (e: Exception) {
+                Timber.d("GET error $e")
+            }
         }
 
         return null
@@ -61,20 +66,25 @@ object MusicBrainz {
         val response = HttpHelper.makeGETRequest(url)
 
         response?.let {
-            val recordingData = Json.nonstrict.parse(MusicBrainzRecordingData.serializer(), response) as? MusicBrainzRecordingData
-            val mbid = recordingData
-                ?.recordings?.firstOrNull()
-                ?.releases?.firstOrNull()
-                ?.id
+            try {
+                val recordingData = Json.nonstrict.parse(MusicBrainzRecordingData.serializer(), response) as? MusicBrainzRecordingData
+                val mbid = recordingData
+                    ?.recordings?.firstOrNull()
+                    ?.releases?.firstOrNull()
+                    ?.id
 
-            mbid?.let {
-                val mbidUrl = getReleaseUrlFromMBID(mbid)
-                val mbidResponse = HttpHelper.makeGETRequest(mbidUrl)
+                mbid?.let {
+                    val mbidUrl = getReleaseUrlFromMBID(mbid)
+                    val mbidResponse = HttpHelper.makeGETRequest(mbidUrl)
 
-                mbidResponse?.let {
-                    return Json.nonstrict.parse(MusicBrainzReleaseData.serializer(), mbidResponse)
+                    mbidResponse?.let {
+                        return Json.nonstrict.parse(MusicBrainzReleaseData.serializer(), mbidResponse)
+                    }
                 }
+            } catch (e: Exception) {
+                Timber.d("GET error $e")
             }
+
         }
 
         return null

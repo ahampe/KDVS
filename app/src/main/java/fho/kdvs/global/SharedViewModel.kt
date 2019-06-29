@@ -267,6 +267,7 @@ class SharedViewModel @Inject constructor(
 
     // region Fetch
 
+    // TODO: multiple attempts?
     fun fetchThirdPartyDataForTopMusic(topMusic: TopMusicEntity, topMusicRepository: TopMusicRepository) {
         if (topMusic.hasScrapedMetadata()) return
 

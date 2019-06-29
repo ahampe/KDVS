@@ -15,6 +15,7 @@ import fho.kdvs.global.web.SpotifyData
 import fho.kdvs.global.web.uri
 import fho.kdvs.topmusic.TopMusicType
 import org.threeten.bp.LocalDate
+import org.threeten.bp.OffsetDateTime
 import org.threeten.bp.format.DateTimeFormatter
 
 // Binding adapters designed for reuse
@@ -125,17 +126,14 @@ fun formatTrackInfo(view: TextView, track: TrackEntity?) {
     }
 }
 
-//@BindingAdapter("trackPosition")
-//fun alternateTrackBackground(layout: ConstraintLayout, position: Int?) {
-//    val i = position ?: return
-//
-//    val color = when {
-//        i % 2 == 0 -> ResourcesCompat.getColor(layout.resources, R.color.colorBlack50a, layout.context.theme)
-//        else -> ResourcesCompat.getColor(layout.resources, R.color.colorPrimaryDark50a, layout.context.theme)
-//    }
-//
-//    layout.setBackgroundColor(color)
-//}
+@BindingAdapter("searchTimeStart", "searchTimeEnd")
+fun setShowTimes(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDateTime){
+    view.text = view.context.resources.getString(
+        R.string.showTimeLabel,
+        TimeHelper.showTimeFormatter24.format(timeStart),
+        TimeHelper.showTimeFormatter24.format(timeEnd)
+    )
+}
 
 @BindingAdapter("nextShow", "isStreamingLive")
 fun updateNextLiveShow(view: TextView, nextShow: ShowEntity, isStreamingLive: Boolean) {

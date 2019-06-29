@@ -7,6 +7,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.navigation.NavController
 import fho.kdvs.R
 import fho.kdvs.global.database.*
+import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.web.*
 import fho.kdvs.show.*
 import kotlinx.coroutines.CoroutineScope
@@ -51,7 +52,7 @@ class HomeViewModel @Inject constructor(
 
         currentShows = showRepository.currentShowsLiveData
         newsArticles = newsRepository.getAllNewsPastDate(
-            OffsetDateTime.now().minusMonths(6).toLocalDate()) // TODO: Make this a preference?
+            TimeHelper.getNow().minusMonths(6).toLocalDate()) // TODO: Make this a preference?
         topMusicAdds = topMusicRepository.getMostRecentTopAdds()
         topMusicAlbums = topMusicRepository.getMostRecentTopAlbums()
         staff = staffRepository.getStaff()

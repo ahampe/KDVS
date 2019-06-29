@@ -101,7 +101,7 @@ class WebScraperManager @Inject constructor(
 
         val scheduleChildren = document.select("div.schedule-list > *")
 
-        var imageHrefs = mutableSetOf<String?>()
+        val imageHrefs = mutableSetOf<String?>()
 
         scheduleChildren.forEach { element ->
             when (element.tagName()) {
@@ -176,7 +176,7 @@ class WebScraperManager @Inject constructor(
             db.showDao().updateOrInsert(show)
         }
 
-        kdvsPreferences.lastScheduleScrape = OffsetDateTime.now().toEpochSecond()
+        kdvsPreferences.lastScheduleScrape = TimeHelper.getNow().toEpochSecond()
         return ScheduleScrapeData(QuarterYear(quarter, year), showsScraped)
     }
 
@@ -224,7 +224,7 @@ class WebScraperManager @Inject constructor(
             db.broadcastDao().updateOrInsert(broadcast)
         }
 
-        kdvsPreferences.setLastShowScrape(showId.toString(), OffsetDateTime.now().toEpochSecond())
+        kdvsPreferences.setLastShowScrape(showId.toString(), TimeHelper.getNow().toEpochSecond())
         return ShowScrapeData(broadcastsScraped)
     }
 
@@ -302,7 +302,7 @@ class WebScraperManager @Inject constructor(
             }
         }
 
-        kdvsPreferences.setLastBroadcastScrape(broadcastId.toString(), OffsetDateTime.now().toEpochSecond())
+        kdvsPreferences.setLastBroadcastScrape(broadcastId.toString(), TimeHelper.getNow().toEpochSecond())
         return PlaylistScrapeData(tracksScraped)
     }
 
@@ -354,8 +354,8 @@ class WebScraperManager @Inject constructor(
         }
 
         when (type) {
-            TopMusicType.ADD   -> kdvsPreferences.lastTopFiveAddsScrape = OffsetDateTime.now().toEpochSecond()
-            TopMusicType.ALBUM -> kdvsPreferences.lastTopThirtyAlbumsScrape = OffsetDateTime.now().toEpochSecond()
+            TopMusicType.ADD   -> kdvsPreferences.lastTopFiveAddsScrape = TimeHelper.getNow().toEpochSecond()
+            TopMusicType.ALBUM -> kdvsPreferences.lastTopThirtyAlbumsScrape = TimeHelper.getNow().toEpochSecond()
         }
 
         return TopMusicScrapeData(topMusicItemsScraped)
@@ -405,7 +405,7 @@ class WebScraperManager @Inject constructor(
             }
         }
 
-        kdvsPreferences.lastStaffScrape = OffsetDateTime.now().toEpochSecond()
+        kdvsPreferences.lastStaffScrape = TimeHelper.getNow().toEpochSecond()
 
         return StaffScrapeData(staffScraped)
     }
@@ -417,12 +417,12 @@ class WebScraperManager @Inject constructor(
 
         document.run {
             val articles = select("article")
-            articles.forEach { element ->
-                val aCell = element.select("h2 a")
+            articles.forEach { article ->
+                val aCell = article.select("h2 a")
                 val articleHref = aCell.attr("href")
                 val title = aCell.getOrNull(0).parseHtml()
 
-                val titleDiv = element.select("div.post-meta").first()
+                val titleDiv = article.select("div.post-meta").first()
                 val author = titleDiv.select("span").firstOrNull().parseHtml()
 
                 val dateCaptures = parseDate(titleDiv.parseHtml())
@@ -432,19 +432,11 @@ class WebScraperManager @Inject constructor(
                 val date = LocalDate.of(year ?: 0, month ?: 0, day ?: 0)
                 lastDateScraped = date
 
-                val mainBodyDiv = element.select("div.post-content, div.entry-content")
+                val mainBodyDiv = article.select("div.post-content, div.entry-content")
                 var imageHref: String? = null
-                val image = mainBodyDiv.select("img").firstOrNull()
-                if (image != null){
-                    val srcset = image.attr("srcset")
-                    if (srcset.isNotEmpty()){
-                        imageHref = "https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)"
-                            .toRegex()
-                            .findAll(srcset)
-                            .lastOrNull()
-                            ?.groupValues
-                            ?.firstOrNull()
-                    }
+                val image = article.select("img").firstOrNull()
+                image?.let {
+                    imageHref = image.attr("src")
                 }
 
                 val body = mainBodyDiv.select("div.excerpt, div.entry-content")
@@ -485,7 +477,7 @@ class WebScraperManager @Inject constructor(
             }
         }
 
-        kdvsPreferences.lastNewsScrape = OffsetDateTime.now().toEpochSecond()
+        kdvsPreferences.lastNewsScrape = TimeHelper.getNow().toEpochSecond()
 
         return NewsScrapeData(articlesScraped)
     }
@@ -533,7 +525,7 @@ class WebScraperManager @Inject constructor(
             }
         }
 
-        kdvsPreferences.lastFundraiserScraper = OffsetDateTime.now().toEpochSecond()
+        kdvsPreferences.lastFundraiserScraper = TimeHelper.getNow().toEpochSecond()
 
         return FundraiserScrapeData(fundraiser)
     }

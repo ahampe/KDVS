@@ -134,7 +134,7 @@ class ShowRepository @Inject constructor(
 
     /** Runs a schedule scrape if it hasn't been fetched recently. */
     fun scrapeSchedule() = launch {
-        val now = OffsetDateTime.now().toEpochSecond()
+        val now = TimeHelper.getNow().toEpochSecond()
         val lastScrape = kdvsPreferences.lastScheduleScrape ?: 0L
         val scrapeFreq = kdvsPreferences.scrapeFrequency ?: WebScraperManager.DEFAULT_SCRAPE_FREQ
 

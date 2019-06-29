@@ -7,7 +7,7 @@ import java.util.*
 
 
 object ColorHelper {
-    fun getComplementaryColor(color: Int, context: Context): Int {
+    fun getComplementaryColor(color: Int): Int {
         val hsv = FloatArray(3)
         Color.colorToHSV(color, hsv)
         var hueComp = hsv[0] + 180
@@ -18,7 +18,7 @@ object ColorHelper {
     fun getRandomMatColor(typeColor: Int, context: Context, seed: Long?): Int {
         var returnColor = ResourcesCompat.getColor(context.resources, R.color.colorAccent, context.theme)
         val arrayId = context.resources.getIdentifier(
-            "mdcolor_" + typeColor.toString(),
+            "mdcolor_$typeColor",
             "array",
             context.packageName
         )

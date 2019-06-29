@@ -19,12 +19,14 @@ abstract class HorizontalCarouselRecyclerView(
     context: Context,
     attrs: AttributeSet
 ) : RecyclerView(context, attrs) {
+    private val accentColor
+            by lazy { ContextCompat.getColor(context, R.color.colorAccent) }
     private val activeColor
             by lazy { ContextCompat.getColor(context, R.color.colorWhite) }
     private val inactiveColor
             by lazy { ContextCompat.getColor(context, R.color.colorTransparent) }
-    protected var _viewsToChangeColor = listOf<Int>()
-    protected var _defaultPos = 0
+    protected var colorViews = listOf<Int>()
+    protected var position = 0
 
     open fun <T : ViewHolder> initialize(newAdapter: Adapter<T>) {
         layoutManager = LinearLayoutManager(context, HORIZONTAL, false)
@@ -46,7 +48,7 @@ abstract class HorizontalCarouselRecyclerView(
 
                     val sidePadding = (width / 2) - (getChildAt(0).width / 2)
                     setPadding(sidePadding, 0, sidePadding, 0)
-                    smoothScrollToPosition(_defaultPos)
+                    smoothScrollToPosition(position)
                     addOnScrollListener(object : OnScrollListener() {
                         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                             super.onScrolled(recyclerView, dx, dy)
@@ -61,11 +63,11 @@ abstract class HorizontalCarouselRecyclerView(
     }
 
     fun setDefaultPos(pos: Int) {
-        _defaultPos = pos
+        position = pos
     }
 
     fun setViewsToChangeColor(viewIds: List<Int>) {
-        _viewsToChangeColor = viewIds
+        colorViews = viewIds
     }
 
     open fun onScrollChanged() {
@@ -78,7 +80,7 @@ abstract class HorizontalCarouselRecyclerView(
                 child.scaleX = scaleValue
                 child.scaleY = scaleValue
 
-                _viewsToChangeColor.forEach { viewId ->
+                colorViews.forEach { viewId ->
                     val view = child.findViewById<View>(viewId)
                     colorView(view, scaleValue)
                 }
@@ -95,11 +97,10 @@ abstract class HorizontalCarouselRecyclerView(
 
         when (view) {
             is Button -> {
-                view.background.colorFilter = ColorMatrixColorFilter(matrix)
-                view.alpha = (255 * alphaPercent)
-
                 val textColor = ArgbEvaluator().evaluate(saturationPercent, inactiveColor, activeColor) as Int
+                val bgColor = ArgbEvaluator().evaluate(saturationPercent, inactiveColor, accentColor) as Int
                 view.setTextColor(textColor)
+                view.setBackgroundColor(bgColor)
             }
             is ImageView -> {
                 view.colorFilter = ColorMatrixColorFilter(matrix)

@@ -1,9 +1,6 @@
 package fho.kdvs.schedule
 
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,10 +14,7 @@ import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.global.util.SpanHelper
-import kotlinx.android.synthetic.main.cell_show_search_result.view.*
 import kotlinx.android.synthetic.main.fragment_show_search.*
-import org.jetbrains.anko.forEachChild
 import timber.log.Timber
 import javax.inject.Inject
 

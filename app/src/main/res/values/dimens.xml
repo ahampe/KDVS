@@ -30,6 +30,7 @@
     <dimen name="current_show_max_height">300dp</dimen>
     <dimen name="label_base_height">25dp</dimen>
     <dimen name="home_artwork_height">170dp</dimen>
+    <dimen name="home_article_height">115dp</dimen>
 
     <dimen name="divider_height">2dp</dimen>
 

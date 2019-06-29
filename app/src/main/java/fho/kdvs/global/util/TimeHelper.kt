@@ -23,6 +23,7 @@ object TimeHelper {
 
     private val UTC_ID = ZoneId.of("UTC")
     private val UTC_OFFSET = ZoneOffset.UTC
+    private val UTC_BASE = ZoneId.of("America/Los_Angeles")
 
     /**
      * Formatter that will be used for parsing broadcast datetimes.
@@ -121,6 +122,12 @@ object TimeHelper {
         }
     }
 
+    /** Returns current time in the zone associated with KDVS. */
+    @JvmStatic
+    fun getNow(): OffsetDateTime {
+        return ZonedDateTime.now(UTC_BASE).toOffsetDateTime()
+    }
+
     @JvmStatic
     fun getDurationInSecondsBetween(start: OffsetDateTime, end: OffsetDateTime): Double {
         return if (start.hour > end.hour) {
@@ -134,7 +141,7 @@ object TimeHelper {
 
     @JvmStatic
     fun getPercentageInDurationRelativeToNow(start: OffsetDateTime, end: OffsetDateTime): Int {
-        val now = getDurationInSecondsBetween(start, OffsetDateTime.now())
+        val now = getDurationInSecondsBetween(start, getNow())
         val duration = getDurationInSecondsBetween(start, end)
 
         if (duration == 0.0) return 0
@@ -145,14 +152,14 @@ object TimeHelper {
     /** Returns true if current time falls within timeslot's time range. */
     @JvmStatic
     fun isTimeSlotForCurrentShow(timeslot: TimeSlot): Boolean {
-        val scheduleTime = TimeHelper.makeEpochRelativeTime(OffsetDateTime.now())
+        val scheduleTime = makeEpochRelativeTime(getNow())
         return (scheduleTime >= timeslot?.timeStart) && (scheduleTime < timeslot?.timeEnd)
     }
 
     /** Returns true if broadcast is currently live on-air. */
     @JvmStatic
     fun isShowBroadcastLive(show: ShowEntity, broadcast: BroadcastEntity): Boolean {
-        val now = OffsetDateTime.now()
+        val now = getNow()
         return broadcast.date!!.year == now.year &&
                 broadcast.date!!.dayOfYear == now.dayOfYear &&
                 (now.dayOfWeek == show.timeStart!!.dayOfWeek ||
@@ -187,13 +194,17 @@ object TimeHelper {
     // endregion
 
     // region Local Dates (for Broadcast entities)
+    fun getLocalNow(): LocalDate {
+        return ZonedDateTime.now(UTC_BASE).toLocalDate()
+    }
+
     /** Creates a date given a string in [dateFormatter]'s format. */
     fun makeLocalDate(ymd: String): LocalDate {
         return LocalDate.parse(ymd, dateFormatter)
     }
 
     fun makeLocalDate(y: String?, m: String?, d: String?): LocalDate {
-        return TimeHelper.makeLocalDate(
+        return makeLocalDate(
             "${y?.padStart(4, '0')}" +
                     "-${m?.padStart(2, '0')}" +
                     "-${d?.padStart(2, '0')}"

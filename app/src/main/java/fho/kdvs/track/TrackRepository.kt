@@ -7,6 +7,7 @@ import fho.kdvs.global.database.TrackDao
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.extensions.toLiveData
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
 import kotlinx.coroutines.Job
@@ -26,7 +27,7 @@ class TrackRepository @Inject constructor(
 
     /** Runs a broadcast scrape if it hasn't been fetched recently. */
     fun scrapePlaylist(broadcastId: String) = launch {
-        val now = OffsetDateTime.now().toEpochSecond()
+        val now = TimeHelper.getNow().toEpochSecond()
         val lastScrape = kdvsPreferences.getLastBroadcastScrape(broadcastId) ?: 0L
         val scrapeFreq = kdvsPreferences.scrapeFrequency ?: WebScraperManager.DEFAULT_SCRAPE_FREQ
 

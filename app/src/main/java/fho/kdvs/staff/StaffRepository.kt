@@ -5,6 +5,7 @@ import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.StaffDao
 import fho.kdvs.global.database.StaffEntity
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
 import kotlinx.coroutines.Job
@@ -24,7 +25,7 @@ class StaffRepository @Inject constructor(
     // TODO: Make this quarterly?
     /** Runs a staff scrape if it hasn't been fetched recently. */
     fun scrapeStaff() = launch {
-        val now = OffsetDateTime.now().toEpochSecond()
+        val now = TimeHelper.getNow().toEpochSecond()
         val lastScrape = kdvsPreferences.lastStaffScrape ?: 0L
         val scrapeFreq = kdvsPreferences.scrapeFrequency ?: WebScraperManager.DEFAULT_SCRAPE_FREQ
 

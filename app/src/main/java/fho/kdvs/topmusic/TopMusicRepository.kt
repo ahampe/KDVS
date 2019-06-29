@@ -5,6 +5,7 @@ import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.TopMusicDao
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.MusicBrainzReleaseData
 import fho.kdvs.global.web.SpotifyData
@@ -33,7 +34,7 @@ class TopMusicRepository @Inject constructor(
     }
 
     private fun scrapeTopAdds() = launch {
-        val now = OffsetDateTime.now().toEpochSecond()
+        val now = TimeHelper.getNow().toEpochSecond()
         val lastScrape = kdvsPreferences.lastTopFiveAddsScrape ?: 0L
         val scrapeFreq = kdvsPreferences.scrapeFrequency ?: WebScraperManager.WEEKLY_SCRAPE_FREQ
 
@@ -45,7 +46,7 @@ class TopMusicRepository @Inject constructor(
     }
 
     private fun scrapeTopAlbums() = launch {
-        val now = OffsetDateTime.now().toEpochSecond()
+        val now = TimeHelper.getNow().toEpochSecond()
         val lastScrape = kdvsPreferences.lastTopThirtyAlbumsScrape ?: 0L
         val scrapeFreq = kdvsPreferences.scrapeFrequency ?: WebScraperManager.WEEKLY_SCRAPE_FREQ
 

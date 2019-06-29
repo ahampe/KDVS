@@ -11,6 +11,7 @@ import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.extensions.toLiveData
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
 import fho.kdvs.show.ShowRepository
@@ -104,7 +105,7 @@ class BroadcastRepository @Inject constructor(
         // which is generally lenient since broadcasts happen at most weekly on KDVS.
         Timber.d("live show's most recent broadcast: $broadcast")
         val broadcastDate = broadcast.date ?: return@Observer
-        if (abs(ChronoUnit.DAYS.between(LocalDate.now(), broadcastDate)) < 3L) {
+        if (abs(ChronoUnit.DAYS.between(TimeHelper.getLocalNow(), broadcastDate)) < 3L) {
             Timber.d("broadcast is this week. posting...")
             liveBroadcastLiveData.postValue(broadcast)
             if (nowPlayingBroadcastLiveData.value == null)
@@ -114,7 +115,7 @@ class BroadcastRepository @Inject constructor(
 
     /** Runs a show scrape if it hasn't been fetched recently. */
     fun scrapeShow(showId: String): Job = launch {
-        val now = OffsetDateTime.now().toEpochSecond()
+        val now = TimeHelper.getNow().toEpochSecond()
         val lastScrape = kdvsPreferences.getLastShowScrape(showId) ?: 0L
         val scrapeFreq = kdvsPreferences.scrapeFrequency ?: WebScraperManager.DEFAULT_SCRAPE_FREQ
 
