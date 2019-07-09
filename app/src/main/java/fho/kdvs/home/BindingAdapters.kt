@@ -10,6 +10,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import fho.kdvs.R
 import fho.kdvs.global.ui.CurrentShowPaletteRequestListener
+import fho.kdvs.global.util.ColorHelper
 import fho.kdvs.global.util.ImageHelper
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.fragment_home.view.*
@@ -33,7 +34,6 @@ fun loadCurrentShowImageWithGlideAndApplyGradient(view: ImageView, imageHref: St
         }
     }
 }
-
 
 @BindingAdapter("glideHrefDefaultGone")
 fun loadImageWithGlideIfPresent(view: ImageView, imageHref: String?) {
@@ -60,4 +60,13 @@ fun setCurrentShowLabel(view: TextView, start: OffsetDateTime, end: OffsetDateTi
         now < start -> view.resources.getString(R.string.now_playing_header_next)
         else -> view.resources.getString(R.string.now_playing_header_current)
     }
+}
+
+@BindingAdapter("staffIcon")
+fun applyRandomStaffColor(view: ImageView, name: String) {
+    val seed = name.hashCode().toLong()
+    val color = ColorHelper.getRandomMatColor(500, view.context, seed)
+
+    view.setColorFilter(color)
+    view.alpha = 0.5f
 }

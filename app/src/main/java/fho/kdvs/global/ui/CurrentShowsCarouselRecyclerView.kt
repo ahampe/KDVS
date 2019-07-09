@@ -35,7 +35,10 @@ class CurrentShowsCarouselRecyclerView(
                     val sidePadding = (width / 2) - (getChildAt(0).width / 2)
                     setPadding(sidePadding, 0, sidePadding, 0)
                     smoothScrollToPosition(position)
+
+                    clearTags()
                     getChildAt(position).tag = tag
+
                     addOnScrollListener(object : OnScrollListener() {
                         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                             super.onScrolled(recyclerView, dx, dy)
@@ -76,5 +79,13 @@ class CurrentShowsCarouselRecyclerView(
 
     fun setButton(view: Button) {
         button = view
+    }
+
+    private fun clearTags() {
+        for (i in 0..childCount) {
+            getChildAt(i)?.let {
+                it.tag = null
+            }
+        }
     }
 }

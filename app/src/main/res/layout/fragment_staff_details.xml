@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="staff"
+            type="fho.kdvs.global.database.StaffEntity" />
+
+        <variable
+            name="vm"
+            type="fho.kdvs.global.SharedViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/root"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/fade"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@drawable/top_down_fade"
+            app:layout_constraintVertical_weight="1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/member"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/member"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/colorBlack"
+            app:layout_constraintVertical_weight="2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fade"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/name"
+                style="@style/TextAppearance.MaterialComponents.Headline5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:ellipsize="end"
+                android:gravity="left"
+                android:maxLines="2"
+                android:text="@{staff.name}"
+                app:layout_constraintEnd_toStartOf="@id/contactButton"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Person Name" />
+
+            <TextView
+                android:id="@+id/position"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{staff.position}"
+                android:layout_marginStart="@dimen/spacing_large"
+                style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                app:layout_constraintEnd_toEndOf="@id/contactButton"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintTop_toBottomOf="@id/name"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="Position" />
+
+            <ImageView
+                android:id="@+id/contactButton"
+                android:contentDescription="@string/staff_email_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_mail_outline_white_36dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="@dimen/spacing_large"
+                app:layout_constraintTop_toTopOf="@id/name"
+                app:layout_constraintBottom_toBottomOf="@id/name"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:onClick="@{(view) -> vm.composeEmail(view, staff.email)}"/>
+
+            <TextView
+                android:id="@+id/dutiesHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:text="@string/duties"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/position"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="Duties" />
+
+            <TextView
+                android:id="@+id/duties"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_extra_large"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:text="@{staff.duties}"
+                app:layout_constraintTop_toBottomOf="@id/dutiesHeader"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/contactButton"
+                app:layout_constraintHorizontal_bias="0.0"
+                tools:text="Duties" />
+
+            <TextView
+                android:id="@+id/officeHoursHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:text="@string/office_hours"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/duties"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="Office Hours" />
+
+            <TextView
+                android:id="@+id/officeHours"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_extra_large"
+                android:layout_marginEnd="@dimen/spacing_extra_large"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:text="@{staff.officeHours}"
+                app:layout_constraintTop_toBottomOf="@id/officeHoursHeader"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/contactButton"
+                app:layout_constraintHorizontal_bias="0.0"
+                tools:text="Hours" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

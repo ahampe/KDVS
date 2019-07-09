@@ -1,5 +1,7 @@
 package fho.kdvs.global
 
+import android.Manifest
+import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -7,6 +9,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -23,10 +27,7 @@ import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
 import fho.kdvs.global.util.URLs.YOUTUBE_QUERYSTRING
 import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
 import fho.kdvs.global.web.*
-import fho.kdvs.services.CustomAction
-import fho.kdvs.services.LiveShowUpdater
-import fho.kdvs.services.MediaSessionConnection
-import fho.kdvs.services.PlaybackType
+import fho.kdvs.services.*
 import fho.kdvs.show.ShowRepository
 import fho.kdvs.show.TopMusicRepository
 import kotlinx.coroutines.launch
@@ -163,7 +164,7 @@ class SharedViewModel @Inject constructor(
 
     // endregion
 
-    // region Launch Activity
+    // region activity
 
     fun composeEmail(view: View, address: String?) {
         val intent = Intent(Intent.ACTION_SENDTO).apply {
@@ -178,6 +179,15 @@ class SharedViewModel @Inject constructor(
     fun openBrowser(view: View, url: String?) {
         val intent = Intent(Intent.ACTION_VIEW).apply {
             data = Uri.parse(url)
+        }
+        if (intent.resolveActivity(view.context.packageManager) != null) {
+            startActivity(view.context, intent, null)
+        }
+    }
+
+    fun openPhone(view: View, number: String?) {
+        val intent = Intent(Intent.ACTION_DIAL).apply {
+            data = Uri.parse("tel:$number")
         }
         if (intent.resolveActivity(view.context.packageManager) != null) {
             startActivity(view.context, intent, null)
@@ -265,7 +275,7 @@ class SharedViewModel @Inject constructor(
 
     // endregion
 
-    // region Fetch
+    // region fetch
 
     // TODO: multiple attempts?
     fun fetchThirdPartyDataForTopMusic(topMusic: TopMusicEntity, topMusicRepository: TopMusicRepository) {
@@ -321,7 +331,7 @@ class SharedViewModel @Inject constructor(
 
     // endregion
 
-    // region UI
+    // region ui
 
     fun onClickFavorite(view: View, trackId: Int) {
         val imageView = view as? ImageView

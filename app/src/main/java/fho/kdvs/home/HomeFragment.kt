@@ -4,12 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.PagerSnapHelper
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.databinding.FragmentHomeBinding
@@ -17,6 +16,7 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.FundraiserEntity
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.StaffEntity
 import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
@@ -25,10 +25,10 @@ import fho.kdvs.staff.StaffAdapter
 import fho.kdvs.topmusic.TopMusicAdapter
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.launch
-import org.threeten.bp.LocalDate
 import timber.log.Timber
 import java.text.DecimalFormat
 import javax.inject.Inject
+
 
 class HomeFragment : DaggerFragment() {
     @Inject
@@ -74,6 +74,8 @@ class HomeFragment : DaggerFragment() {
 
         val snapHelper = PagerSnapHelper()
 
+        val fragment = this
+
         currentShowsAdapter = CurrentShowsAdapter(viewModel) {
             Timber.d("Clicked ${it.item}")
             viewModel.onClickCurrentShow(findNavController(), it.item.id)
@@ -105,6 +107,14 @@ class HomeFragment : DaggerFragment() {
         newsRecycler.apply {
             layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             adapter = newsArticlesAdapter
+
+            val itemDecorator = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+            val drawable = ContextCompat.getDrawable(context, R.drawable.timeslot_divider)
+
+            drawable?.let {
+                itemDecorator.setDrawable(it)
+                addItemDecoration(itemDecorator)
+            }
         }
 
         topAddsAdapter = TopMusicAdapter {
@@ -127,12 +137,13 @@ class HomeFragment : DaggerFragment() {
             adapter = topAlbumsAdapter
         }
 
-        staffAdapter = StaffAdapter(sharedViewModel) {
+        staffAdapter = StaffAdapter {
             Timber.d("Clicked ${it.item}")
+            fragment.showStaffDetails(it.item)
         }
 
         staffsRecycler.apply {
-            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
             adapter = staffAdapter
         }
     }
@@ -152,22 +163,36 @@ class HomeFragment : DaggerFragment() {
 
             topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
                 Timber.d("Got adds: $adds")
-                launch {
-                    adds.forEach {
-                        sharedViewModel.fetchThirdPartyDataForTopMusic(it, viewModel.topMusicRepository)
+
+                when (adds.isEmpty()) {
+                    true -> topAdds.visibility = View.GONE
+                    false -> {
+                        launch {
+                            adds.forEach {
+                                sharedViewModel.fetchThirdPartyDataForTopMusic(it, viewModel.topMusicRepository)
+                            }
+                        }
+                        topAddsAdapter?.onTopAddsChanged(adds)
+                        topAdds.visibility = View.VISIBLE
                     }
                 }
-                topAddsAdapter?.onTopAddsChanged(adds)
             })
 
             topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
                 Timber.d("Got albums: $albums")
-                launch {
-                    albums.forEach {
-                        sharedViewModel.fetchThirdPartyDataForTopMusic(it, viewModel.topMusicRepository)
+
+                when (albums.isEmpty()) {
+                    true -> topAlbums.visibility = View.GONE
+                    false -> {
+                        launch {
+                            albums.forEach {
+                                sharedViewModel.fetchThirdPartyDataForTopMusic(it, viewModel.topMusicRepository)
+                            }
+                        }
+                        topAlbumsAdapter?.onTopAlbumsChanged(albums)
+                        topAlbums.visibility = View.VISIBLE
                     }
                 }
-                topAlbumsAdapter?.onTopAlbumsChanged(albums)
             })
 
             staff.observe(viewLifecycleOwner, Observer { staff ->
@@ -245,6 +270,16 @@ class HomeFragment : DaggerFragment() {
 
         val progress = ((fundraiser.current?.toFloat() ?: 0.toFloat()) / (fundraiser.goal?.toFloat() ?: 1.toFloat())) * 100
         fundraiserProgress.progress = if (progress > 100) 100 else progress.toInt()
+    }
+
+    private fun showStaffDetails(member: StaffEntity) {
+        val args = Bundle()
+        args.putParcelable("member", member)
+
+        val newFragment = StaffDetailsFragment()
+
+        newFragment.arguments = args
+        newFragment.show(fragmentManager, "staff_details_fragment")
     }
 }
 

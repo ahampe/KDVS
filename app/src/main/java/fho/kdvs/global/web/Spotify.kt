@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.util.LinkedMultiValueMap
 import timber.log.Timber
+import java.lang.Exception
 
 
 @kotlinx.serialization.UnstableDefault
@@ -22,20 +23,24 @@ object Spotify {
     fun search(query: String?): SpotifyData? { // TODO: fuzzy/dynamic search?
         Timber.d("Spotify search $query")
 
-        val authentication = requestAuthentication()
-        if (authentication != null && authentication.has("access_token")) {
-            val token = authentication.getString("access_token")
+        try {
+            val authentication = requestAuthentication()
+            if (authentication != null && authentication.has("access_token")) {
+                val token = authentication.getString("access_token")
 
-            val headers = HttpHeaders()
-            headers.set("Authorization", "Bearer $token")
+                val headers = HttpHeaders()
+                headers.set("Authorization", "Bearer $token")
 
-            val url = "$SPOTIFY_SEARCH_URL$query"
-            val request = HttpEntity<String>(headers)
+                val url = "$SPOTIFY_SEARCH_URL$query"
+                val request = HttpEntity<String>(headers)
 
-            val response = HttpHelper.makeParameterizedGETRequest(url, request)
-            response?.let {
-                return Json.nonstrict.parse(SpotifyData.serializer(), response)
+                val response = HttpHelper.makeParameterizedGETRequest(url, request)
+                response?.let {
+                    return Json.nonstrict.parse(SpotifyData.serializer(), response)
+                }
             }
+        } catch (e: Exception) {
+            Timber.d("GET error $e")
         }
 
         return null

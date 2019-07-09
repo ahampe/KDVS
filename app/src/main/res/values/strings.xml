@@ -26,6 +26,7 @@
     <string name="now_playing_header_previous">Previously</string>
     <string name="now_playing_header_next">Up Next</string>
 
+    <string name="now_playing_gradient">gradient</string>
     <string name="contact">Contact</string>
     <string name="duties">Duties</string>
     <string name="office_hours">Office Hours</string>
@@ -33,12 +34,14 @@
     <string name="top_adds">Weekly Top Adds</string>
     <string name="top_albums">Weekly Top Albums</string>
     <string name="staff">Staff</string>
+    <string name="studio">Studio Line</string>
+    <string name="business">Business Line</string>
     <string name="staff_email_icon">email</string>
     <string name="toggle_desc">Hide</string>
     <string name="fundraiser">Fundraiser</string>
     <string name="fundraiser_progress_separator">/</string>
     <string name="fundraiser_link">Pledge</string>
-    <string name="fundraiser_dates_same_month">%1$s %2$s–%3$s, %4$d</string>
+    <string name="fundraiser_dates_same_month">%1$s %2$s – %3$s, %4$d</string>
     <string name="fundraiser_dates_diff_month">%1$s %2$s – %3$s %4$s, %5$d</string>
     <string name="fundraiser_total">$%1$s</string>
     <string name="now_playing_link">Play</string>

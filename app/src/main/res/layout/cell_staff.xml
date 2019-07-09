@@ -1,124 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
-
     <data>
-
         <variable
             name="staff"
             type="fho.kdvs.global.database.StaffEntity" />
 
         <variable
-            name="vm"
-            type="fho.kdvs.global.SharedViewModel" />
+            name="clickListener"
+            type="android.view.View.OnClickListener" />
     </data>
 
-    <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
+        android:onClick="@{clickListener}"
+        android:orientation="vertical"
+        android:layout_width="@dimen/home_staff_height"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@android:color/transparent"
-        app:cardElevation="0dp">
+        app:layout_constraintDimensionRatio="1:1">
 
-        <LinearLayout
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:src="@drawable/ic_person_white_24dp"
+            android:adjustViewBounds="true"
+            staffIcon="@{staff.name}"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <TextView
+            android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="@dimen/spacing_large">
+            app:layout_constraintTop_toBottomOf="@id/icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:textStyle="bold"
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:text="@{staff.name}"
+            tools:text="Person Name"/>
 
-            <LinearLayout
-                android:id="@+id/namePositionAndEmailIcon"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintTop_toTopOf="parent">
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:textColor="@color/colorPrimary50a"
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:text="@{staff.position}"
+            tools:text="General Manager"/>
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="1">
-
-                    <TextView
-                        android:id="@+id/name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@{staff.name}"
-                        style="@style/TextAppearance.MaterialComponents.Headline5"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        tools:text="Person Name" />
-
-                    <TextView
-                        android:id="@+id/position"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@{staff.position}"
-                        style="@style/TextAppearance.MaterialComponents.Subtitle1"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        tools:text="Position" />
-                </LinearLayout>
-
-                <ImageView
-                    android:id="@+id/contactButton"
-                    android:contentDescription="@string/staff_email_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_mail_outline_white_36dp"
-                    android:layout_gravity="end"
-                    android:onClick="@{(view) -> vm.composeEmail(view, staff.email)}"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="@dimen/spacing_small"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/spacing_large"
-                    android:text="@string/duties"
-                    android:textStyle="bold"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    tools:text="Duties" />
-
-                <TextView
-                    android:id="@+id/duties"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/spacing_extra_large"
-                    android:layout_marginTop="@dimen/spacing_small"
-                    android:text="@{staff.duties}"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    tools:text="Duties" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/spacing_large"
-                    android:layout_marginTop="@dimen/spacing_small"
-                    android:text="@string/office_hours"
-                    android:textStyle="bold"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    tools:text="Office Hours" />
-
-                <TextView
-                    android:id="@+id/officeHours"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/spacing_extra_large"
-                    android:layout_marginTop="@dimen/spacing_small"
-                    android:text="@{staff.officeHours}"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    tools:text="Hours" />
-            </LinearLayout>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
