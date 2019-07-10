@@ -68,5 +68,5 @@ fun applyRandomStaffColor(view: ImageView, name: String) {
     val color = ColorHelper.getRandomMatColor(500, view.context, seed)
 
     view.setColorFilter(color)
-    view.alpha = 0.5f
+    view.alpha = 0.75f
 }

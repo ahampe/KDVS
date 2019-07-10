@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.R
 
 /** https://medium.com/@supahsoftware/custom-android-views-carousel-recyclerview-7b9318d23e9a */
-abstract class HorizontalCarouselRecyclerView(
+open class HorizontalCarouselRecyclerView(
     context: Context,
     attrs: AttributeSet
 ) : RecyclerView(context, attrs) {

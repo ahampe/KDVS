@@ -8,7 +8,10 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.*
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
+import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.databinding.FragmentHomeBinding
@@ -17,6 +20,7 @@ import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.FundraiserEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.StaffEntity
+import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
@@ -75,6 +79,8 @@ class HomeFragment : DaggerFragment() {
         val snapHelper = PagerSnapHelper()
 
         val fragment = this
+
+        LoadScreen.displayLoadScreen(base)
 
         currentShowsAdapter = CurrentShowsAdapter(viewModel) {
             Timber.d("Clicked ${it.item}")
@@ -151,6 +157,11 @@ class HomeFragment : DaggerFragment() {
     @kotlinx.serialization.UnstableDefault
     private fun subscribeToViewModel() {
         viewModel.run {
+            combinedLiveData.observe(viewLifecycleOwner, Observer {
+                Timber.d("All home observations complete")
+                LoadScreen.hideLoadScreen(base)
+            })
+
             currentShows.observe(viewLifecycleOwner, Observer { shows ->
                 Timber.d("Got current shows: $shows")
                 currentShowsAdapter?.onCurrentShowsChanged(shows)
@@ -268,7 +279,7 @@ class HomeFragment : DaggerFragment() {
             goalStr
         )
 
-        val progress = ((fundraiser.current?.toFloat() ?: 0.toFloat()) / (fundraiser.goal?.toFloat() ?: 1.toFloat())) * 100
+        val progress = ((fundraiser.current?.toFloat() ?: 0f) / (fundraiser.goal?.toFloat() ?: 1f)) * 100
         fundraiserProgress.progress = if (progress > 100) 100 else progress.toInt()
     }
 

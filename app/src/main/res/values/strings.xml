@@ -41,7 +41,7 @@
     <string name="fundraiser">Fundraiser</string>
     <string name="fundraiser_progress_separator">/</string>
     <string name="fundraiser_link">Pledge</string>
-    <string name="fundraiser_dates_same_month">%1$s %2$s – %3$s, %4$d</string>
+    <string name="fundraiser_dates_same_month">%1$s %2$s–%3$s, %4$d</string>
     <string name="fundraiser_dates_diff_month">%1$s %2$s – %3$s %4$s, %5$d</string>
     <string name="fundraiser_total">$%1$s</string>
     <string name="now_playing_link">Play</string>

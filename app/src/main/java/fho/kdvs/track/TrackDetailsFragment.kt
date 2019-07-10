@@ -14,9 +14,9 @@ import fho.kdvs.databinding.FragmentTrackDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.ImageHelper
 import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.global.web.Spotify
 import kotlinx.android.synthetic.main.fragment_track_details.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -76,89 +76,93 @@ class TrackDetailsFragment : DaggerFragment(), CoroutineScope {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        progressBar.visibility = View.VISIBLE
+        LoadScreen.displayLoadScreen(base)
     }
 
     private fun subscribeToViewModel() {
         var musicBrainzFetchComplete = false
         var spotifyFetchComplete = false
+        
+        val fragment = this
 
-        viewModel.favorite.observe(this, Observer { favorite ->
-            if (favorite != null && favorite.trackId != -1) {
-                favoriteIcon.setImageResource(R.drawable.ic_favorite_white_24dp)
-                favoriteIcon.tag = 1
-            } else {
-                favoriteIcon.setImageResource(R.drawable.ic_favorite_border_white_24dp)
-                favoriteIcon.tag = 0
-            }
-        })
+        viewModel.run {
+            favorite.observe(fragment, Observer { favorite ->
+                if (favorite != null && favorite.trackId != -1) {
+                    favoriteIcon.setImageResource(R.drawable.ic_favorite_white_24dp)
+                    favoriteIcon.tag = 1
+                } else {
+                    favoriteIcon.setImageResource(R.drawable.ic_favorite_border_white_24dp)
+                    favoriteIcon.tag = 0
+                }
+            })
 
-        viewModel.broadcast.observe(this, Observer { broadcast ->
-            if (broadcast.date != null) {
-                val formatter = TimeHelper.uiDateFormatter
-                broadcastDate.text = formatter.format(broadcast.date)
-            }
-        })
+            broadcast.observe(fragment, Observer { broadcast ->
+                if (broadcast.date != null) {
+                    val formatter = TimeHelper.uiDateFormatter
+                    broadcastDate.text = formatter.format(broadcast.date)
+                }
+            })
 
-        viewModel.show.observe(this, Observer { show ->
-            showName.text = show.name
-        })
+            show.observe(fragment, Observer { show ->
+                showName.text = show.name
+            })
 
-        viewModel.liveTrack.observe(this, Observer { liveTrack ->
-            Timber.d("Got updated track: $liveTrack")
+            liveTrack.observe(fragment, Observer { liveTrack ->
+                Timber.d("Got updated track: $liveTrack")
 
-            if (liveTrack.hasScrapedMetadata) {
-                musicBrainzFetchComplete = true
-                if (spotifyFetchComplete)
-                    progressBar.visibility = View.GONE
-            }
+                if (liveTrack.hasScrapedMetadata) {
+                    musicBrainzFetchComplete = true
+                    if (spotifyFetchComplete)
+                        LoadScreen.hideLoadScreen(base)
+                }
 
-            val spotifyUri = liveTrack.spotifyUri
-            if (spotifyUri != null) {
-                spotifyFetchComplete = true
-                if (musicBrainzFetchComplete)
-                    progressBar.visibility = View.GONE
+                val spotifyUri = liveTrack.spotifyUri
+                if (spotifyUri != null) {
+                    spotifyFetchComplete = true
+                    if (musicBrainzFetchComplete)
+                        LoadScreen.hideLoadScreen(base)
 
-                if (spotifyUri.isNotEmpty()) {
-                    spotifyIcon.setOnClickListener {
-                        Timber.d("Spotify icon clicked for ${liveTrack?.song}")
-                        sharedViewModel.openSpotify(spotifyIcon, spotifyUri)
+                    if (spotifyUri.isNotEmpty()) {
+                        spotifyIcon.setOnClickListener {
+                            Timber.d("Spotify icon clicked for ${liveTrack?.song}")
+                            sharedViewModel.openSpotify(spotifyIcon, spotifyUri)
+                        }
+                        spotifyIcon.visibility = View.VISIBLE
                     }
-                    spotifyIcon.visibility = View.VISIBLE
                 }
-            }
 
-            // TODO: replace some of these with binding adapters
+                // TODO: replace some of these with binding adapters
 
-            song.text = liveTrack.song
-            song.isSelected = true
+                song.text = liveTrack.song
+                song.isSelected = true
 
-            if (liveTrack.album.isNullOrBlank())
-                artistAlbum.text = liveTrack.artist
-            else
-                artistAlbum.text = artistAlbum.resources.getString(R.string.artist_album,
-                    liveTrack.artist, liveTrack.album)
+                if (liveTrack.album.isNullOrBlank())
+                    artistAlbum.text = liveTrack.artist
+                else
+                    artistAlbum.text = artistAlbum.resources.getString(R.string.artist_album,
+                        liveTrack.artist, liveTrack.album)
 
-            when {
-                liveTrack.year == null && liveTrack.label == null -> albumInfo.visibility = View.GONE
-                liveTrack.label == null -> albumInfo.text = liveTrack.year.toString()
-                liveTrack.year == null -> albumInfo.text = liveTrack.label
-                else -> {
-                    albumInfo.text = albumInfo.resources.getString(
-                        R.string.album_info,
-                        liveTrack.year, liveTrack.label
-                    )
+                when {
+                    liveTrack.year == null && liveTrack.label == null -> albumInfo.visibility = View.GONE
+                    liveTrack.label == null -> albumInfo.text = liveTrack.year.toString()
+                    liveTrack.year == null -> albumInfo.text = liveTrack.label
+                    else -> {
+                        albumInfo.text = albumInfo.resources.getString(
+                            R.string.album_info,
+                            liveTrack.year, liveTrack.label
+                        )
+                    }
                 }
-            }
 
-            if (!liveTrack.comment.isNullOrBlank()) {
-                comment.text = comment.resources.getString(R.string.track_comments, liveTrack.comment)
-                comment.visibility = View.VISIBLE
-            }
+                if (!liveTrack.comment.isNullOrBlank()) {
+                    comment.text = comment.resources.getString(R.string.track_comments, liveTrack.comment)
+                    comment.visibility = View.VISIBLE
+                }
 
-            if ((liveTrack.imageHref ?: "").isNotEmpty()) {
-                ImageHelper.loadImageWithGlide(artwork, liveTrack.imageHref)
-            }
-        })
+                if ((liveTrack.imageHref ?: "").isNotEmpty()) {
+                    ImageHelper.loadImageWithGlide(artwork, liveTrack.imageHref)
+                }
+            })
+        }
     }
 }

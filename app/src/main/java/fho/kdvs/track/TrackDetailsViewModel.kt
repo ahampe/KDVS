@@ -3,6 +3,7 @@ package fho.kdvs.track
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.favorite.FavoriteRepository
 import fho.kdvs.global.database.BroadcastEntity
@@ -29,6 +30,8 @@ class TrackDetailsViewModel @Inject constructor(
     lateinit var favorite: LiveData<FavoriteEntity>
     lateinit var broadcast: LiveData<BroadcastEntity>
     lateinit var show: LiveData<ShowEntity>
+
+    lateinit var combinedLiveData: MediatorLiveData<Boolean>
 
     private val parentJob = Job()
     override val coroutineContext: CoroutineContext

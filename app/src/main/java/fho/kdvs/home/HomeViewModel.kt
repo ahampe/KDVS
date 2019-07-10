@@ -40,6 +40,8 @@ class HomeViewModel @Inject constructor(
     lateinit var staff: LiveData<List<StaffEntity>>
     lateinit var fundraiser: LiveData<FundraiserEntity>
 
+    lateinit var combinedLiveData: MediatorLiveData<Boolean>
+
     private val parentJob = Job()
     override val coroutineContext: CoroutineContext
         get() = parentJob + Dispatchers.IO
@@ -57,6 +59,16 @@ class HomeViewModel @Inject constructor(
         topMusicAlbums = topMusicRepository.getMostRecentTopAlbums()
         staff = staffRepository.getStaff()
         fundraiser = fundraiserRepository.getFundraiser()
+
+        val dataStreams = listOf(currentShows, newsArticles, topMusicAdds, topMusicAlbums, staff, fundraiser)
+        combinedLiveData = MediatorLiveData<Boolean>()
+            .apply {
+                dataStreams.forEach { liveData ->
+                    addSource(liveData) {
+                        postValue(dataStreams.all { stream -> stream.value != null })
+                    }
+                }
+            }
     }
 
     /** Signals the [News Repository] to scrape the news page(s). */
