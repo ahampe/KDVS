@@ -2,6 +2,7 @@
     <string name="kdvs">KDVS</string>
 
     <string name="app_name">@string/kdvs</string>
+    <string name="splash">splash</string>
 
     <string name="title_home">Home</string>
     <string name="title_schedule">Schedule</string>

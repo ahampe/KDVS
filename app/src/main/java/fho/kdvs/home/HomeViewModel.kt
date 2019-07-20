@@ -47,6 +47,7 @@ class HomeViewModel @Inject constructor(
         get() = parentJob + Dispatchers.IO
 
     fun fetchHomeData() {
+        fetchShows()
         fetchNewsArticles()
         fetchTopMusicItems()
         fetchStaff()
@@ -70,6 +71,9 @@ class HomeViewModel @Inject constructor(
                 }
             }
     }
+
+    /** Signals the [ShowRepository] to scrape the schedule grid. */
+    private fun fetchShows() = showRepository.scrapeSchedule()
 
     /** Signals the [News Repository] to scrape the news page(s). */
     private fun fetchNewsArticles() = newsRepository.scrapeNews()

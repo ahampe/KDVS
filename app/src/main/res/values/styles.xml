@@ -11,8 +11,6 @@
     <!-- Launcher theme for splash. -->
     <style name="AppTheme.launcher">
         <item name="android:windowBackground">@drawable/splash</item>
-        <!-- Optional, on Android 5+ you can modify the colorPrimaryDark color to match the windowBackground color for further branding-->
-        <!-- <item name="colorPrimaryDark">@android:color/white</item> -->
     </style>
 
     <style name="CustomBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">

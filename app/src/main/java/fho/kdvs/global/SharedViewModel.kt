@@ -77,6 +77,7 @@ class SharedViewModel @Inject constructor(
 
     fun updateLiveShows() = liveShowUpdater.beginUpdating()
 
+    /** Signals the [ShowRepository] to scrape the schedule grid. */
     fun fetchShows() = showRepository.scrapeSchedule()
 
     // region playback
