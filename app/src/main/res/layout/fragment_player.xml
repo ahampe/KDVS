@@ -25,7 +25,7 @@
             android:layout_gravity="top"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:background="@drawable/top_down_fade"/>
+            android:background="@drawable/top_down_fade_black"/>
 
         <ImageView
             android:id="@+id/arrow"

@@ -15,12 +15,6 @@ class ShowSearchViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
 
-    /** Signals the [ShowRepository] to scrape the schedule grid. */
-    fun fetchShows() = showRepository.scrapeSchedule()
-
-    fun getCurrentQuarterYear() : LiveData<QuarterYear> =
-        showRepository.getCurrentQuarterYear()
-
     fun getShowsForCurrentQuarterYear(currentQuarterYear: QuarterYear) : LiveData<List<ShowEntity>> =
         showRepository.showsForQuarterYear(currentQuarterYear)
             .debounce ( 100L, TimeUnit.MILLISECONDS )

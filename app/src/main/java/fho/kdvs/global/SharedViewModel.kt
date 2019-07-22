@@ -21,16 +21,19 @@ import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
+import fho.kdvs.global.extensions.toLiveData
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
 import fho.kdvs.global.util.URLs.YOUTUBE_QUERYSTRING
 import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
 import fho.kdvs.global.web.*
+import fho.kdvs.schedule.QuarterYear
 import fho.kdvs.services.*
 import fho.kdvs.show.ShowRepository
 import fho.kdvs.show.TopMusicRepository
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 
@@ -79,6 +82,10 @@ class SharedViewModel @Inject constructor(
 
     /** Signals the [ShowRepository] to scrape the schedule grid. */
     fun fetchShows() = showRepository.scrapeSchedule()
+
+    fun getCurrentQuarterYear() : LiveData<QuarterYear> =
+        showRepository.getCurrentQuarterYear()
+
 
     // region playback
 

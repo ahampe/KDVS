@@ -22,7 +22,6 @@ import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.fragment_schedule.*
 import kotlinx.android.synthetic.main.fragment_schedule.view.*
-import org.threeten.bp.LocalDate
 import timber.log.Timber
 import javax.inject.Inject
 

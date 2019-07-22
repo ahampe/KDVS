@@ -178,12 +178,17 @@ class HomeFragment : DaggerFragment() {
                 when (adds.isEmpty()) {
                     true -> topAdds.visibility = View.GONE
                     false -> {
+                        val mostRecentAdds = adds.filter {
+                                a -> a.weekOf == adds.sortedByDescending { it.weekOf }.first().weekOf
+                        }
+
                         launch {
-                            adds.forEach {
+                            mostRecentAdds.forEach {
                                 sharedViewModel.fetchThirdPartyDataForTopMusic(it, viewModel.topMusicRepository)
                             }
                         }
-                        topAddsAdapter?.onTopAddsChanged(adds)
+
+                        topAddsAdapter?.onTopAddsChanged(mostRecentAdds)
                         topAdds.visibility = View.VISIBLE
                     }
                 }
@@ -195,12 +200,17 @@ class HomeFragment : DaggerFragment() {
                 when (albums.isEmpty()) {
                     true -> topAlbums.visibility = View.GONE
                     false -> {
+                        val mostRecentAlbums = albums.filter {
+                            a -> a.weekOf == albums.sortedByDescending { it.weekOf }.first().weekOf
+                        }
+
                         launch {
-                            albums.forEach {
+                            mostRecentAlbums.forEach {
                                 sharedViewModel.fetchThirdPartyDataForTopMusic(it, viewModel.topMusicRepository)
                             }
                         }
-                        topAlbumsAdapter?.onTopAlbumsChanged(albums)
+
+                        topAlbumsAdapter?.onTopAlbumsChanged(mostRecentAlbums)
                         topAlbums.visibility = View.VISIBLE
                     }
                 }

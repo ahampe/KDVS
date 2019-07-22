@@ -77,6 +77,7 @@ open class KdvsPreferences @Inject constructor(application: Application) {
 
     var lastFundraiserScraper: Long? by LongPreference(Key.LAST_FUNDRAISER_SCRAPE)
 
+
     fun getLastShowScrape(showId: String): Long? {
         val pref by LongPreference(Key.LAST_SHOW_SCRAPE, showId)
         return pref

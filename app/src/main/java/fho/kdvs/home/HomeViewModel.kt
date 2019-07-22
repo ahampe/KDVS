@@ -46,7 +46,7 @@ class HomeViewModel @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = parentJob + Dispatchers.IO
 
-    fun fetchHomeData() {
+    fun fetchHomeData(): LiveData<Boolean> {
         fetchShows()
         fetchNewsArticles()
         fetchTopMusicItems()
@@ -56,8 +56,8 @@ class HomeViewModel @Inject constructor(
         currentShows = showRepository.currentShowsLiveData
         newsArticles = newsRepository.getAllNewsPastDate(
             TimeHelper.getNow().minusMonths(6).toLocalDate()) // TODO: Make this a preference?
-        topMusicAdds = topMusicRepository.getMostRecentTopAdds()
-        topMusicAlbums = topMusicRepository.getMostRecentTopAlbums()
+        topMusicAdds = topMusicRepository.getTopAdds()
+        topMusicAlbums = topMusicRepository.getTopAlbums()
         staff = staffRepository.getStaff()
         fundraiser = fundraiserRepository.getFundraiser()
 
@@ -70,6 +70,8 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             }
+
+        return combinedLiveData
     }
 
     /** Signals the [ShowRepository] to scrape the schedule grid. */

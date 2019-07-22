@@ -13,6 +13,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.R
+import kotlin.math.E
+import kotlin.math.pow
 
 /** https://medium.com/@supahsoftware/custom-android-views-carousel-recyclerview-7b9318d23e9a */
 open class HorizontalCarouselRecyclerView(
@@ -115,18 +117,14 @@ open class HorizontalCarouselRecyclerView(
 
     protected fun getGaussianScale(
         childCenterX: Int,
-        minScaleOffest: Float,
+        minScaleOffset: Float,
         scaleFactor: Float,
         spreadFactor: Double
     ): Float {
         val recyclerCenterX = (left + right) / 2
 
-        return (Math.pow(
-            Math.E,
-            -Math.pow(childCenterX - recyclerCenterX.toDouble(), 2.toDouble()) / (2 * Math.pow(
-                spreadFactor,
-                2.toDouble()
-            ))
-        ) * scaleFactor + minScaleOffest).toFloat()
+        return (E.pow(-(childCenterX - recyclerCenterX.toDouble()).pow(2) / (2 * spreadFactor.pow(2)))
+                * scaleFactor + minScaleOffset)
+            .toFloat()
     }
 }

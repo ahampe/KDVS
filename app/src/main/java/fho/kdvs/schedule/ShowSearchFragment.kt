@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
+import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.ShowEntity
 import kotlinx.android.synthetic.main.fragment_show_search.*
 import timber.log.Timber
@@ -22,7 +23,8 @@ class ShowSearchFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
 
-    private lateinit var viewModel: ShowSearchViewModel
+    private lateinit var vm: ShowSearchViewModel
+    private lateinit var sharedVm: SharedViewModel
 
     private var showSearchViewAdapter: ShowSearchViewAdapter? = null
     var hashedShows = mutableMapOf<String, ArrayList<ShowEntity>>()
@@ -30,8 +32,11 @@ class ShowSearchFragment : DaggerFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel = ViewModelProviders.of(this, vmFactory)
+        vm = ViewModelProviders.of(this, vmFactory)
             .get(ShowSearchViewModel::class.java)
+
+        sharedVm = ViewModelProviders.of(this, vmFactory)
+            .get(SharedViewModel::class.java)
             .also { it.fetchShows() } // TODO: do this in background? just needs to be finished before user searches
 
         subscribeToViewModel()
@@ -50,9 +55,9 @@ class ShowSearchFragment : DaggerFragment() {
     private fun subscribeToViewModel(){
         val fragment = this
 
-        viewModel.run {
-            getCurrentQuarterYear().observe(fragment, Observer { currentQuarterYear ->
-                viewModel.getShowsForCurrentQuarterYear(currentQuarterYear).observe(fragment, Observer { shows ->
+        vm.run {
+            sharedVm.getCurrentQuarterYear().observe(fragment, Observer { currentQuarterYear ->
+                vm.getShowsForCurrentQuarterYear(currentQuarterYear).observe(fragment, Observer { shows ->
                     // Pair each show with an int corresponding to number of shows in its timeslot
                     val showsWithTimeSlotSize = shows.groupBy { s -> s.timeStart }
                         .map { m ->
@@ -65,7 +70,7 @@ class ShowSearchFragment : DaggerFragment() {
 
                     showSearchViewAdapter = ShowSearchViewAdapter(showsWithTimeSlotSize, fragment) {
                         Timber.d("clicked ${it.item}")
-                        viewModel.onClickShow(findNavController(), it.item)
+                        vm.onClickShow(findNavController(), it.item)
                     }
 
                     resultsRecycler.run {

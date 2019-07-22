@@ -11,7 +11,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_gravity="top"
-            android:background="@drawable/top_down_fade"/>
+            android:background="@drawable/top_down_fade_black"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/showSelectionRecyclerView"

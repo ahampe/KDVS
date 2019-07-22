@@ -11,6 +11,7 @@ import fho.kdvs.global.database.ShowDao
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
+import fho.kdvs.global.extensions.toLiveData
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
@@ -24,6 +25,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -152,6 +154,11 @@ class ShowRepository @Inject constructor(
     private fun forceScrapeSchedule(): Job? = scraperManager.scrape(URLs.SCHEDULE)
 
     fun getCurrentQuarterYear(): LiveData<QuarterYear> = showDao.currentQuarterYear()
+
+    fun getShows(): LiveData<List<ShowEntity>> =
+        showDao.allShows()
+            .debounce (100L, TimeUnit.MILLISECONDS)
+            .toLiveData()
 
     /** Fetches a [LiveData] that will wrap the show matching the provided ID. */
     fun showById(showId: Int): LiveData<ShowEntity> =

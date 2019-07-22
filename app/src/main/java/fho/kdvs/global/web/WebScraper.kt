@@ -343,14 +343,12 @@ class WebScraperManager @Inject constructor(
                             ))
                         }
                     }
-
-                    db.topMusicDao().deleteForTypeAndWeekOf(type, date)
-
-                    topMusicItemsScraped.forEach { topMusic ->
-                        db.topMusicDao().insert(topMusic)
-                    }
                 }
             }
+        }
+
+        topMusicItemsScraped.forEach { topMusic ->
+            db.topMusicDao().insert(topMusic)
         }
 
         when (type) {

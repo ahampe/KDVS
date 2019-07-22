@@ -14,6 +14,9 @@ abstract class TopMusicDao {
     @Query("SELECT * from topMusicData")
     abstract fun getAll(): LiveData<List<TopMusicEntity>>
 
+    @Query("SELECT * from topMusicData where type = :type")
+    abstract fun getAllOfType(type: TopMusicType): LiveData<List<TopMusicEntity>>
+
     @Query("SELECT * from topMusicData where type = :type order by weekOf desc limit :limit")
     abstract fun getMostRecentTopMusicForType(type: TopMusicType, limit: Int): LiveData<List<TopMusicEntity>>
 

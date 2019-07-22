@@ -74,6 +74,12 @@ class TopMusicRepository @Inject constructor(
     fun getTopAddsForWeekOf(weekOf: LocalDate?, type: TopMusicType): LiveData<List<TopMusicEntity>> =
         topMusicDao.getTopMusicForWeekOfType(weekOf, type)
 
+    fun getTopAdds(): LiveData<List<TopMusicEntity>> =
+        topMusicDao.getAllOfType(TopMusicType.ADD)
+
+    fun getTopAlbums(): LiveData<List<TopMusicEntity>> =
+        topMusicDao.getAllOfType(TopMusicType.ALBUM)
+
     fun updateTopMusicAlbum(id: Int, title: String?) {
         title?.let{
             topMusicDao.updateTopMusicAlbum(id, title)
