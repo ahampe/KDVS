@@ -80,7 +80,7 @@ class HomeFragment : DaggerFragment() {
 
         val fragment = this
 
-        LoadScreen.displayLoadScreen(base)
+        LoadScreen.displayLoadScreen(root)
 
         currentShowsAdapter = CurrentShowsAdapter(viewModel) {
             Timber.d("Clicked ${it.item}")
@@ -159,7 +159,7 @@ class HomeFragment : DaggerFragment() {
         viewModel.run {
             combinedLiveData.observe(viewLifecycleOwner, Observer {
                 Timber.d("All home observations complete")
-                LoadScreen.hideLoadScreen(base)
+                LoadScreen.hideLoadScreen(root)
             })
 
             currentShows.observe(viewLifecycleOwner, Observer { shows ->

@@ -3,8 +3,7 @@ package fho.kdvs.global.ui
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
+import android.widget.RelativeLayout
 import fho.kdvs.R
 
 /** Toggling a loading view to hide observable data pop-in. */
@@ -13,40 +12,36 @@ object LoadScreen {
 
     @JvmStatic
     fun displayLoadScreen(base: ViewGroup) {
-        val layout = ConstraintLayout(base.context)
+        val layout = RelativeLayout(base.context)
         val progressBar = ProgressBar(base.context)
-        val set = ConstraintSet()
 
         layout.apply {
-            val params = ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.MATCH_PARENT,
-                ConstraintLayout.LayoutParams.MATCH_PARENT
+            val params = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT
             )
 
             layoutParams = params
             tag = tagStr
             visibility = View.VISIBLE
             elevation = 2f
+
             setBackgroundColor(base.resources.getColor(R.color.colorPrimaryDark, base.context.theme))
         }
 
         progressBar.apply {
-            val params = ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.WRAP_CONTENT,
-                ConstraintLayout.LayoutParams.WRAP_CONTENT
-            )
-
-            layoutParams = params
             isIndeterminate = true
         }
 
-        set.apply {
-            centerHorizontally(progressBar.id, layout.id)
-            centerVertically(progressBar.id, layout.id)
-            applyTo(layout)
-        }
+        val params = RelativeLayout.LayoutParams(
+            RelativeLayout.LayoutParams.WRAP_CONTENT,
+            RelativeLayout.LayoutParams.WRAP_CONTENT
+        )
 
-        layout.addView(progressBar)
+        params.addRule(RelativeLayout.CENTER_IN_PARENT)
+
+        layout.addView(progressBar, params)
+        
         base.addView(layout)
     }
 

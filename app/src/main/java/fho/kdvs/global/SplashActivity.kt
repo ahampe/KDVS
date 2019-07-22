@@ -11,6 +11,7 @@ import kotlinx.coroutines.*
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
+
 class SplashActivity : DaggerAppCompatActivity(), CoroutineScope {
     @Inject
     lateinit var viewModelFactory: KdvsViewModelFactory
@@ -25,7 +26,7 @@ class SplashActivity : DaggerAppCompatActivity(), CoroutineScope {
 
     /** Fetch essential data with timeout during splash to minimize UI pop-in. */
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.AppTheme)
+        setTheme(R.style.AppTheme_launcher)
         super.onCreate(savedInstanceState)
 
         val context = this
@@ -43,7 +44,7 @@ class SplashActivity : DaggerAppCompatActivity(), CoroutineScope {
             }
 
         runBlocking {
-            withTimeoutOrNull(5000L) {
+            withTimeoutOrNull(3000L) {
                 val deferredHomeData = async{ homeViewModel.fetchHomeData() }
                 val deferredScheduleData = async{ scheduleViewModel.fetchShows() }
 
