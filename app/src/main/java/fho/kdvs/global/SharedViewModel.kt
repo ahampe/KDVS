@@ -109,13 +109,28 @@ class SharedViewModel @Inject constructor(
     }
 
     fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
-        mediaSessionConnection.transportControls?.playFromMediaId(
-            broadcast.broadcastId.toString(),
-            Bundle().apply {
-                putInt("SHOW_ID", show.id)
-                putString("TYPE", PlaybackType.ARCHIVE.type)
+        val file = getDestinationFileForBroadcast(broadcast, show)
+
+        when (file.exists()) {
+            true -> {
+                mediaSessionConnection.transportControls?.playFromUri(
+                    Uri.fromFile(file),
+                    Bundle().apply {
+                        putInt("SHOW_ID", show.id)
+                        putString("TYPE", PlaybackType.ARCHIVE.type)
+                    }
+                )
             }
-        )
+            false -> {
+                mediaSessionConnection.transportControls?.playFromMediaId(
+                    broadcast.broadcastId.toString(),
+                    Bundle().apply {
+                        putInt("SHOW_ID", show.id)
+                        putString("TYPE", PlaybackType.ARCHIVE.type)
+                    }
+                )
+            }
+        }
 
         mediaSessionConnection.isLiveNow.postValue(false)
         broadcastRepository.playingLiveBroadcast = false
@@ -231,9 +246,14 @@ class SharedViewModel @Inject constructor(
 
     // region Download
 
-    fun getDestinationFile(fileName: String): File {
+    fun getBroadcastDownloadTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
+        "${show.name} (${TimeHelper.dateFormatter.format(broadcast.date)})"
+
+    fun getBroadcastFileExtension(): String = ".mp3"
+
+    fun getDestinationFile(filename: String): File {
         val folder = getDestinationFolder()
-        return File(Uri.parse("${folder?.absolutePath}/$fileName").path)
+        return File(Uri.parse("${folder?.absolutePath}/$filename").path)
     }
 
     fun getDestinationFolder(): File? {
@@ -241,6 +261,8 @@ class SharedViewModel @Inject constructor(
             return File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_MUSIC), "KDVS")
         }
+
+        // TODO: let user set their downloads folder
 
         return null
     }
@@ -263,8 +285,9 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun makeBroadcastDownloadFilename(broadcast: BroadcastEntity, show: ShowEntity): String {
-        return "${show.name} (${TimeHelper.dateFormatter.format(broadcast.date)})"
+    private fun getDestinationFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File {
+        val filename = getBroadcastDownloadTitle(broadcast, show) + getBroadcastFileExtension()
+        return getDestinationFile(filename)
     }
 
     private fun isExternalStorageWritable(): Boolean {

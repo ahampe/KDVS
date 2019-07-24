@@ -130,11 +130,13 @@ class BroadcastDetailsFragment : DaggerFragment() {
                 return@setOnCheckedChangeListener
             }
 
-            viewModel.broadcast.value?.let {broadcast ->
-                viewModel.show.value?.let {show ->
+            viewModel.broadcast.value?.let { broadcast ->
+                viewModel.show.value?.let { show ->
                     val folder = sharedViewModel.getDestinationFolder()
                     folder?.let {
-                        val title = sharedViewModel.makeBroadcastDownloadFilename(broadcast, show)
+                        val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
+                        val filename = title + sharedViewModel.getBroadcastFileExtension()
+                        val file = sharedViewModel.getDestinationFile(filename)
 
                         when (isChecked) {
                             true -> {
@@ -146,7 +148,6 @@ class BroadcastDetailsFragment : DaggerFragment() {
                                             if (!folder.exists())
                                                 folder.mkdir()
 
-                                            val file = sharedViewModel.getDestinationFile("$title.mp3")
                                             val request = sharedViewModel.makeDownloadRequest(url, title, file)
 
                                             downloadManager = context?.getSystemService(DOWNLOAD_SERVICE)
@@ -159,11 +160,11 @@ class BroadcastDetailsFragment : DaggerFragment() {
                             }
                             false -> {
                                 val id = downloadId
+
                                 if (::downloadManager.isInitialized && id != null) {
                                     downloadManager.remove(id)
                                 }
 
-                                val file = sharedViewModel.getDestinationFile("$title.mp3")
                                 sharedViewModel.deleteFile(file)
                             }
                         }
@@ -184,11 +185,13 @@ class BroadcastDetailsFragment : DaggerFragment() {
                 val folder = sharedViewModel.getDestinationFolder()
 
                 if (folder != null && folder.exists()) {
-                    val fileName = sharedViewModel.makeBroadcastDownloadFilename(broadcast, show)
+                    val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
                     val files = folder.listFiles()
 
-                    if (files.count{ f -> f.name.contains(fileName)} > 0) {
-                        setSwitchForDownloadedBroadcast()
+                    files?.let {
+                        if (it.count{ f -> f.name.contains(title)} > 0) {
+                            setSwitchForDownloadedBroadcast()
+                        }
                     }
                 }
             })
