@@ -23,6 +23,7 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.MainActivity
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
+import fho.kdvs.global.util.DownloadHelper
 import fho.kdvs.global.util.HttpHelper
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
@@ -30,6 +31,7 @@ import kotlinx.android.synthetic.main.fragment_broadcast_details.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
 
 
@@ -52,6 +54,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
     }
 
     private var downloadId: Long? = null
+    private lateinit var file: File
     private lateinit var downloadManager: DownloadManager
 
     private val onDownloadComplete = object : BroadcastReceiver() {
@@ -60,6 +63,10 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
             if (downloadId != null && downloadId == id) {
                 Toast.makeText(activity as? MainActivity, "Download Completed", Toast.LENGTH_SHORT).show()
+
+                if (::file.isInitialized) {
+                    DownloadHelper.renameFileAfterCompletion(file)
+                }
             }
         }
     }
@@ -133,10 +140,11 @@ class BroadcastDetailsFragment : DaggerFragment() {
             viewModel.broadcast.value?.let { broadcast ->
                 viewModel.show.value?.let { show ->
                     val folder = sharedViewModel.getDestinationFolder()
+
                     folder?.let {
                         val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
-                        val filename = title + sharedViewModel.getBroadcastFileExtension()
-                        val file = sharedViewModel.getDestinationFile(filename)
+                        val filename = "$title${DownloadHelper.broadcastExtension}${DownloadHelper.temporaryExtension}"
+                        file = sharedViewModel.getDestinationFile(filename)
 
                         when (isChecked) {
                             true -> {
@@ -210,6 +218,11 @@ class BroadcastDetailsFragment : DaggerFragment() {
     private fun setSwitchForDownloadedBroadcast() {
         downloadSwitch.tag = "TAG"
         downloadSwitch.isChecked = true
+
+        // It's possible that the stream is down but the user has the broadcast downloaded already
+        archivePlayButton?.let { it.visibility = View.VISIBLE }
+        downloadSwitch?.let { it.visibility = View.VISIBLE }
+        downloaded?.let { it.visibility = View.VISIBLE }
     }
 
     private fun setPlaybackViewsAndHideProgressBar(broadcast: BroadcastEntity) {

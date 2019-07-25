@@ -19,6 +19,7 @@ import fho.kdvs.global.database.*
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.DownloadHelper
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
@@ -249,8 +250,6 @@ class SharedViewModel @Inject constructor(
     fun getBroadcastDownloadTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
         "${show.name} (${TimeHelper.dateFormatter.format(broadcast.date)})"
 
-    fun getBroadcastFileExtension(): String = ".mp3"
-
     fun getDestinationFile(filename: String): File {
         val folder = getDestinationFolder()
         return File(Uri.parse("${folder?.absolutePath}/$filename").path)
@@ -286,7 +285,7 @@ class SharedViewModel @Inject constructor(
     }
 
     private fun getDestinationFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File {
-        val filename = getBroadcastDownloadTitle(broadcast, show) + getBroadcastFileExtension()
+        val filename = getBroadcastDownloadTitle(broadcast, show) + DownloadHelper.broadcastExtension
         return getDestinationFile(filename)
     }
 
