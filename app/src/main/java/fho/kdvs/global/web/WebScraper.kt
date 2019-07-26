@@ -586,7 +586,8 @@ class WebScraperManager @Inject constructor(
     companion object {
         private const val MINUTE_IN_SECONDS = 60L
         const val DEFAULT_SCRAPE_FREQ = 15L * MINUTE_IN_SECONDS
-        const val WEEKLY_SCRAPE_FREQ = 7L * 24L * 60L * MINUTE_IN_SECONDS
+        const val DAILY_SCRAPE_FREQ = 24L * 60L * MINUTE_IN_SECONDS
+        const val WEEKLY_SCRAPE_FREQ = 7L * DAILY_SCRAPE_FREQ
     }
 }
 

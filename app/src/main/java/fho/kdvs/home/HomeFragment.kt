@@ -52,7 +52,9 @@ class HomeFragment : DaggerFragment() {
 
         viewModel = ViewModelProviders.of(requireActivity(), vmFactory)
             .get(HomeViewModel::class.java)
-            .also {it.fetchHomeData()}
+            .also {
+                it.fetchHomeData()
+            }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -81,6 +83,8 @@ class HomeFragment : DaggerFragment() {
         val fragment = this
 
         LoadScreen.displayLoadScreen(root)
+
+        settingsIcon.setOnClickListener { viewModel.onClickSettings(findNavController()) }
 
         currentShowsAdapter = CurrentShowsAdapter(viewModel) {
             Timber.d("Clicked ${it.item}")

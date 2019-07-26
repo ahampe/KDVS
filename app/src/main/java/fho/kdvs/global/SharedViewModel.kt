@@ -241,6 +241,10 @@ class SharedViewModel @Inject constructor(
         }
     }
 
+    fun openPlayStore(view: View) {
+
+    }
+
     fun onClickDiscogs(view: View, track: TrackEntity?) {
         track?.let {
             openBrowser(view, "$DISCOGS_SEARCH_URL${track.artist} ${track.song}$DISCOGS_QUERYSTRING")
@@ -346,6 +350,10 @@ class SharedViewModel @Inject constructor(
         return null
     }
 
+    fun setDownloadLocation() {
+
+    }
+
     fun getDownloadingFilename(title: String) = "$title$broadcastExtension$temporaryExtension"
 
     /** Rename '.mp3.tmp' to '.mp3' */
@@ -449,6 +457,13 @@ class SharedViewModel @Inject constructor(
             spotifyData?.let {
                 launch { topMusicRepository.updateTopMusicSpotifyData(topMusic.topMusicId, spotifyData)}
             }
+        }
+    }
+
+    // TODO: launch all fetches here
+    fun refreshData() {
+        launch {
+            fetchShows()
         }
     }
 

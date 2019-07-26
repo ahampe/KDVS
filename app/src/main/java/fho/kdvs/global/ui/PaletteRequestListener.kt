@@ -11,10 +11,12 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.narayanacharya.waveview.WaveView
 import fho.kdvs.R
+import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.ColorHelper
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.schedule.TimeSlot
 import timber.log.Timber
+import javax.inject.Inject
 
 interface IPaletteRequestListener  {
     fun getColorFromPalette(bitmap: Bitmap)
@@ -105,6 +107,9 @@ class TimeSlotPaletteRequestListener (
     private var selectedColor = 0
     private var seed = Long.MIN_VALUE
 
+    @Inject
+    lateinit var kdvsPreferences: KdvsPreferences
+
     override fun onLoadFailed(
         e: GlideException?,
         model: Any,
@@ -149,7 +154,18 @@ class TimeSlotPaletteRequestListener (
     }
 
     override fun getColorFromPalette(bitmap: Bitmap) {
-        selectedColor = Palette.from(bitmap).generate().getDarkVibrantColor(selectedColor)
+        selectedColor = when (kdvsPreferences.theme) {
+            KdvsPreferences.Theme.VIBRANT_DARK.value ->
+                Palette.from(bitmap).generate().getDarkVibrantColor(selectedColor)
+            KdvsPreferences.Theme.VIBRANT_LIGHT.value ->
+                Palette.from(bitmap).generate().getLightVibrantColor(selectedColor)
+            KdvsPreferences.Theme.MUTED_DARK.value ->
+                Palette.from(bitmap).generate().getDarkMutedColor(selectedColor)
+            KdvsPreferences.Theme.MUTED_LIGHT.value ->
+                Palette.from(bitmap).generate().getLightMutedColor(selectedColor)
+            else ->
+                Palette.from(bitmap).generate().getDarkVibrantColor(selectedColor)
+        }
     }
 
     private fun setRandomColor() {

@@ -23,9 +23,20 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         const val FILE_NAME = "fho.kdvs.model.kdvspreferences"
     }
 
+    // values are coupled to order in themes xml
+    enum class Theme(val value: Int) {
+        VIBRANT_DARK(0),
+        VIBRANT_LIGHT(1),
+        MUTED_DARK(2),
+        MUTED_LIGHT(3)
+    }
+
     enum class Key {
         // choice of mp3, ogg, aac
         STREAM_URL,
+
+        // governs display of home fundraiser section based on 1, 2 or 3 month window
+        FUNDRAISER_WINDOW,
 
         // last date/time of schedule scrape
         LAST_SCHEDULE_SCRAPE,
@@ -60,14 +71,25 @@ open class KdvsPreferences @Inject constructor(application: Application) {
 
         // TODO others like alert frequencies, wifi only usage, last played broadcast etc
 
+        // amount of time between a notification and its related event
+        NOTIFICATION_TIME,
+
+        // persist last played broadcast and playback progress (if archive); default to live
+        PERSIST_ARCHIVE_PROGRESS,
+
         // download preferences
         ALLOWED_OVER_METERED,
-        ALLOWED_OVER_ROAMING
+        ALLOWED_OVER_ROAMING,
+
+        // theme
+        THEME
     }
 
     private val preferences: SharedPreferences = application.getSharedPreferences(FILE_NAME, MODE_PRIVATE)
 
     var streamUrl: String? by StringPreference(Key.STREAM_URL)
+
+    var fundraiserWindow: Int? by IntPreference(Key.FUNDRAISER_WINDOW)
 
     var lastScheduleScrape: Long? by LongPreference(Key.LAST_SCHEDULE_SCRAPE)
 
@@ -84,6 +106,12 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     var allowedOverMetered: Boolean? by BooleanPreference(Key.ALLOWED_OVER_METERED)
 
     var allowedOverRoaming: Boolean? by BooleanPreference(Key.ALLOWED_OVER_ROAMING)
+
+    var theme: Int? by IntPreference(Key.THEME)
+
+    var notificationTime: Int? by IntPreference(Key.NOTIFICATION_TIME)
+
+    var persistArchiveProgress: Boolean? by BooleanPreference(Key.PERSIST_ARCHIVE_PROGRESS)
 
     fun getLastShowScrape(showId: String): Long? {
         val pref by LongPreference(Key.LAST_SHOW_SCRAPE, showId)

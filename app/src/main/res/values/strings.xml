@@ -47,6 +47,27 @@
     <string name="fundraiser_total">$%1$s</string>
     <string name="now_playing_link">Play</string>
 
+    <!-- Settings -->
+    <string name="streaming">Streaming</string>
+    <string name="codec">Codec</string>
+    <string name="download">Download</string>
+    <string name="download_location">Set download location</string>
+    <string name="notification">Notification</string>
+    <string name="notification_time">Time in advance</string>
+    <string name="data">Data</string>
+    <string name="metered">Allow over metered</string>
+    <string name="roaming">Allow over roaming</string>
+    <string name="info">Info</string>
+    <string name="fundraiser_window">Fundraiser window</string>
+    <string name="frequency">Update frequency</string>
+    <string name="refresh">Manual refresh</string>
+    <string name="appearance">Appearance</string>
+    <string name="theme">Color theme</string>
+    <string name="about">About</string>
+    <string name="contact_devs">Contact developers</string>
+    <string name="play_store">Rate in Play Store</string>
+    <string name="reset_settings">Reset settings to default</string>
+
     <!-- Schedule -->
     <string name="sun">Sun</string>
     <string name="mon">Mon</string>
