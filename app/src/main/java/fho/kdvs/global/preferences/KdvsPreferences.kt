@@ -56,9 +56,13 @@ open class KdvsPreferences @Inject constructor(application: Application) {
 
         // to persist user's selection of quarter (internally a String) and year (an Int)
         SELECTED_QUARTER,
-        SELECTED_YEAR
+        SELECTED_YEAR,
 
-        // TODO others like alert frequencies, wifi only usage, etc
+        // TODO others like alert frequencies, wifi only usage, last played broadcast etc
+
+        // download preferences
+        ALLOWED_OVER_METERED,
+        ALLOWED_OVER_ROAMING
     }
 
     private val preferences: SharedPreferences = application.getSharedPreferences(FILE_NAME, MODE_PRIVATE)
@@ -77,6 +81,9 @@ open class KdvsPreferences @Inject constructor(application: Application) {
 
     var lastFundraiserScraper: Long? by LongPreference(Key.LAST_FUNDRAISER_SCRAPE)
 
+    var allowedOverMetered: Boolean? by BooleanPreference(Key.ALLOWED_OVER_METERED)
+
+    var allowedOverRoaming: Boolean? by BooleanPreference(Key.ALLOWED_OVER_ROAMING)
 
     fun getLastShowScrape(showId: String): Long? {
         val pref by LongPreference(Key.LAST_SHOW_SCRAPE, showId)

@@ -1,10 +1,15 @@
 package fho.kdvs.global
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.media.AudioManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import android.widget.ProgressBar
+import androidx.core.app.ActivityCompat
+import androidx.core.content.PermissionChecker
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavController
@@ -163,5 +168,23 @@ class MainActivity : DaggerAppCompatActivity() {
     fun toggleBottomNavAndPlayerBar(visible: Boolean) {
         bottomNavigation.visibility = if (visible) View.VISIBLE else View.GONE
         playerBarView.visibility    = if (visible) View.VISIBLE else View.GONE
+    }
+
+    fun isStoragePermissionGranted(): Boolean {
+        return when (Build.VERSION.SDK_INT >= 23) {
+            true -> {
+                if (PermissionChecker
+                        .checkSelfPermission(applicationContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                            PackageManager.PERMISSION_GRANTED) {
+                    true
+                } else {
+                    ActivityCompat.requestPermissions(this,
+                        arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                        1)
+                    false
+                }
+            }
+            false -> true
+        }
     }
 }

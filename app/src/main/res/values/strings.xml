@@ -85,6 +85,7 @@
     <string name="song">Song</string>
     <string name="airbreak">Airbreak</string>
     <string name="play">Play</string>
+    <string name="downloaded">Downloaded</string>
     <string name="live">Live</string>
     <string name="live_template">Live %1$s</string>
     <string name="no_tracks">No tracks available.</string>

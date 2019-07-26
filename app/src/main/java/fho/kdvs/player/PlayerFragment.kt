@@ -172,7 +172,7 @@ class PlayerFragment : DaggerFragment() {
                 sharedViewModel.scrapedTracksForBroadcast.count() == 0) {
                 info.visibility = View.INVISIBLE
             } else {
-                sharedViewModel.scrapedTracksForBroadcast = mutableListOf()
+                sharedViewModel.scrapedTracksForBroadcast.clear()
                 sharedViewModel.scrapedTracksForBroadcast.addAll(tracks)
                 info.visibility = View.VISIBLE
             }

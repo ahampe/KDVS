@@ -1,17 +1,16 @@
 package fho.kdvs.global
 
-import android.Manifest
-import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.view.View
 import android.widget.ImageView
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -21,7 +20,7 @@ import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
-import fho.kdvs.global.extensions.toLiveData
+import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
@@ -29,12 +28,17 @@ import fho.kdvs.global.util.URLs.YOUTUBE_QUERYSTRING
 import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
 import fho.kdvs.global.web.*
 import fho.kdvs.schedule.QuarterYear
-import fho.kdvs.services.*
+import fho.kdvs.services.CustomAction
+import fho.kdvs.services.LiveShowUpdater
+import fho.kdvs.services.MediaSessionConnection
+import fho.kdvs.services.PlaybackType
 import fho.kdvs.show.ShowRepository
 import fho.kdvs.show.TopMusicRepository
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
+import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
+import android.app.DownloadManager
 
 
 /** An [AndroidViewModel] scoped to the main activity.
@@ -47,7 +51,8 @@ class SharedViewModel @Inject constructor(
     private val favoriteDao: FavoriteDao,
     private val subscriptionDao: SubscriptionDao,
     private val liveShowUpdater: LiveShowUpdater,
-    private val mediaSessionConnection: MediaSessionConnection
+    private val mediaSessionConnection: MediaSessionConnection,
+    private val kdvsPreferences: KdvsPreferences
 ) : BaseViewModel(application) {
 
     val liveStreamLiveData: MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>
@@ -76,7 +81,7 @@ class SharedViewModel @Inject constructor(
     val isLiveNow: LiveData<Boolean?> = showRepository.isLiveNow
 
     /** Use across various lifecycles of PlayerFragment to maintain list of scraped tracks for live broadcast. */
-    var scrapedTracksForBroadcast= mutableListOf<TrackEntity>()
+    val scrapedTracksForBroadcast= mutableListOf<TrackEntity>()
 
     fun updateLiveShows() = liveShowUpdater.beginUpdating()
 
@@ -115,14 +120,48 @@ class SharedViewModel @Inject constructor(
         prepareLivePlayback()
     }
 
-    fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
-        mediaSessionConnection.transportControls?.playFromMediaId(
-            broadcast.broadcastId.toString(),
-            Bundle().apply {
-                putInt("SHOW_ID", show.id)
-                putString("TYPE", PlaybackType.ARCHIVE.type)
+    fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity, activity: FragmentActivity?) {
+        val file = getDestinationFileForBroadcast(broadcast, show)
+
+        when (file.exists()) {
+            true -> {
+                try {
+                    mediaSessionConnection.transportControls?.playFromUri(
+                        Uri.fromFile(file),
+                        Bundle().apply {
+                            putInt("SHOW_ID", show.id)
+                            putString("TYPE", PlaybackType.ARCHIVE.type)
+                        }
+                    )
+                } catch (e: Exception) {
+                    Timber.d("Error with URI playback: $e")
+                    Toast.makeText(activity as? MainActivity,
+                        "Error playing downloaded broadcast. Try re-downloading.",
+                        Toast.LENGTH_SHORT)
+                        .show()
+                    return
+                }
+
             }
-        )
+            false -> {
+                try {
+                    mediaSessionConnection.transportControls?.playFromMediaId(
+                        broadcast.broadcastId.toString(),
+                        Bundle().apply {
+                            putInt("SHOW_ID", show.id)
+                            putString("TYPE", PlaybackType.ARCHIVE.type)
+                        }
+                    )
+                } catch (e: Exception) {
+                    Timber.d("Error with stream playback: $e")
+                    Toast.makeText(activity as? MainActivity,
+                        "Error streaming broadcast. Try again later.",
+                        Toast.LENGTH_SHORT)
+                        .show()
+                    return
+                }
+            }
+        }
 
         mediaSessionConnection.isLiveNow.postValue(false)
         broadcastRepository.playingLiveBroadcast = false
@@ -283,6 +322,82 @@ class SharedViewModel @Inject constructor(
 
     // endregion
 
+    // region Download
+
+    private val broadcastExtension = ".mp3"
+    private val temporaryExtension = ".tmp"
+
+    fun getBroadcastDownloadTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
+        "${show.name} (${TimeHelper.dateFormatter.format(broadcast.date)})"
+
+    fun getDestinationFile(filename: String): File {
+        val folder = getDestinationFolder()
+        return File(Uri.parse("${folder?.absolutePath}/$filename").path)
+    }
+
+    fun getDestinationFolder(): File? {
+        if (isExternalStorageWritable()) {
+            return File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_MUSIC), "KDVS")
+        }
+
+        // TODO: let user set their downloads folder
+
+        return null
+    }
+
+    fun getDownloadingFilename(title: String) = "$title$broadcastExtension$temporaryExtension"
+
+    /** Rename '.mp3.tmp' to '.mp3' */
+    fun renameFileAfterCompletion(file: File) {
+        val dest = File("${file.parent}/${file.nameWithoutExtension}")
+        file.renameTo(dest)
+
+
+        // TODO: embed metadata in mp3
+    }
+
+    fun makeDownloadRequest(url: String, title: String, file: File): DownloadManager.Request {
+        return DownloadManager.Request(Uri.parse(url))
+            .setTitle(title)
+            .setDescription("Downloading")
+            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
+            .setDestinationUri(Uri.fromFile(file))
+            .setAllowedOverMetered(kdvsPreferences.allowedOverMetered ?: false)
+            .setAllowedOverRoaming(kdvsPreferences.allowedOverRoaming ?: false)
+    }
+
+    fun deleteFile(file: File) {
+        try {
+            file.delete()
+        } catch (e: Exception) {
+            Timber.d("File deletion failed ${file.name}")
+        }
+    }
+
+    fun isBroadcastDownloaded(broadcast: BroadcastEntity, show: ShowEntity): Boolean {
+        val folder = getDestinationFolder()
+        val title = getBroadcastDownloadTitle(broadcast, show)
+        val files = folder?.listFiles()
+
+        files?.let {
+            return (it.count{ f -> f.name == "$title$broadcastExtension" } > 0)
+        }
+
+        return false
+    }
+
+    private fun getDestinationFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File {
+        val filename = getBroadcastDownloadTitle(broadcast, show) + broadcastExtension
+        return getDestinationFile(filename)
+    }
+
+    private fun isExternalStorageWritable(): Boolean {
+        return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
+    }
+
+    // endregion
+
     // region fetch
 
     // TODO: multiple attempts?
@@ -292,7 +407,7 @@ class SharedViewModel @Inject constructor(
         var mbData: MusicBrainzReleaseData? = null
         var mbImageHref: String? = null
         var spotifyData: SpotifyData? = null
-        
+
         launch {
             val musicBrainzJob = launch {
                 mbData = MusicBrainz.searchFromAlbum(topMusic.album, topMusic.artist)
