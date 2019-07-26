@@ -113,6 +113,8 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/broadcast_description"
+                android:visibility="gone"
+                tools:visibility="visible"
                 android:text="@string/play" />
 
             <TextView
@@ -121,6 +123,8 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/archivePlayButton"
+                android:visibility="gone"
+                tools:visibility="visible"
                 android:text="@string/downloaded"/>
 
             <Switch
@@ -130,7 +134,9 @@
                 app:layout_constraintTop_toTopOf="@id/downloaded"
                 app:layout_constraintBottom_toBottomOf="@id/downloaded"
                 app:layout_constraintStart_toEndOf="@id/downloaded"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintEnd_toEndOf="parent"
+                android:visibility="gone"
+                tools:visibility="visible"/>
 
             <TextView
                 android:id="@+id/noTracksMessage"

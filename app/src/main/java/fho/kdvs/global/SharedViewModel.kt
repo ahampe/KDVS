@@ -8,7 +8,9 @@ import android.os.Bundle
 import android.os.Environment
 import android.view.View
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -19,7 +21,6 @@ import fho.kdvs.global.database.*
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
 import fho.kdvs.global.preferences.KdvsPreferences
-import fho.kdvs.global.util.DownloadHelper
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
@@ -109,27 +110,46 @@ class SharedViewModel @Inject constructor(
         prepareLivePlayback()
     }
 
-    fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
+    fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity, activity: FragmentActivity?) {
         val file = getDestinationFileForBroadcast(broadcast, show)
 
         when (file.exists()) {
             true -> {
-                mediaSessionConnection.transportControls?.playFromUri(
-                    Uri.fromFile(file),
-                    Bundle().apply {
-                        putInt("SHOW_ID", show.id)
-                        putString("TYPE", PlaybackType.ARCHIVE.type)
-                    }
-                )
+                try {
+                    mediaSessionConnection.transportControls?.playFromUri(
+                        Uri.fromFile(file),
+                        Bundle().apply {
+                            putInt("SHOW_ID", show.id)
+                            putString("TYPE", PlaybackType.ARCHIVE.type)
+                        }
+                    )
+                } catch (e: Exception) {
+                    Timber.d("Error with URI playback: $e")
+                    Toast.makeText(activity as? MainActivity,
+                        "Error playing downloaded broadcast. Try re-downloading.",
+                        Toast.LENGTH_SHORT)
+                        .show()
+                    return
+                }
+
             }
             false -> {
-                mediaSessionConnection.transportControls?.playFromMediaId(
-                    broadcast.broadcastId.toString(),
-                    Bundle().apply {
-                        putInt("SHOW_ID", show.id)
-                        putString("TYPE", PlaybackType.ARCHIVE.type)
-                    }
-                )
+                try {
+                    mediaSessionConnection.transportControls?.playFromMediaId(
+                        broadcast.broadcastId.toString(),
+                        Bundle().apply {
+                            putInt("SHOW_ID", show.id)
+                            putString("TYPE", PlaybackType.ARCHIVE.type)
+                        }
+                    )
+                } catch (e: Exception) {
+                    Timber.d("Error with stream playback: $e")
+                    Toast.makeText(activity as? MainActivity,
+                        "Error streaming broadcast. Try again later.",
+                        Toast.LENGTH_SHORT)
+                        .show()
+                    return
+                }
             }
         }
 
@@ -247,6 +267,9 @@ class SharedViewModel @Inject constructor(
 
     // region Download
 
+    private val broadcastExtension = ".mp3"
+    private val temporaryExtension = ".tmp"
+
     fun getBroadcastDownloadTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
         "${show.name} (${TimeHelper.dateFormatter.format(broadcast.date)})"
 
@@ -264,6 +287,17 @@ class SharedViewModel @Inject constructor(
         // TODO: let user set their downloads folder
 
         return null
+    }
+
+    fun getDownloadingFilename(title: String) = "$title$broadcastExtension$temporaryExtension"
+
+    /** Rename '.mp3.tmp' to '.mp3' */
+    fun renameFileAfterCompletion(file: File) {
+        val dest = File("${file.parent}/${file.nameWithoutExtension}")
+        file.renameTo(dest)
+
+
+        // TODO: embed metadata in mp3
     }
 
     fun makeDownloadRequest(url: String, title: String, file: File): DownloadManager.Request {
@@ -284,8 +318,20 @@ class SharedViewModel @Inject constructor(
         }
     }
 
+    fun isBroadcastDownloaded(broadcast: BroadcastEntity, show: ShowEntity): Boolean {
+        val folder = getDestinationFolder()
+        val title = getBroadcastDownloadTitle(broadcast, show)
+        val files = folder?.listFiles()
+
+        files?.let {
+            return (it.count{ f -> f.name == "$title$broadcastExtension" } > 0)
+        }
+
+        return false
+    }
+
     private fun getDestinationFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File {
-        val filename = getBroadcastDownloadTitle(broadcast, show) + DownloadHelper.broadcastExtension
+        val filename = getBroadcastDownloadTitle(broadcast, show) + broadcastExtension
         return getDestinationFile(filename)
     }
 

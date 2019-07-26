@@ -13,7 +13,14 @@ object HttpHelper {  // TODO: retry on connection fail?
     fun isConnectionAvailable(url: String?): Boolean {
         val con = URL(url).openConnection() as HttpURLConnection
         con.connectTimeout = 500
-        con.connect()
+
+        try {
+            con.connect()
+        } catch (e: Exception) {
+            Timber.d("Connection failed $e")
+            return false
+        }
+
 
         return (con.responseCode == HttpURLConnection.HTTP_OK)
     }

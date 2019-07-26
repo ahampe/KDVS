@@ -170,7 +170,7 @@ class MainActivity : DaggerAppCompatActivity() {
         playerBarView.visibility    = if (visible) View.VISIBLE else View.GONE
     }
 
-    fun haveStoragePermission(): Boolean {
+    fun isStoragePermissionGranted(): Boolean {
         return when (Build.VERSION.SDK_INT >= 23) {
             true -> {
                 if (PermissionChecker
