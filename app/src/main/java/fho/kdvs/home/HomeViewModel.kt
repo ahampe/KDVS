@@ -56,8 +56,8 @@ class HomeViewModel @Inject constructor(
         currentShows = showRepository.currentShowsLiveData
         newsArticles = newsRepository.getAllNewsPastDate(
             TimeHelper.getNow().minusMonths(6).toLocalDate()) // TODO: Make this a preference?
-        topMusicAdds = topMusicRepository.getTopAdds()
-        topMusicAlbums = topMusicRepository.getTopAlbums()
+        topMusicAdds = topMusicRepository.getMostRecentTopAdds()
+        topMusicAlbums = topMusicRepository.getMostRecentTopAlbums()
         staff = staffRepository.getStaff()
         fundraiser = fundraiserRepository.getFundraiser()
 

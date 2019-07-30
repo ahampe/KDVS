@@ -100,15 +100,13 @@ class PlayerPaletteRequestListener (
 class TimeSlotPaletteRequestListener (
     private val viewWithColor: View,
     private val viewToColor: View,
-    private val timeslot: TimeSlot?
+    private val timeslot: TimeSlot?,
+    private val theme: Int
 ) : PaletteRequestListener(viewToColor) {
     
     private var isPlaceholder = false
     private var selectedColor = 0
     private var seed = Long.MIN_VALUE
-
-    @Inject
-    lateinit var kdvsPreferences: KdvsPreferences
 
     override fun onLoadFailed(
         e: GlideException?,
@@ -154,7 +152,7 @@ class TimeSlotPaletteRequestListener (
     }
 
     override fun getColorFromPalette(bitmap: Bitmap) {
-        selectedColor = when (kdvsPreferences.theme) {
+        selectedColor = when (theme) {
             KdvsPreferences.Theme.VIBRANT_DARK.value ->
                 Palette.from(bitmap).generate().getDarkVibrantColor(selectedColor)
             KdvsPreferences.Theme.VIBRANT_LIGHT.value ->

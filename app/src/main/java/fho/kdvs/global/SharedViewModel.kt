@@ -241,10 +241,6 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun openPlayStore(view: View) {
-
-    }
-
     fun onClickDiscogs(view: View, track: TrackEntity?) {
         track?.let {
             openBrowser(view, "$DISCOGS_SEARCH_URL${track.artist} ${track.song}$DISCOGS_QUERYSTRING")

@@ -49,8 +49,8 @@
 
                 <ImageView
                     android:id="@+id/settingsIcon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="@dimen/home_settings_height"
+                    android:layout_height="@dimen/home_settings_height"
                     android:src="@drawable/ic_settings_white_24dp"
                     android:layout_marginTop="@dimen/spacing_medium"
                     android:layout_marginEnd="@dimen/spacing_medium"
@@ -61,8 +61,8 @@
                     android:id="@+id/nowPlayingSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_extra_large"
-                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    app:layout_constraintTop_toBottomOf="@id/settingsIcon"
                     app:layout_constraintStart_toStartOf="parent"
                     android:visibility="invisible"
                     tools:visibility="visible"

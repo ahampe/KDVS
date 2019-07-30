@@ -200,7 +200,6 @@ class SettingsFragment : DaggerFragment() {
         setDownloadLocation.setOnClickListener { viewModel?.setDownloadLocation() }
         refresh.setOnClickListener { viewModel?.refreshData() }
         contactDevs.setOnClickListener { viewModel?.composeEmail(contactDevs, URLs.CONTACT_EMAIL) }
-        playStore.setOnClickListener { viewModel?.openPlayStore(playStore) }
         resetSettings.setOnClickListener { kdvsPreferences.clearAll() }
     }
 }

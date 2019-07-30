@@ -74,9 +74,6 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         // amount of time between a notification and its related event
         NOTIFICATION_TIME,
 
-        // persist last played broadcast and playback progress (if archive); default to live
-        PERSIST_ARCHIVE_PROGRESS,
-
         // download preferences
         ALLOWED_OVER_METERED,
         ALLOWED_OVER_ROAMING,
@@ -110,8 +107,6 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     var theme: Int? by IntPreference(Key.THEME)
 
     var notificationTime: Int? by IntPreference(Key.NOTIFICATION_TIME)
-
-    var persistArchiveProgress: Boolean? by BooleanPreference(Key.PERSIST_ARCHIVE_PROGRESS)
 
     fun getLastShowScrape(showId: String): Long? {
         val pref by LongPreference(Key.LAST_SHOW_SCRAPE, showId)

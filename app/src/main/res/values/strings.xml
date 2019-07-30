@@ -58,7 +58,7 @@
     <string name="metered">Allow over metered</string>
     <string name="roaming">Allow over roaming</string>
     <string name="info">Info</string>
-    <string name="fundraiser_window">Fundraiser window</string>
+    <string name="fundraiser_window">Fundraiser display window</string>
     <string name="frequency">Update frequency</string>
     <string name="refresh">Manual refresh</string>
     <string name="appearance">Appearance</string>
