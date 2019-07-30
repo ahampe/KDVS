@@ -125,6 +125,7 @@ class FavoriteViewAdapter(
                 Timber.d("${results.count} results found")
                 if (results.values is List<*>) {
                     submitList(favoriteJoinsFiltered)
+                    notifyDataSetChanged()
                 }
             }
         }

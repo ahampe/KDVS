@@ -59,7 +59,7 @@ class FavoriteFragment : DaggerFragment() {
 
         if (sortType != FavoriteViewAdapter.SortType.RECENT) {
             for (i in 0..resultsRecycler.childCount) {
-                val holder = resultsRecycler.findViewHolderForAdapterPosition(i)
+                val holder = resultsRecycler.findViewHolderForLayoutPosition(i)
                 val key = when(sortType) {
                     FavoriteViewAdapter.SortType.SHOW   -> holder?.itemView?.showName?.text
                         ?.firstOrNull()
