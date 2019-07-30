@@ -51,6 +51,7 @@ class FavoriteFragment : DaggerFragment() {
         initializeSearchBar()
     }
 
+    /** Separate name-based results by alphabetical character headers. */
     fun setSectionHeaders() {
         val headers = mutableListOf<String>()
 
@@ -106,14 +107,25 @@ class FavoriteFragment : DaggerFragment() {
 
         viewModel.run {
             getShowBroadcastTrackFavoriteJoins().observe(fragment, Observer { joins ->
-                favoriteViewAdapter = FavoriteViewAdapter(joins, fragment) {
-                    Timber.d("clicked ${it.item}")
-                    viewModel.onClickTrack(findNavController(), it.item.track)
-                }
+                when (joins.isEmpty()) {
+                    true -> {
+                        resultsRecycler.visibility = View.GONE
+                        noResults.visibility = View.VISIBLE
+                    }
+                    false -> {
+                        resultsRecycler.visibility = View.VISIBLE
+                        noResults.visibility = View.GONE
 
-                resultsRecycler.run {
-                    layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-                    adapter = favoriteViewAdapter
+                        favoriteViewAdapter = FavoriteViewAdapter(joins, fragment) {
+                            Timber.d("clicked ${it.item}")
+                            viewModel.onClickTrack(findNavController(), it.item.track)
+                        }
+
+                        resultsRecycler.run {
+                            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+                            adapter = favoriteViewAdapter
+                        }
+                    }
                 }
             })
         }
@@ -172,7 +184,6 @@ class FavoriteFragment : DaggerFragment() {
     private fun initializeSearchBar(){
         searchBar?.run {
             queryHint = resources.getString(R.string.filter_query_hint)
-            setIconifiedByDefault(false)
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
                 override fun onQueryTextSubmit(query: String): Boolean {
@@ -187,6 +198,11 @@ class FavoriteFragment : DaggerFragment() {
                     return false
                 }
             })
+
+            // Runtime crash without this explicit listener declaration, for some reason
+            setOnCloseListener {
+                false
+            }
         }
     }
 }

@@ -96,11 +96,12 @@
     <string name="track_comments">\"%1$s\"</string>
 
     <string name="sort_header">Sort By</string>
-    <string name="sort_recent">Recently Added</string>
+    <string name="sort_recent">Time Added</string>
     <string name="sort_show">Show</string>
     <string name="sort_artist">Artist</string>
     <string name="sort_album">Album</string>
     <string name="sort_track">Track</string>
+    <string name="no_favorites">No favorites found.</string>
 
     <string name="user_agent">kdvsapp@gmail.com</string>
 </resources>
