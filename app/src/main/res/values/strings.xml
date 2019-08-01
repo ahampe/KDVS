@@ -6,7 +6,7 @@
 
     <string name="title_home">Home</string>
     <string name="title_schedule">Schedule</string>
-    <string name="title_settings">Settings</string>
+    <string name="title_favorites">Favorites</string>
 
     <string name="now_playing">Now Playing:</string>
 
@@ -66,6 +66,7 @@
     <string name="alternating_num">Every %1$d weeks</string>
 
     <string name="search_query_hint">Enter a show name</string>
+    <string name="filter_query_hint">Filter by</string>
 
     <string name="hourLabel">%1$02d:00\u0020</string>
     <string name="searchTimeLabel">%1$s, %2$s - %3$s</string>
@@ -97,6 +98,7 @@
     <string name="artwork">artwork</string>
     <string name="track_info_start">%1$s</string>
     <string name="track_info_middle">\u0020• %1$s</string>
+    <string name="track_info_separator">•</string>
     <string name="artist_album">%1$s • %2$s</string>
     <string name="album_info">%1$d, %2$s</string>
     <string name="discogs">discogs</string>
@@ -104,6 +106,14 @@
     <string name="spotify">spotify</string>
 
     <string name="track_comments">\"%1$s\"</string>
+
+    <string name="sort_header">Sort By</string>
+    <string name="sort_recent">Time Added</string>
+    <string name="sort_show">Show</string>
+    <string name="sort_artist">Artist</string>
+    <string name="sort_album">Album</string>
+    <string name="sort_track">Track</string>
+    <string name="no_favorites">No favorites found.</string>
 
     <string name="user_agent">kdvsapp@gmail.com</string>
 </resources>

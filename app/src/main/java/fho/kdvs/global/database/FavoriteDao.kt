@@ -9,6 +9,16 @@ import io.reactivex.Flowable
 
 @Dao
 interface FavoriteDao {
+    @Query("SELECT * from favoriteData")
+    fun getAll(): Flowable<List<FavoriteEntity>>
+
+    @Query("""SELECT favoriteData.*, trackData.*, broadcastData.*, showData.* from favoriteData
+        INNER JOIN trackData on favoriteData.trackId = trackData.trackId
+        INNER JOIN broadcastData on broadcastData.broadcastId = trackData.broadcastId
+        INNER JOIN showData on showData.id = broadcastData.showId"""
+    )
+    fun allShowBroadcastTrackFavoriteJoins(): Flowable<List<ShowBroadcastTrackFavoriteJoin>>
+
     @Query("SELECT * from favoriteData where trackId = :trackId LIMIT 1")
     fun getByTrackId(trackId: Int?): LiveData<FavoriteEntity>
 
@@ -19,9 +29,6 @@ interface FavoriteDao {
         WHERE broadcastData.broadcastId = :broadcastId"""
     )
     fun allFavoritesByBroadcast(broadcastId: Int?): Flowable<List<FavoriteEntity>>
-
-    @Query("SELECT * from favoriteData")
-    fun getAll(): List<FavoriteEntity>
 
     @Insert(onConflict = REPLACE)
     fun insert(FavoriteEntity: FavoriteEntity)

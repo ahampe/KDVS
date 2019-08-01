@@ -1,6 +1,5 @@
 package fho.kdvs.broadcast
 
-import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,11 +13,9 @@ import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
-import fho.kdvs.show.ShowRepository
 import fho.kdvs.track.TrackRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.apache.commons.lang3.mutable.Mutable
 import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
 import org.threeten.bp.temporal.ChronoUnit

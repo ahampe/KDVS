@@ -52,8 +52,8 @@ class MainActivity : DaggerAppCompatActivity() {
                 navController.navigate(R.id.scheduleFragment)
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_settings -> {
-                // Settings / other stuff
+            R.id.navigation_favorites -> {
+                navController.navigate(R.id.favoriteFragment)
                 return@OnNavigationItemSelectedListener true
             }
         }
