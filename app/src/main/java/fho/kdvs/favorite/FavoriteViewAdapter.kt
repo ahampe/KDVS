@@ -25,7 +25,7 @@ class FavoriteViewAdapter(
     var query: String = ""
 
     val results = mutableListOf<FavoriteJoin>()
-    var allFavorites: List<FavoriteJoin>
+    var allFavorites = mutableListOf<FavoriteJoin>()
     
     init {
         val shows = joins
@@ -58,7 +58,7 @@ class FavoriteViewAdapter(
             results.add(FavoriteJoin(favorite, track, broadcast, show))
         }
 
-        allFavorites = results
+        allFavorites.addAll(results)
 
         submitList(results)
     }
@@ -82,6 +82,8 @@ class FavoriteViewAdapter(
                 if (query.isNotEmpty()){
                     if (!fragment.hashedResults[query].isNullOrEmpty()) {
                         filteredList.addAll(fragment.hashedResults[query]!!)
+                        results.clear()
+                        results.addAll(filteredList)
                     } else {
                         allFavorites.forEach { join ->
                             val fieldsToSearch = listOf(
