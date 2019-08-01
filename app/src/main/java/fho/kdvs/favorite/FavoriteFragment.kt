@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.ImageView
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
+import fho.kdvs.global.extensions.removeLeadingArticles
 import kotlinx.android.synthetic.main.cell_favorite_track.view.*
 import kotlinx.android.synthetic.main.fragment_favorites.*
 import timber.log.Timber
@@ -44,6 +46,12 @@ class FavoriteFragment : DaggerFragment() {
         return inflater.inflate(R.layout.fragment_favorites, container, false)
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        favoriteViewAdapter?.updateData()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -52,39 +60,53 @@ class FavoriteFragment : DaggerFragment() {
     }
 
     /** Separate name-based results by alphabetical character headers. */
-    fun setSectionHeaders() {
+    private fun setSectionHeaders() {
+        if (resultsRecycler == null) return
+
         val headers = mutableListOf<String>()
 
         clearSectionHeaders()
 
         if (sortType != FavoriteViewAdapter.SortType.RECENT) {
             for (i in 0..resultsRecycler.childCount) {
-                val holder = resultsRecycler.findViewHolderForLayoutPosition(i)
+                val holder = resultsRecycler.findViewHolderForAdapterPosition(i)
                 val key = when(sortType) {
                     FavoriteViewAdapter.SortType.SHOW   -> holder?.itemView?.showName?.text
+                        ?.toString()
+                        ?.removeLeadingArticles()
                         ?.firstOrNull()
+                        ?.toUpperCase()
                         ?.toString()
                     FavoriteViewAdapter.SortType.ARTIST -> holder?.itemView?.trackInfo?.text
+                        ?.toString()
+                        ?.removeLeadingArticles()
                         ?.split(getString(R.string.track_info_separator))
                         ?.firstOrNull()
                         ?.trim()
                         ?.firstOrNull()
+                        ?.toUpperCase()
                         ?.toString()
                     FavoriteViewAdapter.SortType.ALBUM  -> holder?.itemView?.trackInfo?.text
+                        ?.toString()
+                        ?.removeLeadingArticles()
                         ?.split(getString(R.string.track_info_separator))
                         ?.getOrNull(1)
                         ?.trim()
                         ?.firstOrNull()
+                        ?.toUpperCase()
                         ?.toString()
                     FavoriteViewAdapter.SortType.TRACK  -> holder?.itemView?.song?.text
+                        ?.toString()
+                        ?.removeLeadingArticles()
                         ?.firstOrNull()
+                        ?.toUpperCase()
                         ?.toString()
                     else -> return
                 }
 
                 key?.let {
                     if (!headers.contains(key)) {
-                        holder?.itemView?.sectionHeader?.text = key.toUpperCase()
+                        holder?.itemView?.sectionHeader?.text = key
                         holder?.itemView?.sectionHeader?.visibility = View.VISIBLE
                         headers.add(key)
                     } else {
@@ -125,6 +147,12 @@ class FavoriteFragment : DaggerFragment() {
                             layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
                             adapter = favoriteViewAdapter
                         }
+
+                        if (resultsRecycler.viewTreeObserver.isAlive) {
+                            resultsRecycler.viewTreeObserver.addOnDrawListener {
+                                setSectionHeaders()
+                            }
+                        }
                     }
                 }
             })
@@ -164,12 +192,12 @@ class FavoriteFragment : DaggerFragment() {
                     button.tag = FavoriteViewAdapter.SortDirection.DES.type
                     button.setImageResource(R.drawable.ic_arrow_upward_white_24dp)
                     sortDirection = FavoriteViewAdapter.SortDirection.DES
-                    favoriteViewAdapter?.sortList()
+                    favoriteViewAdapter?.updateData()
                 } else if (button?.tag == FavoriteViewAdapter.SortDirection.DES.type) {
                     button.tag = FavoriteViewAdapter.SortDirection.ASC.type
                     button.setImageResource(R.drawable.ic_arrow_downward_white_24dp)
                     sortDirection = FavoriteViewAdapter.SortDirection.ASC
-                    favoriteViewAdapter?.sortList()
+                    favoriteViewAdapter?.updateData()
                 }
 
                 val otherPairs = layoutToSortType.filter { p -> p != pair }
@@ -199,9 +227,15 @@ class FavoriteFragment : DaggerFragment() {
                 }
             })
 
-            // Runtime crash without this explicit listener declaration, for some reason
+            // Display all results upon closing filter
             setOnCloseListener {
-                false
+                favoriteViewAdapter?.let {
+                    it.results.clear()
+                    it.results.addAll(it.allFavorites)
+                    it.updateData()
+                }
+
+                true
             }
         }
     }

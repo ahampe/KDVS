@@ -24,8 +24,8 @@ class FavoriteViewAdapter(
 
     var query: String = ""
 
-    private val favoriteJoins = mutableListOf<FavoriteJoin>()
-    val favoriteJoinsFiltered = mutableListOf<FavoriteJoin>()
+    val results = mutableListOf<FavoriteJoin>()
+    var allFavorites: List<FavoriteJoin>
     
     init {
         val shows = joins
@@ -55,14 +55,12 @@ class FavoriteViewAdapter(
                     it?.id == broadcast?.showId
                 }
             
-            favoriteJoins.add(FavoriteJoin(favorite, track, broadcast, show))
+            results.add(FavoriteJoin(favorite, track, broadcast, show))
         }
 
-        favoriteJoinsFiltered.clear()
-        favoriteJoinsFiltered.addAll(favoriteJoins)
+        allFavorites = results
 
-        sortList()
-        submitList(favoriteJoinsFiltered)
+        submitList(results)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -72,7 +70,7 @@ class FavoriteViewAdapter(
     }
 
     override fun getItemCount(): Int {
-        return favoriteJoinsFiltered.size
+        return results.size
     }
 
     override fun getFilter(): Filter {
@@ -85,7 +83,7 @@ class FavoriteViewAdapter(
                     if (!fragment.hashedResults[query].isNullOrEmpty()) {
                         filteredList.addAll(fragment.hashedResults[query]!!)
                     } else {
-                        favoriteJoins.forEach { join ->
+                        allFavorites.forEach { join ->
                             val fieldsToSearch = listOf(
                                 join.track?.song,
                                 join.track?.artist,
@@ -103,53 +101,57 @@ class FavoriteViewAdapter(
                             }
                         }
 
-                        favoriteJoinsFiltered.clear()
-                        favoriteJoinsFiltered.addAll(filteredList)
+                        results.clear()
+                        results.addAll(filteredList)
                         fragment.hashedResults[query] = filteredList
                     }
                 } else {
-                    favoriteJoinsFiltered.addAll(favoriteJoins)
+                    results.clear()
+                    results.addAll(allFavorites)
                 }
 
-                sortList()
-
                 val filterResults = FilterResults()
-                filterResults.values = favoriteJoinsFiltered
-                filterResults.count = favoriteJoinsFiltered.size
+                filterResults.values = results
+                filterResults.count = results.size
 
                 return filterResults
             }
 
             @SuppressWarnings("unchecked")
-            override fun publishResults(charSeq: CharSequence, results: FilterResults) {
-                Timber.d("${results.count} results found")
-                if (results.values is List<*>) {
-                    submitList(favoriteJoinsFiltered)
-                    notifyDataSetChanged()
-                }
+            override fun publishResults(charSeq: CharSequence, filterResults: FilterResults) {
+                Timber.d("${filterResults.count} results found")
+                updateData()
             }
         }
     }
 
-    fun sortList() {
-        submitList(when (fragment.sortDirection) {
+    fun updateData() {
+        val newResults = sortFavorites(results)
+
+        newResults?.let {
+            results.clear()
+            results.addAll(it)
+            notifyDataSetChanged()
+        }
+    }
+
+    private fun sortFavorites(list: List<FavoriteJoin>?): List<FavoriteJoin>? {
+        return (when (fragment.sortDirection) {
             SortDirection.ASC -> when (fragment.sortType) {
-                SortType.RECENT -> favoriteJoinsFiltered.sortedBy{it.favorite?.favoriteId}
-                SortType.ALBUM  -> favoriteJoinsFiltered.sortedBy{it.track?.album}
-                SortType.ARTIST -> favoriteJoinsFiltered.sortedBy{it.track?.artist}
-                SortType.TRACK  -> favoriteJoinsFiltered.sortedBy{it.track?.song}
-                SortType.SHOW   -> favoriteJoinsFiltered.sortedBy{it.show?.name}
+                SortType.RECENT -> list?.sortedBy{it.favorite?.favoriteId}
+                SortType.ALBUM  -> list?.sortedBy{it.track?.album?.toUpperCase().removeLeadingArticles()}
+                SortType.ARTIST -> list?.sortedBy{it.track?.artist?.toUpperCase().removeLeadingArticles()}
+                SortType.TRACK  -> list?.sortedBy{it.track?.song?.toUpperCase().removeLeadingArticles()}
+                SortType.SHOW   -> list?.sortedBy{it.show?.name?.toUpperCase().removeLeadingArticles()}
             }
             SortDirection.DES -> when (fragment.sortType) {
-                SortType.RECENT -> favoriteJoinsFiltered.sortedByDescending{it.favorite?.favoriteId}
-                SortType.ALBUM  -> favoriteJoinsFiltered.sortedByDescending{it.track?.album}
-                SortType.ARTIST -> favoriteJoinsFiltered.sortedByDescending{it.track?.artist}
-                SortType.TRACK  -> favoriteJoinsFiltered.sortedByDescending{it.track?.song}
-                SortType.SHOW   -> favoriteJoinsFiltered.sortedByDescending{it.show?.name}
+                SortType.RECENT -> list?.sortedByDescending{it.favorite?.favoriteId}
+                SortType.ALBUM  -> list?.sortedByDescending{it.track?.album?.toUpperCase().removeLeadingArticles()}
+                SortType.ARTIST -> list?.sortedByDescending{it.track?.artist?.toUpperCase().removeLeadingArticles()}
+                SortType.TRACK  -> list?.sortedByDescending{it.track?.song?.toUpperCase().removeLeadingArticles()}
+                SortType.SHOW   -> list?.sortedByDescending{it.show?.name?.toUpperCase().removeLeadingArticles()}
             }
         })
-
-        fragment.setSectionHeaders()
     }
 
     enum class SortDirection(val type: String) {
