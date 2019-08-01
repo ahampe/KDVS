@@ -113,7 +113,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
         super.onDestroy()
 
         context?.unregisterReceiver(onDownloadComplete)
-        downloadSwitch.isEnabled = false
+        downloadSwitch?.isEnabled = false
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
