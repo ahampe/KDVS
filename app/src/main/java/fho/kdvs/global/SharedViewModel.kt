@@ -1,11 +1,18 @@
 package fho.kdvs.global
 
+import android.app.Activity
 import android.app.Application
+import android.app.DownloadManager
+import android.content.ContentUris
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.provider.DocumentsContract
+import android.provider.MediaStore
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
@@ -21,6 +28,7 @@ import fho.kdvs.global.database.*
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.Constants.READ_REQUEST_CODE
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
@@ -38,7 +46,6 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
-import android.app.DownloadManager
 
 
 /** An [AndroidViewModel] scoped to the main activity.
@@ -337,17 +344,18 @@ class SharedViewModel @Inject constructor(
 
     fun getDestinationFolder(): File? {
         if (isExternalStorageWritable()) {
-            return File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_MUSIC), "KDVS")
+            return if (!kdvsPreferences.downloadPath.isNullOrBlank())
+                File(kdvsPreferences.downloadPath)
+            else
+                File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), "KDVS")
         }
-
-        // TODO: let user set their downloads folder
 
         return null
     }
 
-    fun setDownloadLocation() {
-
+    fun setDestinationFolder(activity: Activity) {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+        activity.startActivityForResult(intent, READ_REQUEST_CODE)
     }
 
     fun getDownloadingFilename(title: String) = "$title$broadcastExtension$temporaryExtension"

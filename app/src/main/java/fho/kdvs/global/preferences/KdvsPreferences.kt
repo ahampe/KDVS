@@ -74,12 +74,15 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         // amount of time between a notification and its related event
         NOTIFICATION_TIME,
 
-        // download preferences
+        // data preferences
         ALLOWED_OVER_METERED,
         ALLOWED_OVER_ROAMING,
 
         // theme
-        THEME
+        THEME,
+
+        // download preferences
+        DOWNLOAD_PATH
     }
 
     private val preferences: SharedPreferences = application.getSharedPreferences(FILE_NAME, MODE_PRIVATE)
@@ -103,6 +106,8 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     var allowedOverMetered: Boolean? by BooleanPreference(Key.ALLOWED_OVER_METERED)
 
     var allowedOverRoaming: Boolean? by BooleanPreference(Key.ALLOWED_OVER_ROAMING)
+
+    var downloadPath: String? by StringPreference(Key.DOWNLOAD_PATH)
 
     var theme: Int? by IntPreference(Key.THEME)
 
