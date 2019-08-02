@@ -197,9 +197,12 @@ class SettingsFragment : DaggerFragment() {
         meteredSwitch.setOnCheckedChangeListener { _, isChecked -> kdvsPreferences.allowedOverMetered = isChecked }
         roamingSwitch.setOnCheckedChangeListener { _, isChecked -> kdvsPreferences.allowedOverRoaming = isChecked }
 
-        setDownloadLocation.setOnClickListener { viewModel?.setDownloadLocation() }
+        setDownloadLocation.setOnClickListener { viewModel?.setDownloadFolder(activity) }
         refresh.setOnClickListener { viewModel?.refreshData() }
         contactDevs.setOnClickListener { viewModel?.composeEmail(contactDevs, URLs.CONTACT_EMAIL) }
         resetSettings.setOnClickListener { kdvsPreferences.clearAll() }
+
+        downloadPath.text = kdvsPreferences.downloadPath ?: (viewModel.getDownloadFolder()?.toURI()?.path ?: "")
+        if (downloadPath.text.isNullOrBlank()) downloadPath.visibility = View.GONE
     }
 }

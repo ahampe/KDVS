@@ -66,7 +66,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
         viewModel.broadcast.value?.let { broadcast ->
             viewModel.show.value?.let { show ->
-                val folder = sharedViewModel.getDestinationFolder()
+                val folder = sharedViewModel.getDownloadFolder()
 
                 folder?.let {
                     when (isChecked) {

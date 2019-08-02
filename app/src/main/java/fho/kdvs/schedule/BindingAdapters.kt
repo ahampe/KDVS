@@ -77,7 +77,7 @@ fun makeTimeslotHeight(view: CardView, timeslot: TimeSlot, numHalfHours: Int){
     }
 }
 
-@BindingAdapter("timeslotGlideHref")
+@BindingAdapter("timeslotGlideHref", "selectedTheme")
 fun loadImageWithGlideAndSetVisualizations(view: ImageView, timeslot: TimeSlot?, selectedTheme: Int) {
     val parent = view.parent as ConstraintLayout
 

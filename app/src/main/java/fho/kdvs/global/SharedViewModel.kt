@@ -1,18 +1,12 @@
 package fho.kdvs.global
 
-import android.app.Activity
 import android.app.Application
 import android.app.DownloadManager
-import android.content.ContentUris
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.provider.DocumentsContract
-import android.provider.MediaStore
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
@@ -338,11 +332,11 @@ class SharedViewModel @Inject constructor(
         "${show.name} (${TimeHelper.dateFormatter.format(broadcast.date)})"
 
     fun getDestinationFile(filename: String): File {
-        val folder = getDestinationFolder()
+        val folder = getDownloadFolder()
         return File(Uri.parse("${folder?.absolutePath}/$filename").path)
     }
 
-    fun getDestinationFolder(): File? {
+    fun getDownloadFolder(): File? {
         if (isExternalStorageWritable()) {
             return if (!kdvsPreferences.downloadPath.isNullOrBlank())
                 File(kdvsPreferences.downloadPath)
@@ -353,9 +347,9 @@ class SharedViewModel @Inject constructor(
         return null
     }
 
-    fun setDestinationFolder(activity: Activity) {
+    fun setDownloadFolder(activity: FragmentActivity?) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-        activity.startActivityForResult(intent, READ_REQUEST_CODE)
+        activity?.startActivityForResult(intent, READ_REQUEST_CODE)
     }
 
     fun getDownloadingFilename(title: String) = "$title$broadcastExtension$temporaryExtension"
@@ -388,7 +382,7 @@ class SharedViewModel @Inject constructor(
     }
 
     fun isBroadcastDownloaded(broadcast: BroadcastEntity, show: ShowEntity): Boolean {
-        val folder = getDestinationFolder()
+        val folder = getDownloadFolder()
         val title = getBroadcastDownloadTitle(broadcast, show)
         val files = folder?.listFiles()
 
