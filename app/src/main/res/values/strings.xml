@@ -54,18 +54,23 @@
     <string name="download_location">Set download location</string>
     <string name="notification">Notification</string>
     <string name="notification_time">Time in advance</string>
+    <string name="notification_desc">Schedule notifications for your subscribed shows\' broadcasts to occur a set amount of time before they go live.</string>
     <string name="data">Data</string>
     <string name="metered">Allow over metered</string>
     <string name="roaming">Allow over roaming</string>
     <string name="info">Info</string>
     <string name="fundraiser_window">Fundraiser display window</string>
+    <string name="fundraiser_desc">The number of months before and after a fundraiser in which to display its information on Home.</string>
     <string name="frequency">Update frequency</string>
+    <string name="frequency_desc">Set how often you wish app information to be updated. This will keep you more timely informed, but will incur a slight increase in data usage.</string>
     <string name="refresh">Manual refresh</string>
+    <string name="refresh_desc">Retrieve the most up-to-date station information. This will incur some slight data usage.</string>
     <string name="appearance">Appearance</string>
     <string name="theme">Color theme</string>
+    <string name="theme_desc">Set color accent style.</string>
     <string name="about">About</string>
     <string name="contact_devs">Contact developers</string>
-    <string name="play_store">Rate in Play Store</string>
+    <string name="contact_devs_desc">Email us comments, feedback, suggestions.</string>
     <string name="reset_settings">Reset settings to default</string>
 
     <!-- Schedule -->

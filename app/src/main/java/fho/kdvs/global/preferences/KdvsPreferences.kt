@@ -3,9 +3,16 @@ package fho.kdvs.global.preferences
 import android.app.Application
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import androidx.lifecycle.MutableLiveData
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.enums.enumValueOrDefault
 import fho.kdvs.schedule.QuarterYear
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.observers.DisposableObserver
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.properties.ReadWriteProperty
@@ -85,7 +92,7 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         DOWNLOAD_PATH
     }
 
-    private val preferences: SharedPreferences = application.getSharedPreferences(FILE_NAME, MODE_PRIVATE)
+    val preferences: SharedPreferences = application.getSharedPreferences(FILE_NAME, MODE_PRIVATE)
 
     var streamUrl: String? by StringPreference(Key.STREAM_URL)
 
@@ -208,6 +215,79 @@ open class KdvsPreferences @Inject constructor(application: Application) {
                     }
                 }.apply()
             }
+        }
+    }
+
+    inner class LiveSharedPreferences constructor(private val preferences: SharedPreferences) {
+
+        private val publisher = PublishSubject.create<String>()
+        private val listener =
+            SharedPreferences.OnSharedPreferenceChangeListener { _, key -> publisher.onNext(key) }
+
+        private val updates = publisher.doOnSubscribe {
+            preferences.registerOnSharedPreferenceChangeListener(listener)
+        }.doOnDispose {
+            if (!publisher.hasObservers())
+                preferences.unregisterOnSharedPreferenceChangeListener(listener)
+        }
+
+        fun getPreferences(): SharedPreferences {
+            return preferences
+        }
+
+        fun getString(key: String, defaultValue: String): LivePreference<String> {
+            return LivePreference(updates, preferences, key, defaultValue)
+        }
+
+        fun getInt(key: String, defaultValue: Int): LivePreference<Int> {
+            return LivePreference(updates, preferences, key, defaultValue)
+        }
+
+        fun getBoolean(key: String, defaultValue: Boolean): LivePreference<Boolean> {
+            return LivePreference(updates, preferences, key, defaultValue)
+        }
+
+        fun getFloat(key: String, defaultValue: Float): LivePreference<Float> {
+            return LivePreference(updates, preferences, key, defaultValue)
+        }
+
+        fun getLong(key: String, defaultValue: Long): LivePreference<Long> {
+            return LivePreference(updates, preferences, key, defaultValue)
+        }
+    }
+
+    inner class LivePreference<T> constructor(
+        private val updates: Observable<String>,
+        private val preferences: SharedPreferences,
+        private val key: String,
+        private val defaultValue: T
+    ) : MutableLiveData<T>() {
+
+        private var disposable: Disposable? = null
+
+        override fun onActive() {
+            super.onActive()
+            value = preferences.all[key] as T ?: defaultValue
+
+            disposable = updates.filter { t -> t == key }.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribeWith(object: DisposableObserver<String>() {
+                    override fun onComplete() {
+
+                    }
+
+                    override fun onNext(t: String) {
+                        postValue((preferences.all[t] as T) ?: defaultValue)
+                    }
+
+                    override fun onError(e: Throwable) {
+
+                    }
+                })
+        }
+
+        override fun onInactive() {
+            super.onInactive()
+            disposable?.dispose()
         }
     }
     // endregion

@@ -1,11 +1,14 @@
 package fho.kdvs.settings
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
@@ -16,7 +19,9 @@ import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
 import kotlinx.android.synthetic.main.fragment_settings.*
+import timber.log.Timber
 import javax.inject.Inject
+
 
 class SettingsFragment : DaggerFragment() {
     @Inject
@@ -44,7 +49,17 @@ class SettingsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val defaultPath = viewModel.getDownloadFolder()?.toURI()?.path ?: ""
+
         context?.let {
+            val liveSharedPreferences = kdvsPreferences.LiveSharedPreferences(kdvsPreferences.preferences)
+
+            liveSharedPreferences.getString("${kdvsPreferences.downloadPath}}", defaultPath)
+                .observe(this, Observer<String> { path ->
+                Timber.d("Download path changed to $path")
+                downloadPath.text = path
+            })
+
             ArrayAdapter.createFromResource(
                 it,
                 R.array.codecs_array,
@@ -200,9 +215,23 @@ class SettingsFragment : DaggerFragment() {
         setDownloadLocation.setOnClickListener { viewModel?.setDownloadFolder(activity) }
         refresh.setOnClickListener { viewModel?.refreshData() }
         contactDevs.setOnClickListener { viewModel?.composeEmail(contactDevs, URLs.CONTACT_EMAIL) }
-        resetSettings.setOnClickListener { kdvsPreferences.clearAll() }
+        resetSettings.setOnClickListener {
+            context?.let {
+                AlertDialog.Builder(it)
+                    .setTitle("Reset")
+                    .setMessage("Do you want to reset settings back to default?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton(android.R.string.yes,
+                        DialogInterface.OnClickListener { _, _ ->
+                            kdvsPreferences.clearAll()
+                            Timber.d("Preferences reset")
+                        })
+                    .setNegativeButton(android.R.string.no, null).show()
+            }
 
-        downloadPath.text = kdvsPreferences.downloadPath ?: (viewModel.getDownloadFolder()?.toURI()?.path ?: "")
+        }
+
+        downloadPath.text = kdvsPreferences.downloadPath ?: defaultPath
         if (downloadPath.text.isNullOrBlank()) downloadPath.visibility = View.GONE
     }
 }
