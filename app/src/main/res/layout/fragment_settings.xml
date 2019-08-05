@@ -52,6 +52,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:entries="@array/codecs_array"
+                android:gravity="end"
+                android:textAlignment="viewEnd"
                 app:layout_constraintBottom_toBottomOf="@+id/codec"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/codec" />
@@ -81,26 +84,11 @@
                 app:layout_constraintTop_toBottomOf="@id/downloadHeader" />
 
             <TextView
-                android:id="@+id/downloadPath"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingStart="@dimen/spacing_large"
-                android:paddingEnd="@dimen/spacing_large"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:textColor="@color/colorWhite"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/setDownloadLocation"
-                tools:text="/storage/emulated/0/Download/testing large file path to see if overflow" />
-
-            <TextView
                 android:id="@+id/notificationHeader"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/downloadPath"
+                app:layout_constraintTop_toBottomOf="@id/setDownloadLocation"
                 android:layout_marginTop="@dimen/spacing_large"
                 android:text="@string/notification"
                 android:textColor="@color/colorWhite"
@@ -124,6 +112,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:entries="@array/notification_time_array"
+                android:gravity="end"
+                android:textAlignment="viewEnd"
                 app:layout_constraintBottom_toBottomOf="@+id/notificationTime"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/notificationTime" />
@@ -135,6 +126,7 @@
                 android:paddingStart="@dimen/spacing_large"
                 android:paddingEnd="@dimen/spacing_extra_large"
                 android:textColor="@color/colorWhite"
+                android:layout_marginTop="@dimen/spacing_small"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintTop_toBottomOf="@id/notificationTime"
@@ -154,53 +146,46 @@
                 style="@style/TextAppearance.MaterialComponents.Headline6"/>
 
             <TextView
-                android:id="@+id/dataMetered"
+                android:id="@+id/dataSaver"
                 style="@style/TextAppearance.MaterialComponents.Headline6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_medium"
                 android:layout_marginStart="@dimen/spacing_large"
-                android:text="@string/metered"
+                android:text="@string/saver"
                 android:textColor="@color/colorWhite"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/dataHeader" />
 
             <Switch
-                android:id="@+id/meteredSwitch"
+                android:id="@+id/dataSaverSwitch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                app:layout_constraintBottom_toBottomOf="@+id/dataMetered"
+                app:layout_constraintBottom_toBottomOf="@+id/dataSaver"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/dataMetered" />
+                app:layout_constraintTop_toTopOf="@+id/dataSaver" />
 
             <TextView
-                android:id="@+id/dataRoaming"
-                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:id="@+id/dataSaverDesc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_medium"
-                android:layout_marginStart="@dimen/spacing_large"
-                android:text="@string/roaming"
+                android:paddingStart="@dimen/spacing_large"
+                android:paddingEnd="@dimen/spacing_extra_large"
                 android:textColor="@color/colorWhite"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/dataMetered" />
-
-            <Switch
-                android:id="@+id/roamingSwitch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                app:layout_constraintBottom_toBottomOf="@+id/dataRoaming"
+                android:layout_marginTop="@dimen/spacing_small"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/dataRoaming" />
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintTop_toBottomOf="@id/dataSaver"
+                app:layout_constraintStart_toStartOf="parent"
+                android:text="@string/saver_desc" />
 
             <TextView
                 android:id="@+id/infoHeader"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/dataRoaming"
+                app:layout_constraintTop_toBottomOf="@id/dataSaverDesc"
                 android:layout_marginTop="@dimen/spacing_large"
                 android:text="@string/info"
                 android:textColor="@color/colorWhite"
@@ -224,6 +209,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:entries="@array/fundraiser_window_array"
+                android:gravity="end"
+                android:textAlignment="viewEnd"
                 app:layout_constraintBottom_toBottomOf="@+id/fundraiserWindow"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/fundraiserWindow" />
@@ -235,6 +223,7 @@
                 android:paddingStart="@dimen/spacing_large"
                 android:paddingEnd="@dimen/spacing_extra_large"
                 android:textColor="@color/colorWhite"
+                android:layout_marginTop="@dimen/spacing_small"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintTop_toBottomOf="@id/fundraiserWindow"
@@ -258,6 +247,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:entries="@array/frequency_array"
+                android:gravity="end"
+                android:textAlignment="viewEnd"
                 app:layout_constraintBottom_toBottomOf="@+id/frequency"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/frequency" />
@@ -269,6 +261,7 @@
                 android:paddingStart="@dimen/spacing_large"
                 android:paddingEnd="@dimen/spacing_extra_large"
                 android:textColor="@color/colorWhite"
+                android:layout_marginTop="@dimen/spacing_small"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintTop_toBottomOf="@id/frequency"
@@ -294,6 +287,7 @@
                 android:paddingStart="@dimen/spacing_large"
                 android:paddingEnd="@dimen/spacing_extra_large"
                 android:textColor="@color/colorWhite"
+                android:layout_marginTop="@dimen/spacing_small"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintTop_toBottomOf="@id/refresh"
@@ -329,6 +323,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:entries="@array/themes_array"
+                android:gravity="end"
+                android:textAlignment="viewEnd"
                 app:layout_constraintBottom_toBottomOf="@+id/theme"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/theme" />
@@ -340,6 +337,7 @@
                 android:paddingStart="@dimen/spacing_large"
                 android:paddingEnd="@dimen/spacing_extra_large"
                 android:textColor="@color/colorWhite"
+                android:layout_marginTop="@dimen/spacing_small"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintTop_toBottomOf="@id/theme"
@@ -377,6 +375,7 @@
                 android:paddingStart="@dimen/spacing_large"
                 android:paddingEnd="@dimen/spacing_extra_large"
                 android:textColor="@color/colorWhite"
+                android:layout_marginTop="@dimen/spacing_small"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintTop_toBottomOf="@id/contactDevs"
@@ -397,6 +396,4 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
-
-
 </layout>

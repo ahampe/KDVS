@@ -92,15 +92,8 @@ class MainActivity : DaggerAppCompatActivity() {
         // Result from setting download path
         if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             resultData?.data?.also { uri ->
-                Timber.d("Download path set: ${uri.path}")
-                uri.path?.let {
-                    val match = ".*(/storage/.*)".toRegex().find(it)
-                    val realPath = match?.groupValues?.getOrNull(1)
-                    realPath?.let {
-                        kdvsPreferences.downloadPath = realPath
-                    }
-                }
-
+                Timber.d("Download path tree uri set: ${uri.path}")
+                kdvsPreferences.downloadPath = uri.path
             }
         }
     }

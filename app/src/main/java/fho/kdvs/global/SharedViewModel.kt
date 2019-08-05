@@ -369,8 +369,8 @@ class SharedViewModel @Inject constructor(
             .setDescription("Downloading")
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
             .setDestinationUri(Uri.fromFile(file))
-            .setAllowedOverMetered(kdvsPreferences.allowedOverMetered ?: false)
-            .setAllowedOverRoaming(kdvsPreferences.allowedOverRoaming ?: false)
+            .setAllowedOverMetered(kdvsPreferences.dataSaverMode != true)
+            .setAllowedOverRoaming(kdvsPreferences.dataSaverMode != true)
     }
 
     fun deleteFile(file: File) {

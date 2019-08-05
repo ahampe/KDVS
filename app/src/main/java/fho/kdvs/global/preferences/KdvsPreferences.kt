@@ -82,8 +82,7 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         NOTIFICATION_TIME,
 
         // data preferences
-        ALLOWED_OVER_METERED,
-        ALLOWED_OVER_ROAMING,
+        DATA_SAVER_MODE,
 
         // theme
         THEME,
@@ -110,9 +109,7 @@ open class KdvsPreferences @Inject constructor(application: Application) {
 
     var lastFundraiserScraper: Long? by LongPreference(Key.LAST_FUNDRAISER_SCRAPE)
 
-    var allowedOverMetered: Boolean? by BooleanPreference(Key.ALLOWED_OVER_METERED)
-
-    var allowedOverRoaming: Boolean? by BooleanPreference(Key.ALLOWED_OVER_ROAMING)
+    var dataSaverMode: Boolean? by BooleanPreference(Key.DATA_SAVER_MODE)
 
     var downloadPath: String? by StringPreference(Key.DOWNLOAD_PATH)
 
@@ -215,79 +212,6 @@ open class KdvsPreferences @Inject constructor(application: Application) {
                     }
                 }.apply()
             }
-        }
-    }
-
-    inner class LiveSharedPreferences constructor(private val preferences: SharedPreferences) {
-
-        private val publisher = PublishSubject.create<String>()
-        private val listener =
-            SharedPreferences.OnSharedPreferenceChangeListener { _, key -> publisher.onNext(key) }
-
-        private val updates = publisher.doOnSubscribe {
-            preferences.registerOnSharedPreferenceChangeListener(listener)
-        }.doOnDispose {
-            if (!publisher.hasObservers())
-                preferences.unregisterOnSharedPreferenceChangeListener(listener)
-        }
-
-        fun getPreferences(): SharedPreferences {
-            return preferences
-        }
-
-        fun getString(key: String, defaultValue: String): LivePreference<String> {
-            return LivePreference(updates, preferences, key, defaultValue)
-        }
-
-        fun getInt(key: String, defaultValue: Int): LivePreference<Int> {
-            return LivePreference(updates, preferences, key, defaultValue)
-        }
-
-        fun getBoolean(key: String, defaultValue: Boolean): LivePreference<Boolean> {
-            return LivePreference(updates, preferences, key, defaultValue)
-        }
-
-        fun getFloat(key: String, defaultValue: Float): LivePreference<Float> {
-            return LivePreference(updates, preferences, key, defaultValue)
-        }
-
-        fun getLong(key: String, defaultValue: Long): LivePreference<Long> {
-            return LivePreference(updates, preferences, key, defaultValue)
-        }
-    }
-
-    inner class LivePreference<T> constructor(
-        private val updates: Observable<String>,
-        private val preferences: SharedPreferences,
-        private val key: String,
-        private val defaultValue: T
-    ) : MutableLiveData<T>() {
-
-        private var disposable: Disposable? = null
-
-        override fun onActive() {
-            super.onActive()
-            value = preferences.all[key] as T ?: defaultValue
-
-            disposable = updates.filter { t -> t == key }.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()).subscribeWith(object: DisposableObserver<String>() {
-                    override fun onComplete() {
-
-                    }
-
-                    override fun onNext(t: String) {
-                        postValue((preferences.all[t] as T) ?: defaultValue)
-                    }
-
-                    override fun onError(e: Throwable) {
-
-                    }
-                })
-        }
-
-        override fun onInactive() {
-            super.onInactive()
-            disposable?.dispose()
         }
     }
     // endregion

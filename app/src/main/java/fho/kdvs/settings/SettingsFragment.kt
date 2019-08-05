@@ -6,12 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import dagger.android.support.DaggerFragment
-import fho.kdvs.R
 import fho.kdvs.databinding.FragmentSettingsBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
@@ -49,22 +46,8 @@ class SettingsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val defaultPath = viewModel.getDownloadFolder()?.toURI()?.path ?: ""
-
         context?.let {
-            val liveSharedPreferences = kdvsPreferences.LiveSharedPreferences(kdvsPreferences.preferences)
-
-            liveSharedPreferences.getString("${kdvsPreferences.downloadPath}}", defaultPath)
-                .observe(this, Observer<String> { path ->
-                Timber.d("Download path changed to $path")
-                downloadPath.text = path
-            })
-
-            ArrayAdapter.createFromResource(
-                it,
-                R.array.codecs_array,
-                android.R.layout.simple_spinner_item
-            ).also { adapter ->
+            codecSpinner?.let { spinner ->
                 val position = when (kdvsPreferences.streamUrl) {
                     URLs.LIVE_OGG -> 0
                     URLs.LIVE_AAC -> 1
@@ -72,10 +55,8 @@ class SettingsFragment : DaggerFragment() {
                     else -> 0
                 }
 
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                codecSpinner.adapter = adapter
-                codecSpinner.setSelection(position)
-                codecSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+                spinner.setSelection(position)
+                spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                         kdvsPreferences.streamUrl = when (position) {
                             0 -> URLs.LIVE_OGG
@@ -89,11 +70,7 @@ class SettingsFragment : DaggerFragment() {
                 }
             }
 
-            ArrayAdapter.createFromResource(
-                it,
-                R.array.notification_time_array,
-                android.R.layout.simple_spinner_item
-            ).also { adapter ->
+            notificationSpinner?.let { spinner ->
                 val position = when (kdvsPreferences.notificationTime) {
                     5 -> 0
                     10 -> 1
@@ -102,10 +79,8 @@ class SettingsFragment : DaggerFragment() {
                     else -> 1
                 }
 
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                notificationSpinner.adapter = adapter
-                notificationSpinner.setSelection(position)
-                notificationSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+                spinner.setSelection(position)
+                spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                         kdvsPreferences.notificationTime = when (position) {
                             0 -> 5
@@ -120,11 +95,7 @@ class SettingsFragment : DaggerFragment() {
                 }
             }
 
-            ArrayAdapter.createFromResource(
-                it,
-                R.array.fundraiser_window_array,
-                android.R.layout.simple_spinner_item
-            ).also { adapter ->
+            fundraiserSpinner?.let { spinner ->
                 val position = when (kdvsPreferences.fundraiserWindow) {
                     1 -> 0
                     2 -> 1
@@ -132,10 +103,8 @@ class SettingsFragment : DaggerFragment() {
                     else -> 1
                 }
 
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                fundraiserSpinner.adapter = adapter
-                fundraiserSpinner.setSelection(position)
-                fundraiserSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+                spinner.setSelection(position)
+                spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                         kdvsPreferences.fundraiserWindow = when (position) {
                             0 -> 1
@@ -149,11 +118,7 @@ class SettingsFragment : DaggerFragment() {
                 }
             }
 
-            ArrayAdapter.createFromResource(
-                it,
-                R.array.frequency_array,
-                android.R.layout.simple_spinner_item
-            ).also { adapter ->
+            frequencySpinner?.let { spinner ->
                 val position = when (kdvsPreferences.scrapeFrequency) {
                     WebScraperManager.DEFAULT_SCRAPE_FREQ -> 0
                     WebScraperManager.DAILY_SCRAPE_FREQ -> 1
@@ -161,10 +126,8 @@ class SettingsFragment : DaggerFragment() {
                     else -> 0
                 }
 
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                frequencySpinner.adapter = adapter
-                frequencySpinner.setSelection(position)
-                frequencySpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+                spinner.setSelection(position)
+                spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                         kdvsPreferences.scrapeFrequency = when (position) {
                             0 -> WebScraperManager.DEFAULT_SCRAPE_FREQ
@@ -178,18 +141,12 @@ class SettingsFragment : DaggerFragment() {
                 }
             }
 
-            ArrayAdapter.createFromResource(
-                it,
-                R.array.themes_array,
-                android.R.layout.simple_spinner_item
-            ).also { adapter ->
+            themeSpinner?.let { spinner ->
                 val position = KdvsPreferences.Theme.values()
                     .find { t -> t.value == kdvsPreferences.theme }?.value ?: 0
 
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                themeSpinner.adapter = adapter
-                themeSpinner.setSelection(position)
-                themeSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+                spinner.setSelection(position)
+                spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                         kdvsPreferences.theme = KdvsPreferences.Theme.values()[position].value
                     }
@@ -199,18 +156,12 @@ class SettingsFragment : DaggerFragment() {
             }
         }
 
-        if (kdvsPreferences.allowedOverMetered == true) {
-            meteredSwitch.setOnCheckedChangeListener(null)
-            meteredSwitch.isChecked = true
+        if (kdvsPreferences.dataSaverMode == true) {
+            dataSaverSwitch.setOnCheckedChangeListener(null)
+            dataSaverSwitch.isChecked = true
         }
 
-        if (kdvsPreferences.allowedOverRoaming == true) {
-            roamingSwitch.setOnCheckedChangeListener(null)
-            roamingSwitch.isChecked = true
-        }
-
-        meteredSwitch.setOnCheckedChangeListener { _, isChecked -> kdvsPreferences.allowedOverMetered = isChecked }
-        roamingSwitch.setOnCheckedChangeListener { _, isChecked -> kdvsPreferences.allowedOverRoaming = isChecked }
+        dataSaverSwitch.setOnCheckedChangeListener { _, isChecked -> kdvsPreferences.dataSaverMode = isChecked }
 
         setDownloadLocation.setOnClickListener { viewModel?.setDownloadFolder(activity) }
         refresh.setOnClickListener { viewModel?.refreshData() }
@@ -230,8 +181,5 @@ class SettingsFragment : DaggerFragment() {
             }
 
         }
-
-        downloadPath.text = kdvsPreferences.downloadPath ?: defaultPath
-        if (downloadPath.text.isNullOrBlank()) downloadPath.visibility = View.GONE
     }
 }
