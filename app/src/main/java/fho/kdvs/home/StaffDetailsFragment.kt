@@ -115,6 +115,6 @@ class StaffDetailsFragment : BottomSheetDialogFragment(), CoroutineScope {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        homeRoot?.setOnClickListener { this.dismiss() }
+        staffRoot?.setOnClickListener { this.dismiss() }
     }
 }

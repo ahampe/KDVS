@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.databinding.FragmentShowDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
+import fho.kdvs.global.ui.LoadScreen
 import kotlinx.android.synthetic.main.fragment_show_details.*
 import timber.log.Timber
 import javax.inject.Inject
@@ -50,6 +51,8 @@ class ShowDetailsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        LoadScreen.displayLoadScreen(showDetailsRoot)
+
         broadcastListAdapter = ShowBroadcastsAdapter {
             Timber.d("clicked ${it.item}")
             viewModel.onClickBroadcast(findNavController(), it.item)
@@ -65,6 +68,8 @@ class ShowDetailsFragment : DaggerFragment() {
         viewModel.broadcastsLiveData.observe(this, Observer { broadcasts ->
             Timber.d("got broadcasts: $broadcasts")
             broadcastListAdapter?.onBroadcastsChanged(broadcasts)
+
+            LoadScreen.hideLoadScreen(showDetailsRoot)
         })
     }
 }

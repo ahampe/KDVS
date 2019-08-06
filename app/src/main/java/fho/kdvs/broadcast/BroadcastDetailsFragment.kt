@@ -135,8 +135,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (viewModel.broadcast.value == null)
-            LoadScreen.displayLoadScreen(detailsRoot)
+        LoadScreen.displayLoadScreen(detailsRoot)
 
         tracksAdapter = BroadcastTracksAdapter(viewModel, sharedViewModel) {
             Timber.d("Clicked ${it.item}")
