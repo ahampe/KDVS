@@ -152,7 +152,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_medium"
                 android:layout_marginStart="@dimen/spacing_large"
-                android:text="@string/saver"
+                android:text="@string/offline"
                 android:textColor="@color/colorWhite"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/dataHeader" />
@@ -178,7 +178,7 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintTop_toBottomOf="@id/dataSaver"
                 app:layout_constraintStart_toStartOf="parent"
-                android:text="@string/saver_desc" />
+                android:text="@string/offline_desc" />
 
             <TextView
                 android:id="@+id/infoHeader"

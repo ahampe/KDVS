@@ -25,6 +25,7 @@ import fho.kdvs.global.MainActivity
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.HttpHelper
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
@@ -41,6 +42,9 @@ class BroadcastDetailsFragment : DaggerFragment() {
     lateinit var vmFactory: KdvsViewModelFactory
     private lateinit var viewModel: BroadcastDetailsViewModel
     private lateinit var sharedViewModel: SharedViewModel
+
+    @Inject
+    lateinit var kdvsPreferences: KdvsPreferences
 
     private var tracksAdapter: BroadcastTracksAdapter? = null
 
@@ -184,6 +188,11 @@ class BroadcastDetailsFragment : DaggerFragment() {
     }
 
     private fun downloadBroadcast(broadcast: BroadcastEntity, show: ShowEntity, folder: File) {
+        if (kdvsPreferences.offlineMode == true) {
+            sharedViewModel.makeOfflineModeToast(activity)
+            return
+        }
+
         val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
         val filename = sharedViewModel.getDownloadingFilename(title)
 

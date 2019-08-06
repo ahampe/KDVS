@@ -84,7 +84,7 @@
                         android:layout_gravity="center"
                         android:background="@drawable/button"
                         android:contentDescription="@string/notification_live"
-                        android:text="@string/notification_live" />
+                        android:text="@string/notification_live"/>
                 </LinearLayout>
 
                 <LinearLayout

@@ -4,7 +4,6 @@ import android.app.Application
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationCompat
@@ -105,7 +104,7 @@ class CustomAction @Inject constructor(
                     }
                 }
             } else {
-            transportControls.playFromMediaId(streamUrl, null)
+                transportControls.playFromMediaId(streamUrl, null)
             }
         }
     }

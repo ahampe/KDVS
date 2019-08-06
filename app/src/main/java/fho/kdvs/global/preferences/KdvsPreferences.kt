@@ -109,7 +109,7 @@ open class KdvsPreferences @Inject constructor(application: Application) {
 
     var lastFundraiserScraper: Long? by LongPreference(Key.LAST_FUNDRAISER_SCRAPE)
 
-    var dataSaverMode: Boolean? by BooleanPreference(Key.DATA_SAVER_MODE)
+    var offlineMode: Boolean? by BooleanPreference(Key.DATA_SAVER_MODE)
 
     var downloadPath: String? by StringPreference(Key.DOWNLOAD_PATH)
 

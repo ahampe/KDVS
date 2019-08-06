@@ -114,7 +114,12 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun playLiveShowFromHome() {
+    fun playLiveShowFromHome(activity: FragmentActivity?) {
+        if (kdvsPreferences.offlineMode == true) {
+            makeOfflineModeToast(activity)
+            return
+        }
+
         broadcastRepository.playingLiveBroadcast = true
         broadcastRepository.nowPlayingShowLiveData.postValue(showRepository.liveShowLiveData.value)
         broadcastRepository.nowPlayingBroadcastLiveData.postValue(broadcastRepository.liveBroadcastLiveData.value)
@@ -145,6 +150,11 @@ class SharedViewModel @Inject constructor(
 
             }
             false -> {
+                if (kdvsPreferences.offlineMode == true) {
+                    makeOfflineModeToast(activity)
+                    return
+                }
+
                 try {
                     mediaSessionConnection.transportControls?.playFromMediaId(
                         broadcast.broadcastId.toString(),
@@ -208,6 +218,13 @@ class SharedViewModel @Inject constructor(
         return isLiveNow.value == null ||
             broadcast == null ||
                 TimeHelper.isShowBroadcastLive(show, broadcast)
+    }
+
+    fun makeOfflineModeToast(activity: FragmentActivity?) {
+        Toast.makeText(activity as? MainActivity,
+            "Offline mode prevents live streaming.",
+            Toast.LENGTH_SHORT)
+            .show()
     }
 
     // endregion
@@ -369,8 +386,8 @@ class SharedViewModel @Inject constructor(
             .setDescription("Downloading")
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
             .setDestinationUri(Uri.fromFile(file))
-            .setAllowedOverMetered(kdvsPreferences.dataSaverMode != true)
-            .setAllowedOverRoaming(kdvsPreferences.dataSaverMode != true)
+            .setAllowedOverMetered(kdvsPreferences.offlineMode != true)
+            .setAllowedOverRoaming(kdvsPreferences.offlineMode != true)
     }
 
     fun deleteFile(file: File) {
@@ -408,7 +425,8 @@ class SharedViewModel @Inject constructor(
 
     // TODO: multiple attempts?
     fun fetchThirdPartyDataForTopMusic(topMusic: TopMusicEntity, topMusicRepository: TopMusicRepository) {
-        if (topMusic.hasScrapedMetadata()) return
+        if (topMusic.hasScrapedMetadata() || kdvsPreferences.offlineMode == true)
+            return
 
         var mbData: MusicBrainzReleaseData? = null
         var mbImageHref: String? = null

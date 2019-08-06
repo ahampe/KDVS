@@ -113,6 +113,10 @@ class HomeFragment : DaggerFragment() {
             setHasFixedSize(true)
         }
 
+        playButton.setOnClickListener {
+            sharedViewModel.playLiveShowFromHome(activity)
+        }
+
         newsArticlesAdapter = NewsArticlesAdapter(sharedViewModel) {
             Timber.d("Clicked ${it.item}")
         }

@@ -156,12 +156,15 @@ class SettingsFragment : DaggerFragment() {
             }
         }
 
-        if (kdvsPreferences.dataSaverMode == true) {
+        if (kdvsPreferences.offlineMode == true) {
             dataSaverSwitch.setOnCheckedChangeListener(null)
             dataSaverSwitch.isChecked = true
+
+            // TODO: if streaming live, stop and remove player bar
+
         }
 
-        dataSaverSwitch.setOnCheckedChangeListener { _, isChecked -> kdvsPreferences.dataSaverMode = isChecked }
+        dataSaverSwitch.setOnCheckedChangeListener { _, isChecked -> kdvsPreferences.offlineMode = isChecked }
 
         setDownloadLocation.setOnClickListener { viewModel?.setDownloadFolder(activity) }
         refresh.setOnClickListener { viewModel?.refreshData() }
