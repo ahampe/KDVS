@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.CompoundButton
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProviders
 import dagger.android.support.DaggerFragment
@@ -159,16 +161,23 @@ class SettingsFragment : DaggerFragment() {
         if (kdvsPreferences.offlineMode == true) {
             offlineSwitch.setOnCheckedChangeListener(null)
             offlineSwitch.isChecked = true
-
         }
 
-        offlineSwitch.setOnCheckedChangeListener { _, isChecked ->
+        val offlineSwitchChangeListener = CompoundButton.OnCheckedChangeListener { _, isChecked ->
             kdvsPreferences.offlineMode = isChecked
             viewModel.stopPlayback()
         }
 
+        offlineSwitch.setOnCheckedChangeListener(offlineSwitchChangeListener)
         setDownloadLocation.setOnClickListener { viewModel?.setDownloadFolder(activity) }
-        refresh.setOnClickListener { viewModel?.refreshData() }
+        refresh.setOnClickListener {
+            viewModel?.refreshData()
+
+            Toast.makeText(activity,
+                "Information updated.",
+                Toast.LENGTH_SHORT)
+                .show()
+        }
         contactDevs.setOnClickListener { viewModel?.composeEmail(contactDevs, URLs.CONTACT_EMAIL) }
         resetSettings.setOnClickListener {
             context?.let {
@@ -179,6 +188,18 @@ class SettingsFragment : DaggerFragment() {
                     .setPositiveButton(android.R.string.yes,
                         DialogInterface.OnClickListener { _, _ ->
                             kdvsPreferences.clearAll()
+
+                            codecSpinner.setSelection(0)
+                            notificationSpinner.setSelection(1)
+
+                            offlineSwitch.setOnCheckedChangeListener(null)
+                            offlineSwitch.isChecked = false
+                            offlineSwitch.setOnCheckedChangeListener(offlineSwitchChangeListener)
+
+                            fundraiserSpinner.setSelection(1)
+                            frequencySpinner.setSelection(0)
+                            themeSpinner.setSelection(0)
+                            
                             Timber.d("Preferences reset")
                         })
                     .setNegativeButton(android.R.string.no, null).show()

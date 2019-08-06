@@ -66,8 +66,8 @@
     <string name="refresh">Manual refresh</string>
     <string name="refresh_desc">Retrieve the most up-to-date station information. This will incur some slight data usage.</string>
     <string name="appearance">Appearance</string>
-    <string name="theme">Color theme</string>
-    <string name="theme_desc">Set color accent style.</string>
+    <string name="theme">Schedule theme</string>
+    <string name="theme_desc">Set schedule color accent style.</string>
     <string name="about">About</string>
     <string name="contact_devs">Contact app developers</string>
     <string name="contact_devs_desc">Email us comments, feedback, suggestions.</string>
