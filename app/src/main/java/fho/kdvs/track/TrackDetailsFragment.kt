@@ -76,7 +76,7 @@ class TrackDetailsFragment : DaggerFragment(), CoroutineScope {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        LoadScreen.displayLoadScreen(root)
+        LoadScreen.displayLoadScreen(homeRoot)
     }
 
     private fun subscribeToViewModel() {
@@ -113,14 +113,14 @@ class TrackDetailsFragment : DaggerFragment(), CoroutineScope {
                 if (liveTrack.hasScrapedMetadata) {
                     musicBrainzFetchComplete = true
                     if (spotifyFetchComplete)
-                        LoadScreen.hideLoadScreen(root)
+                        LoadScreen.hideLoadScreen(homeRoot)
                 }
 
                 val spotifyUri = liveTrack.spotifyUri
                 if (spotifyUri != null) {
                     spotifyFetchComplete = true
                     if (musicBrainzFetchComplete)
-                        LoadScreen.hideLoadScreen(root)
+                        LoadScreen.hideLoadScreen(homeRoot)
 
                     if (spotifyUri.isNotEmpty()) {
                         spotifyIcon.setOnClickListener {

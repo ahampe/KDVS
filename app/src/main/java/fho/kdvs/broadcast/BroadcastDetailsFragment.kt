@@ -26,6 +26,7 @@ import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.HttpHelper
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
@@ -135,7 +136,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         if (viewModel.broadcast.value == null)
-            progressBar.visibility = View.VISIBLE
+            LoadScreen.displayLoadScreen(detailsRoot)
 
         tracksAdapter = BroadcastTracksAdapter(viewModel, sharedViewModel) {
             Timber.d("Clicked ${it.item}")
@@ -253,7 +254,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
                 if (HttpHelper.isConnectionAvailable(URLs.archiveForBroadcast(broadcast)))
                     setDownloadViewsVisible()
 
-                progressBar?.let { it.visibility = View.GONE }
+                LoadScreen.hideLoadScreen(detailsRoot)
             }
         }
     }
