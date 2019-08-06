@@ -8,13 +8,14 @@ import androidx.navigation.NavController
 import fho.kdvs.R
 import fho.kdvs.global.database.*
 import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.global.web.*
-import fho.kdvs.show.*
+import fho.kdvs.show.FundraiserRepository
+import fho.kdvs.show.NewsRepository
+import fho.kdvs.show.ShowRepository
+import fho.kdvs.show.TopMusicRepository
+import fho.kdvs.staff.StaffRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import org.threeten.bp.OffsetDateTime
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -39,7 +40,6 @@ class HomeViewModel @Inject constructor(
     lateinit var topMusicAlbums: LiveData<List<TopMusicEntity>>
     lateinit var staff: LiveData<List<StaffEntity>>
     lateinit var fundraiser: LiveData<FundraiserEntity>
-
     lateinit var combinedLiveData: MediatorLiveData<Boolean>
 
     private val parentJob = Job()
@@ -56,8 +56,8 @@ class HomeViewModel @Inject constructor(
         currentShows = showRepository.currentShowsLiveData
         newsArticles = newsRepository.getAllNewsPastDate(
             TimeHelper.getNow().minusMonths(6).toLocalDate()) // TODO: Make this a preference?
-        topMusicAdds = topMusicRepository.getTopAdds()
-        topMusicAlbums = topMusicRepository.getTopAlbums()
+        topMusicAdds = topMusicRepository.getMostRecentTopAdds()
+        topMusicAlbums = topMusicRepository.getMostRecentTopAlbums()
         staff = staffRepository.getStaff()
         fundraiser = fundraiserRepository.getFundraiser()
 
@@ -88,6 +88,13 @@ class HomeViewModel @Inject constructor(
 
     /** Signals the [Fundraiser Repository] to scrape the fundraiser page. */
     private fun fetchFundraiser() = fundraiserRepository.scrapeFundraiser()
+
+    fun onClickSettings(navController: NavController) {
+        val navAction = HomeFragmentDirections
+            .actionHomeFragmentToSettingsFragment()
+        if (navController.currentDestination?.id == R.id.homeFragment)
+            navController.navigate(navAction)
+    }
 
     fun onClickCurrentShow(navController: NavController, showId: Int) {
         val navAction = HomeFragmentDirections

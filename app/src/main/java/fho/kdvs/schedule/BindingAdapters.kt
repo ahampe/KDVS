@@ -77,8 +77,8 @@ fun makeTimeslotHeight(view: CardView, timeslot: TimeSlot, numHalfHours: Int){
     }
 }
 
-@BindingAdapter("timeslotGlideHref")
-fun loadImageWithGlideAndSetVisualizations(view: ImageView, timeslot: TimeSlot?) {
+@BindingAdapter("timeslotGlideHref", "selectedTheme")
+fun loadImageWithGlideAndSetVisualizations(view: ImageView, timeslot: TimeSlot?, selectedTheme: Int) {
     val parent = view.parent as ConstraintLayout
 
     Glide.with(view)
@@ -91,7 +91,7 @@ fun loadImageWithGlideAndSetVisualizations(view: ImageView, timeslot: TimeSlot?)
         )
         .transition(BitmapTransitionOptions.withCrossFade())
         .listener(
-            TimeSlotPaletteRequestListener(view, parent, timeslot)
+            TimeSlotPaletteRequestListener(view, parent, timeslot, selectedTheme)
         )
         .into(view)
 }

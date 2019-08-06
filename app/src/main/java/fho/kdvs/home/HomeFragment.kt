@@ -20,6 +20,7 @@ import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.FundraiserEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.StaffEntity
+import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.TimeHelper
@@ -37,6 +38,8 @@ import javax.inject.Inject
 class HomeFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
+    @Inject
+    lateinit var kdvsPreferences: KdvsPreferences
     private lateinit var viewModel: HomeViewModel
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var fragmentHomeBinding: FragmentHomeBinding
@@ -52,7 +55,9 @@ class HomeFragment : DaggerFragment() {
 
         viewModel = ViewModelProviders.of(requireActivity(), vmFactory)
             .get(HomeViewModel::class.java)
-            .also {it.fetchHomeData()}
+            .also {
+                it.fetchHomeData()
+            }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -82,6 +87,8 @@ class HomeFragment : DaggerFragment() {
 
         LoadScreen.displayLoadScreen(root)
 
+        settingsIcon.setOnClickListener { viewModel.onClickSettings(findNavController()) }
+
         currentShowsAdapter = CurrentShowsAdapter(viewModel) {
             Timber.d("Clicked ${it.item}")
             viewModel.onClickCurrentShow(findNavController(), it.item.id)
@@ -104,6 +111,10 @@ class HomeFragment : DaggerFragment() {
             clearOnScrollListeners()
             snapHelper.attachToRecyclerView(this)
             setHasFixedSize(true)
+        }
+
+        playButton.setOnClickListener {
+            sharedViewModel.playLiveShowFromHome(activity)
         }
 
         newsArticlesAdapter = NewsArticlesAdapter(sharedViewModel) {
@@ -178,17 +189,13 @@ class HomeFragment : DaggerFragment() {
                 when (adds.isEmpty()) {
                     true -> topAdds.visibility = View.GONE
                     false -> {
-                        val mostRecentAdds = adds.filter {
-                                a -> a.weekOf == adds.sortedByDescending { it.weekOf }.first().weekOf
-                        }
-
                         launch {
-                            mostRecentAdds.forEach {
+                            adds.forEach {
                                 sharedViewModel.fetchThirdPartyDataForTopMusic(it, viewModel.topMusicRepository)
                             }
                         }
 
-                        topAddsAdapter?.onTopAddsChanged(mostRecentAdds)
+                        topAddsAdapter?.onTopAddsChanged(adds)
                         topAdds.visibility = View.VISIBLE
                     }
                 }
@@ -200,17 +207,13 @@ class HomeFragment : DaggerFragment() {
                 when (albums.isEmpty()) {
                     true -> topAlbums.visibility = View.GONE
                     false -> {
-                        val mostRecentAlbums = albums.filter {
-                            a -> a.weekOf == albums.sortedByDescending { it.weekOf }.first().weekOf
-                        }
-
                         launch {
-                            mostRecentAlbums.forEach {
+                            albums.forEach {
                                 sharedViewModel.fetchThirdPartyDataForTopMusic(it, viewModel.topMusicRepository)
                             }
                         }
 
-                        topAlbumsAdapter?.onTopAlbumsChanged(mostRecentAlbums)
+                        topAlbumsAdapter?.onTopAlbumsChanged(albums)
                         topAlbums.visibility = View.VISIBLE
                     }
                 }
@@ -226,10 +229,11 @@ class HomeFragment : DaggerFragment() {
                 val now = TimeHelper.getLocalNow()
 
                 // display fundraiser section only within an n-month window
-                // TODO: make preference?
-                if (fundraiser != null) {
-                    if (fundraiser.dateStart ?: now > now.plusMonths(3) ||
-                        fundraiser.dateEnd ?: now < now.minusMonths(3)
+                fundraiser?.let {
+                    val window = (kdvsPreferences.fundraiserWindow ?: 2).toLong()
+
+                    if (fundraiser.dateStart ?: now > now.plusMonths(window) ||
+                        fundraiser.dateEnd ?: now < now.minusMonths(window)
                     ) {
                         fundraiserSection.visibility = View.GONE
                     } else {

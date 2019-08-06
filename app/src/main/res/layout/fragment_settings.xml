@@ -1,15 +1,399 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".settings.SettingsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <data>
+        <variable
+            name="vm"
+            type="fho.kdvs.global.SharedViewModel" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/kdvs" />
+        android:layout_marginBottom="@dimen/double_bottom_nav">
 
-</FrameLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingStart="@dimen/spacing_large"
+            android:paddingEnd="@dimen/spacing_large"
+            android:paddingTop="@dimen/spacing_large"
+            android:paddingBottom="@dimen/spacing_large"
+            android:background="@color/colorPrimaryDark">
+
+            <TextView
+                android:id="@+id/streamingHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:text="@string/streaming"
+                android:textColor="@color/colorWhite"
+                android:textStyle="bold"
+                style="@style/TextAppearance.MaterialComponents.Headline6"/>
+
+            <TextView
+                android:id="@+id/codec"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:text="@string/codec"
+                android:textColor="@color/colorWhite"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/streamingHeader" />
+
+            <Spinner
+                android:id="@+id/codecSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:entries="@array/codecs_array"
+                android:gravity="end"
+                android:textAlignment="viewEnd"
+                app:layout_constraintBottom_toBottomOf="@+id/codec"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/codec" />
+
+            <TextView
+                android:id="@+id/downloadHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/codec"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:text="@string/download"
+                android:textColor="@color/colorWhite"
+                android:textStyle="bold"
+                style="@style/TextAppearance.MaterialComponents.Headline6"/>
+
+            <TextView
+                android:id="@+id/setDownloadLocation"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:text="@string/download_location"
+                android:textColor="@color/colorWhite"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/downloadHeader" />
+
+            <TextView
+                android:id="@+id/notificationHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/setDownloadLocation"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:text="@string/notification"
+                android:textColor="@color/colorWhite"
+                android:textStyle="bold"
+                style="@style/TextAppearance.MaterialComponents.Headline6"/>
+
+            <TextView
+                android:id="@+id/notificationTime"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:text="@string/notification_time"
+                android:textColor="@color/colorWhite"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/notificationHeader" />
+
+            <Spinner
+                android:id="@+id/notificationSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:entries="@array/notification_time_array"
+                android:gravity="end"
+                android:textAlignment="viewEnd"
+                app:layout_constraintBottom_toBottomOf="@+id/notificationTime"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/notificationTime" />
+
+            <TextView
+                android:id="@+id/notificationDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/spacing_large"
+                android:paddingEnd="@dimen/spacing_extra_large"
+                android:textColor="@color/colorWhite"
+                android:layout_marginTop="@dimen/spacing_small"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintTop_toBottomOf="@id/notificationTime"
+                app:layout_constraintStart_toStartOf="parent"
+                android:text="@string/notification_desc" />
+
+            <TextView
+                android:id="@+id/dataHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/notificationDesc"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:text="@string/data"
+                android:textColor="@color/colorWhite"
+                android:textStyle="bold"
+                style="@style/TextAppearance.MaterialComponents.Headline6"/>
+
+            <TextView
+                android:id="@+id/offline"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:text="@string/offline"
+                android:textColor="@color/colorWhite"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dataHeader" />
+
+            <Switch
+                android:id="@+id/offlineSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/offline"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/offline" />
+
+            <TextView
+                android:id="@+id/dataSaverDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/spacing_large"
+                android:paddingEnd="@dimen/spacing_extra_large"
+                android:textColor="@color/colorWhite"
+                android:layout_marginTop="@dimen/spacing_small"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintTop_toBottomOf="@id/offline"
+                app:layout_constraintStart_toStartOf="parent"
+                android:text="@string/offline_desc" />
+
+            <TextView
+                android:id="@+id/infoHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dataSaverDesc"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:text="@string/info"
+                android:textColor="@color/colorWhite"
+                android:textStyle="bold"
+                style="@style/TextAppearance.MaterialComponents.Headline6"/>
+
+            <TextView
+                android:id="@+id/fundraiserWindow"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:text="@string/fundraiser_window"
+                android:textColor="@color/colorWhite"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/infoHeader" />
+
+            <Spinner
+                android:id="@+id/fundraiserSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:entries="@array/fundraiser_window_array"
+                android:gravity="end"
+                android:textAlignment="viewEnd"
+                app:layout_constraintBottom_toBottomOf="@+id/fundraiserWindow"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/fundraiserWindow" />
+
+            <TextView
+                android:id="@+id/fundraiserDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/spacing_large"
+                android:paddingEnd="@dimen/spacing_extra_large"
+                android:textColor="@color/colorWhite"
+                android:layout_marginTop="@dimen/spacing_small"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintTop_toBottomOf="@id/fundraiserWindow"
+                app:layout_constraintStart_toStartOf="parent"
+                android:text="@string/fundraiser_desc" />
+
+            <TextView
+                android:id="@+id/frequency"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:text="@string/frequency"
+                android:textColor="@color/colorWhite"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fundraiserDesc" />
+
+            <Spinner
+                android:id="@+id/frequencySpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:entries="@array/frequency_array"
+                android:gravity="end"
+                android:textAlignment="viewEnd"
+                app:layout_constraintBottom_toBottomOf="@+id/frequency"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/frequency" />
+
+            <TextView
+                android:id="@+id/frequencyDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/spacing_large"
+                android:paddingEnd="@dimen/spacing_extra_large"
+                android:textColor="@color/colorWhite"
+                android:layout_marginTop="@dimen/spacing_small"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintTop_toBottomOf="@id/frequency"
+                app:layout_constraintStart_toStartOf="parent"
+                android:text="@string/frequency_desc" />
+
+            <TextView
+                android:id="@+id/refresh"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:text="@string/refresh"
+                android:textColor="@color/colorWhite"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/frequencyDesc" />
+
+            <TextView
+                android:id="@+id/refreshDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/spacing_large"
+                android:paddingEnd="@dimen/spacing_extra_large"
+                android:textColor="@color/colorWhite"
+                android:layout_marginTop="@dimen/spacing_small"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintTop_toBottomOf="@id/refresh"
+                app:layout_constraintStart_toStartOf="parent"
+                android:text="@string/refresh_desc" />
+
+            <TextView
+                android:id="@+id/appearanceHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/refreshDesc"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:text="@string/appearance"
+                android:textColor="@color/colorWhite"
+                android:textStyle="bold"
+                style="@style/TextAppearance.MaterialComponents.Headline6"/>
+
+            <TextView
+                android:id="@+id/theme"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:text="@string/theme"
+                android:textColor="@color/colorWhite"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/appearanceHeader" />
+
+            <Spinner
+                android:id="@+id/themeSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:entries="@array/themes_array"
+                android:gravity="end"
+                android:textAlignment="viewEnd"
+                app:layout_constraintBottom_toBottomOf="@+id/theme"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/theme" />
+
+            <TextView
+                android:id="@+id/themeDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/spacing_large"
+                android:paddingEnd="@dimen/spacing_extra_large"
+                android:textColor="@color/colorWhite"
+                android:layout_marginTop="@dimen/spacing_small"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintTop_toBottomOf="@id/theme"
+                app:layout_constraintStart_toStartOf="parent"
+                android:text="@string/theme_desc" />
+
+            <TextView
+                android:id="@+id/aboutHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/themeDesc"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:text="@string/about"
+                android:textColor="@color/colorWhite"
+                android:textStyle="bold"
+                style="@style/TextAppearance.MaterialComponents.Headline6"/>
+
+            <TextView
+                android:id="@+id/contactDevs"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:text="@string/contact_devs"
+                android:textColor="@color/colorWhite"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/aboutHeader" />
+
+            <TextView
+                android:id="@+id/contactDevsDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/spacing_large"
+                android:paddingEnd="@dimen/spacing_extra_large"
+                android:textColor="@color/colorWhite"
+                android:layout_marginTop="@dimen/spacing_small"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintTop_toBottomOf="@id/contactDevs"
+                app:layout_constraintStart_toStartOf="parent"
+                android:text="@string/contact_devs_desc" />
+
+            <TextView
+                android:id="@+id/resetSettings"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:text="@string/reset_settings"
+                android:textColor="@color/colorWhite"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/contactDevsDesc" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</layout>

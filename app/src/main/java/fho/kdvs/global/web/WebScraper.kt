@@ -50,7 +50,10 @@ class WebScraperManager @Inject constructor(
      * In that case, [scrapeBlocking] should be used.
      */
     fun scrape(url: String): Job? {
-        if (urlMap[url]?.isActive == true) {
+        if (kdvsPreferences.offlineMode == true) {
+            Timber.d("Offline mode blocked scrape")
+            return null
+        } else if (urlMap[url]?.isActive == true) {
             Timber.d("Already scraping url $url; exiting...")
             return null
         }
@@ -62,18 +65,23 @@ class WebScraperManager @Inject constructor(
 
     /** Runs a blocking version of [scrape] and returns a [ScrapeData]. This should not be called from the main thread. */
     private fun scrapeBlocking(url: String): ScrapeData? = try {
-        Timber.d("Scraping: $url")
-        val document = Jsoup.connect(url).get()
+        if (kdvsPreferences.offlineMode == true) {
+            Timber.d("Offline mode blocked scrape")
+            null
+        } else {
+            Timber.d("Scraping: $url")
+            val document = Jsoup.connect(url).get()
 
-        when {
-            url.contains("schedule-grid") -> scrapeSchedule(document)
-            url.contains("past-playlists") -> scrapeShow(document, url)
-            url.contains("playlist-details") -> scrapePlaylist(document, url)
-            url.contains("contact") -> scrapeStaff(document)
-            url.contains("news") -> scrapeNews(document, url)
-            url.contains("top-") -> scrapeTopMusic(document, url)
-            url.contains("fundraiser") -> scrapeFundraiser(document, url)
-            else -> throw Exception("Invalid url: $url")
+            when {
+                url.contains("schedule-grid") -> scrapeSchedule(document)
+                url.contains("past-playlists") -> scrapeShow(document, url)
+                url.contains("playlist-details") -> scrapePlaylist(document, url)
+                url.contains("contact") -> scrapeStaff(document)
+                url.contains("news") -> scrapeNews(document, url)
+                url.contains("top-") -> scrapeTopMusic(document, url)
+                url.contains("fundraiser") -> scrapeFundraiser(document, url)
+                else -> throw Exception("Invalid url: $url")
+            }
         }
     } catch (e: Throwable) {
         Timber.d("Error while trying to connect: $e") // TODO reflect error in UI
@@ -586,7 +594,8 @@ class WebScraperManager @Inject constructor(
     companion object {
         private const val MINUTE_IN_SECONDS = 60L
         const val DEFAULT_SCRAPE_FREQ = 15L * MINUTE_IN_SECONDS
-        const val WEEKLY_SCRAPE_FREQ = 7L * 24L * 60L * MINUTE_IN_SECONDS
+        const val DAILY_SCRAPE_FREQ = 24L * 60L * MINUTE_IN_SECONDS
+        const val WEEKLY_SCRAPE_FREQ = 7L * DAILY_SCRAPE_FREQ
     }
 }
 

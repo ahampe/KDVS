@@ -1,6 +1,8 @@
 package fho.kdvs.global
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.os.Build
@@ -19,11 +21,14 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
 import fho.kdvs.global.extensions.isPlaying
+import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.Constants.READ_REQUEST_CODE
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.view_player_bar.*
 import kotlinx.android.synthetic.main.view_player_bar.view.*
 import org.threeten.bp.OffsetDateTime
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -33,6 +38,9 @@ class MainActivity : DaggerAppCompatActivity() {
 
     @Inject
     lateinit var exoPlayer: ExoPlayer
+
+    @Inject
+    lateinit var kdvsPreferences: KdvsPreferences
 
     private lateinit var viewModel: SharedViewModel
 
@@ -80,6 +88,16 @@ class MainActivity : DaggerAppCompatActivity() {
 
     override fun onSupportNavigateUp() = navController.navigateUp()
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
+        // Result from setting download path
+        if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            resultData?.data?.also { uri ->
+                Timber.d("Download path tree uri set: ${uri.path}")
+                kdvsPreferences.downloadPath = uri.path
+            }
+        }
+    }
+
     private fun subscribeToViewModel() {
         initPlayerBarIcon(this)
         initPlayerBarData(this)
@@ -108,6 +126,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 mNavController = navController
                 sharedViewModel = viewModel
                 mExoPlayer = exoPlayer
+                mActivity = activity
 
                 setCurrentShowName(nowPlayingShow.name)
                 initButtonClickListener()

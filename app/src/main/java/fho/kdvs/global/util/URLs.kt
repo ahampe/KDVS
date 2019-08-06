@@ -38,6 +38,9 @@ object URLs {
 
     const val YOUTUBE_QUERYSTRING = "&sp=EgIQAQ%253D%253D"
 
+    // TODO: change this to an email where people can reach us
+    const val CONTACT_EMAIL = "test@test.com"
+
     fun showDetails(id: String) = "https://kdvs.org/past-playlists/$id/"
 
     fun broadcastDetails(id: String) = "https://kdvs.org/playlist-details/$id/"

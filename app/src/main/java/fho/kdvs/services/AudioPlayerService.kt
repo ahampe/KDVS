@@ -49,7 +49,6 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
     @Inject
     lateinit var mediaSessionConnection: MediaSessionConnection
 
-
     private var isForegroundService = false
 
     override fun onCreate() {

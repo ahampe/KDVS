@@ -9,16 +9,19 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.R
+import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.cell_day_column.view.*
 import kotlinx.android.synthetic.main.fragment_schedule.view.*
 import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
+import javax.inject.Inject
 
 /** A [RecyclerView.Adapter] which cycles through days of the week */
 class WeekViewAdapter(
     private val fragment: ScheduleFragment,
-    private val days: List<ScheduleFragment.DayInfo>
+    private val days: List<ScheduleFragment.DayInfo>,
+    private val kdvsPreferences: KdvsPreferences
 ) : RecyclerView.Adapter<WeekViewAdapter.ViewHolder>() {
 
     // Simple flag for scrolling to current show view. This will only be done once, after the fragment is created.
@@ -40,7 +43,7 @@ class WeekViewAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val day = days[position % 7]
 
-        val childAdapter = TimeSlotViewAdapter { clickData ->
+        val childAdapter = TimeSlotViewAdapter(kdvsPreferences.theme) { clickData ->
             // Here is where we navigate to the ShowDetailsFragment or display show selection view
             Timber.d("clicked ${clickData.item.names.joinToString()}")
             if (clickData.item.ids.count() > 1)

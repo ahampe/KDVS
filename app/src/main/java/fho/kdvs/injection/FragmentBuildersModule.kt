@@ -26,6 +26,7 @@ import fho.kdvs.player.PlayerFragment
 import fho.kdvs.schedule.ScheduleFragment
 import fho.kdvs.schedule.ScheduleSelectionFragment
 import fho.kdvs.schedule.ShowSearchFragment
+import fho.kdvs.settings.SettingsFragment
 import fho.kdvs.show.ShowDetailsFragment
 import fho.kdvs.topmusic.TopMusicDetailsFragment
 import fho.kdvs.track.TrackDetailsFragment
@@ -38,6 +39,9 @@ abstract class FragmentBuildersModule {
 
     @ContributesAndroidInjector
     abstract fun contributePlayerFragment(): PlayerFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributeSettingsFragment(): SettingsFragment
 
     @ContributesAndroidInjector
     abstract fun contributeStaffDetailsFragment(): StaffDetailsFragment

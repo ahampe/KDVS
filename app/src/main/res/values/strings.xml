@@ -47,6 +47,32 @@
     <string name="fundraiser_total">$%1$s</string>
     <string name="now_playing_link">Play</string>
 
+    <!-- Settings -->
+    <string name="streaming">Streaming</string>
+    <string name="codec">Codec</string>
+    <string name="download">Download</string>
+    <string name="download_location">Set download location</string>
+    <string name="notification">Notification</string>
+    <string name="notification_time">Time in advance</string>
+    <string name="notification_desc">Schedule notifications for your subscribed shows\' broadcasts to occur a set amount of time before they go live.</string>
+    <string name="data">Data</string>
+    <string name="offline">Offline mode</string>
+    <string name="offline_desc">Disable stream, download, and info retrieval functionality. You will still be able to view existing info and play downloaded broadcasts. Helpful for avoiding data usage.</string>
+    <string name="info">Info</string>
+    <string name="fundraiser_window">Fundraiser display window</string>
+    <string name="fundraiser_desc">The number of months before and after a fundraiser in which to display its information on Home.</string>
+    <string name="frequency">Update frequency</string>
+    <string name="frequency_desc">Set how often you wish app information to be updated. This will keep you more timely informed, but will incur a slight increase in data usage.</string>
+    <string name="refresh">Manual refresh</string>
+    <string name="refresh_desc">Retrieve the most up-to-date station information. This will incur some slight data usage.</string>
+    <string name="appearance">Appearance</string>
+    <string name="theme">Schedule theme</string>
+    <string name="theme_desc">Set schedule color accent style.</string>
+    <string name="about">About</string>
+    <string name="contact_devs">Contact app developers</string>
+    <string name="contact_devs_desc">Email us comments, feedback, suggestions.</string>
+    <string name="reset_settings">Reset settings to default</string>
+
     <!-- Schedule -->
     <string name="sun">Sun</string>
     <string name="mon">Mon</string>

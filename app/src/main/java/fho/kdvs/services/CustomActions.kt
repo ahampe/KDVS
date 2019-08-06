@@ -4,7 +4,6 @@ import android.app.Application
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationCompat
@@ -86,9 +85,13 @@ class CustomAction @Inject constructor(
     private val transportControls: MediaControllerCompat.TransportControls?,
     private val playbackState: PlaybackStateCompat?,
     private val mediaSessionConnection: MediaSessionConnection
-) {
-   fun live() {
+    ) {
+    fun live() {
         val preferences = KdvsPreferences(application)
+
+        if (preferences.offlineMode == true)
+           return
+
         val streamUrl = preferences.streamUrl ?: URLs.LIVE_OGG
         val isPrepared = playbackState?.isPrepared ?: false
         val nowPlaying = mediaSessionConnection.nowPlaying.value
@@ -105,12 +108,17 @@ class CustomAction @Inject constructor(
                     }
                 }
             } else {
-            transportControls.playFromMediaId(streamUrl, null)
+                transportControls.playFromMediaId(streamUrl, null)
             }
         }
     }
 
     fun replay() {
+        val preferences = KdvsPreferences(application)
+
+        if (preferences.offlineMode == true)
+            return
+
         playbackState?.let {
             if (it.isPlaying) {
                 val currentPos = it.bufferedPosition
@@ -121,6 +129,11 @@ class CustomAction @Inject constructor(
     }
 
     fun forward() {
+        val preferences = KdvsPreferences(application)
+
+        if (preferences.offlineMode == true)
+            return
+
         playbackState?.let {
             if (it.isPlaying) {
                 val currentPos = it.position

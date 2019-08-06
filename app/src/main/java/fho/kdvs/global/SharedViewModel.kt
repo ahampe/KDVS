@@ -1,6 +1,7 @@
 package fho.kdvs.global
 
 import android.app.Application
+import android.app.DownloadManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -21,6 +22,7 @@ import fho.kdvs.global.database.*
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.Constants.READ_REQUEST_CODE
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
@@ -32,13 +34,15 @@ import fho.kdvs.services.CustomAction
 import fho.kdvs.services.LiveShowUpdater
 import fho.kdvs.services.MediaSessionConnection
 import fho.kdvs.services.PlaybackType
+import fho.kdvs.show.FundraiserRepository
+import fho.kdvs.show.NewsRepository
 import fho.kdvs.show.ShowRepository
 import fho.kdvs.show.TopMusicRepository
+import fho.kdvs.staff.StaffRepository
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
-import android.app.DownloadManager
 
 
 /** An [AndroidViewModel] scoped to the main activity.
@@ -48,6 +52,10 @@ class SharedViewModel @Inject constructor(
     application: Application,
     private val showRepository: ShowRepository,
     private val broadcastRepository: BroadcastRepository,
+    private val newsRepository: NewsRepository,
+    private val staffRepository: StaffRepository,
+    private val fundraiserRepository: FundraiserRepository,
+    private val topMusicRepository: TopMusicRepository,
     private val favoriteDao: FavoriteDao,
     private val subscriptionDao: SubscriptionDao,
     private val liveShowUpdater: LiveShowUpdater,
@@ -85,12 +93,23 @@ class SharedViewModel @Inject constructor(
 
     fun updateLiveShows() = liveShowUpdater.beginUpdating()
 
-    /** Signals the [ShowRepository] to scrape the schedule grid. */
+    /** Signals the [Show Repository] to scrape the schedule grid. */
     fun fetchShows() = showRepository.scrapeSchedule()
+
+    /** Signals the [News Repository] to scrape the news page(s). */
+    private fun fetchNewsArticles() = newsRepository.scrapeNews()
+
+    /** Signals the [TopMusic Repository] to scrape the top music pages. */
+    private fun fetchTopMusicItems() = topMusicRepository.scrapeTopMusic()
+
+    /** Signals the [Staff Repository] to scrape the staff page. */
+    private fun fetchStaff() = staffRepository.scrapeStaff()
+
+    /** Signals the [Fundraiser Repository] to scrape the fundraiser page. */
+    private fun fetchFundraiser() = fundraiserRepository.scrapeFundraiser()
 
     fun getCurrentQuarterYear() : LiveData<QuarterYear> =
         showRepository.getCurrentQuarterYear()
-
 
     // region playback
 
@@ -98,7 +117,12 @@ class SharedViewModel @Inject constructor(
         navController.navigate(R.id.playerFragment)
     }
 
-    fun playOrPausePlayback() {
+    fun playOrPausePlayback(activity: FragmentActivity?) {
+        if (kdvsPreferences.offlineMode == true) {
+            makeOfflineModeToast(activity)
+            return
+        }
+
         if (mediaSessionConnection.playbackState.value?.isPrepared == false)
             prepareLivePlayback()
 
@@ -113,7 +137,12 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun playLiveShowFromHome() {
+    fun playLiveShowFromHome(activity: FragmentActivity?) {
+        if (kdvsPreferences.offlineMode == true) {
+            makeOfflineModeToast(activity)
+            return
+        }
+
         broadcastRepository.playingLiveBroadcast = true
         broadcastRepository.nowPlayingShowLiveData.postValue(showRepository.liveShowLiveData.value)
         broadcastRepository.nowPlayingBroadcastLiveData.postValue(broadcastRepository.liveBroadcastLiveData.value)
@@ -144,6 +173,11 @@ class SharedViewModel @Inject constructor(
 
             }
             false -> {
+                if (kdvsPreferences.offlineMode == true) {
+                    makeOfflineModeToast(activity)
+                    return
+                }
+
                 try {
                     mediaSessionConnection.transportControls?.playFromMediaId(
                         broadcast.broadcastId.toString(),
@@ -207,6 +241,13 @@ class SharedViewModel @Inject constructor(
         return isLiveNow.value == null ||
             broadcast == null ||
                 TimeHelper.isShowBroadcastLive(show, broadcast)
+    }
+
+    fun makeOfflineModeToast(activity: FragmentActivity?) {
+        Toast.makeText(activity as? MainActivity,
+            "Offline mode prevents live streaming.",
+            Toast.LENGTH_SHORT)
+            .show()
     }
 
     // endregion
@@ -331,19 +372,24 @@ class SharedViewModel @Inject constructor(
         "${show.name} (${TimeHelper.dateFormatter.format(broadcast.date)})"
 
     fun getDestinationFile(filename: String): File {
-        val folder = getDestinationFolder()
+        val folder = getDownloadFolder()
         return File(Uri.parse("${folder?.absolutePath}/$filename").path)
     }
 
-    fun getDestinationFolder(): File? {
+    fun getDownloadFolder(): File? {
         if (isExternalStorageWritable()) {
-            return File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_MUSIC), "KDVS")
+            return if (!kdvsPreferences.downloadPath.isNullOrBlank())
+                File(kdvsPreferences.downloadPath)
+            else
+                File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), "KDVS")
         }
 
-        // TODO: let user set their downloads folder
-
         return null
+    }
+
+    fun setDownloadFolder(activity: FragmentActivity?) {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+        activity?.startActivityForResult(intent, READ_REQUEST_CODE)
     }
 
     fun getDownloadingFilename(title: String) = "$title$broadcastExtension$temporaryExtension"
@@ -363,8 +409,8 @@ class SharedViewModel @Inject constructor(
             .setDescription("Downloading")
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
             .setDestinationUri(Uri.fromFile(file))
-            .setAllowedOverMetered(kdvsPreferences.allowedOverMetered ?: false)
-            .setAllowedOverRoaming(kdvsPreferences.allowedOverRoaming ?: false)
+            .setAllowedOverMetered(true)
+            .setAllowedOverRoaming(true)
     }
 
     fun deleteFile(file: File) {
@@ -376,7 +422,7 @@ class SharedViewModel @Inject constructor(
     }
 
     fun isBroadcastDownloaded(broadcast: BroadcastEntity, show: ShowEntity): Boolean {
-        val folder = getDestinationFolder()
+        val folder = getDownloadFolder()
         val title = getBroadcastDownloadTitle(broadcast, show)
         val files = folder?.listFiles()
 
@@ -402,7 +448,8 @@ class SharedViewModel @Inject constructor(
 
     // TODO: multiple attempts?
     fun fetchThirdPartyDataForTopMusic(topMusic: TopMusicEntity, topMusicRepository: TopMusicRepository) {
-        if (topMusic.hasScrapedMetadata()) return
+        if (topMusic.hasScrapedMetadata() || kdvsPreferences.offlineMode == true)
+            return
 
         var mbData: MusicBrainzReleaseData? = null
         var mbImageHref: String? = null
@@ -449,6 +496,16 @@ class SharedViewModel @Inject constructor(
             spotifyData?.let {
                 launch { topMusicRepository.updateTopMusicSpotifyData(topMusic.topMusicId, spotifyData)}
             }
+        }
+    }
+
+    fun refreshData() {
+        launch {
+            fetchShows()
+            fetchNewsArticles()
+            fetchTopMusicItems()
+            fetchStaff()
+            fetchFundraiser()
         }
     }
 

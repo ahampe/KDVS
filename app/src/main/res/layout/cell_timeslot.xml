@@ -8,8 +8,8 @@
             type="fho.kdvs.schedule.TimeSlot" />
 
         <variable
-            name="timeslotHeight"
-            type="int" />
+            name="theme"
+            type="Integer" />
 
         <variable
             name="clickListener"
@@ -56,6 +56,7 @@
             <ImageView
                 android:id="@+id/timeSlotImage"
                 timeslotGlideHref="@{timeslot}"
+                selectedTheme="@{theme}"
                 android:layout_width="@dimen/timeslot_image"
                 android:layout_height="@dimen/timeslot_image"
                 android:adjustViewBounds="true"
