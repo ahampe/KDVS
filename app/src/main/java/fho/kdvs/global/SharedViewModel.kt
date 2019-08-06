@@ -99,7 +99,12 @@ class SharedViewModel @Inject constructor(
         navController.navigate(R.id.playerFragment)
     }
 
-    fun playOrPausePlayback() {
+    fun playOrPausePlayback(activity: FragmentActivity?) {
+        if (kdvsPreferences.offlineMode == true) {
+            makeOfflineModeToast(activity)
+            return
+        }
+
         if (mediaSessionConnection.playbackState.value?.isPrepared == false)
             prepareLivePlayback()
 

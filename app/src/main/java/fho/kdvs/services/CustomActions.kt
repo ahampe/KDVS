@@ -85,9 +85,13 @@ class CustomAction @Inject constructor(
     private val transportControls: MediaControllerCompat.TransportControls?,
     private val playbackState: PlaybackStateCompat?,
     private val mediaSessionConnection: MediaSessionConnection
-) {
-   fun live() {
+    ) {
+    fun live() {
         val preferences = KdvsPreferences(application)
+
+        if (preferences.offlineMode == true)
+           return
+
         val streamUrl = preferences.streamUrl ?: URLs.LIVE_OGG
         val isPrepared = playbackState?.isPrepared ?: false
         val nowPlaying = mediaSessionConnection.nowPlaying.value
@@ -110,6 +114,11 @@ class CustomAction @Inject constructor(
     }
 
     fun replay() {
+        val preferences = KdvsPreferences(application)
+
+        if (preferences.offlineMode == true)
+            return
+
         playbackState?.let {
             if (it.isPlaying) {
                 val currentPos = it.bufferedPosition
@@ -120,6 +129,11 @@ class CustomAction @Inject constructor(
     }
 
     fun forward() {
+        val preferences = KdvsPreferences(application)
+
+        if (preferences.offlineMode == true)
+            return
+
         playbackState?.let {
             if (it.isPlaying) {
                 val currentPos = it.position

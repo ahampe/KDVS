@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import com.google.android.exoplayer2.ExoPlayer
 import fho.kdvs.global.SharedViewModel
@@ -16,6 +17,7 @@ class PlayerBarView @JvmOverloads constructor(context: Context, attrs: Attribute
     lateinit var mNavController: NavController
     lateinit var sharedViewModel: SharedViewModel
     lateinit var mExoPlayer: ExoPlayer
+    lateinit var mActivity: FragmentActivity
 
     init {
         setOnClickListener {
@@ -42,7 +44,7 @@ class PlayerBarView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     fun initButtonClickListener() {
         playerBayPlayPause.setOnClickListener {
-            sharedViewModel.playOrPausePlayback()
+            sharedViewModel.playOrPausePlayback(mActivity)
         }
     }
 

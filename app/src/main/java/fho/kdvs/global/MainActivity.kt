@@ -126,6 +126,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 mNavController = navController
                 sharedViewModel = viewModel
                 mExoPlayer = exoPlayer
+                mActivity = activity
 
                 setCurrentShowName(nowPlayingShow.name)
                 initButtonClickListener()

@@ -19,6 +19,7 @@ import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
+import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.fragment_schedule.*
 import kotlinx.android.synthetic.main.fragment_schedule.view.*
@@ -29,6 +30,9 @@ class ScheduleFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
     lateinit var viewModel: ScheduleViewModel
+
+    @Inject
+    lateinit var kdvsPreferences: KdvsPreferences
 
     // Outer horizontal RecyclerView. Holds a vertical RecyclerView for each day of week.
     private var weekLayoutManager: LinearLayoutManager? = null
@@ -94,7 +98,7 @@ class ScheduleFragment : DaggerFragment() {
         }
 
         weekRecyclerView?.run {
-            adapter = WeekViewAdapter(this@ScheduleFragment, weekData)
+            adapter = WeekViewAdapter(this@ScheduleFragment, weekData, kdvsPreferences)
             setHasFixedSize(true)
 
             // explicitly clear the onFling and onScroll listeners; the new snapHelper will replace them

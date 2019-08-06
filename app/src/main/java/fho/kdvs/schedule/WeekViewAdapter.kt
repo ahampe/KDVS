@@ -20,11 +20,9 @@ import javax.inject.Inject
 /** A [RecyclerView.Adapter] which cycles through days of the week */
 class WeekViewAdapter(
     private val fragment: ScheduleFragment,
-    private val days: List<ScheduleFragment.DayInfo>
+    private val days: List<ScheduleFragment.DayInfo>,
+    private val kdvsPreferences: KdvsPreferences
 ) : RecyclerView.Adapter<WeekViewAdapter.ViewHolder>() {
-
-    @Inject
-    lateinit var kdvsPreferences: KdvsPreferences
 
     // Simple flag for scrolling to current show view. This will only be done once, after the fragment is created.
     private var scrollingToCurrentShow = true

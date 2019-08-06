@@ -146,7 +146,7 @@
                 style="@style/TextAppearance.MaterialComponents.Headline6"/>
 
             <TextView
-                android:id="@+id/dataSaver"
+                android:id="@+id/offline"
                 style="@style/TextAppearance.MaterialComponents.Headline6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -158,13 +158,13 @@
                 app:layout_constraintTop_toBottomOf="@id/dataHeader" />
 
             <Switch
-                android:id="@+id/dataSaverSwitch"
+                android:id="@+id/offlineSwitch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                app:layout_constraintBottom_toBottomOf="@+id/dataSaver"
+                app:layout_constraintBottom_toBottomOf="@+id/offline"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/dataSaver" />
+                app:layout_constraintTop_toTopOf="@+id/offline" />
 
             <TextView
                 android:id="@+id/dataSaverDesc"
@@ -176,7 +176,7 @@
                 android:layout_marginTop="@dimen/spacing_small"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintTop_toBottomOf="@id/dataSaver"
+                app:layout_constraintTop_toBottomOf="@id/offline"
                 app:layout_constraintStart_toStartOf="parent"
                 android:text="@string/offline_desc" />
 
