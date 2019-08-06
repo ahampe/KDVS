@@ -34,8 +34,11 @@ import fho.kdvs.services.CustomAction
 import fho.kdvs.services.LiveShowUpdater
 import fho.kdvs.services.MediaSessionConnection
 import fho.kdvs.services.PlaybackType
+import fho.kdvs.show.FundraiserRepository
+import fho.kdvs.show.NewsRepository
 import fho.kdvs.show.ShowRepository
 import fho.kdvs.show.TopMusicRepository
+import fho.kdvs.staff.StaffRepository
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
@@ -49,6 +52,10 @@ class SharedViewModel @Inject constructor(
     application: Application,
     private val showRepository: ShowRepository,
     private val broadcastRepository: BroadcastRepository,
+    private val newsRepository: NewsRepository,
+    private val staffRepository: StaffRepository,
+    private val fundraiserRepository: FundraiserRepository,
+    private val topMusicRepository: TopMusicRepository,
     private val favoriteDao: FavoriteDao,
     private val subscriptionDao: SubscriptionDao,
     private val liveShowUpdater: LiveShowUpdater,
@@ -86,12 +93,23 @@ class SharedViewModel @Inject constructor(
 
     fun updateLiveShows() = liveShowUpdater.beginUpdating()
 
-    /** Signals the [ShowRepository] to scrape the schedule grid. */
+    /** Signals the [Show Repository] to scrape the schedule grid. */
     fun fetchShows() = showRepository.scrapeSchedule()
+
+    /** Signals the [News Repository] to scrape the news page(s). */
+    private fun fetchNewsArticles() = newsRepository.scrapeNews()
+
+    /** Signals the [TopMusic Repository] to scrape the top music pages. */
+    private fun fetchTopMusicItems() = topMusicRepository.scrapeTopMusic()
+
+    /** Signals the [Staff Repository] to scrape the staff page. */
+    private fun fetchStaff() = staffRepository.scrapeStaff()
+
+    /** Signals the [Fundraiser Repository] to scrape the fundraiser page. */
+    private fun fetchFundraiser() = fundraiserRepository.scrapeFundraiser()
 
     fun getCurrentQuarterYear() : LiveData<QuarterYear> =
         showRepository.getCurrentQuarterYear()
-
 
     // region playback
 
@@ -391,8 +409,8 @@ class SharedViewModel @Inject constructor(
             .setDescription("Downloading")
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
             .setDestinationUri(Uri.fromFile(file))
-            .setAllowedOverMetered(kdvsPreferences.offlineMode != true)
-            .setAllowedOverRoaming(kdvsPreferences.offlineMode != true)
+            .setAllowedOverMetered(true)
+            .setAllowedOverRoaming(true)
     }
 
     fun deleteFile(file: File) {
@@ -481,10 +499,13 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    // TODO: launch all fetches here
     fun refreshData() {
         launch {
             fetchShows()
+            fetchNewsArticles()
+            fetchTopMusicItems()
+            fetchStaff()
+            fetchFundraiser()
         }
     }
 
