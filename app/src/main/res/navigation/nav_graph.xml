@@ -20,7 +20,7 @@
             app:destination="@id/staffDetailsFragment" />
         <action
             android:id="@+id/action_homeFragment_to_topMusicDetailsFragment"
-            app:destination="@+id/topMusicDetailsFragment" />
+            app:destination="@id/topMusicDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/staffDetailsFragment"
@@ -30,6 +30,10 @@
             android:name="member"
             app:argType="fho.kdvs.global.database.StaffEntity" />
     </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="fho.kdvs.settings.SettingsFragment"
+        android:label="SettingsFragment"/>
     <fragment
         android:id="@+id/playerFragment"
         android:name="fho.kdvs.player.PlayerFragment"
