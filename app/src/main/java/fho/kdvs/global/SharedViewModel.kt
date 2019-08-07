@@ -1,12 +1,15 @@
 package fho.kdvs.global
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -236,14 +239,19 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun onClickStar(imageView: ImageView, show: ShowEntity) {
+    fun onClickStar(imageView: ImageView, show: ShowEntity, context: Context) {
         if (imageView.tag == 0) {
             imageView.setImageResource(R.drawable.ic_star_border_white_24dp)
             imageView.tag = 1
             launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
             launch {
                 val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
-                alarmMgr.registerShowAlarmAsync(show)
+                val success = alarmMgr.registerShowAlarmAsync(show).await()
+
+                if (success) {
+                    Toast.makeText(context, "Subscribed to ${show.name}", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         } else if (imageView.tag == 1) {
             imageView.setImageResource(R.drawable.ic_star_white_24dp)
@@ -252,6 +260,8 @@ class SharedViewModel @Inject constructor(
             launch {
                 val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
                 alarmMgr.cancelShowAlarm(show)
+                Toast.makeText(context, "Unsubscribed from ${show.name}", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }

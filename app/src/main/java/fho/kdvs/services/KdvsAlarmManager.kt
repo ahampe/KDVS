@@ -28,7 +28,7 @@ class KdvsAlarmManager @Inject constructor(
     private var alarmMgr: AlarmManager? = null
     private lateinit var alarmIntent: PendingIntent
 
-    suspend fun registerShowAlarmAsync(show: ShowEntity): Deferred<Boolean> = async{
+    fun registerShowAlarmAsync(show: ShowEntity): Deferred<Boolean> = async{
         val timeStart = show.timeStart
 
         timeStart?.let {
