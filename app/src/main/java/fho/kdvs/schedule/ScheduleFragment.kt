@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
+import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import kotlinx.android.synthetic.main.fragment_schedule.*
@@ -29,6 +30,7 @@ class ScheduleFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
     lateinit var viewModel: ScheduleViewModel
+    lateinit var sharedViewModel: SharedViewModel
 
     // Outer horizontal RecyclerView. Holds a vertical RecyclerView for each day of week.
     private var weekLayoutManager: LinearLayoutManager? = null
@@ -45,6 +47,9 @@ class ScheduleFragment : DaggerFragment() {
         viewModel = ViewModelProviders.of(this, vmFactory)
             .get(ScheduleViewModel::class.java)
             .also { it.fetchShows() }
+
+        sharedViewModel = ViewModelProviders.of(requireActivity(), vmFactory)
+            .get(SharedViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -75,7 +80,7 @@ class ScheduleFragment : DaggerFragment() {
     /** Reconfigures the week recycler view and time recycler view. Use when the quarter-year changes or the fragment is recreated. */
     private fun configureViews() {
         // Bail early if there isn't a quarter ready yet
-        val (savedQuarter, savedYear) = viewModel.loadQuarterYear() ?: return
+        val (savedQuarter, savedYear) = sharedViewModel.loadQuarterYear() ?: return
 
         // Create data for each day
         val weekData = Day.values().map { day -> DayInfo(day, savedQuarter, savedYear) }
@@ -172,15 +177,22 @@ class ScheduleFragment : DaggerFragment() {
 
     /** This is where any [LiveData] in the ViewModel should be hooked up to [Observer]s. */
     private fun subscribeToViewModel() {
-        viewModel.run {
+        sharedViewModel.run {
             // When a new quarter-year is selected, redraw the week recycler:
             selectedQuarterYearLiveData.observe(viewLifecycleOwner, Observer {
                 configureViews()
             })
 
             // When new quarter-years happen (which should only happen when a new quarter starts), update the spinner
+            // and cancel nonrecurring subscriptions
             allQuarterYearsLiveData.observe(viewLifecycleOwner, Observer {
                 configureViews()
+
+                // TODO: no need to do this on an initial load
+
+                this.cancelSubscriptionsForNonRecurringShows()
+
+                this.makeNewQuarterToast(context)
             })
         }
     }

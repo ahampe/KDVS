@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -24,8 +23,11 @@ import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
 import fho.kdvs.global.util.URLs.YOUTUBE_QUERYSTRING
 import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
+import fho.kdvs.schedule.QuarterRepository
+import fho.kdvs.schedule.QuarterYear
 import fho.kdvs.services.*
 import fho.kdvs.show.ShowRepository
+import fho.kdvs.subscription.SubscriptionRepository
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,6 +38,8 @@ class SharedViewModel @Inject constructor(
     application: Application,
     private val showRepository: ShowRepository,
     private val broadcastRepository: BroadcastRepository,
+    private val quarterRepository: QuarterRepository,
+    private val subscriptionRepository: SubscriptionRepository,
     private val favoriteDao: FavoriteDao,
     private val subscriptionDao: SubscriptionDao,
     private val liveShowUpdater: LiveShowUpdater,
@@ -73,6 +77,34 @@ class SharedViewModel @Inject constructor(
     fun updateLiveShows() = liveShowUpdater.beginUpdating()
 
     fun fetchShows() = showRepository.scrapeSchedule()
+
+    // region quarter
+
+    /** All quarter-years in the database. */
+    val allQuarterYearsLiveData = quarterRepository.allQuarterYearsLiveData
+
+    /** The currently selected quarter-year. */
+    val selectedQuarterYearLiveData = quarterRepository.selectedQuarterYearLiveData
+
+    /** Sets the given [QuarterYear]. Change will be reflected in [selectedQuarterYearLiveData]. */
+    fun selectQuarterYear(quarterYear: QuarterYear) =
+        quarterRepository.selectQuarterYear(quarterYear)
+
+    /**
+     * Gets the selected [QuarterYear] if there is one, else returns the most recent [QuarterYear].
+     * If both are null, returns null.
+     *
+     * Note: It's important that [allQuarterYearsLiveData] has observers, otherwise it will not be updated.
+     * This doesn't hold for [selectedQuarterYearLiveData] as it's not sourced from RxJava.
+     */
+    fun loadQuarterYear(): QuarterYear? =
+        selectedQuarterYearLiveData.value ?: allQuarterYearsLiveData.value?.firstOrNull()
+
+    fun makeNewQuarterToast(context: Context?) =
+        Toast.makeText(context, "The new quarter has begun!", Toast.LENGTH_SHORT)
+            .show()
+
+    // endregion
 
     // region playback
 
@@ -239,29 +271,66 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun onClickStar(imageView: ImageView, show: ShowEntity, context: Context) {
+    fun onClickStar(imageView: ImageView, show: ShowEntity, context: Context?) {
         if (imageView.tag == 0) {
+            subscribeToShow(show, context)
+
             imageView.setImageResource(R.drawable.ic_star_border_white_24dp)
             imageView.tag = 1
-            launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
-            launch {
-                val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
-                val success = alarmMgr.registerShowAlarmAsync(show).await()
-
-                if (success) {
-                    Toast.makeText(context, "Subscribed to ${show.name}", Toast.LENGTH_SHORT)
-                        .show()
-                }
-            }
         } else if (imageView.tag == 1) {
+            cancelSubscription(show)
+            Toast.makeText(context, "Unsubscribed from ${show.name}", Toast.LENGTH_SHORT)
+                .show()
+
             imageView.setImageResource(R.drawable.ic_star_white_24dp)
             imageView.tag = 0
-            launch { subscriptionDao.deleteByShowId(show.id) }
-            launch {
-                val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
-                alarmMgr.cancelShowAlarm(show)
-                Toast.makeText(context, "Unsubscribed from ${show.name}", Toast.LENGTH_SHORT)
+        }
+    }
+    // endregion
+
+    // region subscription
+
+    private fun subscribeToShow(show: ShowEntity, context: Context?) {
+        launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
+        launch {
+            val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
+            val success = alarmMgr.registerShowAlarmAsync(show).await()
+
+            if (success) {
+                Toast.makeText(context, "Subscribed to ${show.name}", Toast.LENGTH_SHORT)
                     .show()
+            }
+        }
+    }
+
+    private fun cancelSubscription(show: ShowEntity) {
+        launch { subscriptionDao.deleteByShowId(show.id) }
+        launch {
+            val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
+            alarmMgr.cancelShowAlarm(show)
+        }
+    }
+
+    /**
+     * Removes subscriptions and alarms for shows no longer scheduled for the current quarter.
+     * To be called whenever the observed quarter changes.
+     * */
+    fun cancelSubscriptionsForNonRecurringShows() {
+        val currentQuarterYear = showRepository.getCurrentQuarterYear().value
+
+        currentQuarterYear?.let {
+            val subscribedShows = subscriptionRepository.subscribedShows()
+            val currentShows = showRepository.getShowsByQuarterYear(currentQuarterYear)
+
+            val nonRecurringSubscribedShows = subscribedShows
+                .filter { show ->
+                    !currentShows
+                        .map { s -> s.name }
+                        .contains(show.name)
+                }
+
+            nonRecurringSubscribedShows.forEach {
+                cancelSubscription(it)
             }
         }
     }

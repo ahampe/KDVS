@@ -30,26 +30,6 @@ class ScheduleViewModel @Inject constructor(
             .debounce (100L, TimeUnit.MILLISECONDS)
             .toLiveData()
 
-    /** All quarter-years in the database. */
-    val allQuarterYearsLiveData = quarterRepository.allQuarterYearsLiveData
-
-    /** The currently selected quarter-year. */
-    val selectedQuarterYearLiveData = quarterRepository.selectedQuarterYearLiveData
-
-    /** Sets the the given [QuarterYear]. Change will be reflected in [selectedQuarterYearLiveData]. */
-    fun selectQuarterYear(quarterYear: QuarterYear) =
-        quarterRepository.selectQuarterYear(quarterYear)
-
-    /**
-     * Gets the selected [QuarterYear] if there is one, else returns the most recent [QuarterYear].
-     * If both are null, returns null.
-     *
-     * Note: It's important that [allQuarterYearsLiveData] has observers, otherwise it will not be updated.
-     * This doesn't hold for [selectedQuarterYearLiveData] as it's not sourced from RxJava.
-     */
-    fun loadQuarterYear(): QuarterYear? =
-        selectedQuarterYearLiveData.value ?: allQuarterYearsLiveData.value?.firstOrNull()
-
     /**
      * Called when a [TimeSlot] is clicked.
      * If the TimeSlot consists of multiple shows, navigates to [ScheduleSelectionFragment].

@@ -131,6 +131,11 @@ class ShowRepository @Inject constructor(
             .observeOn(Schedulers.io())
     }
 
+    fun getShowsByQuarterYear(quarterYear: QuarterYear): List<ShowEntity> {
+        val (quarter, year) = quarterYear
+        return showDao.getShowsByQuarterYear(quarter, year)
+    }
+
     /**
      * Given the day of week, quarter, and year, finds all shows that begin or end on that day,
      * and transforms them into [TimeSlot]s.

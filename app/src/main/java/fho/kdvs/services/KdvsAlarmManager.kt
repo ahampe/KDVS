@@ -14,6 +14,7 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
+/** Class for managing alerts of subscribed shows' broadcasts. */
 class KdvsAlarmManager @Inject constructor(
     val application: Application,
     val showRepository: ShowRepository
@@ -45,7 +46,7 @@ class KdvsAlarmManager @Inject constructor(
 
                 val alarmTime = timeStart
                     .plusWeeks(weekOffset)
-                    .minusMinutes(kdvsPreferences.alarmNoticeInterval ?: 0)
+                    .minusMinutes(kdvsPreferences.alarmNoticeInterval ?: 10)
 
                 val calendar: Calendar = Calendar.getInstance().apply {
                     timeInMillis = System.currentTimeMillis()

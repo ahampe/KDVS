@@ -54,6 +54,12 @@ abstract class ShowDao {
         year: Int
     ): Flowable<List<ShowEntity>>
 
+    @Query("SELECT * from showData WHERE quarter = :quarter AND year = :year")
+    abstract fun getShowsByQuarterYear(
+        quarter: Quarter,
+        year: Int
+    ): List<ShowEntity>
+
     @Query(
         """SELECT * from showData
         WHERE (timeStart < :time AND timeEnd > :time OR

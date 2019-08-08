@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -23,6 +24,7 @@ import fho.kdvs.news.NewsArticlesAdapter
 import fho.kdvs.news.StaffAdapter
 import fho.kdvs.news.TopMusicAdapter
 import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.coroutines.cancel
 import org.threeten.bp.LocalDate
 import timber.log.Timber
 import java.text.DecimalFormat
@@ -158,6 +160,18 @@ class HomeFragment : DaggerFragment() {
                         setFundraiserView(fundraiser)
                     }
                 }
+            })
+        }
+
+        sharedViewModel.run {
+            // When new quarter-years happen (which should only happen when a new quarter starts),
+            // cancel nonrecurring subscriptions
+            allQuarterYearsLiveData.observe(viewLifecycleOwner, Observer {
+                // TODO: no need to do this on an initial load
+
+                this.cancelSubscriptionsForNonRecurringShows()
+
+                this.makeNewQuarterToast(context)
             })
         }
     }
