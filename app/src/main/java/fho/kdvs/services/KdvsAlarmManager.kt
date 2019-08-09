@@ -35,9 +35,7 @@ class KdvsAlarmManager @Inject constructor(
         timeStart?.let {
             initShowAlarm(show)
 
-            val showsAtTime = withContext(coroutineContext){
-                showRepository.allShowsAtTimeOrderedRelativeToCurrentWeek(timeStart)
-            }
+            val showsAtTime = showRepository.allShowsAtTimeOrderedRelativeToCurrentWeek(timeStart)
 
             if (showsAtTime.isNotEmpty()){
                 val weekOffset = showsAtTime

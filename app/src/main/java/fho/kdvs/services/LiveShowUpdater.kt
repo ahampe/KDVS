@@ -202,8 +202,8 @@ class LiveShowUpdater @Inject constructor(
      * Defaults to the order returned by database.
      * Note: a show having already aired this week (or currently airing) will still be first.
      * */
-    fun orderShowsAtTimeRelativeToCurrentWeekAsync(timeStart: OffsetDateTime): Deferred<List<ShowEntity>> = async {
-        Timber.d("Ordering shows in timeslot by their order of appearance relative to current week")
+    suspend fun orderShowsAtTimeRelativeToCurrentWeekAsync(timeStart: OffsetDateTime): List<ShowEntity>  {
+        Timber.d("Ordering shows in timeslot at $timeStart")
 
         val showsAtTime = getAllShowsAtTime(timeStart)
 
@@ -237,9 +237,9 @@ class LiveShowUpdater @Inject constructor(
                 orderedShows.add(0, showsAtTime.first { s -> !orderedShows.contains(s)})
             }
 
-            return@async orderedShows
+            return orderedShows
         } else {
-            return@async showsAtTime
+            return showsAtTime
         }
     }
 

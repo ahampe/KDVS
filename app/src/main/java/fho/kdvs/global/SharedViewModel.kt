@@ -29,6 +29,7 @@ import fho.kdvs.services.*
 import fho.kdvs.show.ShowRepository
 import fho.kdvs.subscription.SubscriptionRepository
 import kotlinx.coroutines.launch
+import org.jetbrains.anko.runOnUiThread
 import javax.inject.Inject
 
 
@@ -291,14 +292,16 @@ class SharedViewModel @Inject constructor(
     // region subscription
 
     private fun subscribeToShow(show: ShowEntity, context: Context?) {
-        launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
         launch {
             val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
             val success = alarmMgr.registerShowAlarmAsync(show).await()
 
             if (success) {
-                Toast.makeText(context, "Subscribed to ${show.name}", Toast.LENGTH_SHORT)
-                    .show()
+                launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
+                context?.runOnUiThread {
+                    Toast.makeText(context, "Subscribed to ${show.name}", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         }
     }

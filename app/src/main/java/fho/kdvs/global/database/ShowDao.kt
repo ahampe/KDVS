@@ -102,7 +102,7 @@ abstract class ShowDao {
 
     @Query(
         """SELECT * from showData
-        WHERE (timeStart < :time AND timeEnd > :time OR
+        WHERE (timeStart <= :time AND timeEnd > :time OR
         timeEnd < timeStart AND (timeEnd > :time OR timeStart < :time))
         AND quarter = :quarter AND year = :year"""
     )

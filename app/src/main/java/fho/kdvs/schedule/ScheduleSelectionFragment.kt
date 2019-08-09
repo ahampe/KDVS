@@ -138,7 +138,9 @@ class ScheduleSelectionFragment : BottomSheetDialogFragment(), CoroutineScope {
                     val shows = viewModel.allOrderedShowsForTime(it)
                     if (shows.isNotEmpty()) {
                         val pairs = viewModel.getPairedIdsAndNamesForShows(shows)
-                        showSelectionViewAdapter?.submitList(pairs)
+                        activity?.runOnUiThread {
+                            showSelectionViewAdapter?.submitList(pairs)
+                        }
                     }
                 }
             }
