@@ -10,6 +10,9 @@ import timber.log.Timber
 
 const val ALARM_CHANNEL: String = "fho.kdvs.ALARM"
 
+/**
+ * Class to receive alarms created by [KdvsAlarmManager], for e.g. subscribed shows' live-broadcast notices.
+ */
 class AlarmReceiver: BroadcastReceiver() {
     private lateinit var notificationManager: NotificationManagerCompat
 

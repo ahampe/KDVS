@@ -168,10 +168,7 @@ class HomeFragment : DaggerFragment() {
             // cancel nonrecurring subscriptions
             allQuarterYearsLiveData.observe(viewLifecycleOwner, Observer {
                 // TODO: no need to do this on an initial load
-
-                this.cancelSubscriptionsForNonRecurringShows()
-
-                this.makeNewQuarterToast(context)
+                this.onNewQuarter(context)
             })
         }
     }

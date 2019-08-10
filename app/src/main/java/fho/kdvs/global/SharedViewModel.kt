@@ -101,9 +101,27 @@ class SharedViewModel @Inject constructor(
     fun loadQuarterYear(): QuarterYear? =
         selectedQuarterYearLiveData.value ?: allQuarterYearsLiveData.value?.firstOrNull()
 
-    fun makeNewQuarterToast(context: Context?) =
+    /**
+     * Code to execute when a new current QuarterYear is observed.
+     */
+    fun onNewQuarter(context: Context?) {
+        processSubscriptionsOnQuarterChange()
+        makeNewQuarterToast(context)
+    }
+
+    private fun makeNewQuarterToast(context: Context?) =
         Toast.makeText(context, "The new quarter has begun!", Toast.LENGTH_SHORT)
             .show()
+
+    private fun getCurrentQuarterShows(): List<ShowEntity>? {
+        val currentQuarterYear = showRepository.getCurrentQuarterYear().value
+
+        currentQuarterYear?.let {
+            return showRepository.getShowsByQuarterYear(currentQuarterYear)
+        }
+
+        return null
+    }
 
     // endregion
 
@@ -274,7 +292,7 @@ class SharedViewModel @Inject constructor(
 
     fun onClickStar(imageView: ImageView, show: ShowEntity, context: Context?) {
         if (imageView.tag == 0) {
-            subscribeToShow(show, context)
+            subscribeToShowAndMakeToast(show, context)
 
             imageView.setImageResource(R.drawable.ic_star_border_white_24dp)
             imageView.tag = 1
@@ -291,7 +309,52 @@ class SharedViewModel @Inject constructor(
 
     // region subscription
 
-    private fun subscribeToShow(show: ShowEntity, context: Context?) {
+    /**
+     * After a quarter change, subscribed recurring shows will have new database objects, and possibly new timeslots,
+     * so we must cancel existing ones and insert new ones based on matching show names in the current quarter.
+     * Nonrecurring shows will simply have their subscriptions cancelled.
+     */
+    private fun processSubscriptionsOnQuarterChange() {
+        launch {
+            val subscribedShows = getSubscribedShows()
+            val recurringSubscribedShows = getRecurringSubscribedShows(subscribedShows)
+            val nonRecurringSubscribedShows = subscribedShows
+                .filterNot { s -> recurringSubscribedShows?.contains(s) == true }
+
+            recurringSubscribedShows?.forEach {
+                updateRecurringSubscription(it)
+            }
+
+            nonRecurringSubscribedShows.forEach {
+                cancelSubscription(it)
+            }
+        }
+    }
+
+    private fun updateRecurringSubscription(show: ShowEntity) {
+        cancelSubscription(show)
+
+        val currentShows = getCurrentQuarterShows()
+        val matchingShow = currentShows
+            ?.firstOrNull { s -> s.name == show.name }
+
+        matchingShow?.let {
+            subscribeToShow(it)
+        }
+    }
+
+    private fun subscribeToShow(show: ShowEntity) {
+        launch {
+            val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
+            val success = alarmMgr.registerShowAlarmAsync(show).await()
+
+            if (success) {
+                launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
+            }
+        }
+    }
+
+    private fun subscribeToShowAndMakeToast(show: ShowEntity, context: Context?) {
         launch {
             val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
             val success = alarmMgr.registerShowAlarmAsync(show).await()
@@ -314,28 +377,26 @@ class SharedViewModel @Inject constructor(
         }
     }
 
+    private fun getSubscribedShows(): List<ShowEntity> {
+        return subscriptionRepository.subscribedShows()
+    }
+
     /**
-     * Removes subscriptions and alarms for shows no longer scheduled for the current quarter.
-     * To be called whenever the observed quarter changes.
-     * */
-    fun cancelSubscriptionsForNonRecurringShows() {
-        val currentQuarterYear = showRepository.getCurrentQuarterYear().value
+     * Find recurring shows based on name.
+     */
+    private fun getRecurringSubscribedShows(subscribedShows: List<ShowEntity>): List<ShowEntity>? {
+        val currentShows = getCurrentQuarterShows()
 
-        currentQuarterYear?.let {
-            val subscribedShows = subscriptionRepository.subscribedShows()
-            val currentShows = showRepository.getShowsByQuarterYear(currentQuarterYear)
-
-            val nonRecurringSubscribedShows = subscribedShows
+        currentShows?.let {
+            return subscribedShows
                 .filter { show ->
-                    !currentShows
-                        .map { s -> s.name }
-                        .contains(show.name)
+                    currentShows
+                    .map { s -> s.name }
+                    .contains(show.name)
                 }
-
-            nonRecurringSubscribedShows.forEach {
-                cancelSubscription(it)
-            }
         }
+
+        return null
     }
 
     // endregion

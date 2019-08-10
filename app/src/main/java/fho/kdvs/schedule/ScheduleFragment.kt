@@ -189,10 +189,7 @@ class ScheduleFragment : DaggerFragment() {
                 configureViews()
 
                 // TODO: no need to do this on an initial load
-
-                this.cancelSubscriptionsForNonRecurringShows()
-
-                this.makeNewQuarterToast(context)
+                this.onNewQuarter(context)
             })
         }
     }

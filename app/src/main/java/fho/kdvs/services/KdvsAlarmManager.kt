@@ -11,7 +11,6 @@ import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.services.LiveShowUpdater.Companion.WEEK_IN_MILLIS
 import fho.kdvs.show.ShowRepository
 import kotlinx.coroutines.*
-import java.util.*
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -50,18 +49,11 @@ class KdvsAlarmManager @Inject constructor(
                     ?.minusMinutes(kdvsPreferences.alarmNoticeInterval ?: 10)
 
                 alarmTime?.let {
-                    val calendar: Calendar = Calendar.getInstance().apply {
-                        timeInMillis = System.currentTimeMillis()
-                        set(Calendar.DAY_OF_WEEK, alarmTime.dayOfWeek.value)
-                        set(Calendar.HOUR_OF_DAY, alarmTime.hour)
-                        set(Calendar.MINUTE, alarmTime.minute)
-                    }
-
                     cancelShowAlarm(show) // prevent multiple registrations
 
                     alarmMgr?.setInexactRepeating(
                         AlarmManager.RTC_WAKEUP,
-                        calendar.timeInMillis,
+                        alarmTime.toEpochSecond() * 1000,
                         WEEK_IN_MILLIS * showsAtTime.size,
                         alarmIntent
                     )
