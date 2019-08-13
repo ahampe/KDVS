@@ -21,8 +21,9 @@ import kotlin.math.roundToInt
  */
 object TimeHelper {
 
-    private val UTC_ID = ZoneId.of("UTC")
-    private val UTC_OFFSET = ZoneOffset.UTC
+    val UTC_ID: ZoneId = ZoneId.of("UTC")
+    val UTC_OFFSET: ZoneOffset = ZoneOffset.UTC
+    val PACIFIC_ID: ZoneId = ZoneId.of( "America/Los_Angeles" )
 
     /**
      * Formatter that will be used for parsing broadcast datetimes.
@@ -75,6 +76,23 @@ object TimeHelper {
             .plusHours(time.hour.toLong())
             .plusMinutes(time.minute.toLong())
             .plusSeconds(time.second.toLong())
+    }
+
+    /**
+     * Takes a time relative to KDVS' schedule time (i.e. Pacific) and returns a time relative
+     * to the user's system time.
+     */
+    fun convertZoneTime(convertFrom: ZoneId, convertTo: ZoneId, time: OffsetDateTime): OffsetDateTime {
+        val convertFromZoneOffset = convertFrom.rules.getOffset(LocalDateTime.now())
+        val convertToZoneOffset = convertTo.rules.getOffset(LocalDateTime.now())
+
+        val secondsOffset = (convertToZoneOffset.totalSeconds - convertFromZoneOffset.totalSeconds).toLong()
+
+        return time.plusSeconds(secondsOffset)
+    }
+
+    fun getSystemTimeZone(): ZoneId {
+        return ZoneId.of(TimeZone.getDefault().id)
     }
 
     /**

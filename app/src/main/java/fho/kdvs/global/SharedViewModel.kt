@@ -84,6 +84,9 @@ class SharedViewModel @Inject constructor(
     /** All quarter-years in the database. */
     val allQuarterYearsLiveData = quarterRepository.allQuarterYearsLiveData
 
+    /** The current real quarter-year */
+    private val currentQuarterYearLiveData = showRepository.getCurrentQuarterYear()
+
     /** The currently selected quarter-year. */
     val selectedQuarterYearLiveData = quarterRepository.selectedQuarterYearLiveData
 
@@ -114,10 +117,8 @@ class SharedViewModel @Inject constructor(
             .show()
 
     private fun getCurrentQuarterShows(): List<ShowEntity>? {
-        val currentQuarterYear = showRepository.getCurrentQuarterYear().value
-
-        currentQuarterYear?.let {
-            return showRepository.getShowsByQuarterYear(currentQuarterYear)
+        currentQuarterYearLiveData.value?.let {
+            return showRepository.getShowsByQuarterYear(it)
         }
 
         return null
@@ -339,14 +340,13 @@ class SharedViewModel @Inject constructor(
             ?.firstOrNull { s -> s.name == show.name }
 
         matchingShow?.let {
-            subscribeToShow(it)
+            subscribeToShowWithoutToast(it)
         }
     }
 
-    private fun subscribeToShow(show: ShowEntity) {
+    private fun subscribeToShowWithoutToast(show: ShowEntity) {
         launch {
-            val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
-            val success = alarmMgr.registerShowAlarmAsync(show).await()
+            val success = subscribeToShow(show)
 
             if (success) {
                 launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
@@ -356,8 +356,7 @@ class SharedViewModel @Inject constructor(
 
     private fun subscribeToShowAndMakeToast(show: ShowEntity, context: Context?) {
         launch {
-            val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
-            val success = alarmMgr.registerShowAlarmAsync(show).await()
+            val success = subscribeToShow(show)
 
             if (success) {
                 launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
@@ -367,6 +366,11 @@ class SharedViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private suspend fun subscribeToShow(show: ShowEntity): Boolean {
+        val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
+        return alarmMgr.registerShowAlarmAsync(show).await()
     }
 
     private fun cancelSubscription(show: ShowEntity) {
@@ -381,9 +385,6 @@ class SharedViewModel @Inject constructor(
         return subscriptionRepository.subscribedShows()
     }
 
-    /**
-     * Find recurring shows based on name.
-     */
     private fun getRecurringSubscribedShows(subscribedShows: List<ShowEntity>): List<ShowEntity>? {
         val currentShows = getCurrentQuarterShows()
 

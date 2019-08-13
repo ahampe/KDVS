@@ -12,6 +12,8 @@
     <!-- Notification channel -->
     <string name="notification_channel">Now Playing</string>
     <string name="notification_channel_description">Shows what is currently playing on KDVS</string>
+    <string name="alarm_channel">Alarm</string>
+    <string name="alarm_channel_description">Notifies about live show broadcasts.</string>
 
     <!-- Notification actions -->
     <string name="notification_play">Play</string>
@@ -87,9 +89,10 @@
     <string name="timeslot_desc">Show image</string>
     <string name="timeslot_placeholder">kdvs-image-placeholder</string>
 
-    <string name="show_notification_title">Live %1$s!</string>
-    <string name="show_notification_title_interval">in %1$d minutes</string>
-    <string name="show_notification_title_now">now</string>
+    <string name="show_notification_title">KDVS</string>
+    <string name="show_notification_text_live">%1$s is live %2$s!</string>
+    <string name="show_notification_text_interval">in %1$d minutes</string>
+    <string name="show_notification_text_now">now</string>
 
     <string name="track_info_start">%1$s</string>
     <string name="track_info_middle">\u0020• %1$s</string>

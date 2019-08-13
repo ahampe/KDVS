@@ -7,7 +7,6 @@ import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.enums.enumValueOrDefault
 import fho.kdvs.global.extensions.listOfNulls
 import fho.kdvs.global.preferences.KdvsPreferences
-import fho.kdvs.global.util.HttpHelper
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.util.URLs.SHOW_IMAGE_PLACEHOLDER
@@ -19,7 +18,10 @@ import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.parser.Parser
-import org.threeten.bp.*
+import org.threeten.bp.Clock
+import org.threeten.bp.LocalDate
+import org.threeten.bp.LocalDateTime
+import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
@@ -154,13 +156,20 @@ class WebScraperManager @Inject constructor(
                         timeEnd = TimeHelper.addDay(timeEnd)
                     }
 
+                    val convertedTimeStart = timeStart?.let {
+                        TimeHelper.convertZoneTime(TimeHelper.PACIFIC_ID, TimeHelper.getSystemTimeZone(), it)
+                    }
+                    val convertedTimeEnd = timeEnd?.let {
+                        TimeHelper.convertZoneTime(TimeHelper.PACIFIC_ID, TimeHelper.getSystemTimeZone(), it)
+                    }
+
                     for ((name, id) in names.zip(ids)) {
                         val showEntity = ShowEntity(
                             id = id,
                             name = name.trim(),
                             defaultImageHref = imageHref,
-                            timeStart = timeStart,
-                            timeEnd = timeEnd,
+                            timeStart = convertedTimeStart ?: timeStart,
+                            timeEnd = convertedTimeEnd ?: timeEnd,
                             quarter = quarter,
                             year = year
                         )

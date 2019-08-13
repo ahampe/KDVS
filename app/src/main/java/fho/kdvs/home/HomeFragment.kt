@@ -18,6 +18,7 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.FundraiserEntity
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.news.NewsArticlesAdapter
@@ -33,6 +34,10 @@ import javax.inject.Inject
 class HomeFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
+
+    @Inject
+    lateinit var kdvsPreferences: KdvsPreferences
+
     private lateinit var viewModel: HomeViewModel
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var fragmentHomeBinding: FragmentHomeBinding
@@ -167,8 +172,12 @@ class HomeFragment : DaggerFragment() {
             // When new quarter-years happen (which should only happen when a new quarter starts),
             // cancel nonrecurring subscriptions
             allQuarterYearsLiveData.observe(viewLifecycleOwner, Observer {
-                // TODO: no need to do this on an initial load
-                this.onNewQuarter(context)
+                it.first().let { q ->
+                    if (q != kdvsPreferences.mostRecentQuarterYear) {
+                        this.onNewQuarter(context)
+                        kdvsPreferences.mostRecentQuarterYear = q
+                    }
+                }
             })
         }
     }

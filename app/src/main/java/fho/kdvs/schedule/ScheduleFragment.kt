@@ -20,6 +20,7 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
+import fho.kdvs.global.preferences.KdvsPreferences
 import kotlinx.android.synthetic.main.fragment_schedule.*
 import kotlinx.android.synthetic.main.fragment_schedule.view.*
 import org.threeten.bp.LocalDate
@@ -29,6 +30,10 @@ import javax.inject.Inject
 class ScheduleFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
+
+    @Inject
+    lateinit var kdvsPreferences: KdvsPreferences
+
     lateinit var viewModel: ScheduleViewModel
     lateinit var sharedViewModel: SharedViewModel
 
@@ -178,18 +183,17 @@ class ScheduleFragment : DaggerFragment() {
     /** This is where any [LiveData] in the ViewModel should be hooked up to [Observer]s. */
     private fun subscribeToViewModel() {
         sharedViewModel.run {
-            // When a new quarter-year is selected, redraw the week recycler:
-            selectedQuarterYearLiveData.observe(viewLifecycleOwner, Observer {
-                configureViews()
-            })
-
-            // When new quarter-years happen (which should only happen when a new quarter starts), update the spinner
-            // and cancel nonrecurring subscriptions
             allQuarterYearsLiveData.observe(viewLifecycleOwner, Observer {
                 configureViews()
 
-                // TODO: no need to do this on an initial load
-                this.onNewQuarter(context)
+                // When new quarter-years happen (which should only happen when a new quarter starts), update the spinner
+                // and cancel nonrecurring subscriptions
+                it.first().let { q ->
+                    if (q != kdvsPreferences.mostRecentQuarterYear) {
+                        this.onNewQuarter(context)
+                        kdvsPreferences.mostRecentQuarterYear = q
+                    }
+                }
             })
         }
     }

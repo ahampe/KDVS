@@ -11,8 +11,10 @@ import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.services.LiveShowUpdater.Companion.WEEK_IN_MILLIS
 import fho.kdvs.show.ShowRepository
 import kotlinx.coroutines.*
+import java.util.*
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
+
 
 /** Class for managing alerts of subscribed shows' broadcasts. */
 class KdvsAlarmManager @Inject constructor(
@@ -46,14 +48,17 @@ class KdvsAlarmManager @Inject constructor(
 
                 val alarmTime = adjustedTime
                     ?.plusWeeks(weekOffset)
-                    ?.minusMinutes(kdvsPreferences.alarmNoticeInterval ?: 10)
+                    ?.minusMinutes(kdvsPreferences.alarmNoticeInterval ?: 0)
 
                 alarmTime?.let {
                     cancelShowAlarm(show) // prevent multiple registrations
 
-                    alarmMgr?.setInexactRepeating(
-                        AlarmManager.RTC_WAKEUP,
-                        alarmTime.toEpochSecond() * 1000,
+                    val utcAlarmTime = TimeHelper.convertZoneTime(TimeHelper.getSystemTimeZone(), TimeHelper.UTC_ID, it)
+
+                    // Use setRepeating() for custom interval
+                    alarmMgr?.setRepeating(
+                        AlarmManager.RTC_WAKEUP, // TODO: make setting to wake up screen or not
+                        utcAlarmTime.toInstant().toEpochMilli(),
                         WEEK_IN_MILLIS * showsAtTime.size,
                         alarmIntent
                     )
@@ -78,7 +83,7 @@ class KdvsAlarmManager @Inject constructor(
         if (!::alarmIntent.isInitialized) {
             alarmIntent = Intent(context, AlarmReceiver::class.java).let { intent ->
                 intent.putExtra("showName", show.name)
-                intent.putExtra("interval", kdvsPreferences.alarmNoticeInterval?.toInt() ?: 10)
+                intent.putExtra("interval", kdvsPreferences.alarmNoticeInterval?.toInt() ?: 0)
                 PendingIntent.getBroadcast(context, show.id, intent, 0)
             }
         }

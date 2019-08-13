@@ -1,5 +1,6 @@
 package fho.kdvs.services
 
+import android.app.AlarmManager.INTERVAL_DAY
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowDao
@@ -244,6 +245,6 @@ class LiveShowUpdater @Inject constructor(
     }
 
     companion object {
-        const val WEEK_IN_MILLIS = 7L * 24L * 60L * 60L * 1000L
+        const val WEEK_IN_MILLIS = 7L * INTERVAL_DAY
     }
 }
