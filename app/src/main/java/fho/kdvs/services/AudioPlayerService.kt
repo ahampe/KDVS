@@ -41,6 +41,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
     private lateinit var notificationManager: NotificationManagerCompat
     private lateinit var playbackNotificationBuilder: PlaybackNotificationBuilder
     private lateinit var mediaSessionConnector: MediaSessionConnector
+    private lateinit var builder: NotificationCompat.Builder
 
     @Inject
     lateinit var playbackPreparer: KdvsPlaybackPreparer
@@ -289,10 +290,15 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
      * - Calls [Service.startForeground] and [Service.stopForeground].
      */
     private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
+        // TODO: notification isn't updating when shows change
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             mediaController.playbackState?.let { updateNotification(it) }
         }
 
+        /**
+         * TODO: prevent notification flicker -- the problem is that if we don't call updateNotification and rebuild the notification,
+         * then custom actions don't work and the builder options (e.g. small icon) aren't reflected, for whatever reason
+         */
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             state?.let { updateNotification(it) }
         }
@@ -308,15 +314,17 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                 mediaController.metadata.description.title.toString(), applicationContext)
 
             // Skip building a notification when state is "none".
-            val notification = if (updatedState != PlaybackStateCompat.STATE_NONE && playbackType != null) {
-                playbackNotificationBuilder = when(playbackType) {
-                    PlaybackType.ARCHIVE -> ArchivePlaybackNotificationBuilder(baseContext)
-                    PlaybackType.LIVE    -> LivePlaybackNotificationBuilder(baseContext)
-                }
+            val notification = when {
+                updatedState != PlaybackStateCompat.STATE_NONE && playbackType != null -> {
+                    playbackNotificationBuilder = when(playbackType) {
+                        PlaybackType.ARCHIVE -> ArchivePlaybackNotificationBuilder(baseContext)
+                        PlaybackType.LIVE    -> LivePlaybackNotificationBuilder(baseContext)
+                    }
 
-                playbackNotificationBuilder.buildNotification(mediaSession.sessionToken)
-            } else {
-                null
+                    builder = playbackNotificationBuilder.buildNotification(mediaSession.sessionToken)
+                    builder.build()
+                }
+                else -> null
             }
 
             when (updatedState) {

@@ -16,7 +16,6 @@
 
 package fho.kdvs.services
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -65,7 +64,7 @@ abstract class PlaybackNotificationBuilder(private val context: Context) {
         controller: MediaControllerCompat
     )
 
-    fun buildNotification(sessionToken: MediaSessionCompat.Token): Notification {
+    fun buildNotification(sessionToken: MediaSessionCompat.Token): NotificationCompat.Builder {
         val controller = MediaControllerCompat(context, sessionToken)
 
         setBuilder(sessionToken, controller)
@@ -90,7 +89,6 @@ abstract class PlaybackNotificationBuilder(private val context: Context) {
             .setStyle(mediaStyle)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setShowWhen(false)
-            .build()
     }
 
     private fun shouldCreateNowPlayingChannel() =
