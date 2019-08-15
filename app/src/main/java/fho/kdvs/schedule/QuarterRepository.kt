@@ -20,7 +20,7 @@ class QuarterRepository @Inject constructor(showDao: ShowDao, private val prefer
     // Fetches distinct quarter-years from the shows table, most recent first
     private val allQuarterYears =
         showDao.allDistinctQuarterYears()
-            .filter { !it.isEmpty() }
+            .filter { it.isNotEmpty() }
             .distinctUntilChanged()
 
     /** [LiveData] that observes the currently selected [QuarterYear] */

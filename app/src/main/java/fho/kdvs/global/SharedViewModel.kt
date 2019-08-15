@@ -2,6 +2,7 @@ package fho.kdvs.global
 
 import android.app.Application
 import android.app.DownloadManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -29,17 +30,17 @@ import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
 import fho.kdvs.global.util.URLs.YOUTUBE_QUERYSTRING
 import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
 import fho.kdvs.global.web.*
+import fho.kdvs.schedule.QuarterRepository
 import fho.kdvs.schedule.QuarterYear
-import fho.kdvs.services.CustomAction
-import fho.kdvs.services.LiveShowUpdater
-import fho.kdvs.services.MediaSessionConnection
-import fho.kdvs.services.PlaybackType
+import fho.kdvs.services.*
 import fho.kdvs.show.FundraiserRepository
 import fho.kdvs.show.NewsRepository
 import fho.kdvs.show.ShowRepository
 import fho.kdvs.show.TopMusicRepository
 import fho.kdvs.staff.StaffRepository
+import fho.kdvs.subscription.SubscriptionRepository
 import kotlinx.coroutines.launch
+import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
@@ -56,6 +57,8 @@ class SharedViewModel @Inject constructor(
     private val staffRepository: StaffRepository,
     private val fundraiserRepository: FundraiserRepository,
     private val topMusicRepository: TopMusicRepository,
+    private val quarterRepository: QuarterRepository,
+    private val subscriptionRepository: SubscriptionRepository,
     private val favoriteDao: FavoriteDao,
     private val subscriptionDao: SubscriptionDao,
     private val liveShowUpdater: LiveShowUpdater,
@@ -110,6 +113,53 @@ class SharedViewModel @Inject constructor(
 
     fun getCurrentQuarterYear() : LiveData<QuarterYear> =
         showRepository.getCurrentQuarterYear()
+
+    // region quarter
+
+    /** All quarter-years in the database. */
+    val allQuarterYearsLiveData = quarterRepository.allQuarterYearsLiveData
+
+    /** The current real quarter-year */
+    private val currentQuarterYearLiveData = showRepository.getCurrentQuarterYear()
+
+    /** The currently selected quarter-year. */
+    val selectedQuarterYearLiveData = quarterRepository.selectedQuarterYearLiveData
+
+    /** Sets the given [QuarterYear]. Change will be reflected in [selectedQuarterYearLiveData]. */
+    fun selectQuarterYear(quarterYear: QuarterYear) =
+        quarterRepository.selectQuarterYear(quarterYear)
+
+    /**
+     * Gets the selected [QuarterYear] if there is one, else returns the most recent [QuarterYear].
+     * If both are null, returns null.
+     *
+     * Note: It's important that [allQuarterYearsLiveData] has observers, otherwise it will not be updated.
+     * This doesn't hold for [selectedQuarterYearLiveData] as it's not sourced from RxJava.
+     */
+    fun loadQuarterYear(): QuarterYear? =
+        selectedQuarterYearLiveData.value ?: allQuarterYearsLiveData.value?.firstOrNull()
+
+    /**
+     * Code to execute when a new current QuarterYear is observed.
+     */
+    fun onNewQuarter(context: Context?) {
+        processSubscriptionsOnQuarterChange()
+        makeNewQuarterToast(context)
+    }
+
+    private fun makeNewQuarterToast(context: Context?) =
+        Toast.makeText(context, "The new quarter has begun!", Toast.LENGTH_SHORT)
+            .show()
+
+    private fun getCurrentQuarterShows(): List<ShowEntity>? {
+        currentQuarterYearLiveData.value?.let {
+            return showRepository.getShowsByQuarterYear(it)
+        }
+
+        return null
+    }
+
+    // endregion
 
     // region playback
 
@@ -529,14 +579,111 @@ class SharedViewModel @Inject constructor(
 
     fun onClickSubscribe(imageView: ImageView, showId: Int) {
         if (imageView.tag == 0) {
+            subscribeToShowAndMakeToast(show, context)
+
             imageView.setImageResource(R.drawable.ic_star_border_white_24dp)
             imageView.tag = 1
-            launch { subscriptionDao.insert(SubscriptionEntity(0, showId)) }
         } else if (imageView.tag == 1) {
+            cancelSubscription(show)
+            Toast.makeText(context, "Unsubscribed from ${show.name}", Toast.LENGTH_SHORT)
+                .show()
+
             imageView.setImageResource(R.drawable.ic_star_white_24dp)
             imageView.tag = 0
-            launch { subscriptionDao.deleteByShowId(showId) }
         }
+    }
+    // endregion
+
+    // region subscription
+
+    /**
+     * After a quarter change, subscribed recurring shows will have new database objects, and possibly new timeslots,
+     * so we must cancel existing ones and insert new ones based on matching show names in the current quarter.
+     * Nonrecurring shows will simply have their subscriptions cancelled.
+     */
+    private fun processSubscriptionsOnQuarterChange() {
+        launch {
+            val subscribedShows = getSubscribedShows()
+            val recurringSubscribedShows = getRecurringSubscribedShows(subscribedShows)
+            val nonRecurringSubscribedShows = subscribedShows
+                .filterNot { s -> recurringSubscribedShows?.contains(s) == true }
+
+            recurringSubscribedShows?.forEach {
+                updateRecurringSubscription(it)
+            }
+
+            nonRecurringSubscribedShows.forEach {
+                cancelSubscription(it)
+            }
+        }
+    }
+
+    private fun updateRecurringSubscription(show: ShowEntity) {
+        cancelSubscription(show)
+
+        val currentShows = getCurrentQuarterShows()
+        val matchingShow = currentShows
+            ?.firstOrNull { s -> s.name == show.name }
+
+        matchingShow?.let {
+            subscribeToShowWithoutToast(it)
+        }
+    }
+
+    private fun subscribeToShowWithoutToast(show: ShowEntity) {
+        launch {
+            val success = subscribeToShow(show)
+
+            if (success) {
+                launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
+            }
+        }
+    }
+
+    private fun subscribeToShowAndMakeToast(show: ShowEntity, context: Context?) {
+        launch {
+            val success = subscribeToShow(show)
+
+            if (success) {
+                launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
+                context?.runOnUiThread {
+                    Toast.makeText(context, "Subscribed to ${show.name}", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+        }
+    }
+
+    private suspend fun subscribeToShow(show: ShowEntity): Boolean {
+        val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
+        return alarmMgr.registerShowAlarmAsync(show).await()
+    }
+
+    private fun cancelSubscription(show: ShowEntity) {
+        launch { subscriptionDao.deleteByShowId(show.id) }
+        launch {
+            val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
+            alarmMgr.cancelShowAlarm(show)
+        }
+    }
+
+    private fun getSubscribedShows(): List<ShowEntity> {
+        return subscriptionRepository.subscribedShows()
+    }
+
+    private fun getRecurringSubscribedShows(subscribedShows: List<ShowEntity>): List<ShowEntity>? {
+        val currentShows = getCurrentQuarterShows()
+
+        currentShows?.let {
+            return subscribedShows
+                .filter { show ->
+                    currentShows
+                    .map { s -> s.name }
+                    .contains(show.name)
+                }
+        }
+
+        return null
     }
 
     // endregion

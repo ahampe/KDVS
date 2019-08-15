@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -19,6 +21,7 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.FundraiserEntity
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.database.StaffEntity
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
@@ -29,6 +32,8 @@ import fho.kdvs.news.NewsArticlesAdapter
 import fho.kdvs.staff.StaffAdapter
 import fho.kdvs.topmusic.TopMusicAdapter
 import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.coroutines.cancel
+import org.threeten.bp.LocalDate
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.text.DecimalFormat
@@ -38,8 +43,10 @@ import javax.inject.Inject
 class HomeFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
+
     @Inject
     lateinit var kdvsPreferences: KdvsPreferences
+
     private lateinit var viewModel: HomeViewModel
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var fragmentHomeBinding: FragmentHomeBinding
@@ -239,6 +246,19 @@ class HomeFragment : DaggerFragment() {
                     } else {
                         setFundraiserView(fundraiser)
                         fundraiserSection.visibility = View.VISIBLE
+                    }
+                }
+            })
+        }
+
+        sharedViewModel.run {
+            // When new quarter-years happen (which should only happen when a new quarter starts),
+            // cancel nonrecurring subscriptions
+            allQuarterYearsLiveData.observe(viewLifecycleOwner, Observer {
+                it.first().let { q ->
+                    if (q != kdvsPreferences.mostRecentQuarterYear) {
+                        this.onNewQuarter(context)
+                        kdvsPreferences.mostRecentQuarterYear = q
                     }
                 }
             })

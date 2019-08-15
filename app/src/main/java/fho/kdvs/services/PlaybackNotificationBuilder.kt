@@ -16,14 +16,12 @@
 
 package fho.kdvs.services
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -37,10 +35,10 @@ const val NOW_PLAYING_CHANNEL: String = "fho.kdvs.NOW_PLAYING"
 const val NOW_PLAYING_NOTIFICATION: Int = 0xb339
 
 /**
- * Abstract helper class to encapsulate code for building notifications.
+ * Abstract helper class to encapsulate code for building playback notifications.
  * Concrete classes are instantiated based on [PlaybackType].
  */
-abstract class NotificationBuilder(private val context: Context) {
+abstract class PlaybackNotificationBuilder(private val context: Context) {
     lateinit var builder: NotificationCompat.Builder
 
     private val platformNotificationManager: NotificationManager =
@@ -66,7 +64,7 @@ abstract class NotificationBuilder(private val context: Context) {
         controller: MediaControllerCompat
     )
 
-    fun buildNotification(sessionToken: MediaSessionCompat.Token): Notification {
+    fun buildNotification(sessionToken: MediaSessionCompat.Token): NotificationCompat.Builder {
         val controller = MediaControllerCompat(context, sessionToken)
 
         setBuilder(sessionToken, controller)
@@ -81,17 +79,16 @@ abstract class NotificationBuilder(private val context: Context) {
             .setCancelButtonIntent(stopPendingIntent)
             .setMediaSession(sessionToken)
 
-        // TODO change content text / title, etc.
         return builder.setContentIntent(controller.sessionActivity)
             .setContentText(description.subtitle)
             .setContentTitle(description.title)
             .setDeleteIntent(stopPendingIntent)
             .setLargeIcon(description.iconBitmap)
             .setOnlyAlertOnce(true)
-            .setSmallIcon(R.drawable.ic_radio_white_24dp)
+            .setSmallIcon(R.drawable.ic_kdvs_head_black)
             .setStyle(mediaStyle)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .build()
+            .setShowWhen(false)
     }
 
     private fun shouldCreateNowPlayingChannel() =
@@ -115,17 +112,11 @@ abstract class NotificationBuilder(private val context: Context) {
     }
 }
 
-class LiveNotificationBuilder(val context: Context): NotificationBuilder(context) {
+class LivePlaybackNotificationBuilder(val context: Context): PlaybackNotificationBuilder(context) {
     override fun setBuilder(sessionToken: MediaSessionCompat.Token, controller: MediaControllerCompat) {
         val customActions = CustomActionDefinitions(context)
         val playbackState = controller.playbackState
         builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
-
-        builder.addAction(NotificationCompat.Action(
-            R.drawable.exo_icon_stop,
-            context.getString(R.string.notification_stop),
-            stopPendingIntent
-        ))
 
         if (playbackState.isPlaying) {
             builder.addAction(pauseAction)
@@ -134,10 +125,16 @@ class LiveNotificationBuilder(val context: Context): NotificationBuilder(context
         }
 
         builder.addAction(customActions.liveAction)
+
+        builder.addAction(NotificationCompat.Action(
+            R.drawable.exo_icon_stop,
+            context.getString(R.string.notification_stop),
+            stopPendingIntent
+        ))
     }
 }
 
-class ArchiveNotificationBuilder(val context: Context): NotificationBuilder(context) {
+class ArchivePlaybackNotificationBuilder(val context: Context): PlaybackNotificationBuilder(context) {
     override fun setBuilder(sessionToken: MediaSessionCompat.Token, controller: MediaControllerCompat) {
         val customActions = CustomActionDefinitions(context)
         val playbackState = controller.playbackState
@@ -155,7 +152,7 @@ class ArchiveNotificationBuilder(val context: Context): NotificationBuilder(cont
     }
 }
 
-class DefaultNotificationBuilder(val context: Context): NotificationBuilder(context) {
+class DefaultPlaybackNotificationBuilder(val context: Context): PlaybackNotificationBuilder(context) {
     override fun setBuilder(sessionToken: MediaSessionCompat.Token, controller: MediaControllerCompat) {
         val playbackState = controller.playbackState
         builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)

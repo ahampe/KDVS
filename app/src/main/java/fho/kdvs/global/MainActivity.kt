@@ -20,7 +20,6 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
-import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.Constants.READ_REQUEST_CODE
 import fho.kdvs.global.util.TimeHelper

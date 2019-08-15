@@ -3,16 +3,10 @@ package fho.kdvs.global.preferences
 import android.app.Application
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import androidx.lifecycle.MutableLiveData
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.enums.enumValueOrDefault
 import fho.kdvs.schedule.QuarterYear
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.observers.DisposableObserver
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
+import org.threeten.bp.OffsetDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.properties.ReadWriteProperty
@@ -72,9 +66,16 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         // scrape frequency (5, 15, 30, 60 minutes in seconds)
         SCRAPE_FREQUENCY,
 
+        // persist the most recent real quarter to detect quarter changes
+        MOST_RECENT_QUARTER,
+        MOST_RECENT_YEAR,
+
         // to persist user's selection of quarter (internally a String) and year (an Int)
         SELECTED_QUARTER,
         SELECTED_YEAR,
+
+        // the gap of time between the notification for an event and the real time of the event (e.g. show start)
+        ALARM_NOTICE_INTERVAL,
 
         // TODO others like alert frequencies, wifi only usage, last played broadcast etc
 
@@ -109,6 +110,8 @@ open class KdvsPreferences @Inject constructor(application: Application) {
 
     var lastFundraiserScraper: Long? by LongPreference(Key.LAST_FUNDRAISER_SCRAPE)
 
+    var alarmNoticeInterval: Long? by LongPreference(Key.ALARM_NOTICE_INTERVAL)
+
     var offlineMode: Boolean? by BooleanPreference(Key.DATA_SAVER_MODE)
 
     var downloadPath: String? by StringPreference(Key.DOWNLOAD_PATH)
@@ -142,6 +145,20 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     /** Frequency of any type of scrape, in minutes. */
     var scrapeFrequency: Long? by LongPreference(Key.SCRAPE_FREQUENCY)
 
+    /** Convenience property to get the most recent [QuarterYear] */
+    var mostRecentQuarterYear: QuarterYear?
+        get() {
+            val quarter = mostRecentQuarter
+            val year = OffsetDateTime.now().year
+            return if (quarter != null) {
+                QuarterYear(quarter, year)
+            } else null
+        }
+        set(value) {
+            mostRecentQuarter = value?.quarter
+            mostRecentYear = value?.year
+        }
+
     /** Convenience property to get the selected [QuarterYear] */
     var selectedQuarterYear: QuarterYear?
         get() {
@@ -156,14 +173,23 @@ open class KdvsPreferences @Inject constructor(application: Application) {
             selectedYear = value?.year
         }
 
+    var mostRecentQuarter: Quarter?
+        get() = enumValueOrDefault(_mostRecentQuarter, Quarter.WINTER)
+        set(value) {
+            _mostRecentQuarter = value?.name
+        }
+
+
     var selectedQuarter: Quarter?
         get() = enumValueOrDefault(_selectedQuarter, Quarter.WINTER)
         set(value) {
             _selectedQuarter = value?.name
         }
 
+    private var _mostRecentQuarter: String? by StringPreference(Key.MOST_RECENT_QUARTER)
     private var _selectedQuarter: String? by StringPreference(Key.SELECTED_QUARTER)
 
+    var mostRecentYear: Int? by IntPreference(Key.MOST_RECENT_YEAR)
     var selectedYear: Int? by IntPreference(Key.SELECTED_YEAR)
 
     /** Clears everything from shared preferences. */

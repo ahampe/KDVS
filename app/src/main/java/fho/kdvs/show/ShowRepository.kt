@@ -3,7 +3,6 @@ package fho.kdvs.show
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.BroadcastEntity
@@ -19,6 +18,7 @@ import fho.kdvs.global.web.WebScraperManager
 import fho.kdvs.schedule.QuarterYear
 import fho.kdvs.schedule.TimeSlot
 import fho.kdvs.services.KdvsPlaybackPreparer
+import fho.kdvs.services.LiveShowUpdater
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Job
@@ -170,6 +170,11 @@ class ShowRepository @Inject constructor(
             .observeOn(Schedulers.io())
     }
 
+    fun getShowsByQuarterYear(quarterYear: QuarterYear): List<ShowEntity> {
+        val (quarter, year) = quarterYear
+        return showDao.getShowsByQuarterYear(quarter, year)
+    }
+
     /**
      * Given the day of week, quarter, and year, finds all shows that begin or end on that day,
      * and transforms them into [TimeSlot]s.
@@ -189,5 +194,10 @@ class ShowRepository @Inject constructor(
                         TimeSlot(showGroup, isFirstHalfOrEntireSegment)
                     }
             }
+    }
+
+    suspend fun allShowsAtTimeOrderedRelativeToCurrentWeek(timeStart: OffsetDateTime): List<ShowEntity?> {
+        val liveShowUpdater = LiveShowUpdater(this, broadcastRepository, showDao)
+        return liveShowUpdater.orderShowsAtTimeRelativeToCurrentWeekAsync(timeStart)
     }
 }

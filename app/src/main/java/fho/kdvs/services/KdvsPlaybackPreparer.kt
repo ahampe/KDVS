@@ -213,7 +213,7 @@ class KdvsPlaybackPreparer @Inject constructor(
         }
 
         val broadcastMetadata = MediaMetadataCompat.Builder()
-            .from(broadcast, show)
+            .from(broadcast, show, application.applicationContext)
             .apply { albumArt = art }
             .build()
 

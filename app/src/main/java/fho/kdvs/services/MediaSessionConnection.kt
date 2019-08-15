@@ -25,8 +25,6 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.media.MediaBrowserServiceCompat
-import fho.kdvs.global.extensions.id
-import fho.kdvs.global.util.URLs
 import fho.kdvs.services.MediaSessionConnection.MediaBrowserConnectionCallback
 
 /**
@@ -81,7 +79,7 @@ class MediaSessionConnection(context: Context, serviceComponent: ComponentName) 
         override fun onConnected() {
             // Get a MediaController for the MediaSession.
             mediaController = MediaControllerCompat(context, mediaBrowser.sessionToken).apply {
-                registerCallback(MediaControllerCallback())
+                registerCallback(MediaControllerCallback(context))
             }
 
             isConnected.postValue(true)
@@ -102,7 +100,7 @@ class MediaSessionConnection(context: Context, serviceComponent: ComponentName) 
         }
     }
 
-    private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
+    private inner class MediaControllerCallback(private val context: Context) : MediaControllerCompat.Callback() {
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             playbackState.postValue(state ?: EMPTY_PLAYBACK_STATE)
@@ -110,7 +108,9 @@ class MediaSessionConnection(context: Context, serviceComponent: ComponentName) 
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             val md = metadata ?: NOTHING_PLAYING
-            isLiveNow.postValue(URLs.liveStreamUrls.contains(md.id))
+            val playbackType = PlaybackTypeHelper.getPlaybackTypeFromTag(md.description.title.toString(), context)
+
+            isLiveNow.postValue(playbackType == PlaybackType.LIVE)
             nowPlaying.postValue(md)
         }
 
