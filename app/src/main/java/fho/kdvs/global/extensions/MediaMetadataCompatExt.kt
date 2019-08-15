@@ -284,25 +284,31 @@ fun List<MediaMetadataCompat>.toMediaSource(
 
 fun MediaMetadataCompat.Builder.from(
     broadcast: BroadcastEntity,
-    show: ShowEntity
+    show: ShowEntity,
+    context: Context
 ): MediaMetadataCompat.Builder {
     id = broadcast.broadcastId.toString()
 
-    val fullTitle = if (broadcast.date != null) TimeHelper.uiDateFormatter.format(broadcast.date) else ""
+    val date = if (broadcast.date != null) TimeHelper.uiDateFormatter.format(broadcast.date) else ""
+
+    val fullTitle = show.name +
+        context.getString(R.string.notification_title_separator) +
+        date
+
     title = fullTitle
-    artist = show.name
-    album = show.host
+    artist = show.host
+    album = date
     genre = show.genre
     mediaUri = URLs.archiveForBroadcast(broadcast)
     albumArtUri = broadcast.imageHref ?: show.defaultImageHref
-    trackNumber = 1 // TODO
+    trackNumber = 1
     trackCount = 1
     flag = MediaItem.FLAG_PLAYABLE
 
     // To make things easier for *displaying* these, set the display properties as well.
     displayTitle = fullTitle
-    displaySubtitle = show.name
-    displayDescription = show.host
+    displaySubtitle = show.host
+    displayDescription = show.genre
     displayIconUri = broadcast.imageHref ?: show.defaultImageHref
 
     // Add downloadStatus to force the creation of an "extras" bundle in the resulting
@@ -320,10 +326,13 @@ fun MediaMetadataCompat.Builder.fromLive(
 ): MediaMetadataCompat.Builder {
     // Don't set the id; this should be the current live URL
 
-    val fullTitle = context.resources.getString(R.string.live)
+    val fullTitle = show.name +
+        context.getString(R.string.notification_title_separator) +
+        context.resources.getString(R.string.live)
+
     title = fullTitle
-    artist = show.name
-    album = show.host
+    artist = show.host
+    album = context.resources.getString(R.string.live)
     genre = show.genre
     albumArtUri = broadcast?.imageHref ?: show.defaultImageHref
     trackNumber = 1
@@ -332,8 +341,8 @@ fun MediaMetadataCompat.Builder.fromLive(
 
     // To make things easier for *displaying* these, set the display properties as well.
     displayTitle = fullTitle
-    displaySubtitle = show.name
-    displayDescription = show.host
+    displaySubtitle = show.host
+    displayDescription = show.genre
     displayIconUri = broadcast?.imageHref ?: show.defaultImageHref
 
     // Add downloadStatus to force the creation of an "extras" bundle in the resulting

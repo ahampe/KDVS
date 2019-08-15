@@ -16,7 +16,6 @@
 
 package fho.kdvs.services
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -65,7 +64,7 @@ abstract class PlaybackNotificationBuilder(private val context: Context) {
         controller: MediaControllerCompat
     )
 
-    fun buildNotification(sessionToken: MediaSessionCompat.Token): Notification {
+    fun buildNotification(sessionToken: MediaSessionCompat.Token): NotificationCompat.Builder {
         val controller = MediaControllerCompat(context, sessionToken)
 
         setBuilder(sessionToken, controller)
@@ -80,17 +79,16 @@ abstract class PlaybackNotificationBuilder(private val context: Context) {
             .setCancelButtonIntent(stopPendingIntent)
             .setMediaSession(sessionToken)
 
-        // TODO change content text / title, etc.
         return builder.setContentIntent(controller.sessionActivity)
             .setContentText(description.subtitle)
             .setContentTitle(description.title)
             .setDeleteIntent(stopPendingIntent)
             .setLargeIcon(description.iconBitmap)
             .setOnlyAlertOnce(true)
-            .setSmallIcon(R.drawable.ic_radio_white_24dp)
+            .setSmallIcon(R.drawable.ic_kdvs_head_black)
             .setStyle(mediaStyle)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .build()
+            .setShowWhen(false)
     }
 
     private fun shouldCreateNowPlayingChannel() =
@@ -120,12 +118,6 @@ class LivePlaybackNotificationBuilder(val context: Context): PlaybackNotificatio
         val playbackState = controller.playbackState
         builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
 
-        builder.addAction(NotificationCompat.Action(
-            R.drawable.exo_icon_stop,
-            context.getString(R.string.notification_stop),
-            stopPendingIntent
-        ))
-
         if (playbackState.isPlaying) {
             builder.addAction(pauseAction)
         } else if (playbackState.isPlayEnabled) {
@@ -133,6 +125,12 @@ class LivePlaybackNotificationBuilder(val context: Context): PlaybackNotificatio
         }
 
         builder.addAction(customActions.liveAction)
+
+        builder.addAction(NotificationCompat.Action(
+            R.drawable.exo_icon_stop,
+            context.getString(R.string.notification_stop),
+            stopPendingIntent
+        ))
     }
 }
 
