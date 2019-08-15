@@ -18,6 +18,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
+import com.google.android.exoplayer2.upstream.HttpDataSource
 import dagger.android.AndroidInjection
 import timber.log.Timber
 import javax.inject.Inject
@@ -57,8 +59,19 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
 
         exoPlayer.addListener(object : Player.EventListener {
             override fun onPlayerError(error: ExoPlaybackException?) {
-                // TODO
                 Timber.d("Player error: $error")
+
+                if (error?.cause is HttpDataSource.HttpDataSourceException) {
+                    Toast.makeText(applicationContext,
+                        "Error connecting to KDVS stream. Please check your connection or try again later.",
+                        Toast.LENGTH_LONG)
+                        .show()
+                } else {
+                    Toast.makeText(applicationContext,
+                        "There was a playback error. Please try again.",
+                        Toast.LENGTH_LONG)
+                        .show()
+                }
             }
         })
 
@@ -128,7 +141,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
 
                 override fun getCustomActions(player: Player?): MutableList<String> {
                     val playbackType = PlaybackTypeHelper.getPlaybackTypeFromTag(
-                        player?.currentTag.toString())
+                        player?.currentTag.toString(), applicationContext)
 
                     return when (playbackType) {
                         PlaybackType.LIVE    -> CustomActionNames.liveActionNames
@@ -169,6 +182,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
 
             override fun onNotificationStarted(notificationId: Int, notification: Notification?) {
                 startForeground(notificationId, notification)
+                playerNotificationManager.setUseNavigationActions(false)
             }
         })
 
@@ -281,7 +295,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
         }
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-            state?.let { updateNotification(it) }
+           // state?.let { updateNotification(it) }
         }
 
         // TODO will need to update notification for live stream when show changes
@@ -293,7 +307,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
             }
 
             val playbackType = PlaybackTypeHelper.getPlaybackTypeFromTag(
-                mediaController.metadata.description.title.toString())
+                mediaController.metadata.description.title.toString(), applicationContext)
 
             // Skip building a notification when state is "none".
             val notification = if (updatedState != PlaybackStateCompat.STATE_NONE && playbackType != null) {

@@ -14,6 +14,7 @@
     <string name="notification_channel_description">Shows what is currently playing on KDVS</string>
     <string name="alarm_channel">Alarm</string>
     <string name="alarm_channel_description">Notifies about live show broadcasts.</string>
+    <string name="notification_title_separator">\u0020•\u0020</string>
 
     <!-- Notification actions -->
     <string name="notification_play">Play</string>

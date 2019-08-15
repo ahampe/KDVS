@@ -87,9 +87,10 @@ abstract class PlaybackNotificationBuilder(private val context: Context) {
             .setDeleteIntent(stopPendingIntent)
             .setLargeIcon(description.iconBitmap)
             .setOnlyAlertOnce(true)
-            .setSmallIcon(R.drawable.ic_radio_white_24dp)
+            .setSmallIcon(R.drawable.ic_kdvs_head_black)
             .setStyle(mediaStyle)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setShowWhen(false)
             .build()
     }
 
