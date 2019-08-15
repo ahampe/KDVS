@@ -577,7 +577,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun onClickSubscribe(imageView: ImageView, showId: Int) {
+    fun onClickSubscribe(imageView: ImageView, show: ShowEntity, context: Context?) {
         if (imageView.tag == 0) {
             subscribeToShowAndMakeToast(show, context)
 

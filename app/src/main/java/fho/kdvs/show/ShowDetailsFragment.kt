@@ -74,7 +74,7 @@ class ShowDetailsFragment : DaggerFragment() {
         })
 
         viewModel.show.observe(this, Observer { show ->
-            star.setOnClickListener { sharedViewModel.onClickStar(star, show, context) }
+            star.setOnClickListener { sharedViewModel.onClickSubscribe(star, show, context) }
         })
 
         viewModel.subscription.observe(this, Observer {

@@ -24,7 +24,6 @@ object TimeHelper {
     val UTC_ID: ZoneId = ZoneId.of("UTC")
     val UTC_OFFSET: ZoneOffset = ZoneOffset.UTC
     val PACIFIC_ID: ZoneId = ZoneId.of( "America/Los_Angeles" )
-    private val UTC_BASE = ZoneId.of("America/Los_Angeles")
 
     /**
      * Formatter that will be used for parsing broadcast datetimes.
@@ -85,8 +84,7 @@ object TimeHelper {
     }
 
     /**
-     * Takes a time relative to KDVS' schedule time (i.e. Pacific) and returns a time relative
-     * to the user's system time.
+     * Converts time from one zone to another.
      */
     fun convertZoneTime(convertFrom: ZoneId, convertTo: ZoneId, time: OffsetDateTime): OffsetDateTime {
         val convertFromZoneOffset = convertFrom.rules.getOffset(LocalDateTime.now())
@@ -219,7 +217,7 @@ object TimeHelper {
     /** Returns current time in the zone associated with KDVS. */
     @JvmStatic
     fun getNow(): OffsetDateTime {
-        return ZonedDateTime.now(UTC_BASE).toOffsetDateTime()
+        return ZonedDateTime.now(this.PACIFIC_ID).toOffsetDateTime()
     }
 
     @JvmStatic
@@ -289,7 +287,7 @@ object TimeHelper {
 
     // region Local Dates (for Broadcast entities)
     fun getLocalNow(): LocalDate {
-        return ZonedDateTime.now(UTC_BASE).toLocalDate()
+        return ZonedDateTime.now(this.PACIFIC_ID).toLocalDate()
     }
 
     /** Creates a date given a string in [dateFormatter]'s format. */
