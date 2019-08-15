@@ -80,7 +80,6 @@ abstract class PlaybackNotificationBuilder(private val context: Context) {
             .setCancelButtonIntent(stopPendingIntent)
             .setMediaSession(sessionToken)
 
-        // TODO change content text / title, etc.
         return builder.setContentIntent(controller.sessionActivity)
             .setContentText(description.subtitle)
             .setContentTitle(description.title)
@@ -121,12 +120,6 @@ class LivePlaybackNotificationBuilder(val context: Context): PlaybackNotificatio
         val playbackState = controller.playbackState
         builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
 
-        builder.addAction(NotificationCompat.Action(
-            R.drawable.exo_icon_stop,
-            context.getString(R.string.notification_stop),
-            stopPendingIntent
-        ))
-
         if (playbackState.isPlaying) {
             builder.addAction(pauseAction)
         } else if (playbackState.isPlayEnabled) {
@@ -134,6 +127,12 @@ class LivePlaybackNotificationBuilder(val context: Context): PlaybackNotificatio
         }
 
         builder.addAction(customActions.liveAction)
+
+        builder.addAction(NotificationCompat.Action(
+            R.drawable.exo_icon_stop,
+            context.getString(R.string.notification_stop),
+            stopPendingIntent
+        ))
     }
 }
 

@@ -177,7 +177,6 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                 stopSelf()
                 removeNowPlayingNotification()
                 isForegroundService = false
-                // TODO: fix bug with notification not disappearing after the first reset
             }
 
             override fun onNotificationStarted(notificationId: Int, notification: Notification?) {
@@ -295,10 +294,9 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
         }
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-           // state?.let { updateNotification(it) }
+            state?.let { updateNotification(it) }
         }
 
-        // TODO will need to update notification for live stream when show changes
         private fun updateNotification(state: PlaybackStateCompat) {
             val updatedState = state.state
             if (mediaController.metadata == null) {
