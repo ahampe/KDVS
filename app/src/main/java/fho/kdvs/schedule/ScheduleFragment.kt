@@ -21,6 +21,7 @@ import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.fragment_schedule.*
 import kotlinx.android.synthetic.main.fragment_schedule.view.*
@@ -65,6 +66,8 @@ class ScheduleFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        LoadScreen.displayLoadScreen(scheduleRoot)
+
         // Configure the layout manager and keep a reference to it
         weekLayoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             .also { weekRecyclerView.layoutManager = it }
@@ -80,6 +83,8 @@ class ScheduleFragment : DaggerFragment() {
             setDayAbbreviationsWithSelectedPos(position)
             scrollingToToday = false
         }
+
+        LoadScreen.hideLoadScreen(scheduleRoot)
     }
 
     /** Reconfigures the week recycler view and time recycler view. Use when the quarter-year changes or the fragment is recreated. */

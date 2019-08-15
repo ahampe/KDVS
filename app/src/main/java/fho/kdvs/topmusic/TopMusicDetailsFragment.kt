@@ -21,6 +21,7 @@ import fho.kdvs.databinding.FragmentTopmusicDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.TopMusicEntity
+import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.ui.PlayerPaletteRequestListener
 import fho.kdvs.global.web.uri
 import kotlinx.android.synthetic.main.cell_topmusic_details.view.*
@@ -94,6 +95,8 @@ class TopMusicDetailsFragment : DaggerFragment(), CoroutineScope {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        LoadScreen.displayLoadScreen(topMusicDetailsRoot)
+
         topMusicViewAdapter = TopMusicViewAdapter { }
         topMusicLayoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
 
@@ -130,6 +133,8 @@ class TopMusicDetailsFragment : DaggerFragment(), CoroutineScope {
                 topMusicRecyclerView?.scrollToPosition(topMusic.position ?: 0)
                 scrollingToCurrentItem = false
             }
+
+            LoadScreen.hideLoadScreen(topMusicDetailsRoot)
         })
     }
 

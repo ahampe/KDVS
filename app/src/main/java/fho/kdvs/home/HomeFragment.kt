@@ -87,7 +87,7 @@ class HomeFragment : DaggerFragment() {
 
         val fragment = this
 
-        LoadScreen.displayLoadScreen(root)
+        LoadScreen.displayLoadScreen(homeRoot)
 
         settingsIcon.setOnClickListener { viewModel.onClickSettings(findNavController()) }
 
@@ -172,7 +172,7 @@ class HomeFragment : DaggerFragment() {
         viewModel.run {
             combinedLiveData.observe(viewLifecycleOwner, Observer {
                 Timber.d("All home observations complete")
-                LoadScreen.hideLoadScreen(root)
+                LoadScreen.hideLoadScreen(homeRoot)
             })
 
             currentShows.observe(viewLifecycleOwner, Observer { shows ->

@@ -11,9 +11,9 @@ object LoadScreen {
     private const val tagStr = "Loading"
 
     @JvmStatic
-    fun displayLoadScreen(base: ViewGroup) {
-        val layout = RelativeLayout(base.context)
-        val progressBar = ProgressBar(base.context)
+    fun displayLoadScreen(root: ViewGroup) {
+        val layout = RelativeLayout(root.context)
+        val progressBar = ProgressBar(root.context)
 
         layout.apply {
             val params = RelativeLayout.LayoutParams(
@@ -26,7 +26,7 @@ object LoadScreen {
             visibility = View.VISIBLE
             elevation = 2f
 
-            setBackgroundColor(base.resources.getColor(R.color.colorPrimaryDark, base.context.theme))
+            setBackgroundColor(root.resources.getColor(R.color.colorPrimaryDark, root.context.theme))
         }
 
         progressBar.apply {
@@ -42,14 +42,14 @@ object LoadScreen {
 
         layout.addView(progressBar, params)
         
-        base.addView(layout)
+        root.addView(layout)
     }
 
     @JvmStatic
-    fun hideLoadScreen(base: ViewGroup) {
-        for (i in 0..base.childCount) {
-            if (base.getChildAt(i)?.tag == tagStr) {
-                base.getChildAt(i)?.visibility = View.GONE
+    fun hideLoadScreen(root: ViewGroup) {
+        for (i in 0..root.childCount) {
+            if (root.getChildAt(i)?.tag == tagStr) {
+                root.getChildAt(i)?.visibility = View.GONE
                 return
             }
         }
