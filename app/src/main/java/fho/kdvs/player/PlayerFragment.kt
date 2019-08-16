@@ -20,6 +20,7 @@ import fho.kdvs.global.MainActivity
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.extensions.fromPacific
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.ui.PlayerPaletteRequestListener
 import fho.kdvs.global.util.TimeHelper
@@ -225,8 +226,8 @@ class PlayerFragment : DaggerFragment() {
         customExoPlayer.progress.progressBar.visibility = View.VISIBLE
         customExoPlayer.progress.exo_progress.visibility = View.GONE
 
-        customExoPlayer.timeStartLabel.text = TimeHelper.showTimeFormatter.format(show.timeStart)
-        customExoPlayer.timeEndLabel.text = TimeHelper.showTimeFormatter.format(show.timeEnd)
+        customExoPlayer.timeStartLabel.text = TimeHelper.showTimeFormatter.format(timeStart.fromPacific())
+        customExoPlayer.timeEndLabel.text = TimeHelper.showTimeFormatter.format(timeEnd.fromPacific())
         customExoPlayer.timeStartLabel.visibility = View.VISIBLE
         customExoPlayer.timeEndLabel.visibility = View.VISIBLE
         customExoPlayer.exo_position.visibility = View.GONE

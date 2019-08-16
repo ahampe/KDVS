@@ -10,6 +10,7 @@ import fho.kdvs.R
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.extensions.fromPacific
 import fho.kdvs.global.ui.PlayerPaletteRequestListener
 import fho.kdvs.global.web.SpotifyData
 import fho.kdvs.global.web.uri
@@ -130,8 +131,8 @@ fun formatTrackInfo(view: TextView, track: TrackEntity?) {
 fun setShowTimes(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDateTime){
     view.text = view.context.resources.getString(
         R.string.showTimeLabel,
-        TimeHelper.showTimeFormatter24.format(timeStart),
-        TimeHelper.showTimeFormatter24.format(timeEnd)
+        TimeHelper.showTimeFormatter24.format(timeStart.fromPacific()),
+        TimeHelper.showTimeFormatter24.format(timeEnd.fromPacific())
     )
 }
 

@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
+import fho.kdvs.global.extensions.fromPacific
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.Constants.READ_REQUEST_CODE
@@ -119,8 +120,8 @@ class MainActivity : DaggerAppCompatActivity() {
 
     private fun initPlayerBarData(activity: MainActivity) {
         viewModel.nowPlayingStreamLiveData.observe(activity, Observer { (nowPlayingShow, nowPlayingBroadcast) ->
-            val timeStart = nowPlayingShow.timeStart ?: return@Observer
-            val timeEnd = nowPlayingShow.timeEnd ?: return@Observer
+            val timeStart = nowPlayingShow.timeStart?.fromPacific() ?: return@Observer
+            val timeEnd = nowPlayingShow.timeEnd?.fromPacific() ?: return@Observer
 
             playerBarView.apply {
                 mNavController = navController
@@ -133,9 +134,9 @@ class MainActivity : DaggerAppCompatActivity() {
 
                 if (sharedViewModel.isShowBroadcastLiveNow(nowPlayingShow, nowPlayingBroadcast)) {
                     val formatter = TimeHelper.showTimeFormatter
-                    val timeStr = formatter.format(nowPlayingShow.timeStart) +
+                    val timeStr = formatter.format(timeStart) +
                         " - " +
-                        formatter.format(nowPlayingShow.timeEnd)
+                        formatter.format(timeEnd)
                     setShowTimeOrBroadcastDate(timeStr)
 
                     initLiveProgressBar(barProgressBar, timeStart, timeEnd)

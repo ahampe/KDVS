@@ -18,7 +18,6 @@ import javax.inject.Inject
  */
 class ScheduleViewModel @Inject constructor(
     private val showRepository: ShowRepository,
-    private val quarterRepository: QuarterRepository,
     application: Application
 ) : AndroidViewModel(application) {
 

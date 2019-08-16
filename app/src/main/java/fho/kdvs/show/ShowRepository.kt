@@ -10,6 +10,7 @@ import fho.kdvs.global.database.ShowDao
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
+import fho.kdvs.global.extensions.fromPacific
 import fho.kdvs.global.extensions.toLiveData
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
@@ -181,15 +182,19 @@ class ShowRepository @Inject constructor(
      */
     fun getShowTimeSlotsForDay(day: Day, quarter: Quarter, year: Int): Flowable<List<TimeSlot>> {
         val (timeStart, timeEnd) = TimeHelper.makeDayRange(day)
-        return showDao.allShowsInTimeRange(timeStart, timeEnd, quarter, year)
+
+        val adjustedTimeStart = timeStart.fromPacific()
+        val adjustedTimeEnd = timeEnd.fromPacific()
+
+        return showDao.allShowsInTimeRange(adjustedTimeStart, adjustedTimeEnd, quarter, year)
             .observeOn(Schedulers.io())
             .map { showsList ->
                 showsList.groupBy { show -> Pair(show.timeStart, show.timeEnd) }
                     .map { map ->
                         val showGroup = map.value
-                        val isFirstHalfOrEntireSegment = ((showGroup.firstOrNull()?.timeStart?.dayOfWeek
-                                == showGroup.firstOrNull()?.timeEnd?.dayOfWeek)
-                                || (showGroup.firstOrNull()?.timeStart?.dayOfWeek.toString().capitalize()
+                        val isFirstHalfOrEntireSegment = ((showGroup.firstOrNull()?.timeStart?.fromPacific()?.dayOfWeek
+                                == showGroup.firstOrNull()?.timeEnd?.fromPacific()?.dayOfWeek)
+                                || (showGroup.firstOrNull()?.timeStart?.fromPacific()?.dayOfWeek.toString().capitalize()
                                 == day.toString().capitalize()))
                         TimeSlot(showGroup, isFirstHalfOrEntireSegment)
                     }

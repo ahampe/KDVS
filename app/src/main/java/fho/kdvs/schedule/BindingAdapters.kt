@@ -10,6 +10,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import fho.kdvs.R
+import fho.kdvs.global.extensions.fromPacific
 import fho.kdvs.global.ui.TimeSlotPaletteRequestListener
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.cell_timeslot.view.*
@@ -22,8 +23,8 @@ import kotlin.math.max
 fun showTimeRange(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDateTime) {
     view.text = view.context.resources.getString(
         R.string.show_time_range,
-        TimeHelper.showTimeFormatter.format(timeStart),
-        TimeHelper.showTimeFormatter.format(timeEnd)
+        TimeHelper.showTimeFormatter.format(timeStart.fromPacific()),
+        TimeHelper.showTimeFormatter.format(timeEnd.fromPacific())
     )
 }
 
