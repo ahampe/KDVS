@@ -60,7 +60,7 @@ class WeekViewAdapter(
 
         // tag root constraint layout as the day name + position for debug purposes
         val parent = holder.recyclerView.parent as View
-        parent.tag = "${day.dayName}_$position"
+        parent.tag = day.dayName
 
         // configure each day
         holder.recyclerView.apply {
@@ -84,7 +84,10 @@ class WeekViewAdapter(
                 if (scheduleTime.dayOfWeek.toString().capitalize() == day.dayName.capitalize()) {
                     childLayoutManager.stackFromEnd = true
 
-                    currentDayPosition = timeslots.indexOfFirst { t -> TimeHelper.isTimeSlotForCurrentShow(t) }
+                    // For whatever reason, the scrollTo position appears to be based off hour-block height (likely
+                    // because we don't have access to the non-default timeSlot height yet upon time of binding)
+                    val currentTimeSlot = timeslots.first { t -> TimeHelper.isTimeSlotForCurrentShow(t) }
+                    currentDayPosition = currentTimeSlot.timeStart?.hour
                 }
             }
         })
@@ -94,7 +97,7 @@ class WeekViewAdapter(
 
             if (scrollingToCurrentShow) {
                 currentDayPosition?.let {
-                    scrollToDayPosition(parent, childLayoutManager, it)
+                    scrollToDayPosition(parent, holder, it)
                     scrollingToCurrentShow = false
                 }
             } else {
@@ -112,10 +115,11 @@ class WeekViewAdapter(
         })
     }
 
-    private fun scrollToDayPosition(parent: View, childLayoutManager: LinearLayoutManager, position: Int) {
+    private fun scrollToDayPosition(parent: View, holder: ViewHolder, position: Int) {
+        // TODO: Y position appears to be based off timeblocks and not the schedule...
         val parentRecycler = parent.parent as RecyclerView?
-        val child = childLayoutManager.getChildAt(position)
-        val y = (parentRecycler?.y ?: 0.toFloat()) + (child?.top?.toFloat() ?: 0.toFloat())
+        val child = holder.recyclerView.getChildAt(9)
+        val y = (child?.top?.toFloat() ?: 0.toFloat())
         nestedScrollView?.scrollTo(0, y.toInt())
     }
 

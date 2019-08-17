@@ -86,7 +86,8 @@ class ScheduleFragment : DaggerFragment() {
             setDayAbbreviationsWithSelectedPos(position)
             scrollingToToday = false
         } else {
-            lastWeekPosition?.let {// TODO: For some reason the view scrolls back to Sunday after this is called
+            lastWeekPosition?.let {
+                // TODO: For some reason the view scrolls back to Sunday after this is called -- likely due to how layout is restored
                 weekLayoutManager?.scrollToPosition(it)
                 setDayAbbreviationsWithSelectedPos(it)
             }
@@ -133,6 +134,8 @@ class ScheduleFragment : DaggerFragment() {
 
                 lastWeekPosition = weekLayoutManager?.findFirstCompletelyVisibleItemPosition()
 
+                // TODO: skips frames on Sunday -> Monday and Monday -> Sunday
+
                 val firstVisiblePos = weekLayoutManager?.findFirstVisibleItemPosition()
                 if (firstVisiblePos == 8) {
                     weekLayoutManager?.scrollToPosition(1)
@@ -150,14 +153,11 @@ class ScheduleFragment : DaggerFragment() {
                 super.onScrollStateChanged(recyclerView, newState)
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     val newView = snapHelper.findSnapView(weekLayoutManager) as ConstraintLayout
+
                     Timber.d("scrolled to ${newView.tag}")
-                    // view.tag is formatted like "{DAY}_{#}" with number reflecting position
-                    val position = "\\w+_(\\d+)".toRegex() // TODO: find less hacky way to get position?
-                        .find(newView.tag.toString())
-                        ?.groupValues
-                        ?.getOrNull(1)
-                        ?.toInt()
-                    setDayAbbreviationsWithSelectedPos(position ?: newState)
+
+                    val position = Day.valueOf(newView.tag.toString()).ordinal
+                    setDayAbbreviationsWithSelectedPos(position)
                 }
             }
         })
