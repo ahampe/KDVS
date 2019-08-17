@@ -6,8 +6,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context="fho.kdvs.schedule.ScheduleFragment"
-    android:layout_marginBottom="@dimen/bottom_nav_height">
+    tools:context="fho.kdvs.schedule.ScheduleFragment">
 
     <ImageView
         android:id="@+id/search"
@@ -111,10 +110,12 @@
     <androidx.core.widget.NestedScrollView
         android:id="@+id/schedule"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="@dimen/spacing_large"
         app:layout_constraintTop_toBottomOf="@id/dayAbbreviations"
-        app:layout_constraintLeft_toLeftOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginBottom="@dimen/double_bottom_nav">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

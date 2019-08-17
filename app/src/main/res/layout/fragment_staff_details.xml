@@ -37,7 +37,8 @@
             app:layout_constraintVertical_weight="2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fade"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:background="@color/colorTransparent">
 
             <TextView
                 android:id="@+id/name"
@@ -108,17 +109,16 @@
 
             <TextView
                 android:id="@+id/duties"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_extra_large"
                 android:layout_marginEnd="@dimen/spacing_extra_large"
                 android:layout_marginTop="@dimen/spacing_small"
                 android:text="@{staff.duties}"
-                app:layout_constraintTop_toBottomOf="@id/dutiesHeader"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="@id/contactButton"
-                app:layout_constraintHorizontal_bias="0.0"
-                tools:text="Duties" />
+                app:layout_constraintTop_toBottomOf="@id/dutiesHeader"
+                tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur." />
 
             <TextView
                 android:id="@+id/officeHoursHeader"
@@ -134,7 +134,7 @@
 
             <TextView
                 android:id="@+id/officeHours"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_extra_large"
                 android:layout_marginEnd="@dimen/spacing_extra_large"

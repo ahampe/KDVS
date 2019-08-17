@@ -197,6 +197,7 @@ object TimeHelper {
     @JvmStatic
     fun getTimeDifferenceInHalfHoursPerDay(a: OffsetDateTime, b: OffsetDateTime, timeslot: TimeSlot) : Int {
         val isFirstHalfOrEntireSegment = timeslot.isFirstHalfOrEntireSegment
+        val isEndOfWeek = (b.dayOfWeek.value % 7) < (a.dayOfWeek.value % 7)
 
         val midnight = if (isFirstHalfOrEntireSegment) {
             val nextDay = a.plusDays(1)
@@ -207,7 +208,7 @@ object TimeHelper {
         }
 
         return if (isFirstHalfOrEntireSegment){
-            val min = if (b < midnight) b else midnight
+            val min = if (b < midnight && !isEndOfWeek) b else midnight
             (abs(ChronoUnit.MINUTES.between(min, a)) / 30).toInt()
         } else {
             (abs(ChronoUnit.MINUTES.between(b, midnight)) / 30).toInt()

@@ -165,20 +165,13 @@ class WebScraperManager @Inject constructor(
                         timeEnd = TimeHelper.addDay(timeEnd)
                     }
 
-                    val convertedTimeStart = timeStart?.let {
-                        TimeHelper.convertZoneTime(TimeHelper.PACIFIC_ID, TimeHelper.getSystemTimeZone(), it)
-                    }
-                    val convertedTimeEnd = timeEnd?.let {
-                        TimeHelper.convertZoneTime(TimeHelper.PACIFIC_ID, TimeHelper.getSystemTimeZone(), it)
-                    }
-
                     for ((name, id) in names.zip(ids)) {
                         val showEntity = ShowEntity(
                             id = id,
                             name = name.trim(),
                             defaultImageHref = imageHref,
-                            timeStart = convertedTimeStart ?: timeStart,
-                            timeEnd = convertedTimeEnd ?: timeEnd,
+                            timeStart = timeStart,
+                            timeEnd = timeEnd,
                             quarter = quarter,
                             year = year
                         )

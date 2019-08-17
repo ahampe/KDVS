@@ -47,6 +47,10 @@ class ScheduleFragment : DaggerFragment() {
     // Simple flag for scrolling to today's date. This will only be done once, after the fragment is created.
     private var scrollingToToday = true
 
+    // Flags for retaining schedule scroll state upon re-entry to fragment
+    var lastWeekPosition: Int? = null
+    var lastDayScrollY: Int? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -76,12 +80,16 @@ class ScheduleFragment : DaggerFragment() {
             .also { timeRecyclerView.layoutManager = it}
 
         // Scroll to today, only when the fragment is first created
-        // TODO this could be done with a custom layout manager, without the ugly boolean
         if (scrollingToToday) {
             val position = TimeHelper.getLocalNow().dayOfWeek.value
             weekLayoutManager?.scrollToPosition(position)
             setDayAbbreviationsWithSelectedPos(position)
             scrollingToToday = false
+        } else {
+            lastWeekPosition?.let {// TODO: For some reason the view scrolls back to Sunday after this is called
+                weekLayoutManager?.scrollToPosition(it)
+                setDayAbbreviationsWithSelectedPos(it)
+            }
         }
 
         LoadScreen.hideLoadScreen(scheduleRoot)
@@ -122,6 +130,9 @@ class ScheduleFragment : DaggerFragment() {
             /** Allows looped scrolling */
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
+
+                lastWeekPosition = weekLayoutManager?.findFirstCompletelyVisibleItemPosition()
+
                 val firstVisiblePos = weekLayoutManager?.findFirstVisibleItemPosition()
                 if (firstVisiblePos == 8) {
                     weekLayoutManager?.scrollToPosition(1)
