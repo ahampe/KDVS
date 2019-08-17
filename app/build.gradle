@@ -125,6 +125,9 @@ dependencies {
     // WaveView
     implementation 'com.narayanacharya:WaveView:0.9.3'
 
+    // Expandable Layout
+    implementation 'net.cachapa.expandablelayout:expandablelayout:2.9.2'
+
     // Spring
     implementation "org.springframework.android:spring-android-rest-template:$spring_android_version"
 

@@ -136,6 +136,13 @@ class HomeFragment : DaggerFragment() {
             }
         }
 
+        newsHeader.setOnClickListener {
+            if (newsExpandable.isExpanded)
+                newsExpandable.collapse()
+            else
+                newsExpandable.expand()
+        }
+
         topAddsAdapter = TopMusicAdapter {
             Timber.d("Clicked ${it.item}")
             viewModel.onClickTopMusic(findNavController(), it.item)
@@ -161,10 +168,12 @@ class HomeFragment : DaggerFragment() {
             fragment.showStaffDetails(it.item)
         }
 
-        staffsRecycler.apply {
+        staffRecycler.apply {
             layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
             adapter = staffAdapter
         }
+
+        setExpandableSections()
     }
 
     @kotlinx.serialization.UnstableDefault
@@ -257,6 +266,29 @@ class HomeFragment : DaggerFragment() {
                     }
                 }
             })
+        }
+    }
+
+    private fun setExpandableSections() {
+        val pairs = mutableListOf(
+            Pair(fundraiserExpandable, fundraiserHeader),
+            Pair(newsExpandable, newsHeader),
+            Pair(topAddsExpandable, topAddsHeader),
+            Pair(topAlbumsExpandable, topAlbumsHeader),
+            Pair(staffExpandable, staffHeader),
+            Pair(contactExpandable, contactHeader)
+        )
+
+        pairs.forEach {
+            val expandable = it.first
+            val header = it.second
+
+            header.setOnClickListener {
+                if (expandable.isExpanded)
+                    expandable.collapse()
+                else
+                    expandable.expand()
+            }
         }
     }
 
