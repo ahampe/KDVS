@@ -33,7 +33,7 @@ class WeekViewAdapter(
 
     private var nestedScrollView: NestedScrollView? = null
 
-    private var currentDayPosition: Int? = null
+    private var scrollY: Float? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val dayContainer = LayoutInflater.from(parent.context)
@@ -85,12 +85,12 @@ class WeekViewAdapter(
             if (scrollingToCurrentShow) {
                 val scheduleTime = TimeHelper.makeEpochRelativeTime(TimeHelper.getNow())
                 if (scheduleTime.dayOfWeek.toString().capitalize() == day.dayName.capitalize()) {
-                    childLayoutManager.stackFromEnd = true
 
                     // For whatever reason, the scrollTo position appears to be based off hour-block height (likely
                     // because we don't have access to the non-default timeSlot height yet upon time of binding)
                     val currentTimeSlot = timeslots.firstOrNull { t -> TimeHelper.isTimeSlotForCurrentShow(t) }
-                    currentDayPosition = currentTimeSlot?.timeStart?.hour
+                    scrollY = (currentTimeSlot?.timeStart?.hour ?: 0) *
+                            (fragment.context?.resources?.getDimension(R.dimen.timeslot_hour_height) ?: 0f)
                 }
             }
         })
@@ -99,8 +99,8 @@ class WeekViewAdapter(
             if (nestedScrollView == null) initNestedScrollView(parent)
 
             if (scrollingToCurrentShow) {
-                currentDayPosition?.let {
-                    scrollToDayPosition(holder, it)
+                scrollY?.let {
+                    nestedScrollView?.scrollTo(0, it.toInt())
                     scrollingToCurrentShow = false
                 }
             } else {
@@ -153,12 +153,6 @@ class WeekViewAdapter(
         nestedScrollView?.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, newY, _, _ ->
             fragment.lastDayScrollY = newY
         })
-    }
-
-    private fun scrollToDayPosition(holder: ViewHolder, position: Int) {
-        val child = holder.recyclerView.getChildAt(position)
-        val y = (child?.top?.toFloat() ?: 0.toFloat())
-        nestedScrollView?.scrollTo(0, y.toInt())
     }
 
     class ViewHolder(dayContainer: ConstraintLayout) : RecyclerView.ViewHolder(dayContainer) {
