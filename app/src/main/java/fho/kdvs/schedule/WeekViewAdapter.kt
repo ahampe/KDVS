@@ -89,8 +89,8 @@ class WeekViewAdapter(
 
                     // For whatever reason, the scrollTo position appears to be based off hour-block height (likely
                     // because we don't have access to the non-default timeSlot height yet upon time of binding)
-                    val currentTimeSlot = timeslots.first { t -> TimeHelper.isTimeSlotForCurrentShow(t) }
-                    currentDayPosition = currentTimeSlot.timeStart?.hour
+                    val currentTimeSlot = timeslots.firstOrNull { t -> TimeHelper.isTimeSlotForCurrentShow(t) }
+                    currentDayPosition = currentTimeSlot?.timeStart?.hour
                 }
             }
         })

@@ -44,11 +44,13 @@ class PlayerBarView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     fun initButtonClickListener() {
         playerBayPlayPause.setOnClickListener {
-            sharedViewModel.playOrPausePlayback(mActivity)
+            if (::sharedViewModel.isInitialized)
+                sharedViewModel.playOrPausePlayback(mActivity)
         }
     }
 
     private fun navigateToPlayer() {
-        sharedViewModel.navigateToPlayer(mNavController)
+        if (::sharedViewModel.isInitialized)
+            sharedViewModel.navigateToPlayer(mNavController)
     }
 }
