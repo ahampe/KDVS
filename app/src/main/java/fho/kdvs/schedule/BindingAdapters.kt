@@ -61,7 +61,12 @@ fun makeShowNames(view: TextView, showNames: List<String>, numHalfHours: Int) {
 }
 
 @BindingAdapter("timeslot", "timeslotHeight")
-fun makeTimeslotHeight(view: CardView, timeslot: TimeSlot, numHalfHours: Int){
+fun setTimeSlotLayoutProperties(view: CardView, timeslot: TimeSlot, numHalfHours: Int){
+    if (timeslot.isDummy) {
+        view.visibility = View.INVISIBLE
+        return
+    }
+
     view.layoutParams.height = (
         numHalfHours * view.context.resources.getDimension(R.dimen.timeslot_halfhour_height)
     ).toInt()

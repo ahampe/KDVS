@@ -20,9 +20,10 @@
 
     <dimen name="expanded_toolbar_height">200dp</dimen>
 
-    <dimen name="timeslot_halfhour_height">43dp</dimen>
-    <dimen name="timeslot_hour_height">86dp</dimen>
-    <dimen name="timeslot_image">70dp</dimen>
+    <!-- Timeslot margin must be ([hour height] - [image]) / 2 -->
+    <dimen name="timeslot_halfhour_height">44dp</dimen>
+    <dimen name="timeslot_hour_height">88dp</dimen>
+    <dimen name="timeslot_image">72dp</dimen>
     <dimen name="timeslot_margin">8dp</dimen>
 
     <dimen name="home_top_gradient_height">250dp</dimen>

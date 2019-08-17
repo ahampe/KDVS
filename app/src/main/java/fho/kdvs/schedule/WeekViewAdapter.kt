@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.R
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
+import fho.kdvs.global.util.URLs
 import kotlinx.android.synthetic.main.cell_day_column.view.*
 import kotlinx.android.synthetic.main.fragment_schedule.view.*
 import timber.log.Timber
@@ -76,7 +77,9 @@ class WeekViewAdapter(
         }
 
         day.timeSlotsLiveData.observe(fragment, Observer { timeslots ->
-            childAdapter.onShowsChanged(timeslots)
+            val correctedTimeSlots = correctTimeSlotListWhenGap(timeslots)
+
+            childAdapter.onShowsChanged(correctedTimeSlots)
 
             // Scroll to current show, only when the fragment is first created
             if (scrollingToCurrentShow) {
@@ -97,7 +100,7 @@ class WeekViewAdapter(
 
             if (scrollingToCurrentShow) {
                 currentDayPosition?.let {
-                    scrollToDayPosition(parent, holder, it)
+                    scrollToDayPosition(holder, it)
                     scrollingToCurrentShow = false
                 }
             } else {
@@ -108,6 +111,43 @@ class WeekViewAdapter(
         }
     }
 
+    /**
+     * As of Aug. 17 2019, there is a gap in the KDVS schedule grid as per the website... Friday 3:30-4:30PM
+     * To correct for this we create a dummy timeslot in the position that the gap is in.
+     * Otherwise, the gap will appear at the top of the day and make all of the day's timeslots offset.
+     */
+    private fun correctTimeSlotListWhenGap(timeslots: List<TimeSlot>): List<TimeSlot>{
+        val correctedList = mutableListOf<TimeSlot>()
+        correctedList.addAll(timeslots)
+
+        var position: Int? = null
+        var dummy: TimeSlot? = null
+
+        for (i in 0..timeslots.size) {
+            if ((i < timeslots.size - 1) && timeslots[i].timeEnd != timeslots[i+1].timeStart) {
+                val isFirstHalfOrEntireSegment = timeslots[i].timeEnd?.dayOfWeek == timeslots[i+1].timeStart?.dayOfWeek
+
+                position = i+1
+
+                dummy = TimeSlot(
+                    timeslots[i].timeEnd,
+                    timeslots[i].timeStart,
+                    isFirstHalfOrEntireSegment,
+                    true,
+                    URLs.SHOW_IMAGE_PLACEHOLDER,
+                    mutableListOf(-1),
+                    mutableListOf("N/A")
+                )
+            }
+        }
+
+        dummy?.let {
+            correctedList.add(position ?: 0, it)
+        }
+
+        return correctedList
+    }
+
     private fun initNestedScrollView(parent: View) {
         nestedScrollView = parent.parent?.parent?.parent as NestedScrollView?
         nestedScrollView?.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, newY, _, _ ->
@@ -115,10 +155,8 @@ class WeekViewAdapter(
         })
     }
 
-    private fun scrollToDayPosition(parent: View, holder: ViewHolder, position: Int) {
-        // TODO: Y position appears to be based off timeblocks and not the schedule...
-        val parentRecycler = parent.parent as RecyclerView?
-        val child = holder.recyclerView.getChildAt(9)
+    private fun scrollToDayPosition(holder: ViewHolder, position: Int) {
+        val child = holder.recyclerView.getChildAt(position)
         val y = (child?.top?.toFloat() ?: 0.toFloat())
         nestedScrollView?.scrollTo(0, y.toInt())
     }
