@@ -91,9 +91,6 @@ open class KdvsPreferences @Inject constructor(application: Application) {
 
         // TODO others like alert frequencies, wifi only usage, last played broadcast etc
 
-        // amount of time between a notification and its related event
-        NOTIFICATION_TIME,
-
         // data preferences
         DATA_SAVER_MODE,
 
@@ -137,8 +134,6 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     var downloadPath: String? by StringPreference(Key.DOWNLOAD_PATH)
 
     var theme: Int? by IntPreference(Key.THEME)
-
-    var notificationTime: Int? by IntPreference(Key.NOTIFICATION_TIME)
 
     fun getLastShowScrape(showId: String): Long? {
         val pref by LongPreference(Key.LAST_SHOW_SCRAPE, showId)

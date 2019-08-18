@@ -57,7 +57,7 @@ class KdvsAlarmManager @Inject constructor(
 
                     // Use setRepeating() for custom interval
                     alarmMgr?.setRepeating(
-                        AlarmManager.RTC_WAKEUP, // TODO: make setting to wake up screen or not
+                        AlarmManager.RTC_WAKEUP,
                         utcAlarmTime.toInstant().toEpochMilli(),
                         WEEK_IN_MILLIS * showsAtTime.size,
                         alarmIntent

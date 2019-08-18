@@ -73,23 +73,23 @@ class SettingsFragment : DaggerFragment() {
             }
 
             notificationSpinner?.let { spinner ->
-                val position = when (kdvsPreferences.notificationTime) {
-                    5 -> 0
-                    10 -> 1
-                    15 -> 2
-                    20 -> 3
-                    else -> 1
+                val position = when (kdvsPreferences.alarmNoticeInterval) {
+                    0L -> 0
+                    5L -> 1
+                    10L -> 2
+                    15L -> 3
+                    else -> 0
                 }
 
                 spinner.setSelection(position)
                 spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                        kdvsPreferences.notificationTime = when (position) {
-                            0 -> 5
-                            1 -> 10
-                            2 -> 15
-                            3 -> 20
-                            else -> 10
+                        kdvsPreferences.alarmNoticeInterval = when (position) {
+                            0 -> 0
+                            1 -> 5
+                            2 -> 10
+                            3 -> 15
+                            else -> 0
                         }
                     }
 

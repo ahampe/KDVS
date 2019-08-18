@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:bind="http://schemas.android.com/apk/res-auto"
-    tools:context=".home.HomeFragment">
+    tools:context=".home.HomeFragment"
+    android:background="@color/colorPrimaryDark">
 
     <data>
 
@@ -36,14 +36,13 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:background="@color/colorPrimaryDark">
+                android:orientation="vertical">
 
                 <ImageView
                     android:id="@+id/defaultGradient"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/home_top_gradient_height"
-                    android:alpha="0.25"
+                    android:alpha="0.5"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     android:background="@drawable/top_down_fade_dark"/>
@@ -233,6 +232,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/spacing_large"
                     android:layout_marginEnd="@dimen/spacing_large"
+                    android:layout_marginTop="@dimen/spacing_medium"
                     app:layout_constraintTop_toBottomOf="@id/fundraiserSection"
                     app:layout_constraintStart_toStartOf="parent"
                     android:orientation="vertical">
@@ -270,6 +270,7 @@
                         android:id="@+id/newsExpandable"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_medium"
                         app:el_duration="500"
                         app:el_expanded="false"
                         app:el_parallax="0.5"
@@ -294,6 +295,7 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toBottomOf="@+id/news"
                     app:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginTop="@dimen/spacing_medium"
                     android:orientation="vertical">
                     
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -330,6 +332,7 @@
                         android:id="@+id/topAddsExpandable"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_medium"
                         app:el_duration="500"
                         app:el_expanded="false"
                         app:el_parallax="0.5"
@@ -354,6 +357,7 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toBottomOf="@id/topAdds"
                     app:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginTop="@dimen/spacing_medium"
                     android:orientation="vertical">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -390,6 +394,7 @@
                         android:id="@+id/topAlbumsExpandable"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_medium"
                         app:el_duration="500"
                         app:el_expanded="false"
                         app:el_parallax="0.5"
@@ -413,6 +418,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/spacing_64dp"
+                    android:layout_marginTop="@dimen/spacing_medium"
                     app:layout_constraintTop_toBottomOf="@id/topAlbums"
                     app:layout_constraintStart_toStartOf="parent"
                     android:orientation="vertical">
@@ -452,7 +458,8 @@
                     android:id="@+id/contact"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/spacing_64dp"
+                    android:layout_marginBottom="@dimen/spacing_large"
+                    android:layout_marginTop="@dimen/spacing_medium"
                     app:layout_constraintTop_toBottomOf="@id/staff"
                     app:layout_constraintStart_toStartOf="parent"
                     android:orientation="vertical">
