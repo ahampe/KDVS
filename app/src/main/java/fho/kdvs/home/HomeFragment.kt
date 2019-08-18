@@ -20,6 +20,7 @@ import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.FundraiserEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.StaffEntity
+import fho.kdvs.global.extensions.fade
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.BindingViewHolder
@@ -30,6 +31,7 @@ import fho.kdvs.staff.StaffAdapter
 import fho.kdvs.topmusic.TopMusicAdapter
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.launch
+import net.cachapa.expandablelayout.ExpandableLayout
 import timber.log.Timber
 import java.text.DecimalFormat
 import javax.inject.Inject
@@ -191,11 +193,29 @@ class HomeFragment : DaggerFragment() {
 
             newsArticles.observe(viewLifecycleOwner, Observer { articles ->
                 Timber.d("Got articles: $articles")
+
+                val highestId = articles.maxBy { a -> a.newsId}?.newsId
+
+                // Display info icon when there are unviewed articles
+                if (highestId != kdvsPreferences.lastObservedNewsId) {
+                    newsNotification.fade(true)
+                }
+
+                newsNotification.tag = highestId
+
                 newsArticlesAdapter?.onNewsChanged(articles)
             })
 
             topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
                 Timber.d("Got adds: $adds")
+
+                val highestId = adds.maxBy { a -> a.topMusicId}?.topMusicId
+
+                if (highestId != kdvsPreferences.lastObservedTopAddsId) {
+                    topAddsNotification.fade(true)
+                }
+
+                topAddsNotification.tag = highestId
 
                 when (adds.isEmpty()) {
                     true -> topAdds.visibility = View.GONE
@@ -214,6 +234,15 @@ class HomeFragment : DaggerFragment() {
 
             topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
                 Timber.d("Got albums: $albums")
+
+                val highestId = albums.maxBy { a -> a.topMusicId}?.topMusicId
+
+                // Display info icon when there are unviewed fundraiser progress
+                if (highestId != kdvsPreferences.lastObservedTopAlbumsId) {
+                    topAlbumsNotification.fade(true)
+                }
+
+                topAlbumsNotification.tag = highestId
 
                 when (albums.isEmpty()) {
                     true -> topAlbums.visibility = View.GONE
@@ -238,6 +267,13 @@ class HomeFragment : DaggerFragment() {
             fundraiser.observe(viewLifecycleOwner, Observer { fundraiser ->
                 Timber.d("Got fundraiser: $fundraiser")
                 val now = TimeHelper.getLocalNow()
+
+                // Display info icon when there is unviewed fundraiser progress
+                if (fundraiser.current != kdvsPreferences.lastObservedFundraiserAmount) {
+                    fundraiserNotification.fade(true)
+                }
+
+                fundraiserNotification.tag = fundraiser.current
 
                 // display fundraiser section only within an n-month window
                 fundraiser?.let {
@@ -270,25 +306,68 @@ class HomeFragment : DaggerFragment() {
     }
 
     private fun setExpandableSections() {
-        val pairs = mutableListOf(
-            Pair(fundraiserExpandable, fundraiserHeader),
-            Pair(newsExpandable, newsHeader),
-            Pair(topAddsExpandable, topAddsHeader),
-            Pair(topAlbumsExpandable, topAlbumsHeader),
-            Pair(staffExpandable, staffHeader),
-            Pair(contactExpandable, contactHeader)
-        )
+        fundraiserHeader.setOnClickListener {
+            onExpandClick(fundraiserExpandable)
 
-        pairs.forEach {
-            val expandable = it.first
-            val header = it.second
-
-            header.setOnClickListener {
-                if (expandable.isExpanded)
-                    expandable.collapse()
-                else
-                    expandable.expand()
+            fundraiserNotification.tag?.let {
+                if (it is Int) {
+                    kdvsPreferences.lastObservedFundraiserAmount = it
+                }
             }
+
+            fundraiserNotification.visibility = View.GONE
+        }
+
+        newsHeader.setOnClickListener {
+            onExpandClick(newsExpandable)
+
+            newsNotification.tag?.let {
+                if (it is Int) {
+                    kdvsPreferences.lastObservedNewsId = it
+                }
+            }
+
+            newsNotification.visibility = View.GONE
+        }
+
+        topAddsHeader.setOnClickListener {
+            onExpandClick(topAddsExpandable)
+
+            topAddsNotification.tag?.let {
+                if (it is Int) {
+                    kdvsPreferences.lastObservedTopAddsId = it
+                }
+            }
+
+            topAddsNotification.visibility = View.GONE
+        }
+
+        topAlbumsHeader.setOnClickListener {
+            onExpandClick(topAlbumsExpandable)
+
+            topAlbumsNotification.tag?.let {
+                if (it is Int) {
+                    kdvsPreferences.lastObservedTopAlbumsId = it
+                }
+            }
+
+            topAlbumsNotification.visibility = View.GONE
+        }
+
+        staffHeader.setOnClickListener {
+            onExpandClick(staffExpandable)
+        }
+
+        contactHeader.setOnClickListener {
+            onExpandClick(contactExpandable)
+        }
+    }
+
+    private fun onExpandClick(expandable: ExpandableLayout) {
+        if (expandable.isExpanded) {
+            expandable.collapse()
+        } else {
+            expandable.expand()
         }
     }
 
@@ -334,6 +413,8 @@ class HomeFragment : DaggerFragment() {
             R.string.fundraiser_total,
             currentStr
         )
+
+        fundraiserCurrent.tag = fundraiser.current
 
         fundraiserGoal.text = fundraiserCurrent.context.resources.getString(
             R.string.fundraiser_total,

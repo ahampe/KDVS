@@ -63,6 +63,18 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         // last date/time of fundraiser scrape
         LAST_FUNDRAISER_SCRAPE,
 
+        // last amount observed for fundraiser
+        LAST_OBSERVED_FUNDRAISER_AMOUNT,
+
+        // highest newsEntity ID observed
+        LAST_OBSERVED_NEWS_ID,
+
+        // highest topMusic add ID observed
+        LAST_OBSERVED_TOP_ADDS_ID,
+
+        // highest topMusic album ID observed
+        LAST_OBSERVED_TOP_ALBUMS_ID,
+
         // scrape frequency (5, 15, 30, 60 minutes in seconds)
         SCRAPE_FREQUENCY,
 
@@ -109,6 +121,14 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     var lastTopThirtyAlbumsScrape: Long? by LongPreference(Key.LAST_TOP_THIRTY_ALBUMS_SCRAPE)
 
     var lastFundraiserScraper: Long? by LongPreference(Key.LAST_FUNDRAISER_SCRAPE)
+
+    var lastObservedFundraiserAmount: Int? by IntPreference(Key.LAST_OBSERVED_FUNDRAISER_AMOUNT)
+
+    var lastObservedNewsId: Int? by IntPreference(Key.LAST_OBSERVED_NEWS_ID)
+
+    var lastObservedTopAddsId: Int? by IntPreference(Key.LAST_OBSERVED_TOP_ADDS_ID)
+
+    var lastObservedTopAlbumsId: Int? by IntPreference(Key.LAST_OBSERVED_TOP_ALBUMS_ID)
 
     var alarmNoticeInterval: Long? by LongPreference(Key.ALARM_NOTICE_INTERVAL)
 

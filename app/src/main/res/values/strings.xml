@@ -34,9 +34,9 @@
     <string name="contact">Contact</string>
     <string name="duties">Duties</string>
     <string name="office_hours">Office Hours</string>
-    <string name="news">Recent News</string>
-    <string name="top_adds">Weekly Top Adds</string>
-    <string name="top_albums">Weekly Top Albums</string>
+    <string name="news">News</string>
+    <string name="top_adds">Top Adds</string>
+    <string name="top_albums">Top Albums</string>
     <string name="staff">Staff</string>
     <string name="studio">Studio Line</string>
     <string name="business">Business Line</string>
