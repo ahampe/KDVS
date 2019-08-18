@@ -13,6 +13,7 @@ import fho.kdvs.R
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
+import fho.kdvs.schedule.TimeSlot.Companion.DUMMY_ID
 import kotlinx.android.synthetic.main.cell_day_column.view.*
 import kotlinx.android.synthetic.main.fragment_schedule.view.*
 import timber.log.Timber
@@ -133,9 +134,8 @@ class WeekViewAdapter(
                     timeslots[i].timeEnd,
                     timeslots[i].timeStart,
                     isFirstHalfOrEntireSegment,
-                    true,
                     URLs.SHOW_IMAGE_PLACEHOLDER,
-                    mutableListOf(-1),
+                    mutableListOf(DUMMY_ID),
                     mutableListOf("N/A")
                 )
             }

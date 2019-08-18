@@ -12,6 +12,7 @@ import com.bumptech.glide.request.RequestOptions
 import fho.kdvs.R
 import fho.kdvs.global.ui.TimeSlotPaletteRequestListener
 import fho.kdvs.global.util.TimeHelper
+import fho.kdvs.schedule.TimeSlot.Companion.DUMMY_ID
 import kotlinx.android.synthetic.main.cell_timeslot.view.*
 import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
@@ -62,7 +63,7 @@ fun makeShowNames(view: TextView, showNames: List<String>, numHalfHours: Int) {
 
 @BindingAdapter("timeslot", "timeslotHeight")
 fun setTimeSlotLayoutProperties(view: CardView, timeslot: TimeSlot, numHalfHours: Int){
-    if (timeslot.isDummy) {
+    if (timeslot.ids.first() == DUMMY_ID) {
         view.visibility = View.INVISIBLE
         return
     }

@@ -11,7 +11,6 @@ data class TimeSlot(
     val timeStart: OffsetDateTime?,
     val timeEnd: OffsetDateTime?,
     val isFirstHalfOrEntireSegment: Boolean,
-    val isDummy: Boolean,
     val imageHref: String?,
     val ids: List<Int>,
     val names: List<String?>
@@ -20,7 +19,6 @@ data class TimeSlot(
         shows.first().timeStart,
         shows.first().timeEnd,
         _isFirstHalfOrEntireSegment,
-        false,
         shows.first().defaultImageHref,
         shows.map { it.id },
         shows.map { it.name }
@@ -30,7 +28,6 @@ data class TimeSlot(
         timeStart = parcel.readValue(OffsetDateTime::class.java.classLoader) as OffsetDateTime?,
         timeEnd = parcel.readValue(OffsetDateTime::class.java.classLoader) as OffsetDateTime?,
         isFirstHalfOrEntireSegment = parcel.readValue(Boolean::class.java.classLoader) as Boolean,
-        isDummy = false,
         imageHref = parcel.readString(),
         ids = parcel.createIntArray()!!.toList(),
         names = parcel.createStringArray()!!.toList()
@@ -40,7 +37,6 @@ data class TimeSlot(
         dest?.writeValue(timeStart)
         dest?.writeValue(timeEnd)
         dest?.writeValue(isFirstHalfOrEntireSegment)
-        dest?.writeValue(false)
         dest?.writeString(imageHref)
         dest?.writeIntArray(ids.toIntArray())
         dest?.writeStringArray(names.toTypedArray())
@@ -56,5 +52,7 @@ data class TimeSlot(
 
             override fun newArray(size: Int) = arrayOfNulls<TimeSlot>(size)
         }
+
+        const val DUMMY_ID = -10
     }
 }
