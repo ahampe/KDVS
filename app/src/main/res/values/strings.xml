@@ -38,8 +38,8 @@
     <string name="top_adds">Top Adds</string>
     <string name="top_albums">Top Albums</string>
     <string name="staff">Staff</string>
-    <string name="studio">Studio Line</string>
-    <string name="business">Business Line</string>
+    <string name="studio">Studio</string>
+    <string name="business">Business</string>
     <string name="staff_email_icon">email</string>
     <string name="toggle_desc">Hide</string>
     <string name="fundraiser">Fundraiser</string>
