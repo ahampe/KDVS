@@ -444,6 +444,8 @@ class SharedViewModel @Inject constructor(
 
     fun getDownloadingFilename(title: String) = "$title$broadcastExtension$temporaryExtension"
 
+    fun getDownloadedFilename(title: String) = "$title$broadcastExtension"
+
     /** Rename '.mp3.tmp' to '.mp3' */
     fun renameFileAfterCompletion(file: File) {
         val dest = File("${file.parent}/${file.nameWithoutExtension}")

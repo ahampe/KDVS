@@ -11,7 +11,7 @@ object LoadScreen {
     private const val tagStr = "Loading"
 
     @JvmStatic
-    fun displayLoadScreen(root: ViewGroup) {
+    fun displayLoadScreen(root: ViewGroup, offsetFromBottom: Boolean = true) {
         val layout = RelativeLayout(root.context)
         val progressBar = ProgressBar(root.context)
 
@@ -20,6 +20,9 @@ object LoadScreen {
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT
             )
+
+            if (offsetFromBottom)
+                params.bottomMargin = root.resources.getDimension(R.dimen.bottom_nav_height).toInt()
 
             layoutParams = params
             tag = tagStr

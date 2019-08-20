@@ -11,7 +11,6 @@ import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.services.LiveShowUpdater.Companion.WEEK_IN_MILLIS
 import fho.kdvs.show.ShowRepository
 import kotlinx.coroutines.*
-import java.util.*
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 

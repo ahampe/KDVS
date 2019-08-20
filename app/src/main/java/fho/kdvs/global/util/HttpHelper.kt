@@ -8,8 +8,6 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 object HttpHelper {  // TODO: retry on connection fail?
-    const val EMPTY_RESPONSE = "{}"
-
     /** Returns true if good HTTP request. Wrap in async block. */
     fun isConnectionAvailable(url: String?): Boolean {
         val con = URL(url).openConnection() as HttpURLConnection
@@ -21,7 +19,6 @@ object HttpHelper {  // TODO: retry on connection fail?
             Timber.d("Connection failed $e")
             return false
         }
-
 
         return (con.responseCode == HttpURLConnection.HTTP_OK)
     }

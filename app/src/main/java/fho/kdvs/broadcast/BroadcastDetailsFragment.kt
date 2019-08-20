@@ -32,7 +32,7 @@ import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import kotlinx.android.synthetic.main.fragment_broadcast_details.*
 import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.uiThread
+import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
@@ -76,7 +76,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
                 folder?.let {
                     when (isChecked) {
                         true -> downloadBroadcast(broadcast, show, folder)
-                        false -> deleteBroadcast()
+                        false -> deleteBroadcast(broadcast, show)
                     }
                 }
             }
@@ -225,14 +225,19 @@ class BroadcastDetailsFragment : DaggerFragment() {
         }
     }
 
-    private fun deleteBroadcast() {
-        val id = downloadId
+    private fun deleteBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
+        val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
+        val filename = sharedViewModel.getDownloadedFilename(title)
 
-        if (::downloadManager.isInitialized && id != null) {
-            downloadManager.remove(id)
+        file = sharedViewModel.getDestinationFile(filename)
+
+        downloadId?.let {
+            if (::downloadManager.isInitialized)
+                downloadManager.remove(it)
         }
 
-        sharedViewModel.deleteFile(file)
+        if (::file.isInitialized)
+            sharedViewModel.deleteFile(file)
     }
 
     private fun setSwitchForDownloadedBroadcast() {
@@ -249,10 +254,13 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
     private fun setPlaybackViewsAndHideProgressBar(broadcast: BroadcastEntity) {
         doAsync {
-            uiThread {
-                if (HttpHelper.isConnectionAvailable(URLs.archiveForBroadcast(broadcast)))
+            if (HttpHelper.isConnectionAvailable(URLs.archiveForBroadcast(broadcast))) {
+                context?.runOnUiThread {
                     setDownloadViewsVisible()
+                }
+            }
 
+            context?.runOnUiThread {
                 LoadScreen.hideLoadScreen(detailsRoot)
             }
         }
