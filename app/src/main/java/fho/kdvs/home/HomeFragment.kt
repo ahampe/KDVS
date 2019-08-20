@@ -19,7 +19,6 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.FundraiserEntity
 import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.global.database.StaffEntity
 import fho.kdvs.global.extensions.fade
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
@@ -165,13 +164,23 @@ class HomeFragment : DaggerFragment() {
             adapter = topAlbumsAdapter
         }
 
-        staffAdapter = StaffAdapter {
+        staffAdapter = StaffAdapter(sharedViewModel) {
             Timber.d("Clicked ${it.item}")
-            fragment.showStaffDetails(it.item)
+
+            val parent = it.view.parent as? View
+            val expandable = parent?.findViewById(R.id.memberExpandable) as? ExpandableLayout
+
+            expandable?.let { exp ->
+                if (exp.isExpanded) {
+                    exp.collapse()
+                } else {
+                    exp.expand()
+                }
+            }
         }
 
         staffRecycler.apply {
-            layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             adapter = staffAdapter
         }
 
@@ -423,16 +432,6 @@ class HomeFragment : DaggerFragment() {
 
         val progress = ((fundraiser.current?.toFloat() ?: 0f) / (fundraiser.goal?.toFloat() ?: 1f)) * 100
         fundraiserProgress.progress = if (progress > 100) 100 else progress.toInt()
-    }
-
-    private fun showStaffDetails(member: StaffEntity) {
-        val args = Bundle()
-        args.putParcelable("member", member)
-
-        val newFragment = StaffDetailsFragment()
-
-        newFragment.arguments = args
-        newFragment.show(fragmentManager, "staff_details_fragment")
     }
 }
 

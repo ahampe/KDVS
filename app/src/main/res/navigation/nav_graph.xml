@@ -16,19 +16,8 @@
             android:id="@+id/action_homeFragment_to_showDetailsFragment"
             app:destination="@id/showDetailsFragment" />
         <action
-            android:id="@+id/action_homeFragment_to_staffDetailsFragment"
-            app:destination="@id/staffDetailsFragment" />
-        <action
             android:id="@+id/action_homeFragment_to_topMusicDetailsFragment"
             app:destination="@id/topMusicDetailsFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/staffDetailsFragment"
-        android:name="fho.kdvs.home.StaffDetailsFragment"
-        android:label="StaffDetailsFragment">
-        <argument
-            android:name="member"
-            app:argType="fho.kdvs.global.database.StaffEntity" />
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"

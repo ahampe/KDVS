@@ -34,6 +34,7 @@
     <dimen name="home_topmusic_height">234dp</dimen>
     <dimen name="home_article_height">115dp</dimen>
     <dimen name="home_staff_height">150dp</dimen>
+    <dimen name="home_staff_icon_height">42dp</dimen>
     <dimen name="home_phone_height">82dp</dimen>
     <dimen name="home_settings_height">30dp</dimen>
 
