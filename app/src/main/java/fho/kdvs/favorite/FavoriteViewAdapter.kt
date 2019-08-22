@@ -6,10 +6,7 @@ import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
 import fho.kdvs.databinding.CellFavoriteTrackBinding
-import fho.kdvs.global.database.ShowBroadcastTrackFavoriteJoin
-import fho.kdvs.global.database.getBroadcasts
-import fho.kdvs.global.database.getFavorites
-import fho.kdvs.global.database.getTracks
+import fho.kdvs.global.database.*
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
@@ -28,34 +25,10 @@ class FavoriteViewAdapter(
     var allFavorites = mutableListOf<FavoriteJoin>()
     
     init {
-        val shows = joins
-            ?.map { it.show }
-            ?.distinct()
-        val broadcasts = joins
-            ?.flatMap { it.getBroadcasts() }
-            ?.distinct()
-        val tracks = joins
-            ?.flatMap { it.getTracks() }
-            ?.distinct()
-        val favorites = joins
-            ?.flatMap { it.getFavorites()}
-            ?.distinct()
-        
-        favorites?.forEach { favorite ->
-            val track = tracks
-                ?.firstOrNull{ 
-                    it?.trackId == favorite?.trackId 
-                }
-            val broadcast = broadcasts
-                ?.firstOrNull {
-                    it?.broadcastId == track?.broadcastId
-                }
-            val show = shows
-                ?.firstOrNull { 
-                    it?.id == broadcast?.showId
-                }
-            
-            results.add(FavoriteJoin(favorite, track, broadcast, show))
+        val favoriteJoins = joins.getFavoriteJoins()
+
+        favoriteJoins?.let {
+            results.addAll(it)
         }
 
         allFavorites.addAll(results)

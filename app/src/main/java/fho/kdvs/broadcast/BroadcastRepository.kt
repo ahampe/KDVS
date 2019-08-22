@@ -15,6 +15,7 @@ import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
 import fho.kdvs.track.TrackRepository
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.broadcast
 import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
@@ -132,6 +133,9 @@ class BroadcastRepository @Inject constructor(
     fun broadcastById(broadcastId: Int): LiveData<BroadcastEntity> =
         broadcastDao.broadcastById(broadcastId)
 
+    fun getBroadcastById(broadcastId: Int): BroadcastEntity? =
+        broadcastDao.getBroadcastById(broadcastId)
+
     fun broadcastsForShow(showId: Int): LiveData<List<BroadcastEntity>> =
         broadcastDao.allBroadcastsForShow(showId)
             .debounce(100L, TimeUnit.MILLISECONDS)
@@ -142,6 +146,9 @@ class BroadcastRepository @Inject constructor(
 
     fun showByBroadcastId(broadcastId: Int): LiveData<ShowEntity> =
         broadcastDao.showByBroadcastId(broadcastId)
+
+    fun getShowByBroadcastId(broadcastId: Int): ShowEntity? =
+        broadcastDao.getShowByBroadcastId(broadcastId)
 
     /** Called when the live show changes so that the playing broadcast can be updated */
     internal fun updateLiveBroadcast(showId: Int) {

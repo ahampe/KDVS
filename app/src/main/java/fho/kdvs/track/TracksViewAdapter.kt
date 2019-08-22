@@ -5,10 +5,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.databinding.CellTrackDetailsBinding
+import fho.kdvs.global.database.BroadcastEntity
+import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
+import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.home.TrackDiffCallback
 
 /** A [RecyclerView.Adapter] which cycles through [TrackEntity] items */
@@ -30,8 +33,9 @@ class TracksViewAdapter(onClick: (ClickData<TrackEntity>) -> Unit) :
         return TrackViewHolder(binding)
     }
 
-    class TrackViewHolder(private val binding: CellTrackDetailsBinding) :
-        BindingViewHolder<TrackEntity>(binding.root){
+    class TrackViewHolder(
+        private val binding: CellTrackDetailsBinding
+    ) : BindingViewHolder<TrackEntity>(binding.root){
         override fun bind(listener: View.OnClickListener, item: TrackEntity) {
             binding.apply {
                 trackData = item
@@ -39,7 +43,7 @@ class TracksViewAdapter(onClick: (ClickData<TrackEntity>) -> Unit) :
         }
     }
 
-    fun onTracksChanged(topMusic: List<TrackEntity>) {
+    fun onTracksChanged(topMusic: List<TrackEntity?>) {
         submitList(topMusic)
     }
 }

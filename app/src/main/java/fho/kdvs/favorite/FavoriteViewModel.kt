@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.navigation.NavController
 import fho.kdvs.R
 import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.track.TrackDetailsType
 import javax.inject.Inject
 
 class FavoriteViewModel @Inject constructor(
@@ -17,7 +18,7 @@ class FavoriteViewModel @Inject constructor(
     fun onClickTrack(navController: NavController, track: TrackEntity?) {
         track?.let {
             val navAction = FavoriteFragmentDirections
-                .actionFavoriteFragmentToTrackDetailsFragment(track)
+                .actionFavoriteFragmentToTrackDetailsFragment(track, TrackDetailsType.FAVORITE)
             if (navController.currentDestination?.id == R.id.favoriteFragment)
                 navController.navigate(navAction)
         }

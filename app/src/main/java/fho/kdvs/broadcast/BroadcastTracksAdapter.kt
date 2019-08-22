@@ -27,11 +27,11 @@ class BroadcastTracksAdapter(
 
         return when (viewType) {
             VIEW_TYPE_AIRBREAK -> {
-                val binding = fho.kdvs.databinding.CellAirbreakBinding.inflate(inflater, parent, false)
+                val binding = CellAirbreakBinding.inflate(inflater, parent, false)
                 AirbreakViewHolder(binding)
             }
             else -> {
-                val binding = fho.kdvs.databinding.CellTrackBinding.inflate(inflater, parent, false)
+                val binding = CellTrackBinding.inflate(inflater, parent, false)
                 TrackViewHolder(binding, viewModel, sharedViewModel)
             }
         }

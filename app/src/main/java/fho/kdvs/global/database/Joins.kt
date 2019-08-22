@@ -2,6 +2,7 @@ package fho.kdvs.global.database
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import fho.kdvs.favorite.FavoriteJoin
 
 /**
  * Classes to encapsulate the joins between [FavoriteEntity], its associated [TrackEntity],
@@ -68,4 +69,49 @@ fun ShowBroadcastTrackFavoriteJoin.getFavorites(): List<FavoriteEntity?> {
             .flatMap { tf -> tf.favorite }
         }.toList()
         .distinct()
+}
+
+fun List<ShowBroadcastTrackFavoriteJoin>?.getBroadcasts(): List<BroadcastEntity?>? =
+    this?.flatMap { f -> f.getBroadcasts() }
+
+fun List<ShowBroadcastTrackFavoriteJoin>?.getTracks(): List<TrackEntity?>? =
+    this?.flatMap { f -> f.getTracks() }
+
+fun List<ShowBroadcastTrackFavoriteJoin>?.getFavorites(): List<FavoriteEntity?>? =
+    this?.flatMap { f -> f.getFavorites() }
+
+fun List<ShowBroadcastTrackFavoriteJoin>?.getFavoriteJoins(): List<FavoriteJoin>? {
+    val results = mutableListOf<FavoriteJoin>()
+
+    val shows = this
+        ?.map { it.show }
+        ?.distinct()
+    val broadcasts = this
+        ?.flatMap { it.getBroadcasts() }
+        ?.distinct()
+    val tracks = this
+        ?.flatMap { it.getTracks() }
+        ?.distinct()
+    val favorites = this
+        ?.flatMap { it.getFavorites()}
+        ?.distinct()
+
+    favorites?.forEach { favorite ->
+        val track = tracks
+            ?.firstOrNull{
+                it?.trackId == favorite?.trackId
+            }
+        val broadcast = broadcasts
+            ?.firstOrNull {
+                it?.broadcastId == track?.broadcastId
+            }
+        val show = shows
+            ?.firstOrNull {
+                it?.id == broadcast?.showId
+            }
+
+        results.add(FavoriteJoin(favorite, track, broadcast, show))
+    }
+
+    return results
 }

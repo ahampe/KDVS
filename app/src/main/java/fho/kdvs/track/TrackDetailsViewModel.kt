@@ -1,17 +1,14 @@
 package fho.kdvs.track
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
+import android.view.View
+import androidx.lifecycle.*
 import androidx.navigation.NavController
+import com.bumptech.glide.manager.Lifecycle
 import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.favorite.FavoriteRepository
-import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.FavoriteEntity
-import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.database.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -26,10 +23,10 @@ class TrackDetailsViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application), CoroutineScope {
 
-    lateinit var liveTracks: LiveData<List<TrackEntity>>
-    lateinit var liveFavorites: LiveData<List<FavoriteEntity>>
-    lateinit var liveBroadcast: LiveData<BroadcastEntity>
-    lateinit var liveShow: LiveData<ShowEntity>
+    private lateinit var liveTracks: LiveData<List<TrackEntity>>
+    private lateinit var liveFavorites: LiveData<List<FavoriteEntity>>
+    private lateinit var liveBroadcast: LiveData<BroadcastEntity>
+    private lateinit var liveShow: LiveData<ShowEntity>
 
     data class CombinedTrackData (
         val tracks: List<TrackEntity>,
@@ -39,6 +36,10 @@ class TrackDetailsViewModel @Inject constructor(
     )
 
     lateinit var combinedLiveData: MediatorLiveData<CombinedTrackData>
+
+    lateinit var liveJoins: LiveData<List<ShowBroadcastTrackFavoriteJoin>>
+
+    lateinit var navController: NavController
 
     private val parentJob = Job()
     override val coroutineContext: CoroutineContext
@@ -119,10 +120,22 @@ class TrackDetailsViewModel @Inject constructor(
             }
     }
 
-    fun onClickTrackHeader(navController: NavController, showId: Int, broadcastId: Int) {
-        val navAction = TrackDetailsFragmentDirections
-            .actionTrackDetailsFragmentToBroadcastDetailsFragment(showId, broadcastId)
-        if (navController.currentDestination?.id == R.id.trackDetailsFragment)
-            navController.navigate(navAction)
+    fun initializeForFavorites() {
+        liveJoins = favoriteRepository.allShowBroadcastTrackFavoriteJoins()
+    }
+
+    fun getBroadcastForTrack(track: TrackEntity) = broadcastRepository.broadcastById(track.broadcastId)
+
+    fun getShowForBroadcast(broadcast: BroadcastEntity) = broadcastRepository.showByBroadcastId(broadcast.broadcastId)
+
+    fun onClickTrackHeader(view: View, track: TrackEntity) {
+        val showId = view.tag as? Int?
+
+        if (::navController.isInitialized && showId != null) {
+            val navAction = TrackDetailsFragmentDirections
+                .actionTrackDetailsFragmentToBroadcastDetailsFragment(showId, track.broadcastId)
+            if (navController.currentDestination?.id == R.id.trackDetailsFragment)
+                navController.navigate(navAction)
+        }
     }
 }

@@ -17,10 +17,7 @@ import fho.kdvs.R
 import fho.kdvs.databinding.FragmentTrackDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
-import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.FavoriteEntity
-import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.database.*
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.web.uri
@@ -33,6 +30,7 @@ import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 // TODO: Refactor this and TopMusicDetailsFragment to share overlapping code?
+@kotlinx.serialization.UnstableDefault
 class TrackDetailsFragment : DaggerFragment(), CoroutineScope {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
@@ -40,7 +38,7 @@ class TrackDetailsFragment : DaggerFragment(), CoroutineScope {
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var fragmentTrackDetailsBinding: FragmentTrackDetailsBinding
 
-    private lateinit var tracks: List<TrackEntity>
+    private lateinit var tracks: List<TrackEntity?>
     private lateinit var favorites: List<FavoriteEntity>
     private lateinit var show: ShowEntity
     private lateinit var broadcast: BroadcastEntity
@@ -63,6 +61,11 @@ class TrackDetailsFragment : DaggerFragment(), CoroutineScope {
             ?: throw IllegalArgumentException("Should have passed a track to TrackDetailsFragment")
     }
 
+    private val type: TrackDetailsType by lazy {
+        arguments?.let { TrackDetailsFragmentArgs.fromBundle(it) }?.type
+            ?: throw IllegalArgumentException("Should have passed a TrackDetailsType to TrackDetailsFragment")
+    }
+
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
@@ -74,7 +77,12 @@ class TrackDetailsFragment : DaggerFragment(), CoroutineScope {
         viewModel = ViewModelProviders.of(this, vmFactory)
             .get(TrackDetailsViewModel::class.java)
             .also {
-                it.initialize(track)
+                when (type) {
+                    TrackDetailsType.BROADCAST_DETAILS -> it.initialize(track)
+                    TrackDetailsType.FAVORITE -> it.initializeForFavorites()
+                }
+
+                it.navController = findNavController()
             }
 
         sharedViewModel = ViewModelProviders.of(this, vmFactory)
@@ -131,46 +139,51 @@ class TrackDetailsFragment : DaggerFragment(), CoroutineScope {
     }
 
     private fun subscribeToViewModel() {
-        viewModel.combinedLiveData.observe(this, Observer { combinedData ->
-            Timber.d("Got updated track details livedata")
+        when (type) {
+            TrackDetailsType.BROADCAST_DETAILS -> {
+                viewModel.combinedLiveData.observe(this, Observer { combinedData ->
+                    Timber.d("Got updated track details livedata")
 
-            tracks = combinedData.tracks
-            favorites = combinedData.favorites
-            show = combinedData.show
-            broadcast = combinedData.broadcast
+                    tracks = combinedData.tracks
+                    favorites = combinedData.favorites
+                    show = combinedData.show
+                    broadcast = combinedData.broadcast
 
-            showName?.let {
-                it.text = show.name
-                it.setOnClickListener {
-                    viewModel.onClickTrackHeader(findNavController(), show.id, broadcast.broadcastId)
-                }
+                    processObservedTracks(tracks)
+                })
             }
+            TrackDetailsType.FAVORITE -> {
+                viewModel.liveJoins.observe(this, Observer { joins ->
+                    val joinedTracks = joins.getTracks()?.filterNot { t -> t?.airbreak == true }
 
-            broadcastDate?.let {
-                val formatter = TimeHelper.uiDateFormatter
-                it.text = formatter.format(broadcast.date)
-                it.setOnClickListener {
-                    viewModel.onClickTrackHeader(findNavController(), show.id, broadcast.broadcastId)
-                }
+                    joinedTracks?.let {
+                        tracks = it
+                        processObservedTracks(it)
+                    }
+                })
             }
+        }
+    }
 
+    private fun processObservedTracks(tracks: List<TrackEntity?>) {
+        tracks.forEach {
+            it?.let {
+                sharedViewModel.fetchThirdPartyDataForTrack(it, viewModel.trackRepository)
+            }
+        }
+
+        tracksViewAdapter?.onTracksChanged(tracks)
+
+        if (scrollingToCurrentItem) {
             favoriteIcon?.let {
                 setFavorite()
             }
 
-            tracks.forEach {
-                sharedViewModel.fetchThirdPartyDataForTrack(it, viewModel.trackRepository)
-            }
+            trackRecyclerView?.scrollToPosition(track.position ?: 0)
+            scrollingToCurrentItem = false
+        }
 
-            tracksViewAdapter?.onTracksChanged(tracks)
-
-            if (scrollingToCurrentItem) {
-                trackRecyclerView?.scrollToPosition(track.position ?: 0)
-                scrollingToCurrentItem = false
-            }
-
-            LoadScreen.hideLoadScreen(trackDetailsRoot)
-        })
+        LoadScreen.hideLoadScreen(trackDetailsRoot)
     }
 
     private fun getCurrentItem(): Int {
@@ -190,6 +203,7 @@ class TrackDetailsFragment : DaggerFragment(), CoroutineScope {
 
     private fun setTrackInfo(track: TrackEntity) {
         setFavorite()
+        setShowNameAndDate(track)
 
         song.text = track.song ?: ""
         artistAlbum.text = resources.getString(R.string.artist_album,
@@ -210,6 +224,27 @@ class TrackDetailsFragment : DaggerFragment(), CoroutineScope {
         spotifyIcon.visibility = if (track.spotifyData != null && !track.spotifyData.uri.isNullOrBlank())
             View.VISIBLE
         else View.GONE
+    }
+
+    private fun setShowNameAndDate(track: TrackEntity) {
+        when (type) {
+            TrackDetailsType.BROADCAST_DETAILS -> {
+                showName.text = show.name
+                showName.tag = show.id
+                broadcastDate.text = TimeHelper.dateFormatter.format(broadcast.date)
+                broadcastDate.tag = show.id
+            }
+            TrackDetailsType.FAVORITE -> {
+                viewModel.getBroadcastForTrack(track).observe(this, Observer { b ->
+                    viewModel.getShowForBroadcast(b).observe(this, Observer { s ->
+                        showName.text = s.name
+                        showName.tag = s.id
+                        broadcastDate.text = TimeHelper.dateFormatter.format(b.date)
+                        broadcastDate.tag = s.id
+                    })
+                })
+            }
+        }
     }
 
     private fun setFavorite() {

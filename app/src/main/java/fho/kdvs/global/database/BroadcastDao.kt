@@ -29,6 +29,13 @@ abstract class BroadcastDao {
     )
     abstract fun showByBroadcastId(broadcastId: Int): LiveData<ShowEntity>
 
+    @Query(
+        """SELECT * from broadcastData
+            INNER JOIN showData ON broadcastData.showId = showData.id
+            WHERE broadcastId = :broadcastId"""
+    )
+    abstract fun getShowByBroadcastId(broadcastId: Int): ShowEntity?
+
     @Query("SELECT * from broadcastData WHERE broadcastId = :broadcastId LIMIT 1")
     abstract fun broadcastById(broadcastId: Int): LiveData<BroadcastEntity>
 

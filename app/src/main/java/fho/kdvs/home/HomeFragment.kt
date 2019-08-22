@@ -35,7 +35,7 @@ import timber.log.Timber
 import java.text.DecimalFormat
 import javax.inject.Inject
 
-
+@kotlinx.serialization.UnstableDefault
 class HomeFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
@@ -85,8 +85,6 @@ class HomeFragment : DaggerFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val snapHelper = PagerSnapHelper()
-
-        val fragment = this
 
         LoadScreen.displayLoadScreen(homeRoot)
 
@@ -187,7 +185,6 @@ class HomeFragment : DaggerFragment() {
         setExpandableSections()
     }
 
-    @kotlinx.serialization.UnstableDefault
     private fun subscribeToViewModel() {
         viewModel.run {
             combinedLiveData.observe(viewLifecycleOwner, Observer {

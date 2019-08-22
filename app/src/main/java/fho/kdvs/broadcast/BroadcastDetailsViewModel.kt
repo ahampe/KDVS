@@ -12,6 +12,7 @@ import fho.kdvs.global.database.FavoriteEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.show.ShowRepository
+import fho.kdvs.track.TrackDetailsType
 import fho.kdvs.track.TrackRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -73,7 +74,7 @@ class BroadcastDetailsViewModel @Inject constructor(
 
     fun onClickTrack(navController: NavController, track: TrackEntity) {
         val navAction = BroadcastDetailsFragmentDirections
-            .actionBroadcastDetailsFragmentToTrackDetailsFragment(track)
+            .actionBroadcastDetailsFragmentToTrackDetailsFragment(track, TrackDetailsType.BROADCAST_DETAILS)
         if (navController.currentDestination?.id == R.id.broadcastDetailsFragment)
             navController.navigate(navAction)
     }
