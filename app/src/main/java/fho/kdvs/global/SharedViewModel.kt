@@ -647,6 +647,7 @@ class SharedViewModel @Inject constructor(
             imageView.tag = 0
         }
     }
+
     // endregion
 
     // region subscription

@@ -114,6 +114,9 @@
         <argument
             android:name="track"
             app:argType="fho.kdvs.global.database.TrackEntity" />
+        <action
+            android:id="@+id/action_trackDetailsFragment_to_broadcastDetailsFragment"
+            app:destination="@id/broadcastDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/topMusicDetailsFragment"

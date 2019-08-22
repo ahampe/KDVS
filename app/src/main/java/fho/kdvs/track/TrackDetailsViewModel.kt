@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.navigation.NavController
+import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.favorite.FavoriteRepository
 import fho.kdvs.global.database.BroadcastEntity
@@ -115,5 +117,12 @@ class TrackDetailsViewModel @Inject constructor(
                     ))
                 }
             }
+    }
+
+    fun onClickTrackHeader(navController: NavController, showId: Int, broadcastId: Int) {
+        val navAction = TrackDetailsFragmentDirections
+            .actionTrackDetailsFragmentToBroadcastDetailsFragment(showId, broadcastId)
+        if (navController.currentDestination?.id == R.id.trackDetailsFragment)
+            navController.navigate(navAction)
     }
 }

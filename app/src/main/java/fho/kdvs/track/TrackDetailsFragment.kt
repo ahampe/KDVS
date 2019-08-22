@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -16,7 +17,9 @@ import fho.kdvs.R
 import fho.kdvs.databinding.FragmentTrackDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
+import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.FavoriteEntity
+import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.TimeHelper
@@ -39,6 +42,8 @@ class TrackDetailsFragment : DaggerFragment(), CoroutineScope {
 
     private lateinit var tracks: List<TrackEntity>
     private lateinit var favorites: List<FavoriteEntity>
+    private lateinit var show: ShowEntity
+    private lateinit var broadcast: BroadcastEntity
 
     private var tracksViewAdapter: TracksViewAdapter? = null
 
@@ -131,16 +136,22 @@ class TrackDetailsFragment : DaggerFragment(), CoroutineScope {
 
             tracks = combinedData.tracks
             favorites = combinedData.favorites
-            val show = combinedData.show
-            val broadcast = combinedData.broadcast
+            show = combinedData.show
+            broadcast = combinedData.broadcast
 
             showName?.let {
                 it.text = show.name
+                it.setOnClickListener {
+                    viewModel.onClickTrackHeader(findNavController(), show.id, broadcast.broadcastId)
+                }
             }
 
             broadcastDate?.let {
                 val formatter = TimeHelper.uiDateFormatter
                 it.text = formatter.format(broadcast.date)
+                it.setOnClickListener {
+                    viewModel.onClickTrackHeader(findNavController(), show.id, broadcast.broadcastId)
+                }
             }
 
             favoriteIcon?.let {
