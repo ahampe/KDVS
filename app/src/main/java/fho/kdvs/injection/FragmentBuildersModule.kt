@@ -28,7 +28,8 @@ import fho.kdvs.schedule.ShowSearchFragment
 import fho.kdvs.settings.SettingsFragment
 import fho.kdvs.show.ShowDetailsFragment
 import fho.kdvs.topmusic.TopMusicDetailsFragment
-import fho.kdvs.track.TrackDetailsFragment
+import fho.kdvs.track.BroadcastTrackDetailsFragment
+import fho.kdvs.track.FavoriteTrackDetailsFragment
 
 @Suppress("unused")
 @Module
@@ -58,7 +59,10 @@ abstract class FragmentBuildersModule {
     abstract fun contributeBroadcastDetailsFragment(): BroadcastDetailsFragment
 
     @ContributesAndroidInjector
-    abstract fun contributeTrackDetailsFragment(): TrackDetailsFragment
+    abstract fun contributeBroadcastTrackDetailsFragment(): BroadcastTrackDetailsFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributeFavoriteTrackDetailsFragment(): FavoriteTrackDetailsFragment
 
     @ContributesAndroidInjector
     abstract fun contributeTopMusicDetailsFragment(): TopMusicDetailsFragment

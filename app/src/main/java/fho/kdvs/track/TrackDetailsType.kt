@@ -1,9 +1,9 @@
 package fho.kdvs.track
 
 /**
- * In order to provide specific functionality for track source in [TrackDetailsFragment],
- * we must have run-time knowledge of calling fragment.
+ * Needed to share layout with navigation to both
+ * [BroadcastTrackDetailsFragment] and [FavoriteTrackDetailsFragment]
  */
 enum class TrackDetailsType {
-    BROADCAST_DETAILS, FAVORITE
+    BROADCAST, FAVORITE
 }

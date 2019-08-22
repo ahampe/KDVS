@@ -30,6 +30,8 @@ class FavoriteFragment : DaggerFragment() {
     private var favoriteViewAdapter: FavoriteViewAdapter? = null
     
     val hashedResults = mutableMapOf<String, ArrayList<FavoriteJoin>>()
+    val resultIds = mutableListOf<Int?>()
+
     var sortType = FavoriteViewAdapter.SortType.RECENT
     var sortDirection = FavoriteViewAdapter.SortDirection.DES
 
@@ -140,7 +142,12 @@ class FavoriteFragment : DaggerFragment() {
 
                         favoriteViewAdapter = FavoriteViewAdapter(joins, fragment) {
                             Timber.d("clicked ${it.item}")
-                            viewModel.onClickTrack(findNavController(), it.item.track)
+
+                            val array = resultIds
+                                .filterNotNull()
+                                .toIntArray()
+
+                            viewModel.onClickTrack(findNavController(), it.item.track, array)
                         }
 
                         resultsRecycler.run {

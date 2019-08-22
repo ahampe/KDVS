@@ -39,7 +39,7 @@ import fho.kdvs.show.ShowRepository
 import fho.kdvs.staff.StaffRepository
 import fho.kdvs.subscription.SubscriptionRepository
 import fho.kdvs.topmusic.TopMusicRepository
-import fho.kdvs.track.TrackRepository
+import fho.kdvs.track.*
 import kotlinx.coroutines.launch
 import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
@@ -645,6 +645,27 @@ class SharedViewModel @Inject constructor(
 
             imageView.setImageResource(R.drawable.ic_star_white_24dp)
             imageView.tag = 0
+        }
+    }
+
+    fun onClickTrackHeader(navController: NavController, view: View, track: TrackEntity, type: TrackDetailsType) {
+        val showId = view.tag as? Int?
+
+        showId?.let {
+            when(type) {
+                TrackDetailsType.BROADCAST -> {
+                    val navAction = BroadcastTrackDetailsFragmentDirections
+                        .actionBroadcastTrackDetailsFragmentToBroadcastDetailsFragment(showId, track.broadcastId)
+                    if (navController.currentDestination?.id == R.id.broadcastTrackDetailsFragment)
+                        navController.navigate(navAction)
+                }
+                TrackDetailsType.FAVORITE -> {
+                    val navAction = FavoriteTrackDetailsFragmentDirections
+                        .actionFavoriteTrackDetailsFragmentToBroadcastDetailsFragment(showId, track.broadcastId)
+                    if (navController.currentDestination?.id == R.id.favoriteTrackDetailsFragment)
+                        navController.navigate(navAction)
+                }
+            }
         }
     }
 

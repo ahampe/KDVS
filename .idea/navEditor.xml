@@ -19,7 +19,28 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_broadcastDetailsFragment_to_trackDetailsFragment">
+                            <entry key="action_broadcastDetailsFragment_to_broadcastTrackDetailsFragment">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="broadcastTrackDetailsFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="12" />
+                            <option name="y" value="12" />
+                          </Point>
+                        </option>
+                        <option name="myPositions">
+                          <map>
+                            <entry key="action_broadcastTrackDetailsFragment_to_broadcastDetailsFragment">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -40,7 +61,28 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_favoriteFragment_to_trackDetailsFragment">
+                            <entry key="action_favoriteFragment_to_favoriteTrackDetailsFragment">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="favoriteTrackDetailsFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="256" />
+                            <option name="y" value="12" />
+                          </Point>
+                        </option>
+                        <option name="myPositions">
+                          <map>
+                            <entry key="action_favoriteTrackDetailsFragment_to_broadcastDetailsFragment">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -221,27 +263,6 @@
                             <option name="x" value="256" />
                             <option name="y" value="12" />
                           </Point>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
-                  <entry key="trackDetailsFragment">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="12" />
-                            <option name="y" value="12" />
-                          </Point>
-                        </option>
-                        <option name="myPositions">
-                          <map>
-                            <entry key="action_trackDetailsFragment_to_broadcastDetailsFragment">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
-                          </map>
                         </option>
                       </LayoutPositions>
                     </value>

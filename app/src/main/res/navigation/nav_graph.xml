@@ -76,8 +76,8 @@
         android:name="fho.kdvs.favorite.FavoriteFragment"
         android:label="FavoriteFragment">
         <action
-            android:id="@+id/action_favoriteFragment_to_trackDetailsFragment"
-            app:destination="@id/trackDetailsFragment" />
+            android:id="@+id/action_favoriteFragment_to_favoriteTrackDetailsFragment"
+            app:destination="@id/favoriteTrackDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/showDetailsFragment"
@@ -104,21 +104,32 @@
             android:name="broadcastId"
             app:argType="integer" />
         <action
-            android:id="@+id/action_broadcastDetailsFragment_to_trackDetailsFragment"
-            app:destination="@id/trackDetailsFragment" />
+            android:id="@+id/action_broadcastDetailsFragment_to_broadcastTrackDetailsFragment"
+            app:destination="@id/broadcastTrackDetailsFragment" />
     </fragment>
     <fragment
-        android:id="@+id/trackDetailsFragment"
-        android:name="fho.kdvs.track.TrackDetailsFragment"
-        android:label="TrackDetailsFragment">
+        android:id="@+id/broadcastTrackDetailsFragment"
+        android:name="fho.kdvs.track.BroadcastTrackDetailsFragment"
+        android:label="broadcastTrackDetailsFragment">
+        <argument
+            android:name="track"
+            app:argType="fho.kdvs.global.database.TrackEntity" />
+        <action
+            android:id="@+id/action_broadcastTrackDetailsFragment_to_broadcastDetailsFragment"
+            app:destination="@id/broadcastDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/favoriteTrackDetailsFragment"
+        android:name="fho.kdvs.track.FavoriteTrackDetailsFragment"
+        android:label="favoriteTrackDetailsFragment">
         <argument
             android:name="track"
             app:argType="fho.kdvs.global.database.TrackEntity" />
         <argument
-            android:name="type"
-            app:argType="fho.kdvs.track.TrackDetailsType" />
+            android:name="ids"
+            app:argType="integer[]" />
         <action
-            android:id="@+id/action_trackDetailsFragment_to_broadcastDetailsFragment"
+            android:id="@+id/action_favoriteTrackDetailsFragment_to_broadcastDetailsFragment"
             app:destination="@id/broadcastDetailsFragment" />
     </fragment>
     <fragment

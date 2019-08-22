@@ -9,14 +9,15 @@ import fho.kdvs.broadcast.BroadcastDetailsViewModel
 import fho.kdvs.favorite.FavoriteViewModel
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
-import fho.kdvs.schedule.ShowSearchViewModel
 import fho.kdvs.home.HomeViewModel
 import fho.kdvs.player.PlayerViewModel
 import fho.kdvs.schedule.ScheduleSelectionViewModel
 import fho.kdvs.schedule.ScheduleViewModel
+import fho.kdvs.schedule.ShowSearchViewModel
 import fho.kdvs.show.ShowDetailsViewModel
 import fho.kdvs.topmusic.TopMusicDetailsViewModel
-import fho.kdvs.track.TrackDetailsViewModel
+import fho.kdvs.track.BroadcastTrackDetailsViewModel
+import fho.kdvs.track.FavoriteTrackDetailsViewModel
 
 @Suppress("unused")
 @Module
@@ -63,8 +64,13 @@ abstract class ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(TrackDetailsViewModel::class)
-    abstract fun bindTrackDetailsViewModel(trackDetailsViewModel: TrackDetailsViewModel): ViewModel
+    @ViewModelKey(BroadcastTrackDetailsViewModel::class)
+    abstract fun bindBroadcastTrackDetailsViewModel(broadcastTrackDetailsViewModel: BroadcastTrackDetailsViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(FavoriteTrackDetailsViewModel::class)
+    abstract fun bindFavoriteTrackDetailsViewModel(favoriteTrackDetailsViewModel: FavoriteTrackDetailsViewModel): ViewModel
 
     @Binds
     @IntoMap

@@ -89,6 +89,10 @@ class FavoriteViewAdapter(
                 filterResults.values = results
                 filterResults.count = results.size
 
+                val ids = results.map { r -> r.track?.trackId }
+
+                fragment.resultIds.addAll(ids)
+
                 return filterResults
             }
 
