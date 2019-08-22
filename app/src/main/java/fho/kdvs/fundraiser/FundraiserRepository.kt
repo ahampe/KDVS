@@ -1,4 +1,4 @@
-package fho.kdvs.show
+package fho.kdvs.fundraiser
 
 import androidx.lifecycle.LiveData
 import fho.kdvs.global.BaseRepository
@@ -10,7 +10,6 @@ import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -39,7 +38,7 @@ class FundraiserRepository @Inject constructor(
      * Runs a fundraiser scrape without checking when it was last performed.
      * The only acceptable public usage of this method is when user explicitly refreshes.
      */
-    fun forceScrapeFundraiser(): Job? = scraperManager.scrape(URLs.FUNDRAISER)
+    private fun forceScrapeFundraiser(): Job? = scraperManager.scrape(URLs.FUNDRAISER)
 
     fun getFundraiser(): LiveData<FundraiserEntity> =
         fundraiserDao.get()

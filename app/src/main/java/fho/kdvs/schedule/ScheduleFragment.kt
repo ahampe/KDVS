@@ -187,13 +187,15 @@ class ScheduleFragment : DaggerFragment() {
     }
 
     fun showSelection(timeslot: TimeSlot) {
-        val args = Bundle()
-        args.putParcelable("timeslot", timeslot)
+        fragmentManager?.let {
+            val args = Bundle()
+            args.putParcelable("timeslot", timeslot)
 
-        val newFragment = ScheduleSelectionFragment()
+            val newFragment = ScheduleSelectionFragment()
 
-        newFragment.arguments = args
-        newFragment.show(fragmentManager, "schedule_selection_fragment")
+            newFragment.arguments = args
+            newFragment.show(it, "schedule_selection_fragment")
+        }
     }
 
     /** This is where any [LiveData] in the ViewModel should be hooked up to [Observer]s. */

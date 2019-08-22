@@ -19,6 +19,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.navigation.NavController
 import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
+import fho.kdvs.fundraiser.FundraiserRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
@@ -30,15 +31,15 @@ import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
 import fho.kdvs.global.util.URLs.YOUTUBE_QUERYSTRING
 import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
 import fho.kdvs.global.web.*
+import fho.kdvs.news.NewsRepository
 import fho.kdvs.schedule.QuarterRepository
 import fho.kdvs.schedule.QuarterYear
 import fho.kdvs.services.*
-import fho.kdvs.show.FundraiserRepository
-import fho.kdvs.show.NewsRepository
 import fho.kdvs.show.ShowRepository
-import fho.kdvs.show.TopMusicRepository
 import fho.kdvs.staff.StaffRepository
 import fho.kdvs.subscription.SubscriptionRepository
+import fho.kdvs.topmusic.TopMusicRepository
+import fho.kdvs.track.TrackRepository
 import kotlinx.coroutines.launch
 import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
@@ -547,6 +548,58 @@ class SharedViewModel @Inject constructor(
 
             spotifyData?.let {
                 launch { topMusicRepository.updateTopMusicSpotifyData(topMusic.topMusicId, spotifyData)}
+            }
+        }
+    }
+
+    fun fetchThirdPartyDataForTrack(track: TrackEntity, trackRepository: TrackRepository) {
+        if (track.hasScrapedMetadata() || kdvsPreferences.offlineMode == true)
+            return
+
+        var mbData: MusicBrainzReleaseData? = null
+        var mbImageHref: String? = null
+        var spotifyData: SpotifyData? = null
+
+        launch {
+            val musicBrainzJob = launch {
+                mbData = MusicBrainz.searchFromAlbum(track.album, track.artist)
+                mbImageHref = MusicBrainz.getCoverArtImage(mbData.id)
+            }
+
+            val spotifyJob = launch {
+                val query = Spotify.getAlbumQuery(track.album, track.artist)
+                spotifyData = Spotify.search(query)
+            }
+
+            musicBrainzJob.join()
+            spotifyJob.join()
+
+            val album = if (!mbData.album.isNullOrBlank()) mbData.album else spotifyData?.album
+            val year = mbData.year ?: spotifyData?.year
+            val imageHref = if (!mbImageHref.isNullOrBlank()) mbImageHref else spotifyData?.imageHref
+
+            if (!album.isNullOrBlank()) {
+                launch { trackRepository.updateTrackAlbum(track.trackId, album)}
+            }
+
+            if (year != null) {
+                launch { trackRepository.updateTrackYear(track.trackId, year)}
+            }
+
+            if (!mbData.label.isNullOrBlank()) {
+                launch { trackRepository.updateTrackLabel(track.trackId, mbData.label)}
+            }
+
+            if (!imageHref.isNullOrBlank()) {
+                launch { trackRepository.updateTrackImageHref(track.trackId, imageHref)}
+            }
+
+            mbData?.let {
+                launch { trackRepository.updateTrackMusicBrainzData(track.trackId, mbData)}
+            }
+
+            spotifyData?.let {
+                launch { trackRepository.updateTrackSpotifyData(track.trackId, spotifyData)}
             }
         }
     }

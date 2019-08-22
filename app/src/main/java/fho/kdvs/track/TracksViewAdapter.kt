@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import fho.kdvs.databinding.CellTopmusicDetailsBinding
+import fho.kdvs.databinding.CellTrackDetailsBinding
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
@@ -13,7 +13,7 @@ import fho.kdvs.home.TrackDiffCallback
 
 /** A [RecyclerView.Adapter] which cycles through [TrackEntity] items */
 @kotlinx.serialization.UnstableDefault
-class TrackViewAdapter(onClick: (ClickData<TrackEntity>) -> Unit) :
+class TracksViewAdapter(onClick: (ClickData<TrackEntity>) -> Unit) :
     BindingRecyclerViewAdapter<TrackEntity, BindingViewHolder<TrackEntity>>(onClick, TrackDiffCallback()){
 
     override fun getItemId(position: Int): Long {
@@ -26,7 +26,7 @@ class TrackViewAdapter(onClick: (ClickData<TrackEntity>) -> Unit) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BindingViewHolder<TrackEntity> {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = CellTopmusicDetailsBinding.inflate(inflater, parent, false)
+        val binding = CellTrackDetailsBinding.inflate(inflater, parent, false)
         return TrackViewHolder(binding)
     }
 
@@ -39,7 +39,7 @@ class TrackViewAdapter(onClick: (ClickData<TrackEntity>) -> Unit) :
         }
     }
 
-    fun onTrackChanged(topMusic: List<TrackEntity>) {
+    fun onTracksChanged(topMusic: List<TrackEntity>) {
         submitList(topMusic)
     }
 }

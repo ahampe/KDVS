@@ -47,7 +47,7 @@ class BroadcastDetailsViewModel @Inject constructor(
         tracksLiveData = trackRepository.tracksForBroadcast(broadcastId)
         favoritesLiveData = favoriteRepository.allFavoritesByBroadcast(broadcastId)
 
-        // Ensure that we have all tracks and favorites at same time
+        // Ensure that we have all tracks and liveFavorites at same time
         tracksWithFavorites = MediatorLiveData<Pair<List<TrackEntity>,List<FavoriteEntity>?>>()
             .apply {
                 var tracks: List<TrackEntity>? = null

@@ -177,7 +177,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
         })
 
         viewModel.tracksWithFavorites.observe(fragment, Observer { (tracks, _) ->
-            Timber.d("Got tracks: $tracks with favorites")
+            Timber.d("Got tracks: $tracks with liveFavorites")
 
             noTracksMessage.visibility = if (tracks.isEmpty()) View.VISIBLE
                 else View.GONE

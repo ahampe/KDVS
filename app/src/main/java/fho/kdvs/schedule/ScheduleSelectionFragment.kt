@@ -74,7 +74,7 @@ class ScheduleSelectionFragment : BottomSheetDialogFragment(), CoroutineScope {
             ?: throw IllegalArgumentException("Should have passed a TimeSlot to ScheduleSelectionFragment")
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
     }

@@ -7,16 +7,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
+import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.AndroidSupportInjection
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.databinding.FragmentTrackDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
+import fho.kdvs.global.database.FavoriteEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.ui.LoadScreen
-import fho.kdvs.global.util.ImageHelper
 import fho.kdvs.global.util.TimeHelper
+import fho.kdvs.global.web.uri
 import kotlinx.android.synthetic.main.fragment_track_details.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,23 +29,36 @@ import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
+// TODO: Refactor this and TopMusicDetailsFragment to share overlapping code?
 class TrackDetailsFragment : DaggerFragment(), CoroutineScope {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
     private lateinit var viewModel: TrackDetailsViewModel
     private lateinit var sharedViewModel: SharedViewModel
+    private lateinit var fragmentTrackDetailsBinding: FragmentTrackDetailsBinding
+
+    private lateinit var tracks: List<TrackEntity>
+    private lateinit var favorites: List<FavoriteEntity>
+
+    private var tracksViewAdapter: TracksViewAdapter? = null
+
+    private var trackLayoutManager: LinearLayoutManager? = null
+
+    private val snapHelper = PagerSnapHelper()
+
+    // Simple flag for scrolling to clicked-on item view. This will only be done once, after the fragment is created.
+    private var scrollingToCurrentItem = true
 
     private val job = Job()
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.IO
 
-    // Retrieves the timeslot from the arguments bundle. Throws an exception if it doesn't exist.
     private val track: TrackEntity by lazy {
         arguments?.let { TrackDetailsFragmentArgs.fromBundle(it) }?.track
             ?: throw IllegalArgumentException("Should have passed a track to TrackDetailsFragment")
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
     }
@@ -57,112 +74,140 @@ class TrackDetailsFragment : DaggerFragment(), CoroutineScope {
 
         sharedViewModel = ViewModelProviders.of(this, vmFactory)
             .get(SharedViewModel::class.java)
+            .also {
+                it.fetchThirdPartyDataForTrack(track, viewModel.trackRepository)
+            }
 
         subscribeToViewModel()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = FragmentTrackDetailsBinding.inflate(inflater, container, false)
-        binding.apply {
+        fragmentTrackDetailsBinding = FragmentTrackDetailsBinding.inflate(inflater, container, false)
+
+        fragmentTrackDetailsBinding.apply {
             vm = viewModel
             sharedVm = sharedViewModel
             trackData = track
         }
-        binding.lifecycleOwner = this
 
-        return binding.root
+        return fragmentTrackDetailsBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         LoadScreen.displayLoadScreen(trackDetailsRoot)
+
+        setTrackInfo(track)
+
+        tracksViewAdapter = TracksViewAdapter { }
+        trackLayoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+
+        trackRecyclerView?.run {
+            adapter = tracksViewAdapter
+            layoutManager = trackLayoutManager
+            setHasFixedSize(true)
+
+            onFlingListener = null
+            clearOnScrollListeners()
+            snapHelper.attachToRecyclerView(this)
+        }
+
+        trackRecyclerView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    val position = getCurrentItem()
+                    onItemChanged(position)
+                }
+            }
+        })
     }
 
     private fun subscribeToViewModel() {
-        var musicBrainzFetchComplete = false
-        var spotifyFetchComplete = false
-        
-        val fragment = this
+        viewModel.combinedLiveData.observe(this, Observer { combinedData ->
+            Timber.d("Got updated track details livedata")
 
-        viewModel.run {
-            favorite.observe(fragment, Observer { favorite ->
-                if (favorite != null && favorite.trackId != -1) {
-                    favoriteIcon.setImageResource(R.drawable.ic_favorite_white_24dp)
-                    favoriteIcon.tag = 1
-                } else {
-                    favoriteIcon.setImageResource(R.drawable.ic_favorite_border_white_24dp)
-                    favoriteIcon.tag = 0
-                }
-            })
+            tracks = combinedData.tracks
+            favorites = combinedData.favorites
+            val show = combinedData.show
+            val broadcast = combinedData.broadcast
 
-            broadcast.observe(fragment, Observer { broadcast ->
-                if (broadcast.date != null) {
-                    val formatter = TimeHelper.uiDateFormatter
-                    broadcastDate.text = formatter.format(broadcast.date)
-                }
-            })
+            showName?.let {
+                it.text = show.name
+            }
 
-            show.observe(fragment, Observer { show ->
-                showName.text = show.name
-            })
+            broadcastDate?.let {
+                val formatter = TimeHelper.uiDateFormatter
+                it.text = formatter.format(broadcast.date)
+            }
 
-            liveTrack.observe(fragment, Observer { liveTrack ->
-                Timber.d("Got updated track: $liveTrack")
+            favoriteIcon?.let {
+                setFavorite()
+            }
 
-                if (liveTrack.hasScrapedMetadata) {
-                    musicBrainzFetchComplete = true
-                    if (spotifyFetchComplete)
-                        LoadScreen.hideLoadScreen(trackDetailsRoot)
-                }
+            tracks.forEach {
+                sharedViewModel.fetchThirdPartyDataForTrack(it, viewModel.trackRepository)
+            }
 
-                val spotifyUri = liveTrack.spotifyUri
-                if (spotifyUri != null) {
-                    spotifyFetchComplete = true
-                    if (musicBrainzFetchComplete)
-                        LoadScreen.hideLoadScreen(trackDetailsRoot)
+            tracksViewAdapter?.onTracksChanged(tracks)
 
-                    if (spotifyUri.isNotEmpty()) {
-                        spotifyIcon.setOnClickListener {
-                            Timber.d("Spotify icon clicked for ${liveTrack?.song}")
-                            sharedViewModel.openSpotify(spotifyIcon, spotifyUri)
-                        }
-                        spotifyIcon.visibility = View.VISIBLE
-                    }
-                }
+            if (scrollingToCurrentItem) {
+                trackRecyclerView?.scrollToPosition(track.position ?: 0)
+                scrollingToCurrentItem = false
+            }
 
-                // TODO: replace some of these with binding adapters
+            LoadScreen.hideLoadScreen(trackDetailsRoot)
+        })
+    }
 
-                song.text = liveTrack.song
-                song.isSelected = true
+    private fun getCurrentItem(): Int {
+        return (trackRecyclerView.layoutManager as LinearLayoutManager)
+            .findFirstVisibleItemPosition()
+    }
 
-                if (liveTrack.album.isNullOrBlank())
-                    artistAlbum.text = liveTrack.artist
-                else
-                    artistAlbum.text = artistAlbum.resources.getString(R.string.artist_album,
-                        liveTrack.artist, liveTrack.album)
+    private fun onItemChanged(position: Int) {
+        if (::tracks.isInitialized) {
+            val item = tracks.getOrNull(position)
 
-                when {
-                    liveTrack.year == null && liveTrack.label == null -> albumInfo.visibility = View.GONE
-                    liveTrack.label == null -> albumInfo.text = liveTrack.year.toString()
-                    liveTrack.year == null -> albumInfo.text = liveTrack.label
-                    else -> {
-                        albumInfo.text = albumInfo.resources.getString(
-                            R.string.album_info,
-                            liveTrack.year, liveTrack.label
-                        )
-                    }
-                }
+            item?.let {
+                setTrackInfo(it)
+            }
+        }
+    }
 
-                if (!liveTrack.comment.isNullOrBlank()) {
-                    comment.text = comment.resources.getString(R.string.track_comments, liveTrack.comment)
-                    comment.visibility = View.VISIBLE
-                }
+    private fun setTrackInfo(track: TrackEntity) {
+        setFavorite()
 
-                if ((liveTrack.imageHref ?: "").isNotEmpty()) {
-                    ImageHelper.loadImageWithGlide(artwork, liveTrack.imageHref)
-                }
-            })
+        song.text = track.song ?: ""
+        artistAlbum.text = resources.getString(R.string.artist_album,
+            track.artist,
+            track.album)
+
+        if (track.year != null || track.label != null) {
+            when {
+                track.label == null -> albumInfo.text = track.year.toString()
+                track.year == null -> albumInfo.text = track.label
+                else -> albumInfo.text = albumInfo.resources.getString(R.string.album_info,
+                    track.year, track.label)
+            }
+
+            albumInfo.visibility = View.VISIBLE
+        } else albumInfo.visibility = View.GONE
+
+        spotifyIcon.visibility = if (track.spotifyData != null && !track.spotifyData.uri.isNullOrBlank())
+            View.VISIBLE
+        else View.GONE
+    }
+
+    private fun setFavorite() {
+        if (::favorites.isInitialized && favorites.count { f -> f.trackId == track.trackId } > 0) {
+            favoriteIcon.setImageResource(R.drawable.ic_favorite_white_24dp)
+            favoriteIcon.tag = 1
+        } else {
+            favoriteIcon.setImageResource(R.drawable.ic_favorite_border_white_24dp)
+            favoriteIcon.tag = 0
         }
     }
 }

@@ -21,8 +21,17 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/trackDetailsRoot"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/defaultGradient"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_gravity="top"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="@drawable/top_down_fade_black"/>
 
         <TextView
             android:id="@+id/showName"
@@ -34,8 +43,8 @@
             android:gravity="center"
             android:maxLines="1"
             android:textAllCaps="true"
-            app:layout_constraintEnd_toEndOf="@id/artwork"
-            app:layout_constraintStart_toStartOf="@id/artwork"
+            app:layout_constraintEnd_toEndOf="@id/trackRecyclerView"
+            app:layout_constraintStart_toStartOf="@id/trackRecyclerView"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Show Name" />
 
@@ -48,24 +57,19 @@
             android:gravity="center"
             android:maxLines="1"
             android:textAllCaps="true"
-            app:layout_constraintEnd_toEndOf="@id/artwork"
-            app:layout_constraintStart_toStartOf="@id/artwork"
+            app:layout_constraintEnd_toEndOf="@id/trackRecyclerView"
+            app:layout_constraintStart_toStartOf="@id/trackRecyclerView"
             app:layout_constraintTop_toBottomOf="@id/showName"
             tools:text="Jan 2, 2019" />
 
-        <ImageView
-            android:id="@+id/artwork"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="@dimen/spacing_64dp"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/trackRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_64dp"
-            android:layout_marginEnd="@dimen/spacing_64dp"
-            android:src="@drawable/show_placeholder"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/showName"/>
 
         <TextView
             android:id="@+id/song"
@@ -80,7 +84,7 @@
             android:singleLine="true"
             app:layout_constraintEnd_toStartOf="@id/favoriteIcon"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/artwork"
+            app:layout_constraintTop_toBottomOf="@id/trackRecyclerView"
             tools:text="The Name of the Track" />
 
         <ImageView
@@ -88,9 +92,9 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginEnd="@dimen/spacing_extra_large"
-            android:onClick="@{(view) -> sharedVm.onClickFavorite(view, trackData.trackId)}"
             android:src="@drawable/ic_favorite_border_white_24dp"
             android:tag="0"
+            android:onClick="@{(view) -> sharedVm.onClickFavorite(view, trackData.trackId)}"
             app:layout_constraintBottom_toBottomOf="@id/song"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"

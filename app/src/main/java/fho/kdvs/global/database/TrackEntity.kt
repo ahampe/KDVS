@@ -6,6 +6,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import fho.kdvs.global.web.MusicBrainzReleaseData
+import fho.kdvs.global.web.SpotifyData
 
 @Entity(
     tableName = "trackData",
@@ -30,8 +32,8 @@ data class TrackEntity(
     @ColumnInfo(name = "airbreak") var airbreak: Boolean = false,
     @ColumnInfo(name = "imageHref") var imageHref: String? = null,
     @ColumnInfo(name = "year") var year: Int? = null,
-    @ColumnInfo(name = "hasScrapedMetadata") var hasScrapedMetadata: Boolean = false,
-    @ColumnInfo(name = "spotifyUri") var spotifyUri: String? = null
+    @ColumnInfo(name = "musicBrainzData") var musicBrainzData: MusicBrainzReleaseData? = null,
+    @ColumnInfo(name = "spotifyData") var spotifyData: SpotifyData? = null
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
@@ -46,8 +48,8 @@ data class TrackEntity(
         airbreak = parcel.readValue(Boolean::class.java.classLoader) as Boolean,
         imageHref = parcel.readString(),
         year = parcel.readInt(),
-        hasScrapedMetadata = parcel.readValue(Boolean::class.java.classLoader) as Boolean,
-        spotifyUri = parcel.readString()
+        musicBrainzData = parcel.readValue(MusicBrainzReleaseData::class.java.classLoader) as MusicBrainzReleaseData,
+        spotifyData = parcel.readValue(SpotifyData::class.java.classLoader) as SpotifyData
     )
 
     override fun writeToParcel(dest: Parcel?, flags: Int) {
@@ -62,12 +64,16 @@ data class TrackEntity(
         dest?.writeValue(airbreak)
         dest?.writeValue(imageHref)
         dest?.writeValue(year)
-        dest?.writeValue(hasScrapedMetadata)
-        dest?.writeValue(spotifyUri)
+        dest?.writeValue(musicBrainzData)
+        dest?.writeValue(spotifyData)
     }
 
     override fun describeContents(): Int {
         return 0
+    }
+
+    fun hasScrapedMetadata(): Boolean {
+        return musicBrainzData != null && spotifyData != null
     }
 
     companion object {

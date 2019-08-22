@@ -277,15 +277,15 @@ class HomeFragment : DaggerFragment() {
                 Timber.d("Got fundraiser: $fundraiser")
                 val now = TimeHelper.getLocalNow()
 
-                // Display info icon when there is unviewed fundraiser progress
-                if (fundraiser.current != kdvsPreferences.lastObservedFundraiserAmount) {
-                    fundraiserNotification.fade(true)
-                }
-
-                fundraiserNotification.tag = fundraiser.current
-
                 // display fundraiser section only within an n-month window
                 fundraiser?.let {
+                    // Display info icon when there is unviewed fundraiser progress
+                    if (fundraiser.current != kdvsPreferences.lastObservedFundraiserAmount) {
+                        fundraiserNotification.fade(true)
+                    }
+
+                    fundraiserNotification.tag = fundraiser.current
+
                     val window = (kdvsPreferences.fundraiserWindow ?: 2).toLong()
 
                     if (fundraiser.dateStart ?: now > now.plusMonths(window) ||

@@ -5,10 +5,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
-import androidx.room.Update
+import fho.kdvs.global.web.MusicBrainzReleaseData
+import fho.kdvs.global.web.SpotifyData
 import io.reactivex.Flowable
-import org.json.JSONObject
-import org.w3c.dom.Document
 
 @Dao
 interface TrackDao {
@@ -16,11 +15,11 @@ interface TrackDao {
     @Query("SELECT * from trackData WHERE trackId = :trackId LIMIT 1")
     fun trackById(trackId: Int?): LiveData<TrackEntity>
 
-    @Query("SELECT spotifyUri from trackData WHERE trackId = :trackId LIMIT 1")
-    fun spotifyUriById(trackId: Int?): LiveData<String>
-
     @Query("SELECT * from trackData WHERE broadcastId = :broadcastId ORDER BY position")
     fun allTracksForBroadcast(broadcastId: Int?): Flowable<List<TrackEntity>>
+
+    @Query("SELECT * from trackData WHERE broadcastId = :broadcastId AND airbreak = 0 ORDER BY position")
+    fun allSongsForBroadcast(broadcastId: Int?): Flowable<List<TrackEntity>>
 
     @Query("SELECT * from trackData")
     fun getAll(): List<TrackEntity>
@@ -63,14 +62,14 @@ interface TrackDao {
     @Query("UPDATE trackData SET label= :label WHERE trackId = :id")
     fun updateLabel(id: Int?, label: String?)
 
-    @Query("UPDATE trackData SET spotifyUri = :spotifyUri WHERE trackId = :id")
-    fun updateSpotifyUri(id: Int?, spotifyUri: String?)
+    @Query("UPDATE trackData SET musicBrainzData = :musicBrainzData WHERE trackId = :id")
+    fun updateMusicBrainzData(id: Int?, musicBrainzData: MusicBrainzReleaseData?)
+
+    @Query("UPDATE trackData SET spotifyData = :spotifyData WHERE trackId = :id")
+    fun updateSpotifyData(id: Int?, spotifyData: SpotifyData?)
 
     @Query("UPDATE trackData SET year = :year WHERE trackId = :id")
     fun updateYear(id: Int?, year: Int?)
-
-    @Query("UPDATE trackData SET hasScrapedMetadata = 1 WHERE trackId = :id")
-    fun onScrapeMetadata(id: Int?)
 
     @Query("DELETE from trackData where broadcastId = :broadcastId")
     fun deleteByBroadcast(broadcastId: Int?)

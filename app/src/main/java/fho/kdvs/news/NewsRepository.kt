@@ -1,4 +1,4 @@
-package fho.kdvs.show
+package fho.kdvs.news
 
 import androidx.lifecycle.LiveData
 import fho.kdvs.global.BaseRepository
@@ -11,7 +11,6 @@ import fho.kdvs.global.web.WebScraperManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
-import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -40,7 +39,7 @@ class NewsRepository @Inject constructor(
      * Runs a news scrape without checking when it was last performed.
      * The only acceptable public usage of this method is when user explicitly refreshes.
      */
-    fun forceScrapeNews(): Job? = scraperManager.scrape(URLs.NEWS)
+    private fun forceScrapeNews(): Job? = scraperManager.scrape(URLs.NEWS)
 
     fun getAllNews(): LiveData<List<NewsEntity>> =
         newsDao.getAll()

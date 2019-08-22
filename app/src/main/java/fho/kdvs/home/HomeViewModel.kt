@@ -6,13 +6,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.navigation.NavController
 import fho.kdvs.R
+import fho.kdvs.fundraiser.FundraiserRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.show.FundraiserRepository
-import fho.kdvs.show.NewsRepository
+import fho.kdvs.news.NewsRepository
 import fho.kdvs.show.ShowRepository
-import fho.kdvs.show.TopMusicRepository
 import fho.kdvs.staff.StaffRepository
+import fho.kdvs.topmusic.TopMusicRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

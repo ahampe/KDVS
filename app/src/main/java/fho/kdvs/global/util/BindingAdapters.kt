@@ -34,6 +34,15 @@ fun loadTopMusicImageWithGlideAndApplyGradient(view: ImageView, imageHref: Strin
     }
 }
 
+@BindingAdapter("trackGlideHrefGradient")
+fun loadTrackImageWithGlideAndApplyGradient(view: ImageView, imageHref: String?) {
+    val parent = view.parent.parent.parent as ConstraintLayout
+    imageHref?.let {
+        val listener = PlayerPaletteRequestListener(parent)
+        ImageHelper.loadImageWithGlideAndApplyGradient(view, listener, imageHref)
+    }
+}
+
 @BindingAdapter("localDate", "dateFormatter")
 fun safeFormatDate(view: TextView, date: LocalDate?, dateFormatter: DateTimeFormatter) {
     view.text = date?.let { dateFormatter.format(it) } ?: ""

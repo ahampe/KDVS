@@ -51,7 +51,7 @@ class PlaylistScraperTest : ScraperTest() {
             broadcastId = 51742,
             showId = 5361,
             date = TimeHelper.makeLocalDate("2019-01-12"),
-            description = "I opened the Prog basket and was delighted to find some of my favorite prog ingredients. ELP, PFM, Triumvrat, and IQ will combine to get the project started. I will try to spice these up with new music from Dilemma and Eden in Progress. And, as usual, an Improbably Proggy trak to throw into the mix from Alice Cooper. Questions, comments and suggestions to rockshurewood@gmail.com.",
+            description = "I opened the Prog basket and was delighted to find some of my liveFavorites prog ingredients. ELP, PFM, Triumvrat, and IQ will combine to get the project started. I will try to spice these up with new music from Dilemma and Eden in Progress. And, as usual, an Improbably Proggy trak to throw into the mix from Alice Cooper. Questions, comments and suggestions to rockshurewood@gmail.com.",
             imageHref = "http://www.sevenwondersofwashingtonstate.com/uploads/4/7/4/6/47460045/3719499_orig.jpg"
         )
 

@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.databinding.CellTopmusicDetailsBinding
-import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder

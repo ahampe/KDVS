@@ -5,15 +5,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
-import com.bumptech.glide.request.RequestOptions
 import dagger.android.support.AndroidSupportInjection
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
@@ -22,9 +18,7 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.ui.LoadScreen
-import fho.kdvs.global.ui.PlayerPaletteRequestListener
 import fho.kdvs.global.web.uri
-import kotlinx.android.synthetic.main.cell_topmusic_details.view.*
 import kotlinx.android.synthetic.main.fragment_topmusic_details.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -61,7 +55,7 @@ class TopMusicDetailsFragment : DaggerFragment(), CoroutineScope {
             ?: throw IllegalArgumentException("Should have passed a TopMusicEntity to TopMusicDetailsFragment")
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
     }
@@ -152,32 +146,19 @@ class TopMusicDetailsFragment : DaggerFragment(), CoroutineScope {
                 artist.text = topMusic.artist ?: ""
 
                 if (topMusic.year != null || topMusic.label != null) {
-                    if (topMusic.label == null) {
-                        albumInfo.text = topMusic.year.toString()
-                    } else if (topMusic.year == null) {
-                        albumInfo.text = topMusic.label
-                    } else {
-                        albumInfo.text = albumInfo.resources.getString(R.string.album_info,
+                    when {
+                        topMusic.label == null -> albumInfo.text = topMusic.year.toString()
+                        topMusic.year == null -> albumInfo.text = topMusic.label
+                        else -> albumInfo.text = albumInfo.resources.getString(R.string.album_info,
                             topMusic.year, topMusic.label)
                     }
+
                     albumInfo.visibility = View.VISIBLE
                 } else albumInfo.visibility = View.GONE
 
                 spotifyIcon.visibility = if (topMusic.spotifyData != null && !topMusic.spotifyData.uri.isNullOrBlank())
                     View.VISIBLE
                 else View.GONE
-
-                discogsIcon.setOnClickListener {
-                    sharedViewModel.onClickDiscogs(it, topMusic)
-                }
-
-                youTubeIcon.setOnClickListener {
-                    sharedViewModel.onClickYoutube(it, topMusic)
-                }
-
-                spotifyIcon.setOnClickListener {
-                    sharedViewModel.openSpotify(it, topMusic.spotifyData.uri)
-                }
             }
         }
     }
