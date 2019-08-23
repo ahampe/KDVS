@@ -33,6 +33,8 @@ class FavoriteViewAdapter(
 
         allFavorites.addAll(results)
 
+        updateResultIds()
+
         submitList(results)
     }
 
@@ -89,10 +91,6 @@ class FavoriteViewAdapter(
                 filterResults.values = results
                 filterResults.count = results.size
 
-                val ids = results.map { r -> r.track?.trackId }
-
-                fragment.resultIds.addAll(ids)
-
                 return filterResults
             }
 
@@ -110,8 +108,18 @@ class FavoriteViewAdapter(
         newResults?.let {
             results.clear()
             results.addAll(it)
+
+            updateResultIds()
+
             notifyDataSetChanged()
         }
+    }
+
+    private fun updateResultIds() {
+        val ids = results.map { r -> r.track?.trackId }
+
+        fragment.resultIds.clear()
+        fragment.resultIds.addAll(ids)
     }
 
     private fun sortFavorites(list: List<FavoriteJoin>?): List<FavoriteJoin>? {

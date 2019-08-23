@@ -5,9 +5,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.navigation.NavController
 import fho.kdvs.R
 import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.track.TrackRepository
 import javax.inject.Inject
 
 class FavoriteViewModel @Inject constructor(
+    val trackRepository: TrackRepository,
     private val favoriteRepository: FavoriteRepository,
     application: Application
 ) : AndroidViewModel(application) {

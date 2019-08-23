@@ -74,7 +74,7 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
         sharedViewModel = ViewModelProviders.of(this, vmFactory)
             .get(SharedViewModel::class.java)
             .also {
-                it.fetchThirdPartyDataForTrack(track, viewModel.trackRepository)
+                it.fetchThirdPartyDataForTrack(track)
             }
 
         subscribeToViewModel()
@@ -135,13 +135,14 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
             broadcast = combinedData.broadcast
 
             processObservedTracks(tracks)
+            setShowNameAndDate()
         })
     }
 
     private fun processObservedTracks(tracks: List<TrackEntity?>) {
         tracks.forEach {
             it?.let {
-                sharedViewModel.fetchThirdPartyDataForTrack(it, viewModel.trackRepository)
+                sharedViewModel.fetchThirdPartyDataForTrack(it)
             }
         }
 
@@ -152,11 +153,16 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
                 setFavorite()
             }
 
-            trackRecyclerView?.scrollToPosition(track.position ?: 0)
+            trackRecyclerView?.scrollToPosition(getAdjustedTrackPosition(track) ?: 0)
             scrollingToCurrentItem = false
         }
 
         LoadScreen.hideLoadScreen(trackDetailsRoot)
+    }
+
+    // Correct for airbreak slots
+    private fun getAdjustedTrackPosition(track: TrackEntity): Int? {
+        return tracks.indexOf(track)
     }
 
     private fun getCurrentItem(): Int {
@@ -176,12 +182,17 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
 
     private fun setTrackInfo(track: TrackEntity) {
         setFavorite()
-        setShowNameAndDate(track)
 
         song.text = track.song ?: ""
-        artistAlbum.text = resources.getString(R.string.artist_album,
-            track.artist,
-            track.album)
+        artistAlbum.text = when {
+            track.album?.isNotBlank() == true -> resources.getString(R.string.artist_album, track.artist, track.album)
+            else -> track.artist
+        }
+
+        track.comment?.let {
+            comment.text = it
+            comment.visibility = View.VISIBLE
+        }
 
         if (track.year != null || track.label != null) {
             when {
@@ -199,7 +210,7 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
         else View.GONE
     }
 
-    private fun setShowNameAndDate(track: TrackEntity) {
+    private fun setShowNameAndDate() {
         showName.text = show.name
         showName.tag = show.id
         broadcastDate.text = TimeHelper.dateFormatter.format(broadcast.date)
@@ -208,8 +219,7 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
 
     private fun setFavorite() {
         if (::favorites.isInitialized && favorites.count { f -> f.trackId == track.trackId } > 0) {
-            favoriteIcon.setImageResource(R.drawable.ic_favorite_white_24dp)
-            favoriteIcon.tag = 1
+            sharedViewModel.onClickFavorite(favoriteIcon, track)
         } else {
             favoriteIcon.setImageResource(R.drawable.ic_favorite_border_white_24dp)
             favoriteIcon.tag = 0

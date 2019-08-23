@@ -61,6 +61,7 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
         super.onAttach(context)
     }
 
+    // TODO: when entering this fragment from backnav, the recycler view sometimes does not load
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -68,13 +69,12 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
             .get(FavoriteTrackDetailsViewModel::class.java)
             .also {
                 it.initialize()
-                it.navController = findNavController()
             }
 
         sharedViewModel = ViewModelProviders.of(this, vmFactory)
             .get(SharedViewModel::class.java)
             .also {
-                it.fetchThirdPartyDataForTrack(track, viewModel.trackRepository)
+                it.fetchThirdPartyDataForTrack(track)
             }
 
         subscribeToViewModel()
@@ -127,20 +127,29 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
 
     private fun subscribeToViewModel() {
         viewModel.liveJoins.observe(this, Observer { joins ->
-            val joinedTracks = joins.getTracks()
-                ?.filter { t -> t != null && resultIds.contains(t.trackId) }
+            val sortedList = mutableListOf<TrackEntity>()
 
-            joinedTracks?.let {
-                tracks = it
-                processObservedTracks(it)
+            val filteredTracks = joins.getTracks()
+                ?.filter { t -> t != null && resultIds.contains(t.trackId) }
+                ?.distinct()
+
+            for (id in resultIds) {
+                val track = filteredTracks?.firstOrNull { t -> t?.trackId == id }
+                track?.let {
+                    sortedList.add(track)
+                }
             }
+
+            tracks = sortedList
+
+            processObservedTracks(tracks)
         })
     }
 
     private fun processObservedTracks(tracks: List<TrackEntity?>) {
         tracks.forEach {
             it?.let {
-                sharedViewModel.fetchThirdPartyDataForTrack(it, viewModel.trackRepository)
+                sharedViewModel.fetchThirdPartyDataForTrack(it)
             }
         }
 
@@ -151,11 +160,16 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
                 setFavorite()
             }
 
-            trackRecyclerView?.scrollToPosition(track.position ?: 0)
+            trackRecyclerView?.scrollToPosition(getAdjustedTrackPosition(track) ?: 0)
             scrollingToCurrentItem = false
         }
 
         LoadScreen.hideLoadScreen(trackDetailsRoot)
+    }
+
+    // Correct for airbreak slots
+    private fun getAdjustedTrackPosition(track: TrackEntity): Int? {
+        return tracks.indexOf(track)
     }
 
     private fun getCurrentItem(): Int {
@@ -178,9 +192,15 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
         setShowNameAndDate(track)
 
         song.text = track.song ?: ""
-        artistAlbum.text = resources.getString(R.string.artist_album,
-            track.artist,
-            track.album)
+        artistAlbum.text = when {
+            track.album?.isNotBlank() == true -> resources.getString(R.string.artist_album, track.artist, track.album)
+            else -> track.artist
+        }
+
+        track.comment?.let {
+            comment.text = it
+            comment.visibility = View.VISIBLE
+        }
 
         if (track.year != null || track.label != null) {
             when {
@@ -211,8 +231,7 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
 
     private fun setFavorite() {
         if (::favorites.isInitialized && favorites.count { f -> f.trackId == track.trackId } > 0) {
-            favoriteIcon.setImageResource(R.drawable.ic_favorite_white_24dp)
-            favoriteIcon.tag = 1
+            sharedViewModel.onClickFavorite(favoriteIcon, track)
         } else {
             favoriteIcon.setImageResource(R.drawable.ic_favorite_border_white_24dp)
             favoriteIcon.tag = 0

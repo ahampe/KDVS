@@ -228,7 +228,7 @@ class HomeFragment : DaggerFragment() {
                     false -> {
                         launch {
                             adds.forEach {
-                                sharedViewModel.fetchThirdPartyDataForTopMusic(it, viewModel.topMusicRepository)
+                                sharedViewModel.fetchThirdPartyDataForTopMusic(it)
                             }
                         }
 
@@ -255,7 +255,7 @@ class HomeFragment : DaggerFragment() {
                     false -> {
                         launch {
                             albums.forEach {
-                                sharedViewModel.fetchThirdPartyDataForTopMusic(it, viewModel.topMusicRepository)
+                                sharedViewModel.fetchThirdPartyDataForTopMusic(it)
                             }
                         }
 

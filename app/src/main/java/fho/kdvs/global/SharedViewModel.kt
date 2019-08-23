@@ -51,6 +51,7 @@ import javax.inject.Inject
  * Use this for data that will be consumed in many places. */
 @kotlinx.serialization.UnstableDefault
 class SharedViewModel @Inject constructor(
+    // TODO: This class is a bit too monolithic -- split up into different repo subclasses?
     application: Application,
     private val showRepository: ShowRepository,
     private val broadcastRepository: BroadcastRepository,
@@ -60,6 +61,7 @@ class SharedViewModel @Inject constructor(
     private val topMusicRepository: TopMusicRepository,
     private val quarterRepository: QuarterRepository,
     private val subscriptionRepository: SubscriptionRepository,
+    private val trackRepository: TrackRepository,
     private val favoriteDao: FavoriteDao,
     private val subscriptionDao: SubscriptionDao,
     private val liveShowUpdater: LiveShowUpdater,
@@ -500,7 +502,7 @@ class SharedViewModel @Inject constructor(
     // region fetch
 
     // TODO: multiple attempts?
-    fun fetchThirdPartyDataForTopMusic(topMusic: TopMusicEntity, topMusicRepository: TopMusicRepository) {
+    fun fetchThirdPartyDataForTopMusic(topMusic: TopMusicEntity) {
         if (topMusic.hasScrapedMetadata() || kdvsPreferences.offlineMode == true)
             return
 
@@ -552,7 +554,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun fetchThirdPartyDataForTrack(track: TrackEntity, trackRepository: TrackRepository) {
+    fun fetchThirdPartyDataForTrack(track: TrackEntity) {
         if (track.hasScrapedMetadata() || kdvsPreferences.offlineMode == true)
             return
 
@@ -618,17 +620,20 @@ class SharedViewModel @Inject constructor(
 
     // region ui
 
-    fun onClickFavorite(view: View, trackId: Int) {
+    fun onClickFavorite(view: View, track: TrackEntity) {
         val imageView = view as? ImageView
 
         if (imageView?.tag == 0) {
             imageView.setImageResource(R.drawable.ic_favorite_white_24dp)
             imageView.tag = 1
-            launch { favoriteDao.insert(FavoriteEntity(0, trackId)) }
+            launch { favoriteDao.insert(FavoriteEntity(0, track.trackId)) }
+
+            // Fetch third party data now to make entry into FavoriteFragment seamless
+            launch { fetchThirdPartyDataForTrack(track)}
         } else if (imageView?.tag == 1) {
             imageView.setImageResource(R.drawable.ic_favorite_border_white_24dp)
             imageView.tag = 0
-            launch { favoriteDao.deleteByTrackId(trackId) }
+            launch { favoriteDao.deleteByTrackId(track.trackId) }
         }
     }
 

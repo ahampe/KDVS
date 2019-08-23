@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import android.widget.ImageView
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
@@ -15,17 +14,22 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
+import fho.kdvs.global.SharedViewModel
+import fho.kdvs.global.database.getTracks
 import fho.kdvs.global.extensions.removeLeadingArticles
+import fho.kdvs.global.ui.LoadScreen
 import kotlinx.android.synthetic.main.cell_favorite_track.view.*
 import kotlinx.android.synthetic.main.fragment_favorites.*
 import timber.log.Timber
 import javax.inject.Inject
 
+@kotlinx.serialization.UnstableDefault
 class FavoriteFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
 
     private lateinit var viewModel: FavoriteViewModel
+    private lateinit var sharedViewModel: SharedViewModel
 
     private var favoriteViewAdapter: FavoriteViewAdapter? = null
     
@@ -40,6 +44,9 @@ class FavoriteFragment : DaggerFragment() {
 
         viewModel = ViewModelProviders.of(this, vmFactory)
             .get(FavoriteViewModel::class.java)
+
+        sharedViewModel = ViewModelProviders.of(this, vmFactory)
+            .get(SharedViewModel::class.java)
 
         subscribeToViewModel()
     }
@@ -56,6 +63,8 @@ class FavoriteFragment : DaggerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        LoadScreen.displayLoadScreen(favoritesRoot)
 
         initializeClickListeners()
         initializeSearchBar()
@@ -135,6 +144,8 @@ class FavoriteFragment : DaggerFragment() {
                     true -> {
                         resultsRecycler.visibility = View.GONE
                         noResults.visibility = View.VISIBLE
+
+                        LoadScreen.hideLoadScreen(favoritesRoot)
                     }
                     false -> {
                         resultsRecycler.visibility = View.VISIBLE
@@ -160,6 +171,8 @@ class FavoriteFragment : DaggerFragment() {
                                 setSectionHeaders()
                             }
                         }
+
+                        LoadScreen.hideLoadScreen(favoritesRoot)
                     }
                 }
             })

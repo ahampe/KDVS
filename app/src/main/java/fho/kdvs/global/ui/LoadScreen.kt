@@ -11,7 +11,9 @@ object LoadScreen {
     private const val tagStr = "Loading"
 
     @JvmStatic
-    fun displayLoadScreen(root: ViewGroup, offsetFromBottom: Boolean = true) {
+    fun displayLoadScreen(root: ViewGroup?, offsetFromBottom: Boolean = true) {
+        if (root == null) return
+
         val layout = RelativeLayout(root.context)
         val progressBar = ProgressBar(root.context)
 
@@ -49,7 +51,9 @@ object LoadScreen {
     }
 
     @JvmStatic
-    fun hideLoadScreen(root: ViewGroup) {
+    fun hideLoadScreen(root: ViewGroup?) {
+        if (root == null) return
+
         for (i in 0..root.childCount) {
             if (root.getChildAt(i)?.tag == tagStr) {
                 root.getChildAt(i)?.visibility = View.GONE
