@@ -123,13 +123,13 @@ class LiveShowUpdater @Inject constructor(
         // TODO: if user was last playing an archive stream, load that stream and its progress instead
 
         // to get the next show, we need the database and
-        val addedTime = currentShow.timeEnd?.plusMinutes(1L) ?: return@async false
+        val addedTime = currentShow.timeEnd?.firstOrNull()?.plusMinutes(1L) ?: return@async false
         // addedTime will most likely be within the epoch week, but it isn't guaranteed:
         val nextShowTime = TimeHelper.makeEpochRelativeTime(addedTime)
 
         val nextShow = getShowAtTime(nextShowTime) ?: return@async false
 
-        val subtractedTime = currentShow.timeStart?.minusMinutes(1L) ?: return@async false
+        val subtractedTime = currentShow.timeStart?.firstOrNull()?.minusMinutes(1L) ?: return@async false
         val previousShowTime = TimeHelper.makeEpochRelativeTime(subtractedTime)
 
         val previousShow = getShowAtTime(previousShowTime) ?: return@async false

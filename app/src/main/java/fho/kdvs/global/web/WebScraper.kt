@@ -109,6 +109,8 @@ class WebScraperManager @Inject constructor(
 
         val showsScraped = mutableListOf<ShowEntity>()
 
+        val multipleOccurrenceShows = mutableListOf<ShowEntity>()
+
         val scheduleChildren = document.select("div.schedule-list > *")
 
         val imageHrefs = mutableSetOf<String?>()
@@ -168,17 +170,22 @@ class WebScraperManager @Inject constructor(
                     }
 
                     for ((name, id) in names.zip(ids)) {
-                        val showEntity = ShowEntity(
+                        val show = ShowEntity(
                             id = id,
                             name = name.trim(),
                             defaultImageHref = imageHref,
-                            timeStart = timeStart,
-                            timeEnd = timeEnd,
+                            timeStart = listOf(timeStart),
+                            timeEnd = listOf(timeEnd),
                             quarter = quarter,
                             year = year
                         )
 
-                        showsScraped.add(showEntity)
+                        // If show occurs multiple times a week, consolidate those occurrences into a single entity
+                        if (names.count { n -> n == name } > 1) {
+                            multipleOccurrenceShows.add(show)
+                        } else {
+                            showsScraped.add(show)
+                        }
                     }
                 }
             }
@@ -187,6 +194,27 @@ class WebScraperManager @Inject constructor(
         showsScraped.forEach { show ->
             db.showDao().updateOrInsert(show)
         }
+
+        multipleOccurrenceShows
+            .groupBy { s -> s.name }
+            .toList()
+            .forEach {
+                val entries = it.second
+
+                val timeStarts = entries
+                    .map { e -> e.timeStart?.firstOrNull() }
+                    .toList()
+
+                val timeEnds = entries
+                    .map { e -> e.timeEnd?.firstOrNull() }
+                    .toList()
+
+                val show = entries
+                    .first()
+                    .copy(timeStart = timeStarts, timeEnd = timeEnds)
+
+                db.showDao().updateOrInsert(show)
+            }
 
         kdvsPreferences.lastScheduleScrape = TimeHelper.getNow().toEpochSecond()
         return ScheduleScrapeData(QuarterYear(quarter, year), showsScraped)

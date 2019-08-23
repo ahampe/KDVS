@@ -78,6 +78,18 @@ class OffsetDateTimeTypeConverter {
     fun toLong(date: OffsetDateTime?): Long? = date?.toEpochSecond()
 }
 
+class ListOffsetDateTimeTypeConverter {
+
+    @TypeConverter
+    fun toOffsetDateTimeList(value: String?): List<OffsetDateTime>? =
+        value?.let { it.split(",")
+            .map { d -> d.toLong() }
+            .map { l -> Instant.ofEpochSecond(l).atOffset(ZoneOffset.UTC) }}
+
+    @TypeConverter
+    fun toString(dates: List<OffsetDateTime>?): String? = dates?.joinToString{ d -> d.toString() }
+}
+
 /** Type converter for broadcast times. Uses strings internally. */
 class LocalDateTypeConverter {
 

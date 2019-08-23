@@ -150,7 +150,7 @@ class ScheduleSelectionFragment : BottomSheetDialogFragment(), CoroutineScope {
         }
 
         activity?.runOnUiThread {
-            timeslot.timeStart?.let {
+            timeslot.timeStart?.firstOrNull()?.let {
                 launch {
                     val shows = viewModel.allOrderedShowsForTime(it)
                     if (shows.isNotEmpty()) {

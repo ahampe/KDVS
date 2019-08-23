@@ -33,7 +33,7 @@ class KdvsAlarmManager @Inject constructor(
     fun registerShowAlarmAsync(show: ShowEntity): Deferred<Boolean> = async {
         val timeStart = show.timeStart
 
-        timeStart?.let {
+        timeStart?.firstOrNull()?.let {
             initShowAlarm(show)
 
             val showsAtTime = showRepository.allShowsAtTimeOrderedRelativeToCurrentWeek(timeStart)
