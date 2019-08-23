@@ -23,14 +23,19 @@ class ShowSearchViewAdapter(
 
     var query: String = ""
 
-    private var shows: List<ShowEntity>? = null
-    private var showsFiltered: List<ShowEntity>? = null
+    var shows: List<ShowEntity>? = null
+    val results = mutableListOf<ShowEntity>()
 
     init {
-        this.shows = showsWithTimeSlotSize
+        shows = showsWithTimeSlotSize
             .map { s -> s.first }
             .toList()
             .distinct()
+
+        shows?.let {
+            results.addAll(it)
+            submitResults()
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -40,7 +45,7 @@ class ShowSearchViewAdapter(
     }
     
     override fun getItemCount(): Int {
-        return showsFiltered?.size ?: 0
+        return results.size
     }
 
     /** Filters show names containing query at start of string, both with and without articles, case insensitive. */
@@ -61,11 +66,18 @@ class ShowSearchViewAdapter(
                                     .find(it.name?.toLowerCase()?.removeLeadingArticles() ?: "") != null)
                                 filteredList.add(it)
                         }
-                        showsFiltered = filteredList
+
+                        results.clear()
+                        results.addAll(filteredList)
+
                         fragment.hashedShows[query] = filteredList
                     }
                 } else {
-                    showsFiltered = shows
+                    results.clear()
+
+                    shows?.let{
+                        results.addAll(it)
+                    }
                 }
 
                 val filterResults = FilterResults()
@@ -79,17 +91,18 @@ class ShowSearchViewAdapter(
             override fun publishResults(charSeq: CharSequence, results: FilterResults) {
                 Timber.d("${results.count} results found")
                 if (results.values is List<*>) {
-                    showsFiltered = results.values as? List<ShowEntity>? // TODO: safe cast?
-
-                    submitList(showsFiltered?.sortedBy { s -> s.name
-                        ?.toLowerCase()
-                        ?.trim()
-                        ?.removeLeadingArticles()})
+                    submitResults()
                 }
             }
         }
     }
 
+    fun submitResults() {
+        submitList(this@ShowSearchViewAdapter.results.sortedBy { s -> s.name
+            ?.toLowerCase()
+            ?.trim()
+            ?.removeLeadingArticles()})
+    }
 
     class ViewHolder(
         private val binding: CellShowSearchResultBinding,

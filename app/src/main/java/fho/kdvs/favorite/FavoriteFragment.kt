@@ -15,11 +15,10 @@ import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
-import fho.kdvs.global.database.getTracks
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.ui.LoadScreen
 import kotlinx.android.synthetic.main.cell_favorite_track.view.*
-import kotlinx.android.synthetic.main.fragment_favorites.*
+import kotlinx.android.synthetic.main.fragment_favorite.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -52,7 +51,13 @@ class FavoriteFragment : DaggerFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_favorites, container, false)
+        return inflater.inflate(R.layout.fragment_favorite, container, false)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        searchBar?.clearFocus()
     }
 
     override fun onResume() {
@@ -237,6 +242,7 @@ class FavoriteFragment : DaggerFragment() {
                 override fun onQueryTextSubmit(query: String): Boolean {
                     favoriteViewAdapter?.filter?.filter(query)
                     favoriteViewAdapter?.query = query
+                    searchBar.clearFocus()
                     return false
                 }
 
@@ -253,6 +259,7 @@ class FavoriteFragment : DaggerFragment() {
                     it.results.clear()
                     it.results.addAll(it.allFavorites)
                     it.updateData()
+                    searchBar.clearFocus()
                 }
 
                 true

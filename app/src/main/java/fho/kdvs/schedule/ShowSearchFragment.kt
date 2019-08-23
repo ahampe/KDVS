@@ -52,6 +52,12 @@ class ShowSearchFragment : DaggerFragment() {
         initializeSearchBar()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        searchBar?.clearFocus()
+    }
+
     private fun subscribeToViewModel(){
         val fragment = this
 
@@ -86,7 +92,6 @@ class ShowSearchFragment : DaggerFragment() {
     private fun initializeSearchBar(){
         searchBar?.run {
             queryHint = resources.getString(R.string.search_query_hint)
-            setIconifiedByDefault(false)
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
                 override fun onQueryTextSubmit(query: String): Boolean {
@@ -101,6 +106,21 @@ class ShowSearchFragment : DaggerFragment() {
                     return false
                 }
             })
+
+            // Display all results upon closing filter
+            setOnCloseListener {
+                showSearchViewAdapter?.let { adapter ->
+                    adapter.results.clear()
+
+                    adapter.shows?.let {
+                        adapter.results.addAll(it)
+                    }
+
+                    adapter.submitResults()
+                }
+
+                true
+            }
         }
     }
 }

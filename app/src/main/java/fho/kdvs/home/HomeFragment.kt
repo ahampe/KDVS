@@ -192,6 +192,7 @@ class HomeFragment : DaggerFragment() {
                 LoadScreen.hideLoadScreen(homeRoot)
             })
 
+            // TODO: sometimes current show recycler doesn't load upon startup
             currentShows.observe(viewLifecycleOwner, Observer { shows ->
                 Timber.d("Got current shows: $shows")
                 currentShowsAdapter?.onCurrentShowsChanged(shows)
