@@ -1,28 +1,39 @@
 package fho.kdvs.settings
 
-import android.content.DialogInterface
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import dagger.android.support.DaggerFragment
+import fho.kdvs.R
 import fho.kdvs.databinding.FragmentSettingsBinding
+import fho.kdvs.dialog.BinaryChoiceDialogFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.RequestCodes
+import fho.kdvs.global.util.RequestCodes.SETTINGS_DIALOG
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
 import kotlinx.android.synthetic.main.fragment_settings.*
-import timber.log.Timber
 import javax.inject.Inject
 
+
+const val DEFAULT_CODEC_POS = 0
+const val DEFAULT_NOTIFICATION_POS = 1
+const val DEFAULT_FUNDRAISER_POS = 1
+const val DEFAULT_FREQUENCY_POS = 0
+const val DEFAULT_THEME_POS = 0
 
 class SettingsFragment : DaggerFragment() {
     @Inject
@@ -30,7 +41,7 @@ class SettingsFragment : DaggerFragment() {
 
     @Inject
     lateinit var kdvsPreferences: KdvsPreferences
-    
+
     private var streamUrl: String? = null
     private var alarmNoticeInterval: Long? = null
     private var fundraiserWindow: Int? = null
@@ -40,6 +51,10 @@ class SettingsFragment : DaggerFragment() {
     private var downloadPath: String? = null
 
     private lateinit var viewModel: SharedViewModel
+
+    private val offlineSwitchChangeListener = CompoundButton.OnCheckedChangeListener { _, isChecked ->
+        offlineMode = isChecked
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,23 +70,12 @@ class SettingsFragment : DaggerFragment() {
         offlineMode = kdvsPreferences.offlineMode
         downloadPath = kdvsPreferences.downloadPath
 
+        // TODO: extend this to navbar press from settings frag
         requireActivity().onBackPressedDispatcher.addCallback(
             object: OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     if (isChanged()) {
-                        context?.let {
-                            AlertDialog.Builder(it)
-                                .setTitle("Exit")
-                                .setMessage("Return without saving changes?")
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .setPositiveButton(android.R.string.yes,
-                                    DialogInterface.OnClickListener { dialog, _ ->
-                                        dialog.dismiss()
-                                        super.setEnabled(false)
-                                        fragmentManager?.popBackStack()
-                                    })
-                                .setNegativeButton(android.R.string.no, null).show()
-                        }
+                        displayDialog()
                     } else {
                         super.setEnabled(false)
                         fragmentManager?.popBackStack()
@@ -97,7 +101,7 @@ class SettingsFragment : DaggerFragment() {
                     URLs.LIVE_OGG -> 0
                     URLs.LIVE_AAC -> 1
                     URLs.LIVE_MP3 -> 2
-                    else -> 0
+                    else -> DEFAULT_CODEC_POS
                 }
 
                 spinner.setSelection(position, false)
@@ -121,7 +125,7 @@ class SettingsFragment : DaggerFragment() {
                     5L -> 1
                     10L -> 2
                     15L -> 3
-                    else -> 0
+                    else -> DEFAULT_NOTIFICATION_POS
                 }
 
                 spinner.setSelection(position, false)
@@ -145,7 +149,7 @@ class SettingsFragment : DaggerFragment() {
                     1 -> 0
                     2 -> 1
                     3 -> 2
-                    else -> 1
+                    else -> DEFAULT_FUNDRAISER_POS
                 }
 
                 spinner.setSelection(position, false)
@@ -168,7 +172,7 @@ class SettingsFragment : DaggerFragment() {
                     WebScraperManager.DEFAULT_SCRAPE_FREQ -> 0
                     WebScraperManager.DAILY_SCRAPE_FREQ -> 1
                     WebScraperManager.WEEKLY_SCRAPE_FREQ -> 2
-                    else -> 0
+                    else -> DEFAULT_FREQUENCY_POS
                 }
 
                 spinner.setSelection(position, false)
@@ -188,7 +192,7 @@ class SettingsFragment : DaggerFragment() {
 
             themeSpinner?.let { spinner ->
                 val position = KdvsPreferences.Theme.values()
-                    .find { t -> t.value == kdvsPreferences.theme }?.value ?: 0
+                    .find { t -> t.value == kdvsPreferences.theme }?.value ?: DEFAULT_THEME_POS
 
                 spinner.setSelection(position, false)
                 spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
@@ -206,13 +210,7 @@ class SettingsFragment : DaggerFragment() {
             offlineSwitch.isChecked = true
         }
 
-        val offlineSwitchChangeListener = CompoundButton.OnCheckedChangeListener { _, isChecked ->
-            offlineMode = isChecked
-        }
-
-        offlineSwitch.setOnCheckedChangeListener{ _, isChecked ->
-            offlineMode = isChecked
-        }
+        offlineSwitch.setOnCheckedChangeListener(offlineSwitchChangeListener)
 
         setDownloadLocation.setOnClickListener { viewModel?.setDownloadFolder(activity) }
 
@@ -228,35 +226,44 @@ class SettingsFragment : DaggerFragment() {
         contactDevs.setOnClickListener { viewModel?.composeEmail(contactDevs, URLs.CONTACT_EMAIL) }
 
         resetSettings.setOnClickListener {
-            context?.let {
-                AlertDialog.Builder(it)
-                    .setTitle("Reset")
-                    .setMessage("Do you want to reset settings back to default?")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setPositiveButton(android.R.string.yes,
-                        DialogInterface.OnClickListener { _, _ ->
-                            kdvsPreferences.clearAll()
-
-                            codecSpinner.setSelection(0)
-                            notificationSpinner.setSelection(1)
-
-                            offlineSwitch.setOnCheckedChangeListener(null)
-                            offlineSwitch.isChecked = false
-                            offlineSwitch.setOnCheckedChangeListener(offlineSwitchChangeListener)
-
-                            fundraiserSpinner.setSelection(1)
-                            frequencySpinner.setSelection(0)
-                            themeSpinner.setSelection(0)
-                            
-                            Timber.d("Preferences reset")
-                        })
-                    .setNegativeButton(android.R.string.no, null).show()
-            }
+            reset()
         }
 
         saveButton.setOnClickListener {
             save()
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        when (requestCode) {
+            SETTINGS_DIALOG -> {
+                // Result from unsaved exit from SettingsFragment
+                if (resultCode == Activity.RESULT_OK) {
+                    requireFragmentManager().popBackStack()
+                } else if (resultCode == Activity.RESULT_CANCELED) { }
+            }
+        }
+    }
+
+    private fun reset() {
+        codecSpinner.setSelection(DEFAULT_CODEC_POS)
+        notificationSpinner.setSelection(DEFAULT_NOTIFICATION_POS)
+        fundraiserSpinner.setSelection(DEFAULT_FUNDRAISER_POS)
+        frequencySpinner.setSelection(DEFAULT_FREQUENCY_POS)
+        themeSpinner.setSelection(DEFAULT_THEME_POS)
+
+        offlineSwitch.setOnCheckedChangeListener(null)
+        offlineSwitch.isChecked = false
+        offlineSwitch.setOnCheckedChangeListener(offlineSwitchChangeListener)
+
+        streamUrl = null
+        fundraiserWindow = null
+        scrapeFrequency = null
+        theme = null
+        offlineMode = null
+        downloadPath = null
     }
 
     // Note: tempDownloadPath is set through a MainActivity callback.
@@ -267,8 +274,12 @@ class SettingsFragment : DaggerFragment() {
                 viewModel.stopPlayback()
         })
 
+        // If notification window is changed, re-initialize alarms
+        if (alarmNoticeInterval != kdvsPreferences.alarmNoticeInterval) {
+            viewModel.reRegisterSubscriptionsAndUpdatePreference(alarmNoticeInterval)
+        }
+
         kdvsPreferences.streamUrl = streamUrl
-        kdvsPreferences.alarmNoticeInterval = alarmNoticeInterval
         kdvsPreferences.fundraiserWindow = fundraiserWindow
         kdvsPreferences.scrapeFrequency = scrapeFrequency
         kdvsPreferences.theme = theme
@@ -283,4 +294,16 @@ class SettingsFragment : DaggerFragment() {
         theme != kdvsPreferences.theme ||
         offlineMode != kdvsPreferences.offlineMode ||
         kdvsPreferences.tempDownloadPath != kdvsPreferences.downloadPath
+
+    private fun displayDialog() {
+        val dialog = BinaryChoiceDialogFragment()
+        val args = Bundle()
+
+        args.putString("title", "Discard changes")
+        args.putString("message", "Leave without saving?")
+
+        dialog.arguments = args
+        dialog.setTargetFragment(this@SettingsFragment, SETTINGS_DIALOG)
+        dialog.show(requireFragmentManager(), "tag")
+    }
 }

@@ -24,7 +24,7 @@ import fho.kdvs.global.database.*
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
 import fho.kdvs.global.preferences.KdvsPreferences
-import fho.kdvs.global.util.Constants.READ_REQUEST_CODE
+import fho.kdvs.global.util.RequestCodes.SET_DOWNLOAD_PATH
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
@@ -442,7 +442,7 @@ class SharedViewModel @Inject constructor(
 
     fun setDownloadFolder(activity: FragmentActivity?) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-        activity?.startActivityForResult(intent, READ_REQUEST_CODE)
+        activity?.startActivityForResult(intent, SET_DOWNLOAD_PATH)
     }
 
     fun getDownloadingFilename(title: String) = "$title$broadcastExtension$temporaryExtension"
@@ -677,6 +677,31 @@ class SharedViewModel @Inject constructor(
     // endregion
 
     // region subscription
+
+    /**
+     * When user changes the alarm notification window in settings, we'll need to re-register all alarms
+     * with the new window. We must first cancel all alarms before updating the preference,
+     * such that we can initialize matching Intents.
+     */
+    fun reRegisterSubscriptionsAndUpdatePreference(newWindow: Long?) {
+        if (newWindow == null) return
+
+        val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
+
+        launch {
+            val subscribedShows = getSubscribedShows()
+
+            subscribedShows.forEach {
+                alarmMgr.cancelShowAlarm(it)
+            }
+
+            kdvsPreferences.alarmNoticeInterval = newWindow
+
+            subscribedShows.forEach {
+                alarmMgr.registerShowAlarmAsync(it)
+            }
+        }
+    }
 
     /**
      * After a quarter change, subscribed recurring shows will have new database objects, and possibly new timeslots,

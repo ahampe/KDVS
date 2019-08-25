@@ -140,4 +140,15 @@
             android:name="topMusic"
             app:argType="fho.kdvs.global.database.TopMusicEntity" />
     </fragment>
+    <fragment
+        android:id="@+id/binaryChoiceDialogFragment"
+        android:name="fho.kdvs.dialog.BinaryChoiceDialogFragment"
+        android:label="BinaryChoiceDialogFragment">
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="message"
+            app:argType="string" />
+    </fragment>
 </navigation>

@@ -79,12 +79,10 @@ class KdvsAlarmManager @Inject constructor(
         if (alarmMgr == null)
             alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        if (!::alarmIntent.isInitialized) {
-            alarmIntent = Intent(context, AlarmReceiver::class.java).let { intent ->
-                intent.putExtra("showName", show.name)
-                intent.putExtra("interval", kdvsPreferences.alarmNoticeInterval?.toInt() ?: 0)
-                PendingIntent.getBroadcast(context, show.id, intent, 0)
-            }
+        alarmIntent = Intent(context, AlarmReceiver::class.java).let { intent ->
+            intent.putExtra("showName", show.name)
+            intent.putExtra("interval", kdvsPreferences.alarmNoticeInterval?.toInt() ?: 0)
+            PendingIntent.getBroadcast(context, show.id, intent, 0)
         }
     }
 }
