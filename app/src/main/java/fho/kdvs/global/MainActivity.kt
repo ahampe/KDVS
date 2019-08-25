@@ -3,7 +3,6 @@ package fho.kdvs.global
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
@@ -12,6 +11,7 @@ import android.view.View
 import android.widget.ProgressBar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.PermissionChecker
+import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavController
@@ -89,11 +89,13 @@ class MainActivity : DaggerAppCompatActivity() {
     override fun onSupportNavigateUp() = navController.navigateUp()
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
+        super.onActivityResult(requestCode, resultCode, resultData)
+
         // Result from setting download path
         if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             resultData?.data?.also { uri ->
                 Timber.d("Download path tree uri set: ${uri.path}")
-                kdvsPreferences.downloadPath = uri.path
+                kdvsPreferences.tempDownloadPath = uri.path
             }
         }
     }
@@ -194,7 +196,7 @@ class MainActivity : DaggerAppCompatActivity() {
             true -> {
                 if (PermissionChecker
                         .checkSelfPermission(applicationContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
-                            PackageManager.PERMISSION_GRANTED) {
+                            PERMISSION_GRANTED) {
                     true
                 } else {
                     ActivityCompat.requestPermissions(this,

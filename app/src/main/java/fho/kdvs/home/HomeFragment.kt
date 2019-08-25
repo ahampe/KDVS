@@ -201,7 +201,7 @@ class HomeFragment : DaggerFragment() {
             newsArticles.observe(viewLifecycleOwner, Observer { articles ->
                 Timber.d("Got articles: $articles")
 
-                val highestId = articles.maxBy { a -> a.newsId}?.newsId
+                val highestId = articles.maxBy { a -> a.newsId }?.newsId
 
                 // Display info icon when there are unviewed articles
                 if (highestId != kdvsPreferences.lastObservedNewsId) {

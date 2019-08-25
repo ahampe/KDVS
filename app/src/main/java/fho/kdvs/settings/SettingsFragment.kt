@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.CompoundButton
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import dagger.android.support.DaggerFragment
 import fho.kdvs.databinding.FragmentSettingsBinding
@@ -28,6 +30,14 @@ class SettingsFragment : DaggerFragment() {
 
     @Inject
     lateinit var kdvsPreferences: KdvsPreferences
+    
+    private var streamUrl: String? = null
+    private var alarmNoticeInterval: Long? = null
+    private var fundraiserWindow: Int? = null
+    private var scrapeFrequency: Long? = null
+    private var theme: Int? = null
+    private var offlineMode: Boolean? = null
+    private var downloadPath: String? = null
 
     private lateinit var viewModel: SharedViewModel
 
@@ -36,6 +46,39 @@ class SettingsFragment : DaggerFragment() {
 
         viewModel = ViewModelProviders.of(this, vmFactory)
             .get(SharedViewModel::class.java)
+
+        streamUrl = kdvsPreferences.streamUrl
+        alarmNoticeInterval = kdvsPreferences.alarmNoticeInterval
+        fundraiserWindow = kdvsPreferences.fundraiserWindow
+        scrapeFrequency = kdvsPreferences.scrapeFrequency
+        theme = kdvsPreferences.theme
+        offlineMode = kdvsPreferences.offlineMode
+        downloadPath = kdvsPreferences.downloadPath
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            object: OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (isChanged()) {
+                        context?.let {
+                            AlertDialog.Builder(it)
+                                .setTitle("Exit")
+                                .setMessage("Return without saving changes?")
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .setPositiveButton(android.R.string.yes,
+                                    DialogInterface.OnClickListener { dialog, _ ->
+                                        dialog.dismiss()
+                                        super.setEnabled(false)
+                                        fragmentManager?.popBackStack()
+                                    })
+                                .setNegativeButton(android.R.string.no, null).show()
+                        }
+                    } else {
+                        super.setEnabled(false)
+                        fragmentManager?.popBackStack()
+                    }
+                }
+            }
+        )
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -57,10 +100,10 @@ class SettingsFragment : DaggerFragment() {
                     else -> 0
                 }
 
-                spinner.setSelection(position)
+                spinner.setSelection(position, false)
                 spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                        kdvsPreferences.streamUrl = when (position) {
+                        streamUrl = when (position) {
                             0 -> URLs.LIVE_OGG
                             1 -> URLs.LIVE_AAC
                             2 -> URLs.LIVE_MP3
@@ -81,10 +124,10 @@ class SettingsFragment : DaggerFragment() {
                     else -> 0
                 }
 
-                spinner.setSelection(position)
+                spinner.setSelection(position, false)
                 spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                        kdvsPreferences.alarmNoticeInterval = when (position) {
+                        alarmNoticeInterval = when (position) {
                             0 -> 0
                             1 -> 5
                             2 -> 10
@@ -105,10 +148,10 @@ class SettingsFragment : DaggerFragment() {
                     else -> 1
                 }
 
-                spinner.setSelection(position)
+                spinner.setSelection(position, false)
                 spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                        kdvsPreferences.fundraiserWindow = when (position) {
+                        fundraiserWindow = when (position) {
                             0 -> 1
                             1 -> 2
                             2 -> 3
@@ -128,10 +171,10 @@ class SettingsFragment : DaggerFragment() {
                     else -> 0
                 }
 
-                spinner.setSelection(position)
+                spinner.setSelection(position, false)
                 spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                        kdvsPreferences.scrapeFrequency = when (position) {
+                        scrapeFrequency = when (position) {
                             0 -> WebScraperManager.DEFAULT_SCRAPE_FREQ
                             1 -> WebScraperManager.DAILY_SCRAPE_FREQ
                             2 -> WebScraperManager.WEEKLY_SCRAPE_FREQ
@@ -147,10 +190,10 @@ class SettingsFragment : DaggerFragment() {
                 val position = KdvsPreferences.Theme.values()
                     .find { t -> t.value == kdvsPreferences.theme }?.value ?: 0
 
-                spinner.setSelection(position)
+                spinner.setSelection(position, false)
                 spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                        kdvsPreferences.theme = KdvsPreferences.Theme.values()[position].value
+                        theme = KdvsPreferences.Theme.values()[position].value
                     }
 
                     override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -164,12 +207,15 @@ class SettingsFragment : DaggerFragment() {
         }
 
         val offlineSwitchChangeListener = CompoundButton.OnCheckedChangeListener { _, isChecked ->
-            kdvsPreferences.offlineMode = isChecked
-            viewModel.stopPlayback()
+            offlineMode = isChecked
         }
 
-        offlineSwitch.setOnCheckedChangeListener(offlineSwitchChangeListener)
+        offlineSwitch.setOnCheckedChangeListener{ _, isChecked ->
+            offlineMode = isChecked
+        }
+
         setDownloadLocation.setOnClickListener { viewModel?.setDownloadFolder(activity) }
+
         refresh.setOnClickListener {
             viewModel?.refreshData()
 
@@ -178,7 +224,9 @@ class SettingsFragment : DaggerFragment() {
                 Toast.LENGTH_SHORT)
                 .show()
         }
+
         contactDevs.setOnClickListener { viewModel?.composeEmail(contactDevs, URLs.CONTACT_EMAIL) }
+
         resetSettings.setOnClickListener {
             context?.let {
                 AlertDialog.Builder(it)
@@ -204,7 +252,35 @@ class SettingsFragment : DaggerFragment() {
                         })
                     .setNegativeButton(android.R.string.no, null).show()
             }
+        }
 
+        saveButton.setOnClickListener {
+            save()
         }
     }
+
+    // Note: tempDownloadPath is set through a MainActivity callback.
+    private fun save() {
+        // If flipped to offlineMode, stop current live playback
+        viewModel.isLiveNow.observe(this, Observer {live ->
+            if (live == true && offlineMode == true && kdvsPreferences.offlineMode != true)
+                viewModel.stopPlayback()
+        })
+
+        kdvsPreferences.streamUrl = streamUrl
+        kdvsPreferences.alarmNoticeInterval = alarmNoticeInterval
+        kdvsPreferences.fundraiserWindow = fundraiserWindow
+        kdvsPreferences.scrapeFrequency = scrapeFrequency
+        kdvsPreferences.theme = theme
+        kdvsPreferences.offlineMode = offlineMode
+        kdvsPreferences.downloadPath = kdvsPreferences.tempDownloadPath
+    }
+
+    private fun isChanged() = streamUrl != kdvsPreferences.streamUrl ||
+        alarmNoticeInterval != kdvsPreferences.alarmNoticeInterval ||
+        fundraiserWindow != kdvsPreferences.fundraiserWindow ||
+        scrapeFrequency != kdvsPreferences.scrapeFrequency ||
+        theme != kdvsPreferences.theme ||
+        offlineMode != kdvsPreferences.offlineMode ||
+        kdvsPreferences.tempDownloadPath != kdvsPreferences.downloadPath
 }

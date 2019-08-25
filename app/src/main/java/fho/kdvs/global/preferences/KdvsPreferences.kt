@@ -133,6 +133,8 @@ open class KdvsPreferences @Inject constructor(application: Application) {
 
     var downloadPath: String? by StringPreference(Key.DOWNLOAD_PATH)
 
+    var tempDownloadPath: String? = downloadPath
+
     var theme: Int? by IntPreference(Key.THEME)
 
     fun getLastShowScrape(showId: String): Long? {
