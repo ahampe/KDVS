@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import android.widget.Toast
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
@@ -34,10 +35,10 @@ import kotlinx.android.synthetic.main.fragment_broadcast_details.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
-import java.io.File
 import javax.inject.Inject
 
 
+@kotlinx.serialization.UnstableDefault
 class BroadcastDetailsFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
@@ -61,7 +62,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
     private var downloadId: Long? = null
 
-    private lateinit var file: File
+    private var file: DocumentFile? = null
 
     private lateinit var downloadManager: DownloadManager
 
@@ -71,7 +72,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
         viewModel.broadcast.value?.let { broadcast ->
             viewModel.show.value?.let { show ->
-                val folder = sharedViewModel.getDownloadFolder()
+                val folder = sharedViewModel.getDownloadFolder(requireContext())
 
                 folder?.let {
                     when (isChecked) {
@@ -92,8 +93,8 @@ class BroadcastDetailsFragment : DaggerFragment() {
             if (downloadId != null && downloadId == id) {
                 Toast.makeText(activity as? MainActivity, "Download completed", Toast.LENGTH_SHORT).show()
 
-                if (::file.isInitialized) {
-                    sharedViewModel.renameFileAfterCompletion(file)
+                file?.let {
+                    sharedViewModel.renameFileAfterCompletion(requireContext(), it)
                 }
             }
         }
@@ -153,7 +154,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
             broadcast?.let {
                 show?.let {
-                    sharedViewModel.playPastBroadcast(broadcast, show, activity)
+                    sharedViewModel.playPastBroadcast(broadcast, show, requireActivity())
                 }
             }
         }
@@ -169,7 +170,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
             setPlaybackViewsAndHideProgressBar(broadcast)
 
             viewModel.show.observe(fragment, Observer { show ->
-                if (sharedViewModel.isBroadcastDownloaded(broadcast, show)) {
+                if (sharedViewModel.isBroadcastDownloaded(requireContext(), broadcast, show)) {
                     setSwitchForDownloadedBroadcast()
                     setDownloadViewsVisible()
                 }
@@ -186,7 +187,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
         })
     }
 
-    private fun downloadBroadcast(broadcast: BroadcastEntity, show: ShowEntity, folder: File) {
+    private fun downloadBroadcast(broadcast: BroadcastEntity, show: ShowEntity, folder: DocumentFile) {
         if (kdvsPreferences.offlineMode == true) {
             sharedViewModel.makeOfflineModeToast(activity)
             return
@@ -195,49 +196,56 @@ class BroadcastDetailsFragment : DaggerFragment() {
         val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
         val filename = sharedViewModel.getDownloadingFilename(title)
 
-        file = sharedViewModel.getDestinationFile(filename)
+        file = sharedViewModel.getDestinationFile(requireContext(), filename)
 
-        (activity as? MainActivity)?.let { activity ->
-            if (activity.isStoragePermissionGranted()) {
-                val url = URLs.archiveForBroadcast(broadcast)
+        file?.let {f ->
+            (activity as? MainActivity)?.let { activity ->
+                if (activity.isStoragePermissionGranted()) {
+                    val url = URLs.archiveForBroadcast(broadcast)
 
-                url?.let {
-                    if (!folder.exists())
-                        folder.mkdir()
+                    url?.let {
+                        if (!folder.exists()) {
+                            folder.name?.let {
+                                folder.parentFile?.createDirectory(it)
+                            }
+                        }
 
-                    try {
-                        val request = sharedViewModel.makeDownloadRequest(url, title, file)
+                        try {
+                            val request = sharedViewModel.makeDownloadRequest(url, title, f)
 
-                        downloadManager = context?.getSystemService(DOWNLOAD_SERVICE)
-                                as DownloadManager
+                            downloadManager = context?.getSystemService(DOWNLOAD_SERVICE)
+                                    as DownloadManager
 
-                        downloadId = downloadManager.enqueue(request)
-                    } catch (e: Exception) {
-                        Timber.d("Error downloading broadcast: $e")
-                        Toast.makeText(activity as? MainActivity, "Error downloading broadcast", Toast.LENGTH_SHORT)
-                            .show()
+                            downloadId = downloadManager.enqueue(request)
+                        } catch (e: Exception) {
+                            Timber.d("Error downloading broadcast: $e")
+                            Toast.makeText(activity as? MainActivity, "Error downloading broadcast", Toast.LENGTH_SHORT)
+                                .show()
+                        }
                     }
+                } else {
+                    Toast.makeText(activity as? MainActivity, "Download permission not granted", Toast.LENGTH_SHORT)
+                        .show()
                 }
-            } else {
-                Toast.makeText(activity as? MainActivity, "Download permission not granted", Toast.LENGTH_SHORT)
-                    .show()
             }
         }
+
     }
 
     private fun deleteBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
         val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
         val filename = sharedViewModel.getDownloadedFilename(title)
 
-        file = sharedViewModel.getDestinationFile(filename)
+        file = sharedViewModel.getDestinationFile(requireContext(), filename)
 
         downloadId?.let {
             if (::downloadManager.isInitialized)
                 downloadManager.remove(it)
         }
 
-        if (::file.isInitialized)
-            sharedViewModel.deleteFile(file)
+        file?.let {
+            sharedViewModel.deleteFile(it)
+        }
     }
 
     private fun setSwitchForDownloadedBroadcast() {

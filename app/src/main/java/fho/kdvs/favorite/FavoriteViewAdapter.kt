@@ -7,7 +7,7 @@ import android.widget.Filter
 import android.widget.Filterable
 import fho.kdvs.databinding.CellFavoriteTrackBinding
 import fho.kdvs.global.database.*
-import fho.kdvs.global.extensions.removeLeadingArticles
+import fho.kdvs.global.extensions.withoutLeadingArticles
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
@@ -72,7 +72,7 @@ class FavoriteViewAdapter(
                                 field?.let {
                                     if (!filteredList.contains(join) &&
                                         "^$query".toRegex()
-                                            .find(it.toLowerCase().removeLeadingArticles()) != null)
+                                            .find(it.toLowerCase().withoutLeadingArticles) != null)
                                         filteredList.add(join)
                                 }
                             }
@@ -126,17 +126,17 @@ class FavoriteViewAdapter(
         return (when (fragment.sortDirection) {
             SortDirection.ASC -> when (fragment.sortType) {
                 SortType.RECENT -> list?.sortedBy{it.favorite?.favoriteId}
-                SortType.ALBUM  -> list?.sortedBy{it.track?.album?.toUpperCase().removeLeadingArticles()}
-                SortType.ARTIST -> list?.sortedBy{it.track?.artist?.toUpperCase().removeLeadingArticles()}
-                SortType.TRACK  -> list?.sortedBy{it.track?.song?.toUpperCase().removeLeadingArticles()}
-                SortType.SHOW   -> list?.sortedBy{it.show?.name?.toUpperCase().removeLeadingArticles()}
+                SortType.ALBUM  -> list?.sortedBy{it.track?.album?.toUpperCase().withoutLeadingArticles}
+                SortType.ARTIST -> list?.sortedBy{it.track?.artist?.toUpperCase().withoutLeadingArticles}
+                SortType.TRACK  -> list?.sortedBy{it.track?.song?.toUpperCase().withoutLeadingArticles}
+                SortType.SHOW   -> list?.sortedBy{it.show?.name?.toUpperCase().withoutLeadingArticles}
             }
             SortDirection.DES -> when (fragment.sortType) {
                 SortType.RECENT -> list?.sortedByDescending{it.favorite?.favoriteId}
-                SortType.ALBUM  -> list?.sortedByDescending{it.track?.album?.toUpperCase().removeLeadingArticles()}
-                SortType.ARTIST -> list?.sortedByDescending{it.track?.artist?.toUpperCase().removeLeadingArticles()}
-                SortType.TRACK  -> list?.sortedByDescending{it.track?.song?.toUpperCase().removeLeadingArticles()}
-                SortType.SHOW   -> list?.sortedByDescending{it.show?.name?.toUpperCase().removeLeadingArticles()}
+                SortType.ALBUM  -> list?.sortedByDescending{it.track?.album?.toUpperCase().withoutLeadingArticles}
+                SortType.ARTIST -> list?.sortedByDescending{it.track?.artist?.toUpperCase().withoutLeadingArticles}
+                SortType.TRACK  -> list?.sortedByDescending{it.track?.song?.toUpperCase().withoutLeadingArticles}
+                SortType.SHOW   -> list?.sortedByDescending{it.show?.name?.toUpperCase().withoutLeadingArticles}
             }
         })
     }

@@ -4,11 +4,13 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.media.AudioManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.PermissionChecker
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
@@ -28,7 +30,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.view_player_bar.*
 import kotlinx.android.synthetic.main.view_player_bar.view.*
 import org.threeten.bp.OffsetDateTime
-import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -93,11 +94,17 @@ class MainActivity : DaggerAppCompatActivity() {
 
         when (requestCode) {
             RequestCodes.SET_DOWNLOAD_PATH -> {
-                // Result from setting download path
                 if (resultCode == Activity.RESULT_OK) {
-                    resultData?.data?.also { uri ->
-                        Timber.d("Download path tree uri set: ${uri.path}")
-                        kdvsPreferences.tempDownloadPath = uri.path
+                    resultData?.data?.also { treeUri ->
+
+                        if (isExternalStorageUri(treeUri)) {
+                            kdvsPreferences.tempDownloadPath = treeUri.toString()
+                        } else {
+                            Toast.makeText(this,
+                                "Please choose an external storage location",
+                                Toast.LENGTH_LONG)
+                                .show()
+                        }
                     }
                 }
             }
@@ -212,4 +219,7 @@ class MainActivity : DaggerAppCompatActivity() {
             false -> true
         }
     }
+
+    private fun isExternalStorageUri(uri: Uri): Boolean =
+        uri.authority == "com.android.externalstorage.documents"
 }

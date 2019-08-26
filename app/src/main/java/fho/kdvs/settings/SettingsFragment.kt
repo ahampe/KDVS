@@ -69,20 +69,6 @@ class SettingsFragment : DaggerFragment() {
         theme = kdvsPreferences.theme
         offlineMode = kdvsPreferences.offlineMode
         downloadPath = kdvsPreferences.downloadPath
-
-        // TODO: extend this to navbar press from settings frag
-        requireActivity().onBackPressedDispatcher.addCallback(
-            object: OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (isChanged()) {
-                        displayDialog()
-                    } else {
-                        super.setEnabled(false)
-                        fragmentManager?.popBackStack()
-                    }
-                }
-            }
-        )
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -247,6 +233,27 @@ class SettingsFragment : DaggerFragment() {
         }
     }
 
+    // TODO: this isn't the right lifecycle method to call this in
+
+    /** Callback is initialized here because after activity result on download path change,
+     * fragment OnCreate isn't called again. */
+    override fun onResume() {
+        super.onResume()
+
+        // TODO: extend this to navbar press from settings frag
+        requireActivity().onBackPressedDispatcher.addCallback(
+            object: OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (isChanged()) {
+                        displayDialog()
+                    } else {
+                        fragmentManager?.popBackStack()
+                    }
+                }
+            }
+        )
+    }
+
     private fun reset() {
         codecSpinner.setSelection(DEFAULT_CODEC_POS)
         notificationSpinner.setSelection(DEFAULT_NOTIFICATION_POS)
@@ -264,6 +271,9 @@ class SettingsFragment : DaggerFragment() {
         theme = null
         offlineMode = null
         downloadPath = null
+
+        Toast.makeText(requireContext(), "Settings reset", Toast.LENGTH_SHORT)
+            .show()
     }
 
     // Note: tempDownloadPath is set through a MainActivity callback.
@@ -279,12 +289,20 @@ class SettingsFragment : DaggerFragment() {
             viewModel.reRegisterSubscriptionsAndUpdatePreference(alarmNoticeInterval)
         }
 
+        // If download path changed, move existing downloads to new location
+        if (kdvsPreferences.tempDownloadPath != kdvsPreferences.downloadPath) {
+            viewModel.moveDownloads(kdvsPreferences.downloadPath, kdvsPreferences.tempDownloadPath)
+        }
+
         kdvsPreferences.streamUrl = streamUrl
         kdvsPreferences.fundraiserWindow = fundraiserWindow
         kdvsPreferences.scrapeFrequency = scrapeFrequency
         kdvsPreferences.theme = theme
         kdvsPreferences.offlineMode = offlineMode
         kdvsPreferences.downloadPath = kdvsPreferences.tempDownloadPath
+
+        Toast.makeText(requireContext(), "Settings saved", Toast.LENGTH_SHORT)
+            .show()
     }
 
     private fun isChanged() = streamUrl != kdvsPreferences.streamUrl ||
@@ -293,7 +311,7 @@ class SettingsFragment : DaggerFragment() {
         scrapeFrequency != kdvsPreferences.scrapeFrequency ||
         theme != kdvsPreferences.theme ||
         offlineMode != kdvsPreferences.offlineMode ||
-        kdvsPreferences.tempDownloadPath != kdvsPreferences.downloadPath
+        downloadPath != kdvsPreferences.tempDownloadPath
 
     private fun displayDialog() {
         val dialog = BinaryChoiceDialogFragment()

@@ -58,6 +58,7 @@
     <string name="notification">Notification</string>
     <string name="notification_time">Time in advance</string>
     <string name="notification_desc">Schedule notifications for your subscribed shows\' broadcasts to occur a set amount of time before they go live.</string>
+    <string name="download_desc">Select a folder in your external storage that you wish broadcasts to be downloaded to. By default, they will be downloaded to Music/KDVS.</string>
     <string name="data">Data</string>
     <string name="offline">Offline mode</string>
     <string name="offline_desc">Disable stream, download, and info retrieval functionality. You will still be able to view existing info and play downloaded broadcasts. Helpful for avoiding data usage.</string>

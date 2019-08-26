@@ -47,5 +47,11 @@ inline val String?.urlEncoded: String
         URLEncoder.encode(this ?: "")
     }
 
-fun String?.removeLeadingArticles() = """^(?:(the|THE|The|a|A|an|AN|An) +)""".toRegex()
+inline val String?.withoutLeadingArticles: String
+    get() = """^(?:(the|THE|The|a|A|an|AN|An) +)""".toRegex()
     .replace(this ?: "", "")
+
+inline val String?.withoutTrailingExtension: String
+    get() = (this ?: "").split(".".toRegex()).let {
+                it.slice(0 until it.size-1).joinToString()
+            }
