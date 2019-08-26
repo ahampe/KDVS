@@ -35,6 +35,7 @@ import kotlinx.android.synthetic.main.fragment_broadcast_details.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
 
 
@@ -62,7 +63,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
     private var downloadId: Long? = null
 
-    private var file: DocumentFile? = null
+    private var file: File? = null
 
     private lateinit var downloadManager: DownloadManager
 
@@ -90,12 +91,12 @@ class BroadcastDetailsFragment : DaggerFragment() {
         override fun onReceive(context: Context, intent: Intent) {
             val id = intent.getLongExtra(EXTRA_DOWNLOAD_ID, -1)
 
-            if (downloadId != null && downloadId == id) {
-                Toast.makeText(activity as? MainActivity, "Download completed", Toast.LENGTH_SHORT).show()
-
-                file?.let {
-                    sharedViewModel.renameFileAfterCompletion(requireContext(), it)
-                }
+            if (downloadId != null && downloadId == id && ::downloadManager.isInitialized) {
+                val uri = downloadManager.getUriForDownloadedFile(id)
+                val file = File(uri.path)
+                if (sharedViewModel.moveFile(file, "${kdvsPreferences.downloadPath}"))
+                    Toast.makeText(activity as? MainActivity, "Download completed", Toast.LENGTH_SHORT)
+                        .show()
             }
         }
     }
@@ -211,7 +212,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
                         }
 
                         try {
-                            val request = sharedViewModel.makeDownloadRequest(url, title, f)
+                            val request = sharedViewModel.makeDownloadRequest(url, title)
 
                             downloadManager = context?.getSystemService(DOWNLOAD_SERVICE)
                                     as DownloadManager

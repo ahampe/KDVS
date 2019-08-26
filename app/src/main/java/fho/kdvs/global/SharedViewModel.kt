@@ -24,7 +24,6 @@ import fho.kdvs.fundraiser.FundraiserRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
-import fho.kdvs.global.extensions.withoutTrailingExtension
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.RequestCodes.SET_DOWNLOAD_PATH
 import fho.kdvs.global.util.TimeHelper
@@ -51,6 +50,8 @@ import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 
+const val BROADCAST_EXT = ".mp3"
+const val TEMP_EXT = ".tmp"
 
 /** An [AndroidViewModel] scoped to the main activity.
  * Use this for data that will be consumed in many places. */
@@ -214,7 +215,7 @@ class SharedViewModel @Inject constructor(
             true -> {
                 try {
                     mediaSessionConnection.transportControls?.playFromUri(
-                        file.uri,
+                        Uri.fromFile(file),
                         Bundle().apply {
                             putInt("SHOW_ID", show.id)
                             putString("TYPE", PlaybackType.ARCHIVE.type)
@@ -421,19 +422,16 @@ class SharedViewModel @Inject constructor(
 
     // endregion
 
-    // region Download
-
-    private val broadcastExtension = ".mp3"
-    private val temporaryExtension = ".tmp"
+    // region download
 
     fun getBroadcastDownloadTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
         "${show.name} (${TimeHelper.dateFormatter.format(broadcast.date)})"
 
-    fun getDestinationFile(context: Context, filename: String): DocumentFile? {
+    fun getDestinationFile(context: Context, filename: String): File? {
         val folder = getDownloadFolder(context)
 
         return try {
-            DocumentFile.fromTreeUri(context, Uri.parse("${folder?.uri}/$filename"))
+            File(folder?.uri?.path, filename)
         } catch (e: Exception) {
             Timber.e("Destination path invalid: $e")
             null
@@ -448,7 +446,7 @@ class SharedViewModel @Inject constructor(
         if (isExternalStorageWritable()) {
             try {
                 return if (!kdvsPreferences.downloadPath.isNullOrBlank())
-                    DocumentFile.fromTreeUri(context, Uri.parse(kdvsPreferences.downloadPath))
+                    DocumentFile.fromFile(File(kdvsPreferences.downloadPath))
                 else
                     DocumentFile.fromFile(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), "KDVS"))
             } catch (e: Exception) {
@@ -464,37 +462,37 @@ class SharedViewModel @Inject constructor(
         activity?.startActivityForResult(intent, SET_DOWNLOAD_PATH)
     }
 
-    fun moveDownloads(oldPath: String?, newPath: String?) {
+    fun getDownloadingFilename(title: String) = "$title$BROADCAST_EXT$TEMP_EXT"
 
-    }
+    fun getDownloadedFilename(title: String) = "$title$BROADCAST_EXT"
 
-    fun getDownloadingFilename(title: String) = "$title$broadcastExtension$temporaryExtension"
-
-    fun getDownloadedFilename(title: String) = "$title$broadcastExtension"
-
-    /** Rename '.mp3.tmp' to '.mp3' */
-    fun renameFileAfterCompletion(context: Context, file: DocumentFile) {
-        val dest = DocumentFile.fromTreeUri(context,
-            Uri.parse("${file.parentFile?.uri?.path}/${file.name.withoutTrailingExtension}"))
-
-        dest?.name?.let {
-            file.renameTo(it)
-        }
-
-        // TODO: embed metadata in mp3
-    }
-
-    fun makeDownloadRequest(url: String, title: String, file: DocumentFile): DownloadManager.Request {
+    /**
+     * Downloads are written by DownloadManager to a cache; after download completion we move to
+     * user-specified (or default) location on external storage.
+     */
+    fun makeDownloadRequest(url: String, title: String): DownloadManager.Request {
         return DownloadManager.Request(Uri.parse(url))
             .setTitle(title)
             .setDescription("Downloading")
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
-            .setDestinationUri(file.uri)
             .setAllowedOverMetered(true)
             .setAllowedOverRoaming(true)
     }
 
-    fun deleteFile(file: DocumentFile) {
+    fun moveFile(from: File, newDirPath: String?): Boolean {
+        try {
+            val to = File("$newDirPath/${from.name}")
+            from.renameTo(to)
+
+            return true
+        } catch (e: Exception) {
+            Timber.d("File move failed for ${from.name}: ${e.message}")
+        }
+
+        return false
+    }
+
+    fun deleteFile(file: File) {
         try {
             file.delete()
         } catch (e: Exception) {
@@ -508,7 +506,7 @@ class SharedViewModel @Inject constructor(
         val files = folder?.listFiles()
 
         files?.let {
-            return (it.count{ f -> f.name == "$title$broadcastExtension" } > 0)
+            return (it.count{ f -> f.name == "$title$BROADCAST_EXT" } > 0)
         }
 
         return false
@@ -518,8 +516,8 @@ class SharedViewModel @Inject constructor(
         context: Context,
         broadcast: BroadcastEntity,
         show: ShowEntity
-    ): DocumentFile? {
-        val filename = getBroadcastDownloadTitle(broadcast, show) + broadcastExtension
+    ): File? {
+        val filename = getBroadcastDownloadTitle(broadcast, show) + BROADCAST_EXT
         return getDestinationFile(context, filename)
     }
 

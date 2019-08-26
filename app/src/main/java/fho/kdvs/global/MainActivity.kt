@@ -221,5 +221,5 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     private fun isExternalStorageUri(uri: Uri): Boolean =
-        uri.authority == "com.android.externalstorage.documents"
+        "com.android.externalstorage.documents".equals(uri.authority)
 }

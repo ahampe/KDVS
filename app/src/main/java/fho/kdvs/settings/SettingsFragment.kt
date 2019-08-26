@@ -289,9 +289,9 @@ class SettingsFragment : DaggerFragment() {
             viewModel.reRegisterSubscriptionsAndUpdatePreference(alarmNoticeInterval)
         }
 
-        // If download path changed, move existing downloads to new location
+        // TODO: If download path changed, move existing downloads to new location?
         if (kdvsPreferences.tempDownloadPath != kdvsPreferences.downloadPath) {
-            viewModel.moveDownloads(kdvsPreferences.downloadPath, kdvsPreferences.tempDownloadPath)
+            //viewModel.moveDownloads(kdvsPreferences.downloadPath, kdvsPreferences.tempDownloadPath)
         }
 
         kdvsPreferences.streamUrl = streamUrl
