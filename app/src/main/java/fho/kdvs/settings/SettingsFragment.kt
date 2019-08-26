@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -13,15 +12,12 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.fragment.findNavController
 import dagger.android.support.DaggerFragment
-import fho.kdvs.R
 import fho.kdvs.databinding.FragmentSettingsBinding
 import fho.kdvs.dialog.BinaryChoiceDialogFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.preferences.KdvsPreferences
-import fho.kdvs.global.util.RequestCodes
 import fho.kdvs.global.util.RequestCodes.SETTINGS_DIALOG
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
@@ -48,7 +44,6 @@ class SettingsFragment : DaggerFragment() {
     private var scrapeFrequency: Long? = null
     private var theme: Int? = null
     private var offlineMode: Boolean? = null
-    private var downloadPath: String? = null
 
     private lateinit var viewModel: SharedViewModel
 
@@ -68,7 +63,6 @@ class SettingsFragment : DaggerFragment() {
         scrapeFrequency = kdvsPreferences.scrapeFrequency
         theme = kdvsPreferences.theme
         offlineMode = kdvsPreferences.offlineMode
-        downloadPath = kdvsPreferences.downloadPath
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -198,8 +192,6 @@ class SettingsFragment : DaggerFragment() {
 
         offlineSwitch.setOnCheckedChangeListener(offlineSwitchChangeListener)
 
-        setDownloadLocation.setOnClickListener { viewModel?.setDownloadFolder(activity) }
-
         refresh.setOnClickListener {
             viewModel?.refreshData()
 
@@ -270,7 +262,6 @@ class SettingsFragment : DaggerFragment() {
         scrapeFrequency = null
         theme = null
         offlineMode = null
-        downloadPath = null
 
         Toast.makeText(requireContext(), "Settings reset", Toast.LENGTH_SHORT)
             .show()
@@ -289,17 +280,11 @@ class SettingsFragment : DaggerFragment() {
             viewModel.reRegisterSubscriptionsAndUpdatePreference(alarmNoticeInterval)
         }
 
-        // TODO: If download path changed, move existing downloads to new location?
-        if (kdvsPreferences.tempDownloadPath != kdvsPreferences.downloadPath) {
-            //viewModel.moveDownloads(kdvsPreferences.downloadPath, kdvsPreferences.tempDownloadPath)
-        }
-
         kdvsPreferences.streamUrl = streamUrl
         kdvsPreferences.fundraiserWindow = fundraiserWindow
         kdvsPreferences.scrapeFrequency = scrapeFrequency
         kdvsPreferences.theme = theme
         kdvsPreferences.offlineMode = offlineMode
-        kdvsPreferences.downloadPath = kdvsPreferences.tempDownloadPath
 
         Toast.makeText(requireContext(), "Settings saved", Toast.LENGTH_SHORT)
             .show()
@@ -310,8 +295,7 @@ class SettingsFragment : DaggerFragment() {
         fundraiserWindow != kdvsPreferences.fundraiserWindow ||
         scrapeFrequency != kdvsPreferences.scrapeFrequency ||
         theme != kdvsPreferences.theme ||
-        offlineMode != kdvsPreferences.offlineMode ||
-        downloadPath != kdvsPreferences.tempDownloadPath
+        offlineMode != kdvsPreferences.offlineMode
 
     private fun displayDialog() {
         val dialog = BinaryChoiceDialogFragment()

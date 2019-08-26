@@ -60,49 +60,11 @@
                 app:layout_constraintTop_toTopOf="@+id/codec" />
 
             <TextView
-                android:id="@+id/downloadHeader"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/codec"
-                android:layout_marginTop="@dimen/spacing_large"
-                android:text="@string/download"
-                android:textColor="@color/colorWhite"
-                android:textStyle="bold"
-                style="@style/TextAppearance.MaterialComponents.Headline6"/>
-
-            <TextView
-                android:id="@+id/setDownloadLocation"
-                style="@style/TextAppearance.MaterialComponents.Headline6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_medium"
-                android:layout_marginStart="@dimen/spacing_large"
-                android:text="@string/download_location"
-                android:textColor="@color/colorWhite"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/downloadHeader" />
-
-            <TextView
-                android:id="@+id/downloadDesc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingStart="@dimen/spacing_large"
-                android:paddingEnd="@dimen/spacing_extra_large"
-                android:textColor="@color/colorWhite"
-                android:layout_marginTop="@dimen/spacing_small"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintTop_toBottomOf="@id/setDownloadLocation"
-                app:layout_constraintStart_toStartOf="parent"
-                android:text="@string/download_desc" />
-
-            <TextView
                 android:id="@+id/notificationHeader"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/downloadDesc"
+                app:layout_constraintTop_toBottomOf="@id/codec"
                 android:layout_marginTop="@dimen/spacing_large"
                 android:text="@string/notification"
                 android:textColor="@color/colorWhite"

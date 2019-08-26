@@ -2,7 +2,11 @@ package fho.kdvs.global
 
 import android.Manifest
 import android.app.Activity
+import android.app.DownloadManager
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
@@ -30,6 +34,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.view_player_bar.*
 import kotlinx.android.synthetic.main.view_player_bar.view.*
 import org.threeten.bp.OffsetDateTime
+import java.io.File
 import javax.inject.Inject
 
 
@@ -69,6 +74,32 @@ class MainActivity : DaggerAppCompatActivity() {
         false
     }
 
+    private val onDownloadComplete = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+
+            val manager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+
+            val query = DownloadManager.Query().setFilterById(id)
+
+            val cursor = manager.query(query)
+
+            if (cursor.moveToFirst()) {
+                when (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
+                    DownloadManager.STATUS_SUCCESSFUL -> {
+                        val file = File(manager.getUriForDownloadedFile(id).path)
+
+                        viewModel.renameFileAfterCompletion(file)
+
+                        Toast.makeText(this@MainActivity, "Download completed", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
@@ -83,33 +114,16 @@ class MainActivity : DaggerAppCompatActivity() {
         // Direct system volume controls to affect in-app volume
         volumeControlStream = AudioManager.STREAM_MUSIC
 
+        registerReceiver(
+            onDownloadComplete,
+            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+        )
+
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
         subscribeToViewModel()
     }
 
     override fun onSupportNavigateUp() = navController.navigateUp()
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        super.onActivityResult(requestCode, resultCode, resultData)
-
-        when (requestCode) {
-            RequestCodes.SET_DOWNLOAD_PATH -> {
-                if (resultCode == Activity.RESULT_OK) {
-                    resultData?.data?.also { treeUri ->
-
-                        if (isExternalStorageUri(treeUri)) {
-                            kdvsPreferences.tempDownloadPath = treeUri.toString()
-                        } else {
-                            Toast.makeText(this,
-                                "Please choose an external storage location",
-                                Toast.LENGTH_LONG)
-                                .show()
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     private fun subscribeToViewModel() {
         initPlayerBarIcon(this)
@@ -219,7 +233,4 @@ class MainActivity : DaggerAppCompatActivity() {
             false -> true
         }
     }
-
-    private fun isExternalStorageUri(uri: Uri): Boolean =
-        "com.android.externalstorage.documents".equals(uri.authority)
 }

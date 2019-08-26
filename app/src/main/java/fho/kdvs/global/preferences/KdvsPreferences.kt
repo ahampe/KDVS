@@ -95,10 +95,7 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         DATA_SAVER_MODE,
 
         // theme
-        THEME,
-
-        // download preferences
-        DOWNLOAD_PATH
+        THEME
     }
 
     val preferences: SharedPreferences = application.getSharedPreferences(FILE_NAME, MODE_PRIVATE)
@@ -130,10 +127,6 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     var alarmNoticeInterval: Long? by LongPreference(Key.ALARM_NOTICE_INTERVAL)
 
     var offlineMode: Boolean? by BooleanPreference(Key.DATA_SAVER_MODE)
-
-    var downloadPath: String? by StringPreference(Key.DOWNLOAD_PATH)
-
-    var tempDownloadPath: String? = downloadPath
 
     var theme: Int? by IntPreference(Key.THEME)
 
