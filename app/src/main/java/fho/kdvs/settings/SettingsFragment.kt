@@ -217,10 +217,8 @@ class SettingsFragment : DaggerFragment() {
 
         when (requestCode) {
             SETTINGS_DIALOG -> {
-                // Result from unsaved exit from SettingsFragment
-                if (resultCode == Activity.RESULT_OK) {
+                if (resultCode == Activity.RESULT_OK)
                     requireFragmentManager().popBackStack()
-                } else if (resultCode == Activity.RESULT_CANCELED) { }
             }
         }
     }
