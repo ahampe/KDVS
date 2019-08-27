@@ -49,7 +49,8 @@ import java.io.File
 import javax.inject.Inject
 
 const val BROADCAST_EXT = ".mp3"
-const val TEMP_EXT = ".tmp"
+const val TEMP_EXT = ".download"
+const val DOWNLOAD_CHILD = "KDVS"
 
 /** An [AndroidViewModel] scoped to the main activity.
  * Use this for data that will be consumed in many places. */
@@ -425,14 +426,20 @@ class SharedViewModel @Inject constructor(
     fun getBroadcastDownloadTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
         "${show.name} (${TimeHelper.dateFormatter.format(broadcast.date)})"
 
-    fun getDestinationFile(filename: String): File {
+    private fun getFileInDownloadFolder(filename: String): File {
         val folder = getDownloadFolder()
-        return File(Uri.parse("${folder?.absolutePath}/$filename").path)
+        return File(Uri.parse("${folder?.absolutePath}${File.separator}$filename").path)
     }
+
+    fun getDownloadFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File? =
+        getFileInDownloadFolder(getDownloadedFilename(getBroadcastDownloadTitle(broadcast, show)))
+
+    fun getDownloadingFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File? =
+        getFileInDownloadFolder(getDownloadingFilename(getBroadcastDownloadTitle(broadcast, show)))
 
     fun getDownloadFolder(): File? {
         return if (isExternalStorageWritable()) {
-             File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), "KDVS")
+             File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), DOWNLOAD_CHILD)
         } else null
     }
 
@@ -440,21 +447,27 @@ class SharedViewModel @Inject constructor(
 
     fun getDownloadingFilename(title: String) = "$title$BROADCAST_EXT$TEMP_EXT"
 
-    /** Rename '.mp3.tmp' to '.mp3' */
-    fun renameFileAfterCompletion(file: File) {
-        val dest = File("${file.parent}/${file.nameWithoutExtension}")
-        file.renameTo(dest)
+    fun removeExtension(src: File): Boolean {
+        val extensionIndex = src.path.lastIndexOf('.')
 
+        if (extensionIndex > 0) {
+            val destPath = src.path.substring(0, extensionIndex)
 
-        // TODO: embed metadata in mp3
+            if (destPath.isNotBlank())
+                return src.renameTo(File(destPath)) // TODO: this is failing
+        }
+
+        return false
     }
 
-    fun makeDownloadRequest(url: String, title: String, file: File): DownloadManager.Request {
+    fun makeDownloadRequest(url: String, title: String, filename: String): DownloadManager.Request {
         return DownloadManager.Request(Uri.parse(url))
             .setTitle(title)
             .setDescription("Downloading")
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
-            .setDestinationUri(Uri.fromFile(file))
+            .setDestinationInExternalPublicDir(
+                Environment.DIRECTORY_MUSIC,
+                "${File.separator}$DOWNLOAD_CHILD${File.separator}$filename")
             .setAllowedOverMetered(true)
             .setAllowedOverRoaming(true)
     }
@@ -467,13 +480,29 @@ class SharedViewModel @Inject constructor(
         }
     }
 
+    fun moveFile(file: File, destParent: String) {
+
+    }
+
     fun isBroadcastDownloaded(broadcast: BroadcastEntity, show: ShowEntity): Boolean {
         val folder = getDownloadFolder()
         val title = getBroadcastDownloadTitle(broadcast, show)
         val files = folder?.listFiles()
 
         files?.let {
-            return (it.count{ f -> f.name == "$title$BROADCAST_EXT" } > 0)
+            return (it.count{ f -> f.name == getDownloadedFilename(title) } > 0)
+        }
+
+        return false
+    }
+
+    fun isBroadcastDownloading(broadcast: BroadcastEntity, show: ShowEntity): Boolean {
+        val folder = getDownloadFolder()
+        val title = getBroadcastDownloadTitle(broadcast, show)
+        val files = folder?.listFiles()
+
+        files?.let {
+            return (it.count{ f -> f.name == getDownloadingFilename(title) } > 0)
         }
 
         return false
@@ -481,7 +510,7 @@ class SharedViewModel @Inject constructor(
 
     private fun getDestinationFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File? {
         val filename = getBroadcastDownloadTitle(broadcast, show) + BROADCAST_EXT
-        return getDestinationFile(filename)
+        return getFileInDownloadFolder(filename)
     }
 
     private fun isExternalStorageWritable(): Boolean {

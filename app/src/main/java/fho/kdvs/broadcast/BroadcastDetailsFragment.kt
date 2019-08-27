@@ -5,6 +5,7 @@ import android.app.DownloadManager
 import android.content.Context.DOWNLOAD_SERVICE
 import android.content.Intent
 import android.os.Bundle
+import android.os.FileObserver
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,8 +37,8 @@ import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 
-const val DOWNLOAD_ICON = 0
-const val DELETE_ICON = 1
+const val DOWNLOAD_ICON = "download"
+const val DELETE_ICON = "delete"
 
 @kotlinx.serialization.UnstableDefault
 class BroadcastDetailsFragment : DaggerFragment() {
@@ -61,8 +62,6 @@ class BroadcastDetailsFragment : DaggerFragment() {
             ?: throw IllegalArgumentException("Should have passed a showId to BroadcastDetailsFragment")
     }
 
-    private var downloadId: Long? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -76,11 +75,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
         subscribeToViewModel()
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = FragmentBroadcastDetailsBinding.inflate(inflater, container, false)
 
         binding.apply {
@@ -108,31 +103,24 @@ class BroadcastDetailsFragment : DaggerFragment() {
         }
 
         archivePlayButton.setOnClickListener {
-            val broadcast = viewModel.broadcast.value
-            val show = viewModel.show.value
-
-            broadcast?.let {
-                show?.let {
-                    sharedViewModel.playPastBroadcast(broadcast, show, requireActivity())
-                }
-            }
+            viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
+                sharedViewModel.playPastBroadcast(broadcast, show, requireActivity())
+            })
         }
 
         downloadDeleteIcon.setOnClickListener { icon ->
-            viewModel.broadcast.value?.let { broadcast ->
-                viewModel.show.value?.let { show ->
-                    val folder = sharedViewModel.getDownloadFolder()
+            viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
+                val folder = sharedViewModel.getDownloadFolder()
 
-                    folder?.let {
-                        if (icon.tag == DOWNLOAD_ICON) {
-                            downloadBroadcast(broadcast, show, folder)
-                            setDownloadingIcon()
-                        } else if (icon.tag == DELETE_ICON) {
-                            displayDialog()
-                        }
+                folder?.let {
+                    if (icon.tag == DOWNLOAD_ICON) {
+                        downloadBroadcast(broadcast, show, folder)
+                        setDownloadingIcon()
+                    } else if (icon.tag == DELETE_ICON) {
+                        displayDialog()
                     }
                 }
-            }
+            })
         }
     }
 
@@ -142,14 +130,12 @@ class BroadcastDetailsFragment : DaggerFragment() {
         when (requestCode) {
             RequestCodes.DOWNLOAD_DELETE_DIALOG -> {
                 if (resultCode == Activity.RESULT_OK) {
-                    viewModel.broadcast.value?.let { broadcast ->
-                        viewModel.show.value?.let { show ->
-                            deleteBroadcast(broadcast, show)
-                            flipIcon()
-                            Toast.makeText(requireContext(),  "Download deleted", Toast.LENGTH_SHORT)
-                                .show()
-                        }
-                    }
+                    viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
+                        deleteBroadcast(broadcast, show)
+                        flipIcon()
+                        Toast.makeText(requireContext(),  "Download deleted", Toast.LENGTH_SHORT)
+                            .show()
+                    })
                 }
             }
         }
@@ -158,20 +144,27 @@ class BroadcastDetailsFragment : DaggerFragment() {
     private fun subscribeToViewModel() {
         val fragment = this
 
-        // TODO: mediator live data
-        viewModel.broadcast.observe(fragment, Observer { broadcast ->
-            Timber.d("Got broadcast: $broadcast")
-            viewModel.show.observe(fragment, Observer { show ->
-                if (sharedViewModel.isBroadcastDownloaded(broadcast, show)) {
+        viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
+            val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
+            observeDownloadFolder(title)
+
+            when {
+                sharedViewModel.isBroadcastDownloaded(broadcast, show) -> {
                     setDownloadViewsVisible()
 
                     enableDeleteIcon()
 
                     LoadScreen.hideLoadScreen(detailsRoot)
-                } else {
-                    setPlaybackViewsAndHideProgressBar(broadcast)
                 }
-            })
+                sharedViewModel.isBroadcastDownloading(broadcast, show) -> {
+                    setDownloadViewsVisible()
+
+                    setDownloadingIcon()
+
+                    LoadScreen.hideLoadScreen(detailsRoot)
+                }
+                else -> setPlaybackViewsAndHideProgressBar(broadcast)
+            }
         })
 
         viewModel.tracksWithFavorites.observe(fragment, Observer { (tracks, _) ->
@@ -192,7 +185,6 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
         val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
         val filename = sharedViewModel.getDownloadingFilename(title)
-        val file = sharedViewModel.getDestinationFile(filename)
 
         (activity as? MainActivity)?.let { activity ->
             if (activity.isStoragePermissionGranted()) {
@@ -203,44 +195,91 @@ class BroadcastDetailsFragment : DaggerFragment() {
                         folder.mkdirs()
 
                     try {
-                        val request = sharedViewModel.makeDownloadRequest(url, title, file)
+                        val request = sharedViewModel.makeDownloadRequest(url, title, filename)
 
                         val downloadManager = context?.getSystemService(DOWNLOAD_SERVICE)
                                 as DownloadManager
 
-                        downloadId = downloadManager.enqueue(request)
+                        downloadManager.enqueue(request)
 
                         Toast.makeText(
-                            activity as? MainActivity,
-                            "Download started",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
+                            activity as? MainActivity, "Download started", Toast.LENGTH_SHORT
+                        ).show()
                     } catch (e: Exception) {
-                        Timber.e("Error downloading broadcast: $e")
-                        Toast.makeText(activity as? MainActivity, "Error downloading broadcast", Toast.LENGTH_SHORT)
-                            .show()
+                        Timber.e("Error downloading broadcast: ${e.message}")
+
+                        Toast.makeText(
+                            activity as? MainActivity, "Error downloading broadcast", Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             } else {
-                Toast.makeText(activity as? MainActivity, "Download permission not granted", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(
+                    activity as? MainActivity, "Download permission not granted", Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
 
-    private fun deleteBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
-        val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
+    /** Update UI reactively to match state of download. */
+    private fun observeDownloadFolder(title: String) {
+        val folder = sharedViewModel.getDownloadFolder()
         val filename = sharedViewModel.getDownloadedFilename(title)
-        val file = sharedViewModel.getDestinationFile(filename)
 
-        downloadId?.let {
-            val downloadManager = context?.getSystemService(DOWNLOAD_SERVICE)
-                    as DownloadManager
-            downloadManager.remove(it)
+        val observer = object: FileObserver(folder?.path) {
+            override fun onEvent(event: Int, path: String?) {
+                path?.let {
+                    if (it == filename) {
+                        when (event) {
+                            CREATE -> {
+                                enableDeleteIcon()
+                            }
+                            DELETE -> {
+                                enableDownloadIcon()
+                            }
+                            else -> { }
+                        }
+                    }
+                }
+            }
         }
 
-        sharedViewModel.deleteFile(file)
+        observer.startWatching()
+    }
+
+    private fun deleteBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
+        val file = sharedViewModel.getDownloadFileForBroadcast(broadcast, show)
+
+        file?.let {
+            sharedViewModel.deleteFile(file)
+        }
+    }
+
+    // TODO: The UI thread appears to get deadlocked sometimes after this?
+    private fun setPlaybackViewsAndHideProgressBar(broadcast: BroadcastEntity) {
+        doAsync {
+            if (HttpHelper.isConnectionAvailable(URLs.archiveForBroadcast(broadcast))) {
+                context?.runOnUiThread {
+                    setDownloadViewsVisible()
+                }
+            }
+
+            context?.runOnUiThread {
+                LoadScreen.hideLoadScreen(detailsRoot)
+            }
+        }
+    }
+
+    private fun displayDialog() {
+        val dialog = BinaryChoiceDialogFragment()
+        val args = Bundle()
+
+        args.putString("title", "Delete")
+        args.putString("message", "Delete broadcast download?")
+
+        dialog.arguments = args
+        dialog.setTargetFragment(this@BroadcastDetailsFragment, RequestCodes.DOWNLOAD_DELETE_DIALOG)
+        dialog.show(requireFragmentManager(), "tag")
     }
 
     private fun setDownloadingIcon() {
@@ -265,7 +304,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
     private fun enableDownloadIcon() {
         downloadDeleteIcon?.let {
-            it.setImageDrawable(it.resources.getDrawable(R.drawable.ic_arrow_downward_white_24dp, context?.theme))
+            it.setImageDrawable(it.resources.getDrawable(R.drawable.ic_file_download_white_24dp, context?.theme))
             it.tag = DOWNLOAD_ICON
         }
     }
@@ -273,31 +312,5 @@ class BroadcastDetailsFragment : DaggerFragment() {
     private fun setDownloadViewsVisible() {
         archivePlayButton?.let { it.visibility = View.VISIBLE }
         downloadDeleteIcon?.let { it.visibility = View.VISIBLE }
-    }
-
-    private fun setPlaybackViewsAndHideProgressBar(broadcast: BroadcastEntity) {
-        doAsync {
-            if (HttpHelper.isConnectionAvailable(URLs.archiveForBroadcast(broadcast))) {
-                context?.runOnUiThread {
-                    setDownloadViewsVisible()
-                }
-            }
-
-            context?.runOnUiThread {
-                LoadScreen.hideLoadScreen(detailsRoot)
-            }
-        }
-    }
-
-    private fun displayDialog() {
-        val dialog = BinaryChoiceDialogFragment()
-        val args = Bundle()
-
-        args.putString("title", "Delete")
-        args.putString("message", "Delete broadcast download?")
-
-        dialog.arguments = args
-        dialog.setTargetFragment(this@BroadcastDetailsFragment, RequestCodes.SETTINGS_DIALOG)
-        dialog.show(requireFragmentManager(), "tag")
     }
 }

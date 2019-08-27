@@ -1,14 +1,13 @@
 package fho.kdvs.global
 
 import android.Manifest
-import android.app.Activity
 import android.app.DownloadManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.database.Cursor
 import android.media.AudioManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -28,7 +27,6 @@ import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.preferences.KdvsPreferences
-import fho.kdvs.global.util.RequestCodes
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.view_player_bar.*
@@ -74,6 +72,7 @@ class MainActivity : DaggerAppCompatActivity() {
         false
     }
 
+    /** Download manager writes file to shared download cache. */
     private val onDownloadComplete = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
@@ -84,19 +83,21 @@ class MainActivity : DaggerAppCompatActivity() {
 
             val cursor = manager.query(query)
 
-            if (cursor.moveToFirst()) {
-                when (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
-                    DownloadManager.STATUS_SUCCESSFUL -> {
-                        val file = File(manager.getUriForDownloadedFile(id).path)
+            if (isDownloadSuccessful(cursor)) {
+                val uri = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
 
-                        viewModel.renameFileAfterCompletion(file)
+                val correctedUri = uri.replace("file://", "")
 
-                        Toast.makeText(this@MainActivity, "Download completed", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                    else -> {}
-                }
+                val file = File(correctedUri)
+
+                if (viewModel.removeExtension(file))
+                    Toast.makeText(this@MainActivity, "Download completed", Toast.LENGTH_SHORT)
+                        .show()
+
+                //manager.remove(id)
             }
+
+            cursor.close()
         }
     }
 
@@ -233,4 +234,7 @@ class MainActivity : DaggerAppCompatActivity() {
             false -> true
         }
     }
+
+    private fun isDownloadSuccessful(cursor: Cursor): Boolean = cursor.moveToFirst() &&
+        cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL
 }

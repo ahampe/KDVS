@@ -265,7 +265,6 @@ class SettingsFragment : DaggerFragment() {
             .show()
     }
 
-    // Note: tempDownloadPath is set through a MainActivity callback.
     private fun save() {
         // If flipped to offlineMode, stop current live playback
         viewModel.isLiveNow.observe(this, Observer {live ->

@@ -32,28 +32,50 @@ class BroadcastDetailsViewModel @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.IO
 
-    lateinit var show: LiveData<ShowEntity>
-    lateinit var broadcast: LiveData<BroadcastEntity>
+    lateinit var showLiveData: LiveData<ShowEntity>
+    lateinit var broadcastLiveData: LiveData<BroadcastEntity>
+    lateinit var showWithBroadcast: MediatorLiveData<Pair<ShowEntity, BroadcastEntity>>
+
     private lateinit var tracksLiveData: LiveData<List<TrackEntity>>
     private lateinit var favoritesLiveData: LiveData<List<FavoriteEntity>>
-
     lateinit var tracksWithFavorites: MediatorLiveData<Pair<List<TrackEntity>,List<FavoriteEntity>?>>
+
     var favorites: List<FavoriteEntity>?= null
 
     fun initialize(showId: Int, broadcastId: Int) {
         fetchTracks(broadcastId)
-        show = showRepository.showById(showId)
-        broadcast = broadcastRepository.broadcastById(broadcastId)
+
+        showLiveData = showRepository.showById(showId)
+        broadcastLiveData = broadcastRepository.broadcastById(broadcastId)
         tracksLiveData = trackRepository.tracksForBroadcast(broadcastId)
         favoritesLiveData = favoriteRepository.allFavoritesByBroadcast(broadcastId)
 
-        // Ensure that we have all tracks and liveFavorites at same time
+        showWithBroadcast = MediatorLiveData<Pair<ShowEntity, BroadcastEntity>>()
+            .apply {
+                var showEnt: ShowEntity? = null
+                var broadcastEnt: BroadcastEntity? = null
+
+                addSource(showLiveData) { show ->
+                    showEnt = show
+                    val broadcast = broadcastEnt ?: return@addSource
+                    postValue(Pair(show, broadcast))
+                }
+
+                addSource(broadcastLiveData) { broadcast ->
+                    broadcastEnt = broadcast
+
+                    val show = showEnt ?: return@addSource
+                    postValue(Pair(show, broadcast))
+                }
+            }
+
         tracksWithFavorites = MediatorLiveData<Pair<List<TrackEntity>,List<FavoriteEntity>?>>()
             .apply {
                 var tracks: List<TrackEntity>? = null
 
                 addSource(tracksLiveData) { trackEntities ->
                     tracks = trackEntities
+
                     val favoriteEntities = favorites ?: return@addSource
                     postValue(Pair(trackEntities, favoriteEntities))
                 }
