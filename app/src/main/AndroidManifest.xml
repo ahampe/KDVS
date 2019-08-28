@@ -13,9 +13,9 @@
     <application
         android:name=".global.KdvsApp"
         android:allowBackup="false"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_kdvs"
+        android:roundIcon="@mipmap/ic_launcher_kdvs_round"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="false"
         android:usesCleartextTraffic="true"
         tools:replace="android:supportsRtl,android:allowBackup">
