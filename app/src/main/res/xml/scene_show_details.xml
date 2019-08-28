@@ -12,7 +12,7 @@
             app:touchAnchorSide="top" />
 
     </Transition>
-
+    <!-- TODO: add LoadScreen -->
     <ConstraintSet android:id="@+id/expanded">
         <Constraint
             android:id="@id/show_detail_image"

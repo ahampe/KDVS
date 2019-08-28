@@ -20,8 +20,6 @@ class StaffRepository @Inject constructor(
     private val scraperManager: WebScraperManager,
     private val kdvsPreferences: KdvsPreferences
 ) : BaseRepository() {
-
-    // TODO: Make this quarterly?
     /** Runs a staff scrape if it hasn't been fetched recently. */
     fun scrapeStaff() = launch {
         val now = TimeHelper.getNow().toEpochSecond()

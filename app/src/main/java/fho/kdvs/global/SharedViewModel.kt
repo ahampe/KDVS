@@ -698,14 +698,29 @@ class SharedViewModel @Inject constructor(
 
     // endregion
 
-    // region subscription
+    // region alarm
+
+    fun reRegisterAlarms() {
+        val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
+
+        launch {
+            val subscribedShows = getSubscribedShows()
+
+            subscribedShows.forEach {
+                alarmMgr.cancelShowAlarm(it)
+                alarmMgr.registerShowAlarmAsync(it)
+            }
+
+            Timber.d("Alarms reregistered")
+        }
+    }
 
     /**
      * When user changes the alarm notification window in settings, we'll need to re-register all alarms
      * with the new window. We must first cancel all alarms before updating the preference,
      * such that we can initialize matching Intents.
      */
-    fun reRegisterSubscriptionsAndUpdatePreference(newWindow: Long?) {
+    fun reRegisterAlarmsAndUpdatePreference(newWindow: Long?) {
         if (newWindow == null) return
 
         val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
@@ -722,9 +737,14 @@ class SharedViewModel @Inject constructor(
             subscribedShows.forEach {
                 alarmMgr.registerShowAlarmAsync(it)
             }
+
+            Timber.d("Alarms reregistered")
         }
     }
 
+    // endregion
+
+    // region subscription
     /**
      * After a quarter change, subscribed recurring shows will have new database objects, and possibly new timeslots,
      * so we must cancel existing ones and insert new ones based on matching show names in the current quarter.

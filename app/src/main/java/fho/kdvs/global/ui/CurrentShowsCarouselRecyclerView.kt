@@ -13,9 +13,6 @@ import android.view.animation.AnimationSet
 import android.view.animation.DecelerateInterpolator
 
 
-
-
-
 class CurrentShowsCarouselRecyclerView(
     context: Context,
     attrs: AttributeSet

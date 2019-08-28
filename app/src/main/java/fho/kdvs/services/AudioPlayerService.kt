@@ -290,7 +290,6 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
      * - Calls [Service.startForeground] and [Service.stopForeground].
      */
     private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
-        // TODO: notification isn't updating when shows change
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             mediaController.playbackState?.let { updateNotification(it) }
         }

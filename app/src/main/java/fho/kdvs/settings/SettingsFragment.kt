@@ -266,7 +266,7 @@ class SettingsFragment : DaggerFragment() {
 
         // If notification window is changed, re-initialize alarms
         if (alarmNoticeInterval != kdvsPreferences.alarmNoticeInterval) {
-            viewModel.reRegisterSubscriptionsAndUpdatePreference(alarmNoticeInterval)
+            viewModel.reRegisterAlarmsAndUpdatePreference(alarmNoticeInterval)
         }
 
         kdvsPreferences.streamUrl = streamUrl

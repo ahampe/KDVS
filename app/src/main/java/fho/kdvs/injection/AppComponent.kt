@@ -14,7 +14,8 @@ import javax.inject.Singleton
         AppModule::class,
         MainActivityModule::class,
         SplashActivityModule::class,
-        ServiceModule::class
+        ServiceModule::class,
+        BroadcastReceiverModule::class
     ]
 )
 interface AppComponent : AndroidInjector<KdvsApp> {
