@@ -224,20 +224,16 @@ class BroadcastDetailsFragment : DaggerFragment() {
     /** Update UI reactively to match state of download. */
     private fun observeDownloadFolder(title: String) {
         val folder = sharedViewModel.getDownloadFolder()
-        val filename = sharedViewModel.getDownloadedFilename(title)
+        val downloadingFilename = sharedViewModel.getDownloadingFilename(title)
 
         val observer = object: FileObserver(folder?.path) {
-            override fun onEvent(event: Int, path: String?) {
-                path?.let {
-                    if (it == filename) {
+            override fun onEvent(event: Int, filename: String?) {
+                filename?.let {
+                    if (it == downloadingFilename) {
                         when (event) {
-                            CREATE -> {
+                            MOVED_FROM -> { // capture file rename upon completion
                                 enableDeleteIcon()
                             }
-                            DELETE -> {
-                                enableDownloadIcon()
-                            }
-                            else -> { }
                         }
                     }
                 }
@@ -299,6 +295,8 @@ class BroadcastDetailsFragment : DaggerFragment() {
         downloadDeleteIcon?.let {
             it.setImageDrawable(it.resources.getDrawable(R.drawable.ic_delete_forever_white_24dp, context?.theme))
             it.tag = DELETE_ICON
+            it.isEnabled = true
+            it.alpha = 1f
         }
     }
 
@@ -306,6 +304,8 @@ class BroadcastDetailsFragment : DaggerFragment() {
         downloadDeleteIcon?.let {
             it.setImageDrawable(it.resources.getDrawable(R.drawable.ic_file_download_white_24dp, context?.theme))
             it.tag = DOWNLOAD_ICON
+            it.isEnabled = true
+            it.alpha = 1f
         }
     }
 

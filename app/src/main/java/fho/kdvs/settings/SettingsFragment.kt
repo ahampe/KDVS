@@ -63,6 +63,19 @@ class SettingsFragment : DaggerFragment() {
         scrapeFrequency = kdvsPreferences.scrapeFrequency
         theme = kdvsPreferences.theme
         offlineMode = kdvsPreferences.offlineMode
+
+        // TODO: extend this to navbar press from settings frag
+        requireActivity().onBackPressedDispatcher.addCallback(
+            object: OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (isChanged()) {
+                        displayDialog()
+                    } else {
+                        fragmentManager?.popBackStack()
+                    }
+                }
+            }
+        )
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -221,27 +234,6 @@ class SettingsFragment : DaggerFragment() {
                     requireFragmentManager().popBackStack()
             }
         }
-    }
-
-    // TODO: this isn't the right lifecycle method to call this in
-
-    /** Callback is initialized here because after activity result on download path change,
-     * fragment OnCreate isn't called again. */
-    override fun onResume() {
-        super.onResume()
-
-        // TODO: extend this to navbar press from settings frag
-        requireActivity().onBackPressedDispatcher.addCallback(
-            object: OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (isChanged()) {
-                        displayDialog()
-                    } else {
-                        fragmentManager?.popBackStack()
-                    }
-                }
-            }
-        )
     }
 
     private fun reset() {

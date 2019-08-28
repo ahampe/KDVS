@@ -33,6 +33,7 @@ import kotlinx.android.synthetic.main.view_player_bar.*
 import kotlinx.android.synthetic.main.view_player_bar.view.*
 import org.threeten.bp.OffsetDateTime
 import java.io.File
+import java.net.URI
 import javax.inject.Inject
 
 
@@ -72,7 +73,6 @@ class MainActivity : DaggerAppCompatActivity() {
         false
     }
 
-    /** Download manager writes file to shared download cache. */
     private val onDownloadComplete = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
@@ -84,17 +84,16 @@ class MainActivity : DaggerAppCompatActivity() {
             val cursor = manager.query(query)
 
             if (isDownloadSuccessful(cursor)) {
-                val uri = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
+                val path = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
 
-                val correctedUri = uri.replace("file://", "")
-
-                val file = File(correctedUri)
+                val file = File(URI(path))
 
                 if (viewModel.removeExtension(file))
                     Toast.makeText(this@MainActivity, "Download completed", Toast.LENGTH_SHORT)
                         .show()
 
-                //manager.remove(id)
+                // Remove file from download cache
+                manager.remove(id)
             }
 
             cursor.close()

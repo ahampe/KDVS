@@ -426,16 +426,16 @@ class SharedViewModel @Inject constructor(
     fun getBroadcastDownloadTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
         "${show.name} (${TimeHelper.dateFormatter.format(broadcast.date)})"
 
-    private fun getFileInDownloadFolder(filename: String): File {
-        val folder = getDownloadFolder()
-        return File(Uri.parse("${folder?.absolutePath}${File.separator}$filename").path)
-    }
-
     fun getDownloadFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File? =
         getFileInDownloadFolder(getDownloadedFilename(getBroadcastDownloadTitle(broadcast, show)))
 
     fun getDownloadingFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File? =
         getFileInDownloadFolder(getDownloadingFilename(getBroadcastDownloadTitle(broadcast, show)))
+
+    private fun getFileInDownloadFolder(filename: String): File {
+        val folder = getDownloadFolder()
+        return File(Uri.parse("${folder?.absolutePath}${File.separator}$filename").path)
+    }
 
     fun getDownloadFolder(): File? {
         return if (isExternalStorageWritable()) {
@@ -448,13 +448,15 @@ class SharedViewModel @Inject constructor(
     fun getDownloadingFilename(title: String) = "$title$BROADCAST_EXT$TEMP_EXT"
 
     fun removeExtension(src: File): Boolean {
-        val extensionIndex = src.path.lastIndexOf('.')
+        if (src.exists()) {
+            val extensionIndex = src.path.lastIndexOf('.')
 
-        if (extensionIndex > 0) {
-            val destPath = src.path.substring(0, extensionIndex)
+            if (extensionIndex > 0) {
+                val destPath = src.path.substring(0, extensionIndex)
 
-            if (destPath.isNotBlank())
-                return src.renameTo(File(destPath)) // TODO: this is failing
+                if (destPath.isNotBlank())
+                    return src.renameTo(File(destPath)) // TODO: this is failing
+            }
         }
 
         return false
