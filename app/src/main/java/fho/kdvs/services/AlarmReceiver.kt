@@ -33,7 +33,9 @@ class AlarmReceiver: DaggerBroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
 
-        when (intent?.action) {
+        Timber.d("Alarm receiver: ${intent?.action}")
+
+        when (intent?.action) { // TODO: test reregisters
             "android.intent.action.BOOT_COMPLETED" -> { // cold boot
                 sharedViewModel.reRegisterAlarms()
             }

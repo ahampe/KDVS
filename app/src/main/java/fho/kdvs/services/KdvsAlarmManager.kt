@@ -52,12 +52,10 @@ class KdvsAlarmManager @Inject constructor(
                 alarmTime?.let {
                     cancelShowAlarm(show) // prevent multiple registrations
 
-                    val utcAlarmTime = TimeHelper.convertZoneTime(TimeHelper.getSystemTimeZone(), TimeHelper.UTC_ID, it)
-
                     // Use setRepeating() for custom interval
                     alarmMgr?.setRepeating(
                         AlarmManager.RTC_WAKEUP,
-                        utcAlarmTime.toInstant().toEpochMilli(),
+                        it.toInstant().toEpochMilli(),
                         WEEK_IN_MILLIS * showsAtTime.size,
                         alarmIntent
                     )

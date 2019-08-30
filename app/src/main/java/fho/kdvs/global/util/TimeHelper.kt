@@ -100,72 +100,78 @@ object TimeHelper {
     }
 
     /**
-     * Creates a date corresponding to the next-occurring instance of a week-day absolute time, from an epoch time.
+     * Creates a date corresponding to the next-occurring instance of a week-day absolute time
+     * relative to user's system timezone, from an epoch time.
+     *
+     * E.g. If current system time is absolute Fri, Jan 5 4PM and passed-in value corresponds to
+     * epoch Fri 3PM, return value will correspond to absolute Fri, Jan 12 3PM.
      */
     fun makeRealWeekRelativeTimeFromEpochTime(epochTime: OffsetDateTime): OffsetDateTime? {
         val now = OffsetDateTime.now()
 
+        // TODO: change this line after implementing real-time dynamic kdvs times based on system timezone
+        val adjustedEpochTime = convertZoneTime(PACIFIC_ID, getSystemTimeZone(), epochTime)
+
         when {
-            now.dayOfWeek < epochTime.dayOfWeek -> {
-                val nowPlusDays = now.plusDays((epochTime.dayOfWeek.value - now.dayOfWeek.value).toLong())
-                // TODO: make sure timezone changed according to user's system
+            now.dayOfWeek < adjustedEpochTime.dayOfWeek -> {
+                val nowPlusDays = now.plusDays((adjustedEpochTime.dayOfWeek.value - now.dayOfWeek.value).toLong())
                 return OffsetDateTime.of(
                     nowPlusDays.year,
                     nowPlusDays.monthValue,
                     nowPlusDays.dayOfMonth,
-                    epochTime.hour,
-                    epochTime.minute,
-                    epochTime.second,
-                    epochTime.nano,
+                    adjustedEpochTime.hour,
+                    adjustedEpochTime.minute,
+                    adjustedEpochTime.second,
+                    adjustedEpochTime.nano,
                     UTC_OFFSET)
             }
-            now.dayOfWeek > epochTime.dayOfWeek -> {
-                val nowPlusDays = now.plusDays(7 - (now.dayOfWeek.value - epochTime.dayOfWeek.value).toLong())
+            now.dayOfWeek > adjustedEpochTime.dayOfWeek -> {
+                val nowPlusDays = now.plusDays(7 - (now.dayOfWeek.value - adjustedEpochTime.dayOfWeek.value).toLong())
                 return OffsetDateTime.of(
                     nowPlusDays.year,
                     nowPlusDays.monthValue,
                     nowPlusDays.dayOfMonth,
-                    epochTime.hour,
-                    epochTime.minute,
-                    epochTime.second,
-                    epochTime.nano,
+                    adjustedEpochTime.hour,
+                    adjustedEpochTime.minute,
+                    adjustedEpochTime.second,
+                    adjustedEpochTime.nano,
                     UTC_OFFSET)
             }
-            now.dayOfWeek == epochTime.dayOfWeek -> {
+            now.dayOfWeek == adjustedEpochTime.dayOfWeek -> {
                 when {
-                    now.toLocalTime() < epochTime.toLocalTime() -> {
+                    now.toLocalTime() < adjustedEpochTime.toLocalTime() -> {
                         return OffsetDateTime.of(
                             now.year,
                             now.monthValue,
                             now.dayOfMonth,
-                            epochTime.hour,
-                            epochTime.minute,
-                            epochTime.second,
-                            epochTime.nano,
+                            adjustedEpochTime.hour,
+                            adjustedEpochTime.minute,
+                            adjustedEpochTime.second,
+                            adjustedEpochTime.nano,
                             UTC_OFFSET)
                     }
-                    now.toLocalTime() > epochTime.toLocalTime() -> {
+                    now.toLocalTime() > adjustedEpochTime.toLocalTime() -> {
                         val nowPlusDays = now.plusDays(7)
                         return OffsetDateTime.of(
                             nowPlusDays.year,
                             nowPlusDays.monthValue,
                             nowPlusDays.dayOfMonth,
-                            epochTime.hour,
-                            epochTime.minute,
-                            epochTime.second,
-                            epochTime.nano,
+                            adjustedEpochTime.hour,
+                            adjustedEpochTime.minute,
+                            adjustedEpochTime.second,
+                            adjustedEpochTime.nano,
                             UTC_OFFSET)
                     }
-                    now.toLocalTime() == epochTime.toLocalTime() -> {
+                    now.toLocalTime() == adjustedEpochTime.toLocalTime() -> {
                         val nowPlusDays = now.plusDays(7)
                         return OffsetDateTime.of(
                             nowPlusDays.year,
                             nowPlusDays.monthValue,
                             nowPlusDays.dayOfMonth,
-                            epochTime.hour,
-                            epochTime.minute,
-                            epochTime.second,
-                            epochTime.nano,
+                            adjustedEpochTime.hour,
+                            adjustedEpochTime.minute,
+                            adjustedEpochTime.second,
+                            adjustedEpochTime.nano,
                             UTC_OFFSET)
                     }
                 }
@@ -344,6 +350,4 @@ object TimeHelper {
         }
     }
     // endregion
-
-    // TODO arbitrary time range (may not need)
 }

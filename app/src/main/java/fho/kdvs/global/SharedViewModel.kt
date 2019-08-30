@@ -429,9 +429,6 @@ class SharedViewModel @Inject constructor(
     fun getDownloadFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File? =
         getFileInDownloadFolder(getDownloadedFilename(getBroadcastDownloadTitle(broadcast, show)))
 
-    fun getDownloadingFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File? =
-        getFileInDownloadFolder(getDownloadingFilename(getBroadcastDownloadTitle(broadcast, show)))
-
     private fun getFileInDownloadFolder(filename: String): File {
         val folder = getDownloadFolder()
         return File(Uri.parse("${folder?.absolutePath}${File.separator}$filename").path)
@@ -443,7 +440,7 @@ class SharedViewModel @Inject constructor(
         } else null
     }
 
-    fun getDownloadedFilename(title: String) = "$title$BROADCAST_EXT"
+    private fun getDownloadedFilename(title: String) = "$title$BROADCAST_EXT"
 
     fun getDownloadingFilename(title: String) = "$title$BROADCAST_EXT$TEMP_EXT"
 
@@ -480,10 +477,6 @@ class SharedViewModel @Inject constructor(
         } catch (e: Exception) {
             Timber.d("File deletion failed ${file.name}")
         }
-    }
-
-    fun moveFile(file: File, destParent: String) {
-
     }
 
     fun isBroadcastDownloaded(broadcast: BroadcastEntity, show: ShowEntity): Boolean {
@@ -719,7 +712,7 @@ class SharedViewModel @Inject constructor(
      * When user changes the alarm notification window in settings, we'll need to re-register all alarms
      * with the new window. We must first cancel all alarms before updating the preference,
      * such that we can initialize matching Intents.
-     */
+     */ // TODO: test
     fun reRegisterAlarmsAndUpdatePreference(newWindow: Long?) {
         if (newWindow == null) return
 
@@ -750,7 +743,7 @@ class SharedViewModel @Inject constructor(
      * so we must cancel existing ones and insert new ones based on matching show names in the current quarter.
      * Nonrecurring shows will simply have their subscriptions cancelled.
      */
-    private fun processSubscriptionsOnQuarterChange() {
+    private fun processSubscriptionsOnQuarterChange() { // TODO: test
         launch {
             val subscribedShows = getSubscribedShows()
             val recurringSubscribedShows = getRecurringSubscribedShows(subscribedShows)
