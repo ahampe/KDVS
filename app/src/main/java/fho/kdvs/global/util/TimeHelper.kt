@@ -21,9 +21,9 @@ import kotlin.math.roundToInt
  */
 object TimeHelper {
 
-    val UTC_ID: ZoneId = ZoneId.of("UTC")
-    val UTC_OFFSET: ZoneOffset = ZoneOffset.UTC
-    val PACIFIC_ID: ZoneId = ZoneId.of( "America/Los_Angeles" )
+    private val UTC_ID: ZoneId = ZoneId.of("UTC")
+    private val UTC_OFFSET: ZoneOffset = ZoneOffset.UTC
+    private val PACIFIC_ID: ZoneId = ZoneId.of( "America/Los_Angeles" )
 
     /**
      * Formatter that will be used for parsing broadcast datetimes.
@@ -86,7 +86,7 @@ object TimeHelper {
     /**
      * Converts time from one zone to another.
      */
-    fun convertZoneTime(convertFrom: ZoneId, convertTo: ZoneId, time: OffsetDateTime): OffsetDateTime {
+    private fun convertZoneTime(convertFrom: ZoneId, convertTo: ZoneId, time: OffsetDateTime): OffsetDateTime {
         val convertFromZoneOffset = convertFrom.rules.getOffset(LocalDateTime.now())
         val convertToZoneOffset = convertTo.rules.getOffset(LocalDateTime.now())
 
@@ -95,7 +95,7 @@ object TimeHelper {
         return time.plusSeconds(secondsOffset)
     }
 
-    fun getSystemTimeZone(): ZoneId {
+    private fun getSystemTimeZone(): ZoneId {
         return ZoneId.of(TimeZone.getDefault().id)
     }
 
@@ -108,6 +108,8 @@ object TimeHelper {
      */
     fun makeRealWeekRelativeTimeFromEpochTime(epochTime: OffsetDateTime): OffsetDateTime? {
         val now = OffsetDateTime.now()
+
+        val offset = getSystemTimeZone().rules.getOffset(LocalDateTime.now())
 
         // TODO: change this line after implementing real-time dynamic kdvs times based on system timezone
         val adjustedEpochTime = convertZoneTime(PACIFIC_ID, getSystemTimeZone(), epochTime)
@@ -123,7 +125,7 @@ object TimeHelper {
                     adjustedEpochTime.minute,
                     adjustedEpochTime.second,
                     adjustedEpochTime.nano,
-                    UTC_OFFSET)
+                    offset)
             }
             now.dayOfWeek > adjustedEpochTime.dayOfWeek -> {
                 val nowPlusDays = now.plusDays(7 - (now.dayOfWeek.value - adjustedEpochTime.dayOfWeek.value).toLong())
@@ -135,7 +137,7 @@ object TimeHelper {
                     adjustedEpochTime.minute,
                     adjustedEpochTime.second,
                     adjustedEpochTime.nano,
-                    UTC_OFFSET)
+                    offset)
             }
             now.dayOfWeek == adjustedEpochTime.dayOfWeek -> {
                 when {
@@ -148,7 +150,7 @@ object TimeHelper {
                             adjustedEpochTime.minute,
                             adjustedEpochTime.second,
                             adjustedEpochTime.nano,
-                            UTC_OFFSET)
+                            offset)
                     }
                     now.toLocalTime() > adjustedEpochTime.toLocalTime() -> {
                         val nowPlusDays = now.plusDays(7)
@@ -160,7 +162,7 @@ object TimeHelper {
                             adjustedEpochTime.minute,
                             adjustedEpochTime.second,
                             adjustedEpochTime.nano,
-                            UTC_OFFSET)
+                            offset)
                     }
                     now.toLocalTime() == adjustedEpochTime.toLocalTime() -> {
                         val nowPlusDays = now.plusDays(7)
@@ -172,7 +174,7 @@ object TimeHelper {
                             adjustedEpochTime.minute,
                             adjustedEpochTime.second,
                             adjustedEpochTime.nano,
-                            UTC_OFFSET)
+                            offset)
                     }
                 }
             }
@@ -264,7 +266,7 @@ object TimeHelper {
         return broadcast.date!!.year == now.year &&
                 broadcast.date!!.dayOfYear == now.dayOfYear &&
                 (now.dayOfWeek == show.timeStart!!.dayOfWeek ||
-                        now.dayOfWeek == show.timeEnd!!.dayOfWeek)  &&
+                        now.dayOfWeek == show.timeEnd!!.dayOfWeek) &&
                 now.hour >= show.timeStart!!.hour &&
                 (now.hour < show.timeEnd!!.hour ||
                         (now.hour == show.timeEnd!!.hour && now.minute < show.timeEnd!!.minute) ||
