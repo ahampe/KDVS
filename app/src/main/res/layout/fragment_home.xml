@@ -25,7 +25,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/homeRoot"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:background="@color/colorPrimaryDark">
 
         <androidx.core.widget.NestedScrollView
             android:id="@+id/scrollView"
@@ -87,28 +88,30 @@
                         android:text="@string/notification_live"/>
                 </LinearLayout>
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/fundraiserSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/spacing_large"
-                    android:layout_marginEnd="@dimen/spacing_large"
                     android:visibility="gone"
                     tools:visibility="visible"
                     app:layout_constraintTop_toBottomOf="@+id/nowPlayingSection"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
                     android:orientation="vertical">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/fundraiserHeader"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent">
 
                         <TextView
                             android:id="@+id/fundraiserHeaderText"
                             style="@style/TextAppearance.MaterialComponents.Headline4"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/spacing_large"
                             android:text="@string/fundraiser"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintStart_toStartOf="parent"/>
@@ -118,6 +121,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/ic_info_white_24dp"
+                            android:layout_marginEnd="@dimen/spacing_large"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="@id/fundraiserHeaderText"
                             app:layout_constraintBottom_toBottomOf="@id/fundraiserHeaderText"
@@ -126,11 +130,12 @@
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
                     <net.cachapa.expandablelayout.ExpandableLayout
                         android:id="@+id/fundraiserExpandable"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/fundraiserHeader"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:el_duration="500"
                         app:el_expanded="false"
                         app:el_parallax="0.5"
@@ -148,58 +153,58 @@
                                 android:orientation="horizontal">
 
                                 <LinearLayout
-                                    android:layout_width="0dp"
+                                    android:layout_width="373dp"
                                     android:layout_height="wrap_content"
-                                    android:orientation="vertical"
-                                    android:layout_weight="1">
+                                    android:layout_weight="1"
+                                    android:orientation="vertical">
+
+                                    <LinearLayout
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="@dimen/spacing_large"
+                                        android:orientation="horizontal">
+
+                                        <Space
+                                            android:layout_width="@dimen/spacing_small"
+                                            android:layout_height="wrap_content" />
+
+                                        <Space
+                                            android:layout_width="@dimen/spacing_small"
+                                            android:layout_height="wrap_content" />
+
+                                        <TextView
+                                            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/fundraiser_progress_separator" />
+
+                                        <TextView
+                                            android:id="@+id/fundraiserCurrent"
+                                            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:nestedScrollingEnabled="false"
+                                            tools:text="$1,324" />
+
+                                        <TextView
+                                            android:id="@+id/fundraiserGoal"
+                                            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:nestedScrollingEnabled="false"
+                                            tools:text="$50,000" />
+
+                                    </LinearLayout>
 
                                     <TextView
                                         android:id="@+id/fundraiserDates"
                                         style="@style/TextAppearance.MaterialComponents.Headline6"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:nestedScrollingEnabled="false"
                                         android:layout_marginStart="@dimen/spacing_large"
                                         android:layout_marginEnd="@dimen/spacing_large"
-                                        tools:text="April 22-28, 2019"/>
-
-                                    <LinearLayout
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:orientation="horizontal"
-                                        android:layout_marginStart="@dimen/spacing_large">
-
-                                        <TextView
-                                            android:id="@+id/fundraiserCurrent"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:nestedScrollingEnabled="false"
-                                            style="@style/TextAppearance.MaterialComponents.Subtitle2"
-                                            tools:text="$1,324"/>
-
-                                        <Space
-                                            android:layout_width="@dimen/spacing_small"
-                                            android:layout_height="wrap_content"/>
-
-                                        <TextView
-                                            android:layout_width="wrap_content"
-                                            android:layout_height="wrap_content"
-                                            style="@style/TextAppearance.MaterialComponents.Subtitle2"
-                                            android:text="@string/fundraiser_progress_separator"/>
-
-                                        <Space
-                                            android:layout_width="@dimen/spacing_small"
-                                            android:layout_height="wrap_content"/>
-
-                                        <TextView
-                                            android:id="@+id/fundraiserGoal"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:nestedScrollingEnabled="false"
-                                            style="@style/TextAppearance.MaterialComponents.Subtitle2"
-                                            tools:text="$50,000"/>
-
-                                    </LinearLayout>
+                                        android:nestedScrollingEnabled="false"
+                                        tools:text="April 22-28, 2019" />
 
                                 </LinearLayout>
 
@@ -222,16 +227,14 @@
                                 tools:progress="43"/>
 
                         </LinearLayout>
-
                     </net.cachapa.expandablelayout.ExpandableLayout>
-                </LinearLayout>
 
-                <LinearLayout
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/news"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/spacing_large"
-                    android:layout_marginEnd="@dimen/spacing_large"
                     android:layout_marginTop="@dimen/spacing_medium"
                     app:layout_constraintTop_toBottomOf="@id/fundraiserSection"
                     app:layout_constraintStart_toStartOf="parent"
@@ -239,6 +242,8 @@
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/newsHeader"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -247,6 +252,7 @@
                             style="@style/TextAppearance.MaterialComponents.Headline4"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/spacing_large"
                             android:layout_marginEnd="@dimen/spacing_large"
                             android:text="@string/news"
                             app:layout_constraintTop_toTopOf="parent"
@@ -257,6 +263,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/ic_info_white_24dp"
+                            android:layout_marginEnd="@dimen/spacing_large"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="@id/newsHeaderText"
                             app:layout_constraintBottom_toBottomOf="@id/newsHeaderText"
@@ -265,12 +272,13 @@
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
                     <net.cachapa.expandablelayout.ExpandableLayout
                         android:id="@+id/newsExpandable"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_medium"
+                        app:layout_constraintTop_toTopOf="@id/newsHeader"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:el_duration="500"
                         app:el_expanded="false"
                         app:el_parallax="0.5"
@@ -286,8 +294,7 @@
 
                     </net.cachapa.expandablelayout.ExpandableLayout>
 
-
-                </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <LinearLayout
                     android:id="@+id/topAdds"

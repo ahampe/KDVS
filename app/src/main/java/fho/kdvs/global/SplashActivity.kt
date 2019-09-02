@@ -40,6 +40,7 @@ class SplashActivity : DaggerAppCompatActivity(), CoroutineScope {
                     return@Observer
                 })
             }
+            // TODO: make toast if we fail to observe on first app launch (connection issue)
         }
 
         val intent = Intent(activity, MainActivity::class.java)

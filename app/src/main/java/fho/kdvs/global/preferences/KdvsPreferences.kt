@@ -5,6 +5,7 @@ import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.enums.enumValueOrDefault
+import fho.kdvs.global.enums.enumValueOrNull
 import fho.kdvs.schedule.QuarterYear
 import org.threeten.bp.OffsetDateTime
 import javax.inject.Inject
@@ -184,14 +185,13 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         }
 
     var mostRecentQuarter: Quarter?
-        get() = enumValueOrDefault(_mostRecentQuarter, Quarter.WINTER)
+        get() = enumValueOrNull<Quarter>(_mostRecentQuarter)
         set(value) {
             _mostRecentQuarter = value?.name
         }
 
-
     var selectedQuarter: Quarter?
-        get() = enumValueOrDefault(_selectedQuarter, Quarter.WINTER)
+        get() = enumValueOrNull<Quarter>(_selectedQuarter)
         set(value) {
             _selectedQuarter = value?.name
         }
