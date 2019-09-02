@@ -191,7 +191,7 @@ class MainActivity : DaggerAppCompatActivity() {
         val runnable = object: Runnable {
             override fun run() {
                 handler.postDelayed(this, interval.toLong() * 1000)
-                pb.progress++ // TODO: for some reason this resets to 0 when switching from archive to live
+                pb.progress++
             }
         }
 

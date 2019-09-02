@@ -452,7 +452,7 @@ class SharedViewModel @Inject constructor(
                 val destPath = src.path.substring(0, extensionIndex)
 
                 if (destPath.isNotBlank())
-                    return src.renameTo(File(destPath)) // TODO: this is failing
+                    return src.renameTo(File(destPath))
             }
         }
 

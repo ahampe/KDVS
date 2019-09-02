@@ -90,7 +90,7 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         // the gap of time between the notification for an event and the real time of the event (e.g. show start)
         ALARM_NOTICE_INTERVAL,
 
-        // TODO others like alert frequencies, wifi only usage, last played broadcast etc
+        // TODO: store last played broadcast
 
         // data preferences
         DATA_SAVER_MODE,

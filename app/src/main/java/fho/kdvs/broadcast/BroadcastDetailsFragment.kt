@@ -9,6 +9,7 @@ import android.os.FileObserver
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -24,6 +25,7 @@ import fho.kdvs.global.MainActivity
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.extensions.collapseExpand
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.HttpHelper
@@ -122,6 +124,10 @@ class BroadcastDetailsFragment : DaggerFragment() {
                 }
             })
         }
+
+        broadcast_description.setOnClickListener {
+            (it as? TextView).collapseExpand(5)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -172,6 +178,9 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
             noTracksMessage.visibility = if (tracks.isEmpty()) View.VISIBLE
                 else View.GONE
+
+            broadcast_divider.visibility = if (tracks.isEmpty()) View.GONE
+                else View.VISIBLE
 
             tracksAdapter?.onTracksChanged(tracks)
         })

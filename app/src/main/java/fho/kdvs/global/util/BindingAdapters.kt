@@ -143,12 +143,3 @@ fun setShowTimes(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDateT
         TimeHelper.showTimeFormatter24.format(timeEnd)
     )
 }
-
-@BindingAdapter("nextShow", "isStreamingLive")
-fun updateNextLiveShow(view: TextView, nextShow: ShowEntity, isStreamingLive: Boolean) {
-    // don't update anything if we're not streaming live right now
-    if (!isStreamingLive) return
-
-    // TODO
-}
-

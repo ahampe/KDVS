@@ -50,13 +50,6 @@
             app:layout_constraintTop_toTopOf="@id/broadcast_parent_show" />
 
         <Constraint
-            android:id="@id/broadcast_details_pane"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/broadcast_detail_image"
-            app:layout_constraintStart_toStartOf="parent"/>
-
-        <Constraint
             android:id="@+id/archivePlayButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -112,13 +105,6 @@
             android:paddingBottom="@dimen/spacing_medium"
             app:layout_constraintBottom_toBottomOf="@id/broadcast_date"
             app:layout_constraintTop_toTopOf="@id/broadcast_parent_show" />
-
-        <Constraint
-            android:id="@id/broadcast_details_pane"
-            android:layout_height="0dp"
-            android:alpha="0"
-            app:layout_constraintTop_toBottomOf="@id/broadcast_detail_image"
-            app:layout_constraintStart_toStartOf="parent"/>
 
         <Constraint
             android:id="@+id/archivePlayButton"

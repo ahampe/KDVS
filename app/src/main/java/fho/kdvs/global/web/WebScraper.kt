@@ -469,7 +469,6 @@ class WebScraperManager @Inject constructor(
             }
 
             // if the last article on the page is within the past 6 months, scrape the next page as well
-            // TODO: do this on a quarterly basis?
             if (LocalDateTime.now(Clock.systemUTC()).minusMonths(6) <= lastDateScraped.atTime(0, 0))
             {
                 val currentPage = "page/([0-9]+)".toRegex()
