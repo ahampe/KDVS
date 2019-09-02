@@ -277,12 +277,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_medium"
-                        app:layout_constraintTop_toTopOf="@id/newsHeader"
+                        app:layout_constraintTop_toBottomOf="@id/newsHeader"
                         app:layout_constraintStart_toStartOf="parent"
                         app:el_duration="500"
                         app:el_expanded="false"
                         app:el_parallax="0.5"
-                        tools:el_expanded="false">
+                        tools:el_expanded="true">
 
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/newsRecycler"

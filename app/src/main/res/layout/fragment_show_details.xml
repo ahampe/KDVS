@@ -14,6 +14,7 @@
         android:id="@+id/showDetailsRoot"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/double_bottom_nav"
         app:layoutDescription="@xml/scene_show_details">
 
         <!--header region-->
@@ -36,20 +37,20 @@
         <TextView
             android:id="@+id/show_title"
             style="@style/TextAppearance.MaterialComponents.Headline4"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:ellipsize="end"
             android:text="@{vm.show.name}"
-            tools:text="The Show Name"
-            app:autoSizeTextType="uniform"
+            tools:text="A Very Long Show Name To Test Whether Or Not It Ellipsizes"
+            android:paddingEnd="@dimen/spacing_64dp"
             app:layout_constraintBottom_toBottomOf="@id/show_detail_image"
             app:layout_constraintEnd_toStartOf="@id/star"
             app:layout_constraintStart_toStartOf="parent" />
 
         <ImageView
             android:id="@+id/star"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="0dp"
             app:layout_constraintDimensionRatio="1:1"
             android:src="@drawable/ic_star_border_white_24dp"
@@ -80,8 +81,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_medium"
+                android:maxLines="5"
+                android:ellipsize="end"
                 android:text="@{vm.show.defaultDesc}"
-                tools:text="This is a description of a show on KDVS. How fascinating." />
+                tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." />
 
             <TextView
                 android:id="@+id/show_genre"

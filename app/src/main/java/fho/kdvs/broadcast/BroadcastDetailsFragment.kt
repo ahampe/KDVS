@@ -114,8 +114,8 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
                 folder?.let {
                     if (icon.tag == DOWNLOAD_ICON) {
-                        downloadBroadcast(broadcast, show, folder)
-                        setDownloadingIcon()
+                        if (downloadBroadcast(broadcast, show, folder))
+                            setDownloadingIcon()
                     } else if (icon.tag == DELETE_ICON) {
                         displayDialog()
                     }
@@ -177,10 +177,10 @@ class BroadcastDetailsFragment : DaggerFragment() {
         })
     }
 
-    private fun downloadBroadcast(broadcast: BroadcastEntity, show: ShowEntity, folder: File) {
+    private fun downloadBroadcast(broadcast: BroadcastEntity, show: ShowEntity, folder: File): Boolean {
         if (kdvsPreferences.offlineMode == true) {
             sharedViewModel.makeOfflineModeToast(activity)
-            return
+            return false
         }
 
         val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
@@ -205,20 +205,22 @@ class BroadcastDetailsFragment : DaggerFragment() {
                         Toast.makeText(
                             activity as? MainActivity, "Download started", Toast.LENGTH_SHORT
                         ).show()
+
+                        return true
                     } catch (e: Exception) {
                         Timber.e("Error downloading broadcast: ${e.message}")
 
                         Toast.makeText(
                             activity as? MainActivity, "Error downloading broadcast", Toast.LENGTH_SHORT
                         ).show()
+
+                        return false
                     }
                 }
-            } else {
-                Toast.makeText(
-                    activity as? MainActivity, "Download permission not granted", Toast.LENGTH_SHORT
-                ).show()
             }
         }
+
+        return false
     }
 
     /** Update UI reactively to match state of download. */
