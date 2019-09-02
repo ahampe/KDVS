@@ -23,8 +23,6 @@
         android:id="@+id/detailsRoot"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="@dimen/spacing_large"
-        android:layout_marginEnd="@dimen/spacing_large"
         android:layout_marginBottom="@dimen/double_bottom_nav"
         app:layoutDescription="@xml/scene_broadcast_details">
 
@@ -34,7 +32,7 @@
             glideHref="@{vm.broadcastLiveData.imageHref}"
             android:layout_width="match_parent"
             android:layout_height="@dimen/expanded_toolbar_height"
-            android:background="@color/colorPrimaryDark" />
+            android:background="@color/colorPrimary50a" />
 
         <ImageView
             android:id="@+id/broadcast_header_background"
@@ -54,6 +52,8 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@{vm.showLiveData.name}"
+            android:paddingStart="@dimen/spacing_large"
+            android:paddingTop="@dimen/spacing_small"
             app:layout_constraintBottom_toTopOf="@id/broadcast_date"
             app:layout_constraintEnd_toStartOf="@id/downloadDeleteIcon"
             app:layout_constraintStart_toStartOf="parent"
@@ -67,10 +67,11 @@
             localDate="@{vm.broadcastLiveData.date}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingStart="@dimen/spacing_large"
+            android:paddingBottom="@dimen/spacing_small"
             android:maxLines="1"
             app:layout_constraintBottom_toBottomOf="@id/broadcast_detail_image"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/broadcast_header_background"
+            app:layout_constraintStart_toStartOf="parent"
             tools:text="Jan 01 2019" />
 
         <ImageView
@@ -81,7 +82,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/broadcast_parent_show"
             app:layout_constraintBottom_toBottomOf="@id/broadcast_date"
-            android:layout_marginEnd="@dimen/spacing_medium"
+            android:layout_marginEnd="@dimen/spacing_large"
             android:src="@drawable/exo_controls_play"
             android:visibility="gone"
             tools:visibility="visible" />
@@ -106,7 +107,6 @@
             android:id="@+id/broadcast_details_pane"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:orientation="vertical"
             android:layout_marginBottom="@dimen/spacing_large"
             app:layout_constraintStart_toStartOf="parent"
@@ -116,12 +116,17 @@
                 android:id="@+id/broadcast_description"
                 android:autoLink="web"
                 style="@style/TextAppearance.MaterialComponents.Subtitle1"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 desc="@{vm.broadcastLiveData.description}"
                 android:maxLines="10"
                 android:ellipsize="end"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:layout_marginBottom="@dimen/spacing_large"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:layout_marginEnd="@dimen/spacing_large"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?" />
 
@@ -131,7 +136,11 @@
                 android:layout_height="wrap_content"
                 android:text="@string/no_tracks"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/broadcast_description"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:layout_marginEnd="@dimen/spacing_large"
                 android:visibility="gone"
                 tools:visibility="gone"/>
 
@@ -141,6 +150,8 @@
             android:id="@+id/trackRecycler"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginStart="@dimen/spacing_large"
+            android:layout_marginEnd="@dimen/spacing_large"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/broadcast_details_pane"/>
 
