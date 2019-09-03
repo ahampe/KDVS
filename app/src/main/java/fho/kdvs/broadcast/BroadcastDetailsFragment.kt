@@ -151,6 +151,9 @@ class BroadcastDetailsFragment : DaggerFragment() {
         val fragment = this
 
         viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
+            if (broadcast.description?.trim().isNullOrBlank())
+                description_container?.visibility = View.GONE // TODO: this visibility change isn't persisting
+
             val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
             observeDownloadFolder(title)
 

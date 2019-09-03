@@ -11,7 +11,7 @@ fun TextView?.collapseExpand(maxLines: Int) {
             it.ellipsize = null
             it.maxLines = Integer.MAX_VALUE
         } else {
-            it.ellipsize = TextUtils.TruncateAt.END
+            it.ellipsize = TextUtils.TruncateAt.MARQUEE
             it.maxLines = maxLines
         }
 

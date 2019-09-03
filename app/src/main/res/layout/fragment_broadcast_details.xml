@@ -24,8 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="@dimen/double_bottom_nav"
-        app:layoutDescription="@xml/scene_broadcast_details"
-        tools:background="@color/colorPrimaryDark">
+        app:layoutDescription="@xml/scene_broadcast_details">
 
         <!--header region-->
         <ImageView
@@ -83,6 +82,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/broadcast_parent_show"
             app:layout_constraintBottom_toBottomOf="@id/broadcast_date"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:layout_marginBottom="@dimen/spacing_medium"
             android:layout_marginEnd="@dimen/spacing_large"
             android:src="@drawable/exo_controls_play"
             android:visibility="gone"
@@ -104,21 +105,32 @@
 
         <!--end header region-->
 
-        <TextView
-            android:id="@+id/broadcast_description"
-            android:autoLink="web"
-            style="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/description_container"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            desc="@{vm.broadcastLiveData.description}"
-            android:padding="@dimen/spacing_large"
-            android:maxLines="5"
-            android:ellipsize="end"
-            android:background="@color/colorPrimary50a"
+            android:orientation="vertical"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/broadcast_detail_image"
-            tools:text="Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?" />
+            android:background="@color/colorPrimary50a">
+
+            <TextView
+                android:id="@+id/broadcast_description"
+                android:autoLink="web"
+                style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                desc="@{vm.broadcastLiveData.description}"
+                android:maxLines="5"
+                android:ellipsize="marquee"
+                android:paddingStart="@dimen/spacing_large"
+                android:paddingEnd="@dimen/spacing_large"
+                android:paddingTop="@dimen/spacing_medium"
+                android:paddingBottom="@dimen/spacing_medium"
+                tools:text="Test"/>
+
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/broadcast_divider"
@@ -127,21 +139,21 @@
             android:src="@drawable/divider"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/noTracksMessage"/>
+            app:layout_constraintTop_toBottomOf="@id/description_container"/>
 
         <TextView
             android:id="@+id/noTracksMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/no_tracks"
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/broadcast_description"
+            app:layout_constraintTop_toBottomOf="@id/broadcast_divider"
             android:layout_marginTop="@dimen/spacing_large"
             android:layout_marginStart="@dimen/spacing_large"
             android:layout_marginEnd="@dimen/spacing_large"
             android:visibility="gone"
-            tools:visibility="gone"/>
+            tools:visibility="visible"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/trackRecycler"
@@ -149,8 +161,12 @@
             android:layout_height="0dp"
             android:layout_marginStart="@dimen/spacing_large"
             android:layout_marginEnd="@dimen/spacing_large"
+            android:paddingTop="@dimen/spacing_medium"
+            android:paddingBottom="@dimen/spacing_medium"
+            android:clipToPadding="false"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/broadcast_divider"/>
+            app:layout_constraintTop_toBottomOf="@id/broadcast_divider"
+            tools:visibility="gone"/>
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
 </layout>

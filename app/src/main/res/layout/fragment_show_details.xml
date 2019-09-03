@@ -23,8 +23,7 @@
             android:scaleType="centerCrop"
             glideHref="@{vm.show.defaultImageHref}"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/expanded_toolbar_height"
-            android:background="@android:color/black" />
+            android:layout_height="@dimen/expanded_toolbar_height" />
 
         <ImageView
             android:id="@+id/show_header_background"
@@ -37,13 +36,13 @@
         <TextView
             android:id="@+id/show_title"
             style="@style/TextAppearance.MaterialComponents.Headline4"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:ellipsize="end"
             android:text="@{vm.show.name}"
+            android:layout_marginStart="@dimen/spacing_large"
             tools:text="A Very Long Show Name To Test Whether Or Not It Ellipsizes"
-            android:paddingEnd="@dimen/spacing_64dp"
             app:layout_constraintBottom_toBottomOf="@id/show_detail_image"
             app:layout_constraintEnd_toStartOf="@id/star"
             app:layout_constraintStart_toStartOf="parent" />
@@ -54,8 +53,11 @@
             android:layout_height="0dp"
             app:layout_constraintDimensionRatio="1:1"
             android:src="@drawable/ic_star_border_white_24dp"
+            android:layout_marginEnd="@dimen/spacing_medium"
             app:layout_constraintTop_toTopOf="@id/show_title"
             app:layout_constraintBottom_toBottomOf="@id/show_title"
+            android:paddingTop="@dimen/spacing_extra_small"
+            android:paddingBottom="@dimen/spacing_extra_small"
             app:layout_constraintEnd_toEndOf="parent"/>
         <!--end header region-->
 
@@ -64,8 +66,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/spacing_medium"
-            app:layout_constraintTop_toBottomOf="@id/show_detail_image">
+            android:paddingTop="@dimen/spacing_medium"
+            android:paddingBottom="@dimen/spacing_medium"
+            android:paddingStart="@dimen/spacing_large"
+            android:paddingEnd="@dimen/spacing_large"
+            android:background="@color/colorPrimary50a"
+            app:layout_constraintTop_toBottomOf="@id/show_detail_image"
+            android:elevation="@dimen/spacing_small">
 
             <TextView
                 android:id="@+id/show_hosts"
@@ -74,17 +81,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_medium"
                 android:text="@{vm.show.host}"
-                tools:text="DJ Host &amp; DJ Other Host" />
-
-            <TextView
-                android:id="@+id/show_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_medium"
-                android:maxLines="5"
-                android:ellipsize="end"
-                android:text="@{vm.show.defaultDesc}"
-                tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." />
+                tools:text="DJ Host &amp; DJ Other Host"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_image"/>
 
             <TextView
                 android:id="@+id/show_genre"
@@ -96,21 +94,36 @@
                 tools:text="Genre: Music and such" />
 
             <TextView
-                android:id="@+id/show_past_playlists"
-                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:id="@+id/show_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_medium"
-                android:text="@string/past_playlists" />
+                android:maxLines="5"
+                android:ellipsize="end"
+                android:text="@{vm.show.defaultDesc}"
+                tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." />
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/playlist_divider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/divider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_details_pane"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/broadcastRecycler"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:paddingTop="@dimen/spacing_medium"
+            android:layout_marginStart="@dimen/spacing_large"
+            android:layout_marginEnd="@dimen/spacing_large"
+            android:clipToPadding="false"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/show_details_pane" />
-
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/playlist_divider" />
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
 
