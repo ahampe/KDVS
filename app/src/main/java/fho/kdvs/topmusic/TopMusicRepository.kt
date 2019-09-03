@@ -30,6 +30,11 @@ class TopMusicRepository @Inject constructor(
         scrapeTopAlbums()
     }
 
+    fun forceScrapeTopMusic() {
+        forceScrapeTopAdds()
+        forceScrapeTopAlbums()
+    }
+
     private fun scrapeTopAdds() = launch {
         val now = TimeHelper.getNow().toEpochSecond()
         val lastScrape = kdvsPreferences.lastTopFiveAddsScrape ?: 0L

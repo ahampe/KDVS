@@ -37,7 +37,7 @@ class StaffRepository @Inject constructor(
      * Runs a staff scrape without checking when it was last performed.
      * The only acceptable public usage of this method is when user explicitly refreshes.
      */
-    private fun forceScrapeStaff(): Job? = scraperManager.scrape(URLs.CONTACT)
+    fun forceScrapeStaff(): Job? = scraperManager.scrape(URLs.CONTACT)
 
     fun getStaff(): LiveData<List<StaffEntity>> =
         staffDao.getAll()

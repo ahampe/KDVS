@@ -151,7 +151,7 @@ class ShowRepository @Inject constructor(
      * Runs a schedule scrape without checking when it was last performed.
      * The only acceptable public usage of this method is when user explicitly refreshes.
      */
-    private fun forceScrapeSchedule(): Job? = scraperManager.scrape(URLs.SCHEDULE)
+    fun forceScrapeSchedule(): Job? = scraperManager.scrape(URLs.SCHEDULE)
 
     fun getCurrentQuarterYear(): LiveData<QuarterYear> = showDao.currentQuarterYear()
 

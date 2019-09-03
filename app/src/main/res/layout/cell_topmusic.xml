@@ -27,7 +27,9 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             glideHref="@{topMusic.imageHref}"
-            android:padding="@dimen/spacing_med_large"
+            android:paddingTop="@dimen/spacing_med_large"
+            android:paddingStart="@dimen/spacing_med_large"
+            android:paddingEnd="@dimen/spacing_med_large"
             tools:src="@drawable/show_placeholder" />
 
         <ImageView

@@ -107,17 +107,20 @@ class SharedViewModel @Inject constructor(
     /** Signals the [Show Repository] to scrape the schedule grid. */
     fun fetchShows() = showRepository.scrapeSchedule()
 
-    /** Signals the [News Repository] to scrape the news page(s). */
-    private fun fetchNewsArticles() = newsRepository.scrapeNews()
+    /** Forces the [Show Repository] to scrape the schedule grid. */
+    private fun forceFetchShows() = showRepository.forceScrapeSchedule()
 
-    /** Signals the [TopMusic Repository] to scrape the top music pages. */
-    private fun fetchTopMusicItems() = topMusicRepository.scrapeTopMusic()
+    /** Forces the [News Repository] to scrape the news page(s). */
+    private fun forceFetchNewsArticles() = newsRepository.forceScrapeNews()
 
-    /** Signals the [Staff Repository] to scrape the staff page. */
-    private fun fetchStaff() = staffRepository.scrapeStaff()
+    /** Forces the [TopMusic Repository] to scrape the top music pages. */
+    private fun forceFetchTopMusicItems() = topMusicRepository.forceScrapeTopMusic()
 
-    /** Signals the [Fundraiser Repository] to scrape the fundraiser page. */
-    private fun fetchFundraiser() = fundraiserRepository.scrapeFundraiser()
+    /** Forces the [Staff Repository] to scrape the staff page. */
+    private fun forceFetchStaff() = staffRepository.forceScrapeStaff()
+
+    /** Forces the [Fundraiser Repository] to scrape the fundraiser page. */
+    private fun forceFetchFundraiser() = fundraiserRepository.forceScrapeFundraiser()
 
     fun getCurrentQuarterYear() : LiveData<QuarterYear> =
         showRepository.getCurrentQuarterYear()
@@ -131,7 +134,7 @@ class SharedViewModel @Inject constructor(
     private val currentQuarterYearLiveData = showRepository.getCurrentQuarterYear()
 
     /** The currently selected quarter-year. */
-    val selectedQuarterYearLiveData = quarterRepository.selectedQuarterYearLiveData
+    private val selectedQuarterYearLiveData = quarterRepository.selectedQuarterYearLiveData
 
     /** Sets the given [QuarterYear]. Change will be reflected in [selectedQuarterYearLiveData]. */
     fun selectQuarterYear(quarterYear: QuarterYear) =
@@ -383,7 +386,7 @@ class SharedViewModel @Inject constructor(
             onClickSpotifyNoApp(view, spotifyUri)
     }
 
-    fun openSpotifyApp(view: View, spotifyUri: String?) {
+    private fun openSpotifyApp(view: View, spotifyUri: String?) {
         val intent = Intent(Intent.ACTION_VIEW).apply{
             data = Uri.parse(spotifyUri)
             putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + view.context.packageName))
@@ -467,7 +470,7 @@ class SharedViewModel @Inject constructor(
             .setDestinationInExternalPublicDir(
                 Environment.DIRECTORY_MUSIC,
                 "${File.separator}$DOWNLOAD_CHILD${File.separator}$filename")
-            .setAllowedOverMetered(true)
+            .setAllowedOverMetered(true) // TODO: make preference
             .setAllowedOverRoaming(true)
     }
 
@@ -623,11 +626,11 @@ class SharedViewModel @Inject constructor(
 
     fun refreshData() {
         launch {
-            fetchShows()
-            fetchNewsArticles()
-            fetchTopMusicItems()
-            fetchStaff()
-            fetchFundraiser()
+            forceFetchShows()
+            forceFetchNewsArticles()
+            forceFetchTopMusicItems()
+            forceFetchStaff()
+            forceFetchFundraiser()
         }
     }
 
@@ -712,7 +715,7 @@ class SharedViewModel @Inject constructor(
      * When user changes the alarm notification window in settings, we'll need to re-register all alarms
      * with the new window. We must first cancel all alarms before updating the preference,
      * such that we can initialize matching Intents.
-     */ // TODO: test
+     */
     fun reRegisterAlarmsAndUpdatePreference(newWindow: Long?) {
         if (newWindow == null) return
 
