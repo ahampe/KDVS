@@ -75,6 +75,7 @@
             android:ellipsize="end"
             android:gravity="center"
             android:text="@{topMusic.artist}"
+            android:textColor="@color/colorSecondary"
             style="@style/TextAppearance.MaterialComponents.Subtitle1"
             tools:text="Morbid Angel"/>
     </androidx.constraintlayout.widget.ConstraintLayout>

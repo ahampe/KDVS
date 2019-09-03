@@ -73,7 +73,7 @@
             android:ellipsize="end"
             android:gravity="start"
             android:maxLines="1"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/colorSecondary"
             android:textSize="14sp"
             app:layout_constraintEnd_toStartOf="@id/favorite"
             app:layout_constraintHorizontal_bias="0.0"

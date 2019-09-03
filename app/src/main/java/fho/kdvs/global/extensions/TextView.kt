@@ -5,6 +5,7 @@ import android.text.TextUtils
 import android.widget.TextView
 
 
+/** Extension method to programmatically collapse or expand a TextView with interpolation, based on lines. */
 fun TextView?.collapseExpand(maxLines: Int) {
     this?.let {
         if (it.maxLines == maxLines) {

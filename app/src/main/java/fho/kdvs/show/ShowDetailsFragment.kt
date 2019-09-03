@@ -57,7 +57,7 @@ class ShowDetailsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        LoadScreen.displayLoadScreen(showDetailsRoot)
+        LoadScreen.displayLoadScreen(showDetailsRoot) // TODO: this renders beneath motionscene stuff
 
         broadcastListAdapter = ShowBroadcastsAdapter {
             Timber.d("clicked ${it.item}")
