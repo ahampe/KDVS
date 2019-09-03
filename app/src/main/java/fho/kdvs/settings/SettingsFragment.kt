@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 
 const val DEFAULT_CODEC_POS = 0
-const val DEFAULT_NOTIFICATION_POS = 1
+const val DEFAULT_NOTIFICATION_POS = 0
 const val DEFAULT_FUNDRAISER_POS = 1
 const val DEFAULT_FREQUENCY_POS = 0
 const val DEFAULT_THEME_POS = 0
@@ -252,9 +252,6 @@ class SettingsFragment : DaggerFragment() {
         scrapeFrequency = null
         theme = null
         offlineMode = null
-
-        Toast.makeText(requireContext(), "Settings reset", Toast.LENGTH_SHORT)
-            .show()
     }
 
     private fun save() {

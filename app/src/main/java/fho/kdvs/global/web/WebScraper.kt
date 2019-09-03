@@ -464,7 +464,6 @@ class WebScraperManager @Inject constructor(
             }
 
             articlesScraped.forEach { article ->
-                db.newsDao().deleteByTitleAndDate(article.title, article.date)
                 db.newsDao().insert(article)
             }
 

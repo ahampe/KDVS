@@ -78,6 +78,7 @@
             app:layout_constrainedWidth="true"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="packed"
+            android:layout_marginTop="@dimen/spacing_small"
             tools:text="Testing a Long Show Name To See Multiline Display"/>
 
         <TextView
