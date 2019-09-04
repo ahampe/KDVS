@@ -208,7 +208,7 @@ class ScheduleFragment : DaggerFragment() {
                 // and cancel nonrecurring subscriptions
                 it.first().let { q ->
                     if (q != kdvsPreferences.mostRecentQuarterYear) {
-                        if (kdvsPreferences.mostRecentQuarterYear != null)
+                        if (!kdvsPreferences.isInitialLaunch())
                             this.onNewQuarter(context)
                         kdvsPreferences.mostRecentQuarterYear = q
                     }

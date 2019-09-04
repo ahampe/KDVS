@@ -38,6 +38,8 @@ class ShowRepository @Inject constructor(
     private val kdvsPreferences: KdvsPreferences
 ) : BaseRepository() {
 
+    // TODO: retry scrapes on connection failure after a timeout period
+
     /**
      * [MutableLiveData] listening for the live show (not necessarily the currently playing show).
      * Whenever the value is set, a request to scrape its details is sent to [BroadcastRepository].

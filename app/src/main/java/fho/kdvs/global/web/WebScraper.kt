@@ -81,7 +81,7 @@ class WebScraperManager @Inject constructor(
                 url.contains("contact") -> scrapeStaff(document)
                 url.contains("news") -> scrapeNews(document, url)
                 url.contains("top-") -> scrapeTopMusic(document, url)
-                url.contains("fundraiser") -> scrapeFundraiser(document, url)
+                url.contains("fundraiser") -> scrapeFundraiser(document)
                 else -> throw Exception("Invalid url: $url")
             }
         }
@@ -259,7 +259,7 @@ class WebScraperManager @Inject constructor(
                 .find(imageElement?.attributes()?.html().orEmpty())
                 ?.groupValues?.getOrNull(1)?.trim()?.replace("&quot;", "")
 
-            if (imageHref == URLs.SHOW_IMAGE_PLACEHOLDER) imageHref = null
+            if (imageHref == SHOW_IMAGE_PLACEHOLDER) imageHref = null
 
             db.broadcastDao().updateBroadcastDetails(broadcastId, desc.trim(), imageHref)
 
@@ -276,6 +276,7 @@ class WebScraperManager @Inject constructor(
 
             // Because tracks have auto-generated IDs, we have to clear any already scraped tracks to avoid dupes
             db.trackDao().deleteByBroadcast(broadcastId)
+            // TODO: this deletion may pose a conflict if user has favorited prior tracks
 
             // filter out empty playlists
             val tracks = select("table.show-tracks-table tbody tr").filter { t ->
@@ -488,7 +489,7 @@ class WebScraperManager @Inject constructor(
         return NewsScrapeData(articlesScraped)
     }
 
-    private fun scrapeFundraiser(document: Document, url: String?) : FundraiserScrapeData? {
+    private fun scrapeFundraiser(document: Document) : FundraiserScrapeData? {
         lateinit var fundraiser: FundraiserEntity
 
         document.run {
@@ -587,8 +588,7 @@ class WebScraperManager @Inject constructor(
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun scrapeFundraiser(file: File) {
         val document = Jsoup.parse(file, "UTF-8", "")
-        val url = document.head().select("meta[property=og:url]").firstOrNull()?.attr("content")
-        scrapeFundraiser(document, url)
+        scrapeFundraiser(document)
     }
 
     companion object {

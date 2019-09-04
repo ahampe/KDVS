@@ -26,7 +26,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
 import fho.kdvs.global.extensions.isPlaying
-import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.view_player_bar.*
@@ -43,9 +42,6 @@ class MainActivity : DaggerAppCompatActivity() {
 
     @Inject
     lateinit var exoPlayer: ExoPlayer
-
-    @Inject
-    lateinit var kdvsPreferences: KdvsPreferences
 
     private lateinit var viewModel: SharedViewModel
 

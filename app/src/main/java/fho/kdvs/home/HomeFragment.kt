@@ -187,9 +187,11 @@ class HomeFragment : DaggerFragment() {
 
     private fun subscribeToViewModel() {
         viewModel.run {
-            combinedLiveData.observe(viewLifecycleOwner, Observer {
+            combinedLiveData.observe(viewLifecycleOwner, Observer { allDataObserved ->
                 Timber.d("All home observations complete")
-                LoadScreen.hideLoadScreen(homeRoot)
+
+                if (allDataObserved)
+                    LoadScreen.hideLoadScreen(homeRoot)
             })
 
             // TODO: sometimes current show recycler doesn't load upon startup
@@ -244,7 +246,7 @@ class HomeFragment : DaggerFragment() {
 
                 val highestId = albums.maxBy { a -> a.topMusicId}?.topMusicId
 
-                // Display info icon when there are unviewed fundraiser progress
+                // Display info icon when there are unviewed top albums
                 if (highestId != kdvsPreferences.lastObservedTopAlbumsId) {
                     topAlbumsNotification.fade(true)
                 }
@@ -304,7 +306,7 @@ class HomeFragment : DaggerFragment() {
             allQuarterYearsLiveData.observe(viewLifecycleOwner, Observer {
                 it.first().let { q ->
                     if (q != kdvsPreferences.mostRecentQuarterYear) {
-                        if (kdvsPreferences.mostRecentQuarterYear != null)
+                        if (!kdvsPreferences.isInitialLaunch())
                             this.onNewQuarter(context)
                         kdvsPreferences.mostRecentQuarterYear = q
                     }

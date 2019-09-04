@@ -6,9 +6,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
+import fho.kdvs.global.extensions.withMessageOnTimeout
+import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.home.HomeViewModel
 import kotlinx.coroutines.*
-import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -16,6 +17,9 @@ import kotlin.coroutines.CoroutineContext
 class SplashActivity : DaggerAppCompatActivity(), CoroutineScope {
     @Inject
     lateinit var viewModelFactory: KdvsViewModelFactory
+
+    @Inject
+    lateinit var kdvsPreferences: KdvsPreferences
 
     internal val job = Job()
     override val coroutineContext: CoroutineContext
@@ -28,22 +32,26 @@ class SplashActivity : DaggerAppCompatActivity(), CoroutineScope {
         setTheme(R.style.AppTheme_launcher)
         super.onCreate(savedInstanceState)
 
-        val activity = this
-
         homeViewModel = ViewModelProviders.of(this, viewModelFactory)
             .get(HomeViewModel::class.java)
 
-        runBlocking {
-            withTimeoutOrNull(8000L) {
-                withContext(activity.coroutineContext) { homeViewModel.fetchHomeData() }.observe(activity, Observer {
-                    Timber.d("Splash pre-load complete")
-                    return@Observer
-                })
-            }
-            // TODO: make toast if we fail to observe on first app launch (connection issue)
-        }
+        // Make error toast if we fail to observe data within timeout range
+        val toast = "Error retrieving station info. Please check your connection."
 
-        val intent = Intent(activity, MainActivity::class.java)
+        var finished = false
+
+        homeViewModel.fetchHomeData()
+            .withMessageOnTimeout(8000, applicationContext, toast)
+            .observe(this, Observer {
+                if (!finished) // guard against multiple observations
+                    startMainActivity()
+
+                finished = true
+            })
+    }
+
+    private fun startMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
 
         finish()

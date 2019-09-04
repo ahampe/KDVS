@@ -749,7 +749,7 @@ class SharedViewModel @Inject constructor(
     private fun processSubscriptionsOnQuarterChange() { // TODO: test
         launch {
             val subscribedShows = getSubscribedShows()
-            val recurringSubscribedShows = getRecurringSubscribedShows(subscribedShows)
+            val recurringSubscribedShows = getRecurringShows(subscribedShows)
             val nonRecurringSubscribedShows = subscribedShows
                 .filterNot { s -> recurringSubscribedShows?.contains(s) == true }
 
@@ -816,11 +816,15 @@ class SharedViewModel @Inject constructor(
         return subscriptionRepository.subscribedShows()
     }
 
-    private fun getRecurringSubscribedShows(subscribedShows: List<ShowEntity>): List<ShowEntity>? {
+    /**
+     * Takes in list of shows and returns those from list that are present in current quarter,
+     * based on show name.
+     */
+    private fun getRecurringShows(shows: List<ShowEntity>): List<ShowEntity>? {
         val currentShows = getCurrentQuarterShows()
 
         currentShows?.let {
-            return subscribedShows
+            return shows
                 .filter { show ->
                     currentShows
                     .map { s -> s.name }

@@ -202,6 +202,9 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     var mostRecentYear: Int? by IntPreference(Key.MOST_RECENT_YEAR)
     var selectedYear: Int? by IntPreference(Key.SELECTED_YEAR)
 
+    /** Method to determine whether user is initializing app for first time. */
+    fun isInitialLaunch() = mostRecentQuarterYear == null
+
     /** Clears everything from shared preferences. */
     fun clearAll() = preferences.edit().clear().apply()
 

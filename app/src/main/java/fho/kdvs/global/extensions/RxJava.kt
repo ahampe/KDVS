@@ -8,5 +8,5 @@ import io.reactivex.Observable
 
 fun <T> Flowable<T>.toLiveData(): LiveData<T> = LiveDataReactiveStreams.fromPublisher(this)
 
-fun <T> Observable<T>.toLiveDate(): LiveData<T> =
+fun <T> Observable<T>.toLiveData(): LiveData<T> =
     LiveDataReactiveStreams.fromPublisher(this.toFlowable(BackpressureStrategy.LATEST))
