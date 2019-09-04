@@ -2,14 +2,16 @@ package fho.kdvs.global
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
-import fho.kdvs.global.extensions.withMessageOnTimeout
+import fho.kdvs.global.extensions.callFunctionOnTimeout
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.home.HomeViewModel
 import kotlinx.coroutines.*
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -35,18 +37,26 @@ class SplashActivity : DaggerAppCompatActivity(), CoroutineScope {
         homeViewModel = ViewModelProviders.of(this, viewModelFactory)
             .get(HomeViewModel::class.java)
 
-        // Make error toast if we fail to observe data within timeout range
-        val toast = "Error retrieving station info. Please check your connection."
-
         var finished = false
 
+        val callOnTimeout = {
+            Toast.makeText(
+                applicationContext,
+                "Error retrieving station info. Please check your connection.",
+                Toast.LENGTH_LONG
+            ).show()
+
+            startMainActivity()
+        }
+
         homeViewModel.fetchHomeData()
-            .withMessageOnTimeout(8000, applicationContext, toast)
+            .callFunctionOnTimeout(10000, callOnTimeout)
             .observe(this, Observer {
-                if (!finished) // guard against multiple observations
+                if (!finished) {
                     startMainActivity()
 
-                finished = true
+                    finished = true
+                }
             })
     }
 
@@ -55,5 +65,7 @@ class SplashActivity : DaggerAppCompatActivity(), CoroutineScope {
         startActivity(intent)
 
         finish()
+
+        Timber.d("Starting main activity")
     }
 }

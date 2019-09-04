@@ -188,16 +188,16 @@ class HomeFragment : DaggerFragment() {
     private fun subscribeToViewModel() {
         viewModel.run {
             combinedLiveData.observe(viewLifecycleOwner, Observer { allDataObserved ->
-                Timber.d("All home observations complete")
-
-                if (allDataObserved)
-                    LoadScreen.hideLoadScreen(homeRoot)
+                if (allDataObserved) {
+                    Timber.d("All home observations complete")
+                }
             })
 
             // TODO: sometimes current show recycler doesn't load upon startup
             currentShows.observe(viewLifecycleOwner, Observer { shows ->
                 Timber.d("Got current shows: $shows")
                 currentShowsAdapter?.onCurrentShowsChanged(shows)
+                LoadScreen.hideLoadScreen(homeRoot)
             })
 
             newsArticles.observe(viewLifecycleOwner, Observer { articles ->

@@ -19,10 +19,8 @@
 
 package fho.kdvs.global.extensions
 
-import android.content.Context
 import android.os.Handler
 import android.os.Message
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 
@@ -30,8 +28,7 @@ import androidx.lifecycle.MediatorLiveData
  * Extension method with handler class to grant timeout functionality to LiveData.
  * */
 private class LiveDataTimeoutHandler(
-    private val context: Context,
-    private val toast: String?,
+    private val functionToCall: () -> Any,
     private val liveData: LiveData<*>
 ) : Handler() {
     companion object {
@@ -41,9 +38,8 @@ private class LiveDataTimeoutHandler(
     // Clear live data and make toast
     override fun handleMessage(msg: Message?) {
         if (msg?.what == LIVE_DATA_TIMEOUT) {
-            if (liveData.value == null && !toast.isNullOrBlank()) {
-                Toast.makeText(context, toast, Toast.LENGTH_LONG)
-                    .show()
+            if (liveData.value == null) { // TODO: remove this line after fixing the removeMessages call
+                functionToCall()
             }
         }
     }
@@ -53,15 +49,15 @@ private class LiveDataTimeoutHandler(
  * Queue a handler message for the timeout duration. If we observe a value, remove message. Otherwise,
  * handle message.
  */
-fun <T> LiveData<T>.withMessageOnTimeout(timeout: Long, context: Context, toast: String?): LiveData<T> {
+fun <T> LiveData<T>.callFunctionOnTimeout(timeout: Long, functionToCall: ()->Any): LiveData<T> {
     val result = MediatorLiveData<T>()
-    val handler = LiveDataTimeoutHandler(context, toast, this)
+    val handler = LiveDataTimeoutHandler(functionToCall, this)
 
     handler.sendMessageDelayed(
         Message.obtain(handler, LiveDataTimeoutHandler.LIVE_DATA_TIMEOUT),
         timeout)
 
-    result.addSource(this) {
+    result.addSource(this) {// TODO: this doesn't fire
         handler.removeMessages(LiveDataTimeoutHandler.LIVE_DATA_TIMEOUT)
     }
 
