@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import fho.kdvs.global.enums.Quarter
-import fho.kdvs.global.enums.enumValueOrDefault
 import fho.kdvs.global.enums.enumValueOrNull
 import fho.kdvs.schedule.QuarterYear
 import org.threeten.bp.OffsetDateTime
@@ -90,7 +89,9 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         // the gap of time between the notification for an event and the real time of the event (e.g. show start)
         ALARM_NOTICE_INTERVAL,
 
-        // TODO: store last played broadcast
+        // last played archive broadcast and exoPlayer position; or null if last played live stream
+        LAST_PLAYED_BROADCAST_ID,
+        LAST_PLAYED_BROADCAST_POSITION,
 
         // data preferences
         DATA_SAVER_MODE,
@@ -130,6 +131,10 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     var offlineMode: Boolean? by BooleanPreference(Key.DATA_SAVER_MODE)
 
     var theme: Int? by IntPreference(Key.THEME)
+
+    var lastPlayedBroadcastId: Int? by IntPreference(Key.LAST_PLAYED_BROADCAST_ID)
+
+    var lastPlayedBroadcastPosition: Long? by LongPreference(Key.LAST_PLAYED_BROADCAST_POSITION)
 
     fun getLastShowScrape(showId: String): Long? {
         val pref by LongPreference(Key.LAST_SHOW_SCRAPE, showId)

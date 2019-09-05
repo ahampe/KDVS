@@ -25,7 +25,9 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.media.MediaBrowserServiceCompat
+import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.services.MediaSessionConnection.MediaBrowserConnectionCallback
+import javax.inject.Inject
 
 /**
  * Class that manages a connection to a [MediaBrowserServiceCompat] instance.

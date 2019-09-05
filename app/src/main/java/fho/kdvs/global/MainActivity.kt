@@ -26,6 +26,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
 import fho.kdvs.global.extensions.isPlaying
+import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.view_player_bar.*
@@ -39,6 +40,9 @@ import javax.inject.Inject
 class MainActivity : DaggerAppCompatActivity() {
     @Inject
     lateinit var viewModelFactory: KdvsViewModelFactory
+
+    @Inject
+    lateinit var kdvsPreferences: KdvsPreferences
 
     @Inject
     lateinit var exoPlayer: ExoPlayer
@@ -122,12 +126,12 @@ class MainActivity : DaggerAppCompatActivity() {
     override fun onSupportNavigateUp() = navController.navigateUp()
 
     private fun subscribeToViewModel() {
-        initPlayerBarIcon(this)
-        initPlayerBarData(this)
+        initPlayerBarIcon()
+        initPlayerBarData()
     }
 
-    private fun initPlayerBarIcon(activity: MainActivity) {
-        viewModel.isPlayingAudioNow.observe(activity, Observer {
+    private fun initPlayerBarIcon() {
+        viewModel.isPlayingAudioNow.observe(this, Observer {
             if (it.isPlaying) {
                 playerBarView
                     .playerBayPlayPause
@@ -140,8 +144,13 @@ class MainActivity : DaggerAppCompatActivity() {
         })
     }
 
-    private fun initPlayerBarData(activity: MainActivity) {
-        viewModel.nowPlayingStreamLiveData.observe(activity, Observer { (nowPlayingShow, nowPlayingBroadcast) ->
+    private fun initPlayerBarData() {
+        kdvsPreferences.lastPlayedBroadcastId?.let {
+            initLastPlayedBroadcast(it)
+            //viewModel.pausePlayback()
+        }
+
+        viewModel.nowPlayingStreamLiveData.observe(this, Observer { (nowPlayingShow, nowPlayingBroadcast) ->
             val timeStart = nowPlayingShow.timeStart ?: return@Observer
             val timeEnd = nowPlayingShow.timeEnd ?: return@Observer
 
@@ -149,33 +158,57 @@ class MainActivity : DaggerAppCompatActivity() {
                 mNavController = navController
                 sharedViewModel = viewModel
                 mExoPlayer = exoPlayer
-                mActivity = activity
+                mActivity = this@MainActivity
 
                 setCurrentShowName(nowPlayingShow.name)
                 initButtonClickListener()
 
-                if (sharedViewModel.isShowBroadcastLiveNow(nowPlayingShow, nowPlayingBroadcast)) {
-                    val formatter = TimeHelper.showTimeFormatter
-                    val timeStr = formatter.format(nowPlayingShow.timeStart) +
-                        " - " +
-                        formatter.format(nowPlayingShow.timeEnd)
-                    setShowTimeOrBroadcastDate(timeStr)
+                nowPlayingBroadcast?.let {
+                    if (sharedViewModel.isShowBroadcastLiveNow(nowPlayingShow, it)) {
+                        val formatter = TimeHelper.showTimeFormatter
+                        val timeStr = formatter.format(nowPlayingShow.timeStart) +
+                                " - " +
+                                formatter.format(nowPlayingShow.timeEnd)
+                        setShowTimeOrBroadcastDate(timeStr)
 
-                    initLiveProgressBar(barProgressBar, timeStart, timeEnd)
-                    initLiveShow()
-                } else {
-                    nowPlayingBroadcast?.let {
+                        initLiveProgressBar(barProgressBar, timeStart, timeEnd)
+                        initLiveShow()
+
+                        kdvsPreferences.lastPlayedBroadcastId = null
+                        kdvsPreferences.lastPlayedBroadcastPosition = null
+                    } else {
                         setShowTimeOrBroadcastDate(TimeHelper.uiDateFormatter
                             .format(nowPlayingBroadcast.date))
 
                         initArchiveProgressBar()
                         initArchiveShow()
+
+                        kdvsPreferences.lastPlayedBroadcastId = it.broadcastId
                     }
                 }
             }
         })
     }
 
+    /**
+     * If user was last playing an archived broadcast, initialize player to that broadcast at the
+     * most recently recorded position.
+     * */
+    private fun initLastPlayedBroadcast(broadcastId: Int) {
+        viewModel.broadcastRepository.showBroadcastJoinById(broadcastId).observe(this, Observer { join ->
+            val broadcast = join.broadcast.singleOrNull { b -> b.broadcastId == broadcastId }
+
+            broadcast?.let {
+                join.show?.let { show ->
+                    viewModel.playPastBroadcast(broadcast, show, this)
+                }
+            }
+        })
+    }
+
+    /**
+     * Register a handler that will poll to update UI progress every second.
+     * */
     fun initLiveProgressBar(pb: ProgressBar, timeStart: OffsetDateTime, timeEnd: OffsetDateTime) {
         val interval = TimeHelper.getDurationInSecondsBetween(timeStart, timeEnd) / 100
         val currentProgress = TimeHelper.getPercentageInDurationRelativeToNow(timeStart, timeEnd)
@@ -194,17 +227,30 @@ class MainActivity : DaggerAppCompatActivity() {
         handler.postDelayed(runnable, 0)
     }
 
+    /**
+     * Register a handler that will poll to update UI progress every second.
+     * Register another handler to update persisting exoPlayer position value every second.
+     * */
     private fun initArchiveProgressBar() {
         handler.removeCallbacksAndMessages(null)
 
-        val runnable = object: Runnable {
+        val uiRunnable = object: Runnable {
             override fun run() {
                 barProgressBar.progress = ((exoPlayer.currentPosition * 100) / exoPlayer.duration).toInt()
                 handler.postDelayed(this, 1000)
             }
         }
 
-        handler.postDelayed(runnable, 0)
+        val preferenceRunnable = object: Runnable {
+            override fun run() {
+                kdvsPreferences.lastPlayedBroadcastPosition = exoPlayer.currentPosition
+                handler.postDelayed(this, 1000)
+            }
+        }
+
+        handler.postDelayed(uiRunnable, 0)
+
+        handler.postDelayed(preferenceRunnable, 0)
     }
 
     fun toggleBottomNavAndPlayerBar(visible: Boolean) {

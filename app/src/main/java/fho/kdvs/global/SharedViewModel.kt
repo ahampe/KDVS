@@ -59,7 +59,7 @@ class SharedViewModel @Inject constructor(
     // TODO: This class is a bit too monolithic -- split up into different repo subclasses?
     application: Application,
     private val showRepository: ShowRepository,
-    private val broadcastRepository: BroadcastRepository,
+    val broadcastRepository: BroadcastRepository,
     private val newsRepository: NewsRepository,
     private val staffRepository: StaffRepository,
     private val fundraiserRepository: FundraiserRepository,
@@ -198,6 +198,11 @@ class SharedViewModel @Inject constructor(
         }
     }
 
+    fun pausePlayback() {
+        val transportControls = mediaSessionConnection.transportControls ?: return
+        transportControls.pause()
+    }
+
     fun playLiveShowFromHome(activity: FragmentActivity?) {
         if (kdvsPreferences.offlineMode == true) {
             makeOfflineModeToast(activity)
@@ -220,11 +225,16 @@ class SharedViewModel @Inject constructor(
                         Uri.fromFile(file),
                         Bundle().apply {
                             putInt("SHOW_ID", show.id)
+
+                            kdvsPreferences.lastPlayedBroadcastId?.let {
+                                putLong("POSITION", kdvsPreferences.lastPlayedBroadcastPosition ?: 0L)
+                            }
+
                             putString("TYPE", PlaybackType.ARCHIVE.type)
                         }
                     )
                 } catch (e: Exception) {
-                    Timber.d("Error with URI playback: $e")
+                    Timber.e("Error with URI playback: $e")
                     Toast.makeText(activity as? MainActivity,
                         "Error playing downloaded broadcast. Try re-downloading.",
                         Toast.LENGTH_SHORT)
@@ -244,11 +254,16 @@ class SharedViewModel @Inject constructor(
                         broadcast.broadcastId.toString(),
                         Bundle().apply {
                             putInt("SHOW_ID", show.id)
+
+                            kdvsPreferences.lastPlayedBroadcastId?.let {
+                                putLong("POSITION", kdvsPreferences.lastPlayedBroadcastPosition ?: 0L)
+                            }
+
                             putString("TYPE", PlaybackType.ARCHIVE.type)
                         }
                     )
                 } catch (e: Exception) {
-                    Timber.d("Error with stream playback: $e")
+                    Timber.e("Error with stream playback: $e")
                     Toast.makeText(activity as? MainActivity,
                         "Error streaming broadcast. Try again later.",
                         Toast.LENGTH_SHORT)

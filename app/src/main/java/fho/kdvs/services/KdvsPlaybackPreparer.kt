@@ -158,10 +158,13 @@ class KdvsPlaybackPreparer @Inject constructor(
         } else {
             // Play a past broadcast
             if (extras?.containsKey(SHOW_ID) == false) return
+
+            val position = extras?.getLong(POSITION) ?: 0L
             val showId = extras?.getInt(SHOW_ID) ?: return
             val broadcastId = mediaId?.toIntOrNull() ?: return
 
-            prepareBroadcast(broadcastId, showId)
+
+            prepareBroadcast(broadcastId, showId, position)
         }
     }
 
@@ -198,7 +201,7 @@ class KdvsPlaybackPreparer @Inject constructor(
     }
 
     /** Prepares playback for a past broadcast. */
-    private fun prepareBroadcast(broadcastId: Int, showId: Int) = launch {
+    private fun prepareBroadcast(broadcastId: Int, showId: Int, position: Long) = launch {
         val show = showDao.getShowById(showId) ?: return@launch
         val broadcast = broadcastDao.getBroadcastById(broadcastId) ?: return@launch
 
@@ -220,13 +223,15 @@ class KdvsPlaybackPreparer @Inject constructor(
         val mediaSource = broadcastMetadata.toMediaSource(dataSourceFactory)
 
         withContext(Dispatchers.Main) {
+            //exoPlayer.prepare(mediaSource, false, true)
+            exoPlayer.seekTo(position)
             exoPlayer.prepare(mediaSource)
         }
     }
 
     companion object {
-        /** bundle key for show ID int */
         const val SHOW_ID = "SHOW_ID"
+        const val POSITION = "POSITION"
         private const val NOTIFICATION_LARGE_ICON_SIZE = 144 // px
     }
 }

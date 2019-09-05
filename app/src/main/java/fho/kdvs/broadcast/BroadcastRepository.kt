@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer
 import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.BroadcastDao
 import fho.kdvs.global.database.BroadcastEntity
+import fho.kdvs.global.database.ShowBroadcastJoin
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.extensions.toLiveData
 import fho.kdvs.global.preferences.KdvsPreferences
@@ -15,10 +16,7 @@ import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
 import fho.kdvs.track.TrackRepository
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.broadcast
 import kotlinx.coroutines.launch
-import org.threeten.bp.LocalDate
-import org.threeten.bp.OffsetDateTime
 import org.threeten.bp.temporal.ChronoUnit
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -132,6 +130,9 @@ class BroadcastRepository @Inject constructor(
 
     fun broadcastById(broadcastId: Int): LiveData<BroadcastEntity> =
         broadcastDao.broadcastById(broadcastId)
+
+    fun showBroadcastJoinById(broadcastId: Int): LiveData<ShowBroadcastJoin> =
+        broadcastDao.showBroadcastJoinByBroadcastId(broadcastId)
 
     fun getBroadcastById(broadcastId: Int): BroadcastEntity? =
         broadcastDao.getBroadcastById(broadcastId)

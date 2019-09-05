@@ -48,7 +48,6 @@
     <string name="fundraiser_dates_same_month">%1$s %2$s–%3$s, %4$d</string>
     <string name="fundraiser_dates_diff_month">%1$s %2$s – %3$s %4$s, %5$d</string>
     <string name="fundraiser_total">$%1$s</string>
-    <string name="now_playing_link">Play</string>
 
     <!-- Settings -->
     <string name="streaming">Streaming</string>
