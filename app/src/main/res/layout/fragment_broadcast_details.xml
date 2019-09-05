@@ -54,6 +54,7 @@
             android:text="@{vm.showLiveData.name}"
             android:paddingStart="@dimen/spacing_large"
             android:paddingTop="@dimen/spacing_small"
+            app:layout_constrainedWidth="true"
             app:layout_constraintBottom_toTopOf="@id/broadcast_date"
             app:layout_constraintEnd_toStartOf="@id/downloadDeleteIcon"
             app:layout_constraintStart_toStartOf="parent"

@@ -324,6 +324,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
     }
 
     private fun setDownloadViewsVisible() {
+        Timber.d("Download or stream found for broadcast.")
         archivePlayButton?.let { it.visibility = View.VISIBLE }
         downloadDeleteIcon?.let { it.visibility = View.VISIBLE }
     }
