@@ -147,7 +147,6 @@ class MainActivity : DaggerAppCompatActivity() {
     private fun initPlayerBarData() {
         kdvsPreferences.lastPlayedBroadcastId?.let {
             initLastPlayedBroadcast(it)
-            //viewModel.pausePlayback()
         }
 
         viewModel.nowPlayingStreamLiveData.observe(this, Observer { (nowPlayingShow, nowPlayingBroadcast) ->
@@ -202,7 +201,7 @@ class MainActivity : DaggerAppCompatActivity() {
             broadcast?.let {
                 join.show?.let { show ->
                     if (!hasCalled) {
-                        viewModel.playPastBroadcast(broadcast, show, this)
+                        viewModel.preparePastBroadcastForPlayback(broadcast, show, this)
                         hasCalled = true
                     }
                 }
@@ -240,7 +239,14 @@ class MainActivity : DaggerAppCompatActivity() {
 
         val uiRunnable = object: Runnable {
             override fun run() {
-                barProgressBar.progress = ((exoPlayer.currentPosition * 100) / exoPlayer.duration).toInt()
+                if (exoPlayer.currentPosition > 0) {
+                    barProgressBar.progress = ((exoPlayer.currentPosition * 100) / exoPlayer.duration).toInt()
+                } else {
+                    kdvsPreferences.lastPlayedBroadcastPosition?.let {
+                        barProgressBar.progress = it.toInt()
+                    }
+                }
+
                 handler.postDelayed(this, 1000)
             }
         }

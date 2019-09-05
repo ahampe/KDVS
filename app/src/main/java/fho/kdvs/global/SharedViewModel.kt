@@ -210,13 +210,18 @@ class SharedViewModel @Inject constructor(
         prepareLivePlayback()
     }
 
-    fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity, activity: FragmentActivity) {
+    fun preparePastBroadcastForPlaybackAndPlay(broadcast: BroadcastEntity, show: ShowEntity, activity: FragmentActivity) {
+        preparePastBroadcastForPlayback(broadcast, show, activity)
+        playPastBroadcast(broadcast, show)
+    }
+
+    fun preparePastBroadcastForPlayback(broadcast: BroadcastEntity, show: ShowEntity, activity: FragmentActivity) {
         val file = getDestinationFileForBroadcast(broadcast, show)
 
         when (file?.exists()) {
             true -> {
                 try {
-                    mediaSessionConnection.transportControls?.playFromUri(
+                    mediaSessionConnection.transportControls?.prepareFromUri(
                         Uri.fromFile(file),
                         Bundle().apply {
                             putInt("SHOW_ID", show.id)
@@ -245,7 +250,7 @@ class SharedViewModel @Inject constructor(
                 }
 
                 try {
-                    mediaSessionConnection.transportControls?.playFromMediaId(
+                    mediaSessionConnection.transportControls?.prepareFromMediaId(
                         broadcast.broadcastId.toString(),
                         Bundle().apply {
                             putInt("SHOW_ID", show.id)
@@ -267,6 +272,18 @@ class SharedViewModel @Inject constructor(
                 }
             }
         }
+
+        mediaSessionConnection.transportControls?.play()
+
+        mediaSessionConnection.isLiveNow.postValue(false)
+        broadcastRepository.playingLiveBroadcast = false
+
+        broadcastRepository.nowPlayingBroadcastLiveData.postValue(broadcast)
+        broadcastRepository.nowPlayingShowLiveData.postValue(show)
+    }
+
+    fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
+        mediaSessionConnection.transportControls?.play()
 
         mediaSessionConnection.isLiveNow.postValue(false)
         broadcastRepository.playingLiveBroadcast = false

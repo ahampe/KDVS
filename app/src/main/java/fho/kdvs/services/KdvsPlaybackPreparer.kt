@@ -223,9 +223,8 @@ class KdvsPlaybackPreparer @Inject constructor(
         val mediaSource = broadcastMetadata.toMediaSource(dataSourceFactory)
 
         withContext(Dispatchers.Main) {
-            //exoPlayer.prepare(mediaSource, false, true)
-            //exoPlayer.seekTo(position)
-            exoPlayer.prepare(mediaSource)
+            exoPlayer.seekTo(position)
+            exoPlayer.prepare(mediaSource, position == 0L, true)
         }
     }
 

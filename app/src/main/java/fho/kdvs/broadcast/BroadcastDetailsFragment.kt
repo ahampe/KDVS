@@ -106,7 +106,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
         archivePlayButton.setOnClickListener {
             viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
-                sharedViewModel.playPastBroadcast(broadcast, show, requireActivity())
+                sharedViewModel.preparePastBroadcastForPlaybackAndPlay(broadcast, show, requireActivity())
             })
         }
 
