@@ -198,11 +198,6 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun pausePlayback() {
-        val transportControls = mediaSessionConnection.transportControls ?: return
-        transportControls.pause()
-    }
-
     fun playLiveShowFromHome(activity: FragmentActivity?) {
         if (kdvsPreferences.offlineMode == true) {
             makeOfflineModeToast(activity)

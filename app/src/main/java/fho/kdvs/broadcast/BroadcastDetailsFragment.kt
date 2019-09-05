@@ -152,7 +152,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
         viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
             if (broadcast.description?.trim().isNullOrBlank())
-                description_container?.visibility = View.GONE // TODO: this visibility change isn't persisting
+                description_container?.visibility = View.GONE
 
             val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
             observeDownloadFolder(title)
@@ -181,9 +181,6 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
             noTracksMessage.visibility = if (tracks.isEmpty()) View.VISIBLE
                 else View.GONE
-
-            broadcast_divider.visibility = if (tracks.isEmpty()) View.GONE
-                else View.VISIBLE
 
             tracksAdapter?.onTracksChanged(tracks)
         })

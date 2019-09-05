@@ -25,9 +25,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.media.MediaBrowserServiceCompat
-import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.services.MediaSessionConnection.MediaBrowserConnectionCallback
-import javax.inject.Inject
 
 /**
  * Class that manages a connection to a [MediaBrowserServiceCompat] instance.
@@ -116,8 +114,7 @@ class MediaSessionConnection(context: Context, serviceComponent: ComponentName) 
             nowPlaying.postValue(md)
         }
 
-        override fun onQueueChanged(queue: MutableList<MediaSessionCompat.QueueItem>?) {
-        }
+        override fun onQueueChanged(queue: MutableList<MediaSessionCompat.QueueItem>?) {}
 
         /**
          * Normally if a [MediaBrowserServiceCompat] drops its connection the callback comes via
@@ -141,4 +138,3 @@ val NOTHING_PLAYING: MediaMetadataCompat = MediaMetadataCompat.Builder()
     .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, "")
     .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 0)
     .build()
-

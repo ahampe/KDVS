@@ -16,14 +16,11 @@
 
 package fho.kdvs.services
 
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.os.Build
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media.session.MediaButtonReceiver
@@ -69,17 +66,14 @@ abstract class PlaybackNotificationBuilder(private val context: Context) {
 
         setBuilder(sessionToken, controller)
 
-        if (shouldCreateNowPlayingChannel()) {
-            createNowPlayingChannel()
-        }
-
         val description = controller.metadata.description
 
         val mediaStyle = MediaStyle()
             .setCancelButtonIntent(stopPendingIntent)
             .setMediaSession(sessionToken)
 
-        return builder.setContentIntent(controller.sessionActivity)
+        builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
+            .setContentIntent(controller.sessionActivity)
             .setContentText(description.subtitle)
             .setContentTitle(description.title)
             .setDeleteIntent(stopPendingIntent)
@@ -89,26 +83,8 @@ abstract class PlaybackNotificationBuilder(private val context: Context) {
             .setStyle(mediaStyle)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setShowWhen(false)
-    }
 
-    private fun shouldCreateNowPlayingChannel() =
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !nowPlayingChannelExists()
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun nowPlayingChannelExists() =
-        platformNotificationManager.getNotificationChannel(NOW_PLAYING_CHANNEL) != null
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun createNowPlayingChannel() {
-        val notificationChannel = NotificationChannel(
-            NOW_PLAYING_CHANNEL,
-            context.getString(R.string.notification_channel),
-            NotificationManager.IMPORTANCE_LOW
-        ).apply {
-            description = context.getString(R.string.notification_channel_description)
-        }
-
-        platformNotificationManager.createNotificationChannel(notificationChannel)
+        return builder
     }
 }
 

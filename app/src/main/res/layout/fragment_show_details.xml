@@ -22,6 +22,7 @@
             android:id="@+id/show_detail_image"
             android:scaleType="centerCrop"
             glideHref="@{vm.show.defaultImageHref}"
+            android:elevation="@dimen/spacing_medium"
             android:layout_width="match_parent"
             android:layout_height="@dimen/expanded_toolbar_height" />
 
@@ -30,6 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="@color/colorPrimary50a"
+            android:elevation="@dimen/spacing_medium"
             app:layout_constraintBottom_toBottomOf="@id/show_title"
             app:layout_constraintTop_toTopOf="@id/show_title" />
 
@@ -42,6 +44,7 @@
             android:ellipsize="end"
             android:text="@{vm.show.name}"
             android:layout_marginStart="@dimen/spacing_large"
+            android:elevation="@dimen/spacing_medium"
             tools:text="A Very Long Show Name To Test Whether Or Not It Ellipsizes"
             app:layout_constraintBottom_toBottomOf="@id/show_detail_image"
             app:layout_constraintEnd_toStartOf="@id/star"
@@ -58,6 +61,7 @@
             app:layout_constraintBottom_toBottomOf="@id/show_title"
             android:paddingTop="@dimen/spacing_extra_small"
             android:paddingBottom="@dimen/spacing_extra_small"
+            android:elevation="@dimen/spacing_large"
             app:layout_constraintEnd_toEndOf="parent"/>
         <!--end header region-->
 
@@ -71,8 +75,8 @@
             android:paddingStart="@dimen/spacing_large"
             android:paddingEnd="@dimen/spacing_large"
             android:background="@color/colorPrimary50a"
-            app:layout_constraintTop_toBottomOf="@id/show_detail_image"
-            android:elevation="@dimen/spacing_small">
+            android:elevation="@dimen/spacing_medium"
+            app:layout_constraintTop_toBottomOf="@id/show_detail_image">
 
             <TextView
                 android:id="@+id/show_hosts"
@@ -103,15 +107,6 @@
                 tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." />
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/playlist_divider"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:src="@drawable/divider"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/show_details_pane"/>
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/broadcastRecycler"
             android:layout_width="match_parent"
@@ -123,7 +118,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/playlist_divider" />
+            app:layout_constraintTop_toBottomOf="@id/show_details_pane" />
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
 

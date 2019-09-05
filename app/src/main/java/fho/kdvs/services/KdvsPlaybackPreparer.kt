@@ -224,7 +224,7 @@ class KdvsPlaybackPreparer @Inject constructor(
 
         withContext(Dispatchers.Main) {
             //exoPlayer.prepare(mediaSource, false, true)
-            exoPlayer.seekTo(position)
+            //exoPlayer.seekTo(position)
             exoPlayer.prepare(mediaSource)
         }
     }
@@ -235,4 +235,3 @@ class KdvsPlaybackPreparer @Inject constructor(
         private const val NOTIFICATION_LARGE_ICON_SIZE = 144 // px
     }
 }
-

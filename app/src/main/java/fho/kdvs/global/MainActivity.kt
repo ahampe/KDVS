@@ -163,20 +163,19 @@ class MainActivity : DaggerAppCompatActivity() {
                 setCurrentShowName(nowPlayingShow.name)
                 initButtonClickListener()
 
-                nowPlayingBroadcast?.let {
-                    if (sharedViewModel.isShowBroadcastLiveNow(nowPlayingShow, it)) {
-                        val formatter = TimeHelper.showTimeFormatter
-                        val timeStr = formatter.format(nowPlayingShow.timeStart) +
-                                " - " +
-                                formatter.format(nowPlayingShow.timeEnd)
-                        setShowTimeOrBroadcastDate(timeStr)
+                if (sharedViewModel.isShowBroadcastLiveNow(nowPlayingShow, nowPlayingBroadcast)) {
+                    val formatter = TimeHelper.showTimeFormatter
+                    val timeStr = formatter.format(nowPlayingShow.timeStart) +
+                            " - " +
+                            formatter.format(nowPlayingShow.timeEnd)
+                    setShowTimeOrBroadcastDate(timeStr)
 
-                        initLiveProgressBar(barProgressBar, timeStart, timeEnd)
-                        initLiveShow()
+                    initLiveProgressBar(barProgressBar, timeStart, timeEnd)
+                    initLiveShow()
 
-                        kdvsPreferences.lastPlayedBroadcastId = null
-                        kdvsPreferences.lastPlayedBroadcastPosition = null
-                    } else {
+                    kdvsPreferences.lastPlayedBroadcastId = null
+                } else {
+                    nowPlayingBroadcast?.let {
                         setShowTimeOrBroadcastDate(TimeHelper.uiDateFormatter
                             .format(nowPlayingBroadcast.date))
 
@@ -195,12 +194,17 @@ class MainActivity : DaggerAppCompatActivity() {
      * most recently recorded position.
      * */
     private fun initLastPlayedBroadcast(broadcastId: Int) {
+        var hasCalled = false
+
         viewModel.broadcastRepository.showBroadcastJoinById(broadcastId).observe(this, Observer { join ->
             val broadcast = join.broadcast.singleOrNull { b -> b.broadcastId == broadcastId }
 
             broadcast?.let {
                 join.show?.let { show ->
-                    viewModel.playPastBroadcast(broadcast, show, this)
+                    if (!hasCalled) {
+                        viewModel.playPastBroadcast(broadcast, show, this)
+                        hasCalled = true
+                    }
                 }
             }
         })
