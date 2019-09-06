@@ -224,6 +224,16 @@ object TimeHelper {
     }
 
     @JvmStatic
+    fun getNowUTC(): OffsetDateTime {
+        return ZonedDateTime.now(this.UTC_ID).toOffsetDateTime()
+    }
+
+    @JvmStatic
+    fun getOneHourAgoUTC(): OffsetDateTime {
+        return ZonedDateTime.now(this.UTC_ID).minusHours(1L).toOffsetDateTime()
+    }
+
+    @JvmStatic
     fun getDurationInSecondsBetween(start: OffsetDateTime, end: OffsetDateTime): Double {
         return if (start.hour > end.hour) {
             ((((24 - start.hour) + end.hour) * 3600 + end.minute * 60 + end.second)

@@ -23,10 +23,13 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.spotify.sdk.android.authentication.AuthenticationClient
+import com.spotify.sdk.android.authentication.AuthenticationResponse
 import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.RequestCodes
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.view_player_bar.*
@@ -121,6 +124,39 @@ class MainActivity : DaggerAppCompatActivity() {
 
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
         subscribeToViewModel()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        when(requestCode) {
+            RequestCodes.SPOTIFY_LOGIN -> {
+                val response = AuthenticationClient.getResponse(resultCode, data)
+
+                when (response.type) {
+                    AuthenticationResponse.Type.TOKEN -> {
+                        kdvsPreferences.spotifyLastLogin = TimeHelper.getNowUTC().toEpochSecond()
+                        kdvsPreferences.spotifyAuthToken = response.accessToken
+                        viewModel.spotToken.postValue(response.accessToken)
+                    }
+                    AuthenticationResponse.Type.ERROR -> {
+                        Toast.makeText(
+                            this,
+                            "Error authenticating Spotify. Try again?",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    else -> {
+                        // Most likely auth flow was cancelled
+                        Toast.makeText(
+                            this,
+                            "Spotify not authenticated.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+        }
     }
 
     override fun onSupportNavigateUp() = navController.navigateUp()

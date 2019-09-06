@@ -1,9 +1,14 @@
 package fho.kdvs.home
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -14,26 +19,34 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
+import fho.kdvs.api.service.SpotifyService
+import fho.kdvs.api.service.YouTubeService
 import fho.kdvs.databinding.FragmentHomeBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.FundraiserEntity
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.TopMusicEntity
+import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.fade
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.BindingViewHolder
+import fho.kdvs.global.util.RequestCodes
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.news.NewsArticlesAdapter
 import fho.kdvs.staff.StaffAdapter
 import fho.kdvs.topmusic.TopMusicAdapter
 import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
 import timber.log.Timber
 import java.text.DecimalFormat
+import java.util.*
 import javax.inject.Inject
+
 
 class HomeFragment : DaggerFragment() {
     @Inject
@@ -41,6 +54,12 @@ class HomeFragment : DaggerFragment() {
 
     @Inject
     lateinit var kdvsPreferences: KdvsPreferences
+
+    @Inject
+    lateinit var spotifyService: SpotifyService
+
+    @Inject
+    lateinit var youTubeService: YouTubeService
 
     private lateinit var viewModel: HomeViewModel
     private lateinit var sharedViewModel: SharedViewModel
@@ -86,6 +105,11 @@ class HomeFragment : DaggerFragment() {
         val snapHelper = PagerSnapHelper()
 
         LoadScreen.displayLoadScreen(homeRoot)
+
+        if (sharedViewModel.isSpotifyInstalledOnDevice(requireContext())) {
+            topAddsExportSpotify.visibility = View.VISIBLE
+            topAlbumsExportSpotify.visibility = View.VISIBLE
+        }
 
         settingsIcon.setOnClickListener { viewModel.onClickSettings(findNavController()) }
 
@@ -184,6 +208,64 @@ class HomeFragment : DaggerFragment() {
         setExpandableSections()
     }
 
+    /** Handle third-party export request. */
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        when (requestCode) {
+            RequestCodes.SPOTIFY_EXPORT_TOP_ADDS -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    if (sharedViewModel.isSpotifyAuthVoidOrExpired()) {
+                        sharedViewModel.loginSpotify(requireActivity())
+                        sharedViewModel.spotToken.observe(viewLifecycleOwner, Observer { token ->
+                            token?.let {
+                                viewModel.topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
+                                    exportTopMusicToSpotify(adds, it)
+                                })
+                            }
+                        })
+                    } else {
+                        viewModel.topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
+                            exportTopMusicToSpotify(adds, kdvsPreferences.spotifyAuthToken as String)
+                        })
+                    }
+                }
+            }
+            RequestCodes.SPOTIFY_EXPORT_TOP_ALBUMS -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    if (sharedViewModel.isSpotifyAuthVoidOrExpired()) {
+                        sharedViewModel.loginSpotify(requireActivity())
+                        sharedViewModel.spotToken.observe(viewLifecycleOwner, Observer { token ->
+                            token?.let {
+                                viewModel.topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
+                                    exportTopMusicToSpotify(albums, it)
+                                })
+                            }
+                        })
+                    } else {
+                        viewModel.topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
+                            exportTopMusicToSpotify(albums, kdvsPreferences.spotifyAuthToken as String)
+                        })
+                    }
+                }
+            }
+            RequestCodes.YOUTUBE_EXPORT_TOP_ADDS -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    viewModel.topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
+                        exportTopMusicToYouTube(adds)
+                    })
+                }
+            }
+            RequestCodes.YOUTUBE_EXPORT_TOP_ALBUMS -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    viewModel.topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
+                        exportTopMusicToYouTube(albums)
+                    })
+                }
+            }
+        }
+    }
+
     private fun subscribeToViewModel() {
         viewModel.run {
             combinedLiveData.observe(viewLifecycleOwner, Observer {
@@ -234,6 +316,28 @@ class HomeFragment : DaggerFragment() {
 
                         topAddsAdapter?.onTopAddsChanged(adds)
                         topAdds.visibility = View.VISIBLE
+
+                        topAddsExportSpotify.setOnClickListener {
+                            val uris = getTopMusicSpotifyUris(adds)
+
+                            val count = uris?.count() ?: 0
+
+                            sharedViewModel.onClickExportIcon(
+                                this@HomeFragment,
+                                RequestCodes.SPOTIFY_EXPORT_TOP_ADDS,
+                                count,
+                                ThirdPartyService.SPOTIFY
+                            )
+                        }
+
+                        topAddsExportYoutube.setOnClickListener {
+                            sharedViewModel.onClickExportIcon(
+                                this@HomeFragment,
+                                RequestCodes.YOUTUBE_EXPORT_TOP_ADDS,
+                                adds.size,
+                                ThirdPartyService.YOUTUBE
+                            )
+                        }
                     }
                 }
             })
@@ -243,7 +347,7 @@ class HomeFragment : DaggerFragment() {
 
                 val highestId = albums.maxBy { a -> a.topMusicId}?.topMusicId
 
-                // Display info icon when there are unviewed fundraiser progress
+                // Display info icon when there is unviewed fundraiser progress
                 if (highestId != kdvsPreferences.lastObservedTopAlbumsId) {
                     topAlbumsNotification.fade(true)
                 }
@@ -261,6 +365,28 @@ class HomeFragment : DaggerFragment() {
 
                         topAlbumsAdapter?.onTopAlbumsChanged(albums)
                         topAlbums.visibility = View.VISIBLE
+
+                        topAlbumsExportSpotify.setOnClickListener {
+                            val uris = getTopMusicSpotifyUris(albums)
+
+                            val count = uris?.count() ?: 0
+
+                            sharedViewModel.onClickExportIcon(
+                                this@HomeFragment,
+                                RequestCodes.SPOTIFY_EXPORT_TOP_ALBUMS,
+                                count,
+                                ThirdPartyService.SPOTIFY
+                            )
+                        }
+
+                        topAlbumsExportYoutube.setOnClickListener {
+                            sharedViewModel.onClickExportIcon(
+                                this@HomeFragment,
+                                RequestCodes.YOUTUBE_EXPORT_TOP_ALBUMS,
+                                albums.size,
+                                ThirdPartyService.YOUTUBE
+                            )
+                        }
                     }
                 }
             })
@@ -377,12 +503,13 @@ class HomeFragment : DaggerFragment() {
         }
     }
 
+    @SuppressWarnings
     private fun setFundraiserView(fundraiser: FundraiserEntity){
         val startMonthStr = TimeHelper.monthIntToStr(fundraiser.dateStart?.monthValue)
-            .toLowerCase()
+            .toLowerCase(Locale.US)
             .capitalize()
         val endMonthStr = TimeHelper.monthIntToStr(fundraiser.dateEnd?.monthValue)
-            .toLowerCase()
+            .toLowerCase(Locale.US)
             .capitalize()
         val dayStart = fundraiser.dateStart
             ?.dayOfMonth
@@ -430,5 +557,44 @@ class HomeFragment : DaggerFragment() {
         val progress = ((fundraiser.current?.toFloat() ?: 0f) / (fundraiser.goal?.toFloat() ?: 1f)) * 100
         fundraiserProgress.progress = if (progress > 100) 100 else progress.toInt()
     }
-}
 
+    private fun exportTopMusicToSpotify(topMusic: List<TopMusicEntity>, token: String) {
+        val mostRecentDate = topMusic.maxBy { a -> a.topMusicId }?.weekOf
+
+        val title = "KDVS Top Albums (${TimeHelper.uiDateFormatter.format(mostRecentDate)})"
+
+        GlobalScope.launch {
+            val trackUris = getTopMusicSpotifyUris(topMusic)
+
+            val playlistUri = trackUris?.let {
+                sharedViewModel.exportTracksToSpotifyPlaylistAsync(trackUris, title, token)
+                    .await()
+            }
+
+            if (!playlistUri.isNullOrEmpty()) {
+                sharedViewModel.openSpotify(requireContext(), playlistUri)
+            } else {
+                Handler(Looper.getMainLooper()).post {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error exporting tracks. Try reauthorizing?",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
+
+    private fun exportTopMusicToYouTube(topMusic: List<TopMusicEntity>) {
+        GlobalScope.launch {
+            val ids = topMusic.mapNotNull { t -> t.youTubeId }
+
+            val url = sharedViewModel.makeYouTubePlaylist(ids)
+
+            sharedViewModel.openBrowser(requireContext(), url)
+        }
+    }
+
+    private fun getTopMusicSpotifyUris(topMusic: List<TopMusicEntity?>?): List<String>? =
+        topMusic?.mapNotNull { t -> t?.spotifyTrackUris?.split(",")}?.flatten()
+}

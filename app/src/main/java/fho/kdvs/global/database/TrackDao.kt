@@ -63,6 +63,12 @@ interface TrackDao {
     @Query("UPDATE trackData SET spotifyAlbumUri = :spotifyAlbumUri WHERE trackId = :id")
     fun updateSpotifyAlbumUri(id: Int?, spotifyAlbumUri: String)
 
+    @Query("UPDATE trackData SET spotifyTrackUri = :spotifyTrackUri WHERE trackId = :id")
+    fun updateSpotifyTrackUri(id: Int?, spotifyTrackUri: String)
+
+    @Query("UPDATE trackData SET youTubeId = :youTubeId WHERE trackId = :id")
+    fun updateYouTubeId(id: Int?, youTubeId: String)
+
     @Query("UPDATE trackData SET hasThirdPartyInfo = :hasThirdPartyInfo WHERE trackId = :id")
     fun updateHasThirdPartyInfo(id: Int?, hasThirdPartyInfo: Boolean)
 

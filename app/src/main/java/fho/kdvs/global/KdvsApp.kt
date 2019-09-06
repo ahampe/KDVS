@@ -7,6 +7,7 @@ import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
 import fho.kdvs.BuildConfig
 import fho.kdvs.api.endpoint.SpotifyEndpoint
+import fho.kdvs.api.endpoint.YouTubeEndpoint
 import fho.kdvs.global.util.Keys
 import fho.kdvs.injection.DaggerAppComponent
 import kotlinx.coroutines.CoroutineScope
@@ -21,6 +22,9 @@ class KdvsApp : DaggerApplication(), CoroutineScope {
 
     @Inject
     internal lateinit var spotifyEndpoint: SpotifyEndpoint
+
+    @Inject
+    internal lateinit var youTubeEndpoint: YouTubeEndpoint
 
     internal val job = Job()
     override val coroutineContext: CoroutineContext
@@ -43,7 +47,7 @@ class KdvsApp : DaggerApplication(), CoroutineScope {
         }
 
         launch {
-            val authResponse = spotifyEndpoint.authorize()
+            val authResponse = spotifyEndpoint.authorizeApp()
             authResponse.body()?.token?.let {
                 Keys.spotfiyAuthToken = it
             }

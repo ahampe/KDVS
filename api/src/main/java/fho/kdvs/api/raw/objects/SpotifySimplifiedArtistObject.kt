@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 import org.json.JSONObject
 
 data class SpotifySimplifiedArtistObject (
-    @SerializedName("external_urls") val external_urls: JSONObject,
+    @SerializedName("external_urls") val external_urls: Map<String, String>,
     @SerializedName("href") val href: String,
     @SerializedName("id") val id: String,
     @SerializedName("name") val name: String,

@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -18,10 +17,11 @@ import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
+import fho.kdvs.global.enums.ThirdPartyService
+import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.RequestCodes
-import fho.kdvs.global.web.Spotify
 import kotlinx.android.synthetic.main.cell_favorite_track.view.*
 import kotlinx.android.synthetic.main.fragment_favorite.*
 import timber.log.Timber
@@ -31,13 +31,16 @@ class FavoriteFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
 
+    @Inject
+    lateinit var kdvsPreferences: KdvsPreferences
+
     private lateinit var viewModel: FavoriteViewModel
     private lateinit var sharedViewModel: SharedViewModel
 
     private var favoriteViewAdapter: FavoriteViewAdapter? = null
-    
+
     val hashedResults = mutableMapOf<String, ArrayList<FavoriteJoin>>()
-    val resultIds = mutableListOf<Int?>()
+    val currentlyDisplayingResults = mutableListOf<FavoriteJoin?>()
 
     var sortType = FavoriteViewAdapter.SortType.RECENT
     var sortDirection = FavoriteViewAdapter.SortDirection.DES
@@ -80,13 +83,16 @@ class FavoriteFragment : DaggerFragment() {
         initializeIcons()
     }
 
+    /** Handle track export request. */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         when (requestCode) {
             RequestCodes.SPOTIFY_EXPORT_FAVORITES -> {
                 if (resultCode == Activity.RESULT_OK) {
-                    Spotify.createPlaylist("Favorites")
+                    if (kdvsPreferences.spotifyFavoritesPlaylistId.isNullOrBlank()) {
+                        // TODO
+                    }
                 }
             }
         }
@@ -176,11 +182,11 @@ class FavoriteFragment : DaggerFragment() {
                         favoriteViewAdapter = FavoriteViewAdapter(joins, fragment) {
                             Timber.d("clicked ${it.item}")
 
-                            val array = resultIds
-                                .filterNotNull()
+                            val ids = currentlyDisplayingResults
+                                .mapNotNull { r -> r?.track?.trackId }
                                 .toIntArray()
 
-                            viewModel.onClickTrack(findNavController(), it.item.track, array)
+                            viewModel.onClickTrack(findNavController(), it.item.track, ids)
                         }
 
                         resultsRecycler.run {
@@ -285,13 +291,21 @@ class FavoriteFragment : DaggerFragment() {
     }
 
     private fun initializeIcons() {
-        spotifyExportIcon?.let {
-            if (sharedViewModel.isSpotifyInstalledOnDevice(it))
-                it.visibility = View.VISIBLE
+        spotifyExportIcon?.let { view ->
+            if (sharedViewModel.isSpotifyInstalledOnDevice(view.context)) {
+                view.visibility = View.VISIBLE
 
-            it.setOnClickListener {
-                sharedViewModel.onClickExportIcon(this, RequestCodes.SPOTIFY_EXPORT_FAVORITES, "Spotify")
+                view.setOnClickListener {
+                    val visibleTracksSpotifyUris = getVisibleTrackSpotifyUris()
+
+                    val count = visibleTracksSpotifyUris.count()
+
+                    sharedViewModel.onClickExportIcon(this, RequestCodes.SPOTIFY_EXPORT_FAVORITES, count, ThirdPartyService.SPOTIFY)
+                }
             }
         }
     }
+
+    private fun getVisibleTrackSpotifyUris() = currentlyDisplayingResults
+        .mapNotNull { r -> r?.track?.spotifyAlbumUri }
 }

@@ -16,6 +16,9 @@
 
 package fho.kdvs.global.extensions
 
+import java.net.URLEncoder
+import java.nio.charset.Charset
+
 /**
  * This file contains extension methods for the java.lang package.
  */

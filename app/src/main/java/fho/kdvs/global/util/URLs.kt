@@ -32,8 +32,7 @@ object URLs {
 
     const val YOUTUBE_QUERYSTRING = "&sp=EgIQAQ%253D%253D"
 
-    // TODO: change this to an email where people can reach us
-    const val CONTACT_EMAIL = "test@test.com"
+    const val CONTACT_EMAIL = "kdvsappdevs@gmail.com"
 
     fun showDetails(id: String) = "https://kdvs.org/past-playlists/$id/"
 
@@ -45,6 +44,8 @@ object URLs {
     }
 
     fun spotifyCreatePlaylist(id: String) = "https://api.spotify.com/v1/users/$id/playlists"
+
+    fun spotifyAddToPlaylist(id: String) = "https://api.spotify.com/v1/playlists/$id/tracks"
 
     // TODO temp
     const val WFMU = "http://stream0.wfmu.org/freeform-128k"

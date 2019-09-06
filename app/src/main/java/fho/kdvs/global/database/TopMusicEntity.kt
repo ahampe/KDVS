@@ -20,6 +20,8 @@ data class TopMusicEntity(
     @ColumnInfo(name = "label") var label: String? = null,
     @ColumnInfo(name = "imageHref") var imageHref: String? = null,
     @ColumnInfo(name = "spotifyAlbumUri") var spotifyAlbumUri: String? = null,
+    @ColumnInfo(name = "spotifyTrackUris") var spotifyTrackUris: String? = null, // TODO ideally this could be stored as a List<String>, but there are some Room issues with this, even with type converters
+    @ColumnInfo(name = "youTubeId") var youTubeId: String? = null,
     @ColumnInfo(name = "hasThirdPartyInfo") var hasThirdPartyInfo: Boolean = false
 ) : Parcelable {
 
@@ -34,6 +36,8 @@ data class TopMusicEntity(
         label = parcel.readString(),
         imageHref = parcel.readString(),
         spotifyAlbumUri = parcel.readString(),
+        spotifyTrackUris = parcel.readString(),
+        youTubeId = parcel.readString(),
         hasThirdPartyInfo = parcel.readValue(Boolean::class.java.classLoader) as Boolean
     )
 
@@ -48,6 +52,8 @@ data class TopMusicEntity(
         dest?.writeValue(label)
         dest?.writeValue(imageHref)
         dest?.writeValue(spotifyAlbumUri)
+        dest?.writeValue(spotifyTrackUris)
+        dest?.writeValue(youTubeId)
         dest?.writeValue(hasThirdPartyInfo)
     }
 

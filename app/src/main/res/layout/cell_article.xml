@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/spacing_medium"
         android:orientation="horizontal"
-        android:onClick="@{(view) -> vm.openBrowser(view, article.articleHref)}">
+        android:onClick="@{(view) -> vm.openBrowser(view.context, article.articleHref)}">
 
         <LinearLayout
             android:id="@+id/articleHeader"
