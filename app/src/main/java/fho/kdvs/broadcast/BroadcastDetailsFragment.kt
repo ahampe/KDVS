@@ -128,6 +128,14 @@ class BroadcastDetailsFragment : DaggerFragment() {
         broadcast_description.setOnClickListener {
             (it as? TextView).collapseExpand(5)
         }
+
+        broadcast_parent_show.setOnClickListener {
+            onClickHeader()
+        }
+
+        broadcast_date.setOnClickListener {
+            onClickHeader()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -324,5 +332,12 @@ class BroadcastDetailsFragment : DaggerFragment() {
         Timber.d("Download or stream found for broadcast.")
         archivePlayButton?.let { it.visibility = View.VISIBLE }
         downloadDeleteIcon?.let { it.visibility = View.VISIBLE }
+    }
+
+    private fun onClickHeader() {
+        val navAction = BroadcastDetailsFragmentDirections
+            .actionBroadcastDetailsFragmentToShowDetailsFragment(showId)
+        if (findNavController().currentDestination?.id == R.id.broadcastDetailsFragment)
+            findNavController().navigate(navAction)
     }
 }

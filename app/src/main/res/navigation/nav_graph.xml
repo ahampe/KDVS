@@ -106,6 +106,9 @@
         <action
             android:id="@+id/action_broadcastDetailsFragment_to_broadcastTrackDetailsFragment"
             app:destination="@id/broadcastTrackDetailsFragment" />
+        <action
+            android:id="@+id/action_broadcastDetailsFragment_to_showDetailsFragment"
+            app:destination="@+id/showDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/broadcastTrackDetailsFragment"

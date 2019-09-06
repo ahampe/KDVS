@@ -272,17 +272,9 @@ class SharedViewModel @Inject constructor(
                 }
             }
         }
-
-        mediaSessionConnection.transportControls?.play()
-
-        mediaSessionConnection.isLiveNow.postValue(false)
-        broadcastRepository.playingLiveBroadcast = false
-
-        broadcastRepository.nowPlayingBroadcastLiveData.postValue(broadcast)
-        broadcastRepository.nowPlayingShowLiveData.postValue(show)
     }
 
-    fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
+    private fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
         mediaSessionConnection.transportControls?.play()
 
         mediaSessionConnection.isLiveNow.postValue(false)
@@ -394,12 +386,6 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    private fun onClickSpotifyNoApp(view: View, spotifyUri: String?) {
-        val url = makeSpotifyUrl(spotifyUri ?: "")
-        if (url.isNotEmpty())
-            openBrowser(view, url)
-    }
-
     fun openSpotify(view: View, spotifyData: SpotifyData?) {
         spotifyData?.let {
             openSpotify(view, it.uri)
@@ -411,6 +397,12 @@ class SharedViewModel @Inject constructor(
             openSpotifyApp(view, spotifyUri)
         else
             onClickSpotifyNoApp(view, spotifyUri)
+    }
+
+    private fun onClickSpotifyNoApp(view: View, spotifyUri: String?) { // TODO test
+        val url = makeSpotifyUrl(spotifyUri ?: "")
+        if (url.isNotEmpty())
+            openBrowser(view, url)
     }
 
     private fun openSpotifyApp(view: View, spotifyUri: String?) {

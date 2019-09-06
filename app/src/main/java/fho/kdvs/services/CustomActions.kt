@@ -85,7 +85,8 @@ class CustomAction @Inject constructor(
     private val transportControls: MediaControllerCompat.TransportControls?,
     private val playbackState: PlaybackStateCompat?,
     private val mediaSessionConnection: MediaSessionConnection
-    ) {
+) {
+
     fun live() {
         val preferences = KdvsPreferences(application)
 
@@ -138,7 +139,7 @@ class CustomAction @Inject constructor(
             if (it.isPlaying) {
                 val currentPos = it.position
                 val newPos = currentPos + 30000
-                transportControls?.seekTo(newPos)
+                transportControls?.seekTo(newPos) // TODO: test if this works when exceeding duration
             }
         }
     }
