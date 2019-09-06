@@ -24,12 +24,6 @@ object URLs {
 
     const val FUNDRAISER = "https://fundraiser.kdvs.org/"
 
-    const val SPOTIFY_REDIRECT_URI = "http://com.yourdomain.yourapp/callback"
-
-    const val SPOTIFY_SEARCH_URL = "https://api.spotify.com/v1/search?q="
-
-    const val SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
-
     const val DISCOGS_SEARCH_URL = "https://www.discogs.com/search/?q="
 
     const val DISCOGS_QUERYSTRING = "&type=all"
@@ -49,6 +43,8 @@ object URLs {
         val dateString = broadcast.date?.let { TimeHelper.dateFormatter.format(it) } ?: return null
         return "https://archives.kdvs.org/archives/${dateString}_${broadcast.showId}_320kbps.mp3"
     }
+
+    fun spotifyCreatePlaylist(id: String) = "https://api.spotify.com/v1/users/$id/playlists"
 
     // TODO temp
     const val WFMU = "http://stream0.wfmu.org/freeform-128k"

@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -21,11 +22,13 @@ import fho.kdvs.R
 import fho.kdvs.api.service.MusicBrainzService
 import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.broadcast.BroadcastRepository
+import fho.kdvs.dialog.BinaryChoiceDialogFragment
 import fho.kdvs.fundraiser.FundraiserRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.RequestCodes
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
@@ -394,6 +397,17 @@ class SharedViewModel @Inject constructor(
         }
     }
 
+    fun isSpotifyInstalledOnDevice(view: View): Boolean {
+        var isSpotifyInstalled = false
+
+        try {
+            view.context.packageManager.getPackageInfo("com.spotify.music", 0)
+            isSpotifyInstalled = true
+        } catch (e: PackageManager.NameNotFoundException) {}
+
+        return isSpotifyInstalled
+    }
+
     private fun makeSpotifyUrl(spotifyUri: String): String {
         var url = ""
 
@@ -405,17 +419,6 @@ class SharedViewModel @Inject constructor(
             url = "https://open.spotify.com/$type/$id"
 
         return url
-    }
-
-    private fun isSpotifyInstalledOnDevice(view: View): Boolean {
-        var isSpotifyInstalled = false
-
-        try {
-            view.context.packageManager.getPackageInfo("com.spotify.music", 0)
-            isSpotifyInstalled = true
-        } catch (e: PackageManager.NameNotFoundException) {}
-
-        return isSpotifyInstalled
     }
 
     // endregion
@@ -679,6 +682,18 @@ class SharedViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun onClickExportIcon(fragment: Fragment, requestCode: Int, serviceName: String) {
+        val dialog = BinaryChoiceDialogFragment()
+        val args = Bundle()
+
+        args.putString("title", "Export")
+        args.putString("message", "Export tracks to a $serviceName playlist?")
+
+        dialog.arguments = args
+        dialog.setTargetFragment(fragment, requestCode)
+        dialog.show(fragment.requireFragmentManager(), "tag")
     }
 
     // endregion

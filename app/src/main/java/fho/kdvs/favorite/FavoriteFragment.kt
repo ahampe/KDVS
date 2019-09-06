@@ -1,10 +1,13 @@
 package fho.kdvs.favorite
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -17,6 +20,8 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.ui.LoadScreen
+import fho.kdvs.global.util.RequestCodes
+import fho.kdvs.global.web.Spotify
 import kotlinx.android.synthetic.main.cell_favorite_track.view.*
 import kotlinx.android.synthetic.main.fragment_favorite.*
 import timber.log.Timber
@@ -72,6 +77,19 @@ class FavoriteFragment : DaggerFragment() {
 
         initializeClickListeners()
         initializeSearchBar()
+        initializeIcons()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        when (requestCode) {
+            RequestCodes.SPOTIFY_EXPORT_FAVORITES -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    Spotify.createPlaylist("Favorites")
+                }
+            }
+        }
     }
 
     /** Separate name-based results by alphabetical character headers. */
@@ -262,6 +280,17 @@ class FavoriteFragment : DaggerFragment() {
                 }
 
                 true
+            }
+        }
+    }
+
+    private fun initializeIcons() {
+        spotifyExportIcon?.let {
+            if (sharedViewModel.isSpotifyInstalledOnDevice(it))
+                it.visibility = View.VISIBLE
+
+            it.setOnClickListener {
+                sharedViewModel.onClickExportIcon(this, RequestCodes.SPOTIFY_EXPORT_FAVORITES, "Spotify")
             }
         }
     }

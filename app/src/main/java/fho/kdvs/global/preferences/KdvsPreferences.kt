@@ -75,6 +75,9 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         // highest topMusic album ID observed
         LAST_OBSERVED_TOP_ALBUMS_ID,
 
+        // spotify uri for user's favorites playlsit
+        SPOTIFY_FAVORITES_PLAYLIST_URI,
+
         // scrape frequency (5, 15, 30, 60 minutes in seconds)
         SCRAPE_FREQUENCY,
 
@@ -123,6 +126,8 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     var lastObservedTopAddsId: Int? by IntPreference(Key.LAST_OBSERVED_TOP_ADDS_ID)
 
     var lastObservedTopAlbumsId: Int? by IntPreference(Key.LAST_OBSERVED_TOP_ALBUMS_ID)
+
+    var spotifyFavoritesPlaylistUri: String? by StringPreference(Key.SPOTIFY_FAVORITES_PLAYLIST_URI)
 
     var alarmNoticeInterval: Long? by LongPreference(Key.ALARM_NOTICE_INTERVAL)
 

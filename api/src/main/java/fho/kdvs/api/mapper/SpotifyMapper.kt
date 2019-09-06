@@ -1,6 +1,8 @@
 package fho.kdvs.api.mapper
 
 import fho.kdvs.api.mapped.SpotifyAlbum
+import fho.kdvs.api.mapped.SpotifyPlaylist
+import fho.kdvs.api.raw.SpotifyPlaylistResponse
 import fho.kdvs.api.raw.album.SpotifyAlbumsResponse
 
 /**
@@ -17,4 +19,9 @@ class SpotifyMapper {
         }
     }
 
+    fun playlist(response: SpotifyPlaylistResponse?): SpotifyPlaylist? {
+        return response?.let {
+            SpotifyPlaylist(uri = it.uri, id = it.id)
+        }
+    }
 }

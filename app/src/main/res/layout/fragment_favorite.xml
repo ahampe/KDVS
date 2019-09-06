@@ -31,13 +31,49 @@
         app:layout_constraintStart_toEndOf="@id/searchBar"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/exportIcons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/searchBar"
+        tools:visibility="visible">
+
+        <ImageView
+            android:id="@+id/spotifyExportIcon"
+            android:layout_width="@dimen/external_link_icon"
+            android:layout_height="0dp"
+            android:src="@drawable/ic_spotify_icon_rgb_white"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toStartOf="@+id/youtubeExportIcon"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"
+            tools:visibility="visible"/>
+
+        <ImageView
+            android:id="@+id/youtubeExportIcon"
+            android:layout_width="@dimen/external_link_icon"
+            android:layout_height="0dp"
+            android:src="@drawable/ic_yt_icon_mono_dark"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/spotifyExportIcon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/resultsRecycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_medium"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/searchBar"
+        app:layout_constraintTop_toBottomOf="@id/exportIcons"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -48,7 +84,7 @@
         android:layout_marginTop="@dimen/spacing_large"
         android:layout_marginStart="@dimen/spacing_medium"
         android:text="@string/no_favorites"
-        app:layout_constraintTop_toBottomOf="@id/searchBar"
+        app:layout_constraintTop_toBottomOf="@id/exportIcons"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -71,7 +107,7 @@
         android:elevation="@dimen/spacing_medium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:visibility="visible">
+        tools:visibility="gone">
         
         <TextView
             android:id="@+id/sortHeader"
