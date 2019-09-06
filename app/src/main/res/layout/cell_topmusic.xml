@@ -27,9 +27,9 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             glideHref="@{topMusic.imageHref}"
-            android:paddingTop="@dimen/spacing_med_large"
-            android:paddingStart="@dimen/spacing_med_large"
-            android:paddingEnd="@dimen/spacing_med_large"
+            android:layout_marginTop="@dimen/spacing_med_large"
+            android:layout_marginStart="@dimen/spacing_med_large"
+            android:layout_marginEnd="@dimen/spacing_med_large"
             tools:src="@drawable/show_placeholder" />
 
         <ImageView
@@ -64,6 +64,7 @@
             android:gravity="center"
             android:textStyle="bold"
             android:text="@{topMusic.album}"
+            android:layout_marginTop="@dimen/spacing_small"
             style="@style/TextAppearance.MaterialComponents.Subtitle1"
             tools:text="Blessed Are the Sick"/>
 
