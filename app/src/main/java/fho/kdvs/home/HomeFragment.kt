@@ -35,7 +35,6 @@ import timber.log.Timber
 import java.text.DecimalFormat
 import javax.inject.Inject
 
-@kotlinx.serialization.UnstableDefault
 class HomeFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
@@ -229,7 +228,7 @@ class HomeFragment : DaggerFragment() {
                     false -> {
                         launch {
                             adds.forEach {
-                                sharedViewModel.fetchThirdPartyDataForTopMusic(it)
+                                sharedViewModel.fetchThirdPartyDataForTopMusic(it, topMusicRepository)
                             }
                         }
 
@@ -256,7 +255,7 @@ class HomeFragment : DaggerFragment() {
                     false -> {
                         launch {
                             albums.forEach {
-                                sharedViewModel.fetchThirdPartyDataForTopMusic(it)
+                                sharedViewModel.fetchThirdPartyDataForTopMusic(it, topMusicRepository)
                             }
                         }
 

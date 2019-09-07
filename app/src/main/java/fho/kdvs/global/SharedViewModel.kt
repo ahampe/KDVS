@@ -18,6 +18,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.navigation.NavController
 import fho.kdvs.R
+import fho.kdvs.api.service.MusicBrainzService
+import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.fundraiser.FundraiserRepository
 import fho.kdvs.global.database.*
@@ -54,7 +56,6 @@ const val DOWNLOAD_CHILD = "KDVS"
 
 /** An [AndroidViewModel] scoped to the main activity.
  * Use this for data that will be consumed in many places. */
-@kotlinx.serialization.UnstableDefault
 class SharedViewModel @Inject constructor(
     // TODO: This class is a bit too monolithic -- split up into different repo subclasses?
     application: Application,
@@ -71,7 +72,9 @@ class SharedViewModel @Inject constructor(
     private val subscriptionDao: SubscriptionDao,
     private val liveShowUpdater: LiveShowUpdater,
     private val mediaSessionConnection: MediaSessionConnection,
-    private val kdvsPreferences: KdvsPreferences
+    private val kdvsPreferences: KdvsPreferences,
+    private val spotifyService: SpotifyService,
+    private val musicBrainzService: MusicBrainzService
 ) : BaseViewModel(application) {
 
     val liveStreamLiveData: MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>
@@ -364,26 +367,22 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    private fun onClickSpotifyNoApp(view: View, spotifyUri: String?) {
-        val url = makeSpotifyUrl(spotifyUri ?: "")
-        if (url.isNotEmpty())
-            openBrowser(view, url)
-    }
-
-    fun openSpotify(view: View, spotifyData: SpotifyData?) {
-        spotifyData?.let {
-            openSpotify(view, it.uri)
-        }
+    private fun onClickSpotifyNoApp(view: View, spotifyUri: String) {
+        val url = makeSpotifyUrl(spotifyUri)
+        if (url.isNotEmpty()) openBrowser(view, url)
     }
 
     fun openSpotify(view: View, spotifyUri: String?) {
-        if (isSpotifyInstalledOnDevice(view))
+        if (spotifyUri == null) return
+
+        if (isSpotifyInstalledOnDevice(view)) {
             openSpotifyApp(view, spotifyUri)
-        else
+        } else {
             onClickSpotifyNoApp(view, spotifyUri)
+        }
     }
 
-    fun openSpotifyApp(view: View, spotifyUri: String?) {
+    fun openSpotifyApp(view: View, spotifyUri: String) {
         val intent = Intent(Intent.ACTION_VIEW).apply{
             data = Uri.parse(spotifyUri)
             putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + view.context.packageName))
@@ -524,106 +523,92 @@ class SharedViewModel @Inject constructor(
     // region fetch
 
     // TODO: multiple attempts?
-    fun fetchThirdPartyDataForTopMusic(topMusic: TopMusicEntity) {
-        if (topMusic.hasScrapedMetadata() || kdvsPreferences.offlineMode == true)
-            return
-
-        var mbData: MusicBrainzReleaseData? = null
-        var mbImageHref: String? = null
-        var spotifyData: SpotifyData? = null
+    fun fetchThirdPartyDataForTopMusic(topMusic: TopMusicEntity, topMusicRepository: TopMusicRepository) {
+        if (topMusic.hasThirdPartyInfo || kdvsPreferences.offlineMode == true) return
 
         launch {
-            val musicBrainzJob = launch {
-                mbData = MusicBrainz.searchFromAlbum(topMusic.album, topMusic.artist)
-                mbImageHref = MusicBrainz.getCoverArtImage(mbData.id)
+            val spotifyFind = spotifyService.findAlbumAsync(topMusic.album, topMusic.artist)
+            val musicBrainzFind = musicBrainzService.findAlbumsAsync(topMusic.album, topMusic.artist)
+
+            val spotAlbum = spotifyFind.await()
+            val mbAlbum = musicBrainzFind.await()
+            val mbAlbumHref = mbAlbum?.id?.let { id ->
+                musicBrainzService.getAlbumArtHrefAsync(id).await()
             }
 
-            val spotifyJob = launch {
-                val query = Spotify.getAlbumQuery(topMusic.album, topMusic.artist)
-                spotifyData = Spotify.search(query)
+            val album = mbAlbum?.name ?: spotAlbum?.name
+            val year = mbAlbum?.year ?: spotAlbum?.year
+            val label = mbAlbum?.label
+            val imageHref = mbAlbumHref ?: spotAlbum?.imageHref
+            val uri = spotAlbum?.uri
+
+            album?.let {
+                topMusicRepository.updateTopMusicAlbum(topMusic.topMusicId, it)
             }
 
-            musicBrainzJob.join()
-            spotifyJob.join()
-
-            val album = if (!mbData.album.isNullOrBlank()) mbData.album else spotifyData?.album
-            val year = mbData.year ?: spotifyData?.year
-            val imageHref = if (!mbImageHref.isNullOrBlank()) mbImageHref else spotifyData?.imageHref
-
-            if (!album.isNullOrBlank()) {
-                launch { topMusicRepository.updateTopMusicAlbum(topMusic.topMusicId, album)}
+            year?.let {
+                topMusicRepository.updateTopMusicYear(topMusic.topMusicId, it)
             }
 
-            if (year != null) {
-                launch { topMusicRepository.updateTopMusicYear(topMusic.topMusicId, year)}
+            label?.let {
+                topMusicRepository.updateTopMusicLabel(topMusic.topMusicId, it)
             }
 
-            if (!mbData.label.isNullOrBlank()) {
-                launch { topMusicRepository.updateTopMusicLabel(topMusic.topMusicId, mbData.label)}
+            imageHref?.let {
+                topMusicRepository.updateTopMusicImageHref(topMusic.topMusicId, it)
             }
 
-            if (!imageHref.isNullOrBlank()) {
-                launch { topMusicRepository.updateTopMusicImageHref(topMusic.topMusicId, imageHref)}
+            uri?.let {
+                topMusicRepository.updateTopMusicSpotifyUri(topMusic.topMusicId, it)
             }
 
-            mbData?.let {
-                launch { topMusicRepository.updateTopMusicMusicBrainzData(topMusic.topMusicId, mbData)}
-            }
-
-            spotifyData?.let {
-                launch { topMusicRepository.updateTopMusicSpotifyData(topMusic.topMusicId, spotifyData)}
+            if (listOfNotNull(album, year, label, imageHref).isNotEmpty()) {
+                topMusicRepository.updateHasThirdPartyInfo(topMusic.topMusicId, true)
             }
         }
     }
 
     fun fetchThirdPartyDataForTrack(track: TrackEntity) {
-        if (track.hasScrapedMetadata() || kdvsPreferences.offlineMode == true)
-            return
-
-        var mbData: MusicBrainzReleaseData? = null
-        var mbImageHref: String? = null
-        var spotifyData: SpotifyData? = null
+        if (track.hasThirdPartyInfo || kdvsPreferences.offlineMode == true) return
 
         launch {
-            val musicBrainzJob = launch {
-                mbData = MusicBrainz.searchFromAlbum(track.album, track.artist)
-                mbImageHref = MusicBrainz.getCoverArtImage(mbData.id)
+            val spotifyFind = spotifyService.findAlbumAsync(track.album, track.artist)
+            val musicBrainzFind = musicBrainzService.findAlbumsAsync(track.album, track.artist)
+
+            val spotAlbum = spotifyFind.await()
+            val mbAlbum = musicBrainzFind.await()
+            val mbAlbumHref = mbAlbum?.id?.let { id ->
+                musicBrainzService.getAlbumArtHrefAsync(id).await()
             }
 
-            val spotifyJob = launch {
-                val query = Spotify.getAlbumQuery(track.album, track.artist)
-                spotifyData = Spotify.search(query)
+            val album = mbAlbum?.name ?: spotAlbum?.name
+            val year = mbAlbum?.year ?: spotAlbum?.year
+            val label = mbAlbum?.label
+            val imageHref = mbAlbumHref ?: spotAlbum?.imageHref
+            val uri = spotAlbum?.uri
+
+            album?.let {
+                trackRepository.updateTrackAlbum(track.trackId, it)
             }
 
-            musicBrainzJob.join()
-            spotifyJob.join()
-
-            val album = if (!mbData.album.isNullOrBlank()) mbData.album else spotifyData?.album
-            val year = mbData.year ?: spotifyData?.year
-            val imageHref = if (!mbImageHref.isNullOrBlank()) mbImageHref else spotifyData?.imageHref
-
-            if (!album.isNullOrBlank()) {
-                launch { trackRepository.updateTrackAlbum(track.trackId, album)}
+            year?.let {
+                trackRepository.updateTrackYear(track.trackId, it)
             }
 
-            if (year != null) {
-                launch { trackRepository.updateTrackYear(track.trackId, year)}
+            label?.let {
+                trackRepository.updateTrackLabel(track.trackId, it)
             }
 
-            if (!mbData.label.isNullOrBlank()) {
-                launch { trackRepository.updateTrackLabel(track.trackId, mbData.label)}
+            imageHref?.let {
+                trackRepository.updateTrackImageHref(track.trackId, imageHref)
             }
 
-            if (!imageHref.isNullOrBlank()) {
-                launch { trackRepository.updateTrackImageHref(track.trackId, imageHref)}
+            uri?.let {
+                trackRepository.updateSpotifyAlbumUri(track.trackId, uri)
             }
 
-            mbData?.let {
-                launch { trackRepository.updateTrackMusicBrainzData(track.trackId, mbData)}
-            }
-
-            spotifyData?.let {
-                launch { trackRepository.updateTrackSpotifyData(track.trackId, spotifyData)}
+            if (listOfNotNull(album, year, label, imageHref).isNotEmpty()) {
+                trackRepository.updateHasThirdPartyInfo(track.trackId, true)
             }
         }
     }

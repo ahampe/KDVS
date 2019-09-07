@@ -15,14 +15,13 @@ import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
-import fho.kdvs.global.extensions.withoutLeadingArticles
+import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.ui.LoadScreen
 import kotlinx.android.synthetic.main.cell_favorite_track.view.*
 import kotlinx.android.synthetic.main.fragment_favorite.*
 import timber.log.Timber
 import javax.inject.Inject
 
-@kotlinx.serialization.UnstableDefault
 class FavoriteFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
@@ -89,13 +88,13 @@ class FavoriteFragment : DaggerFragment() {
                 val key = when(sortType) {
                     FavoriteViewAdapter.SortType.SHOW   -> holder?.itemView?.showName?.text
                         ?.toString()
-                        ?.withoutLeadingArticles
+                        ?.removeLeadingArticles()
                         ?.firstOrNull()
                         ?.toUpperCase()
                         ?.toString()
                     FavoriteViewAdapter.SortType.ARTIST -> holder?.itemView?.trackInfo?.text
                         ?.toString()
-                        ?.withoutLeadingArticles
+                        ?.removeLeadingArticles()
                         ?.split(getString(R.string.track_info_separator))
                         ?.firstOrNull()
                         ?.trim()
@@ -104,7 +103,7 @@ class FavoriteFragment : DaggerFragment() {
                         ?.toString()
                     FavoriteViewAdapter.SortType.ALBUM  -> holder?.itemView?.trackInfo?.text
                         ?.toString()
-                        ?.withoutLeadingArticles
+                        ?.removeLeadingArticles()
                         ?.split(getString(R.string.track_info_separator))
                         ?.getOrNull(1)
                         ?.trim()
@@ -113,7 +112,7 @@ class FavoriteFragment : DaggerFragment() {
                         ?.toString()
                     FavoriteViewAdapter.SortType.TRACK  -> holder?.itemView?.song?.text
                         ?.toString()
-                        ?.withoutLeadingArticles
+                        ?.removeLeadingArticles()
                         ?.firstOrNull()
                         ?.toUpperCase()
                         ?.toString()

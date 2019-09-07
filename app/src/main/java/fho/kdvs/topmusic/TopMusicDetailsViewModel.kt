@@ -11,7 +11,6 @@ import org.threeten.bp.LocalDate
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
-@kotlinx.serialization.UnstableDefault
 class TopMusicDetailsViewModel @Inject constructor(
     private val topMusicRepository: TopMusicRepository,
     application: Application

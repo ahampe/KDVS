@@ -187,6 +187,7 @@ class ScheduleFragment : DaggerFragment() {
     }
 
     fun showSelection(timeslot: TimeSlot) {
+        // TODO should use Navigation for this as they now support dialogs
         fragmentManager?.let {
             val args = Bundle()
             args.putParcelable("timeslot", timeslot)

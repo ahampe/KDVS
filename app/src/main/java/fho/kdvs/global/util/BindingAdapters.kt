@@ -11,8 +11,6 @@ import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.ui.PlayerPaletteRequestListener
-import fho.kdvs.global.web.SpotifyData
-import fho.kdvs.global.web.uri
 import fho.kdvs.topmusic.TopMusicType
 import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
@@ -117,10 +115,8 @@ fun formatTopMusicWeekOf(view: TextView, weekOf: LocalDate?) {
 }
 
 @BindingAdapter("spotifyData")
-fun displaySpotifyIcon(view: ImageView, spotifyData: SpotifyData?) {
-    view.visibility = if (spotifyData != null && !spotifyData.uri.isNullOrBlank())
-        View.VISIBLE
-    else View.GONE
+fun displaySpotifyIcon(view: ImageView, spotifyAlbumUri: String?) {
+    view.visibility = if (spotifyAlbumUri?.isNotBlank() == true) View.VISIBLE else View.GONE
 }
 
 @BindingAdapter("trackInfo")

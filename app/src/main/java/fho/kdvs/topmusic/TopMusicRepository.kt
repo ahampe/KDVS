@@ -7,8 +7,6 @@ import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
-import fho.kdvs.global.web.MusicBrainzReleaseData
-import fho.kdvs.global.web.SpotifyData
 import fho.kdvs.global.web.WebScraperManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -101,15 +99,11 @@ class TopMusicRepository @Inject constructor(
         }
     }
 
-    fun updateTopMusicMusicBrainzData(id: Int, mbData: MusicBrainzReleaseData?) {
-        mbData?.let {
-            topMusicDao.updateTopMusicMusicBrainzData(id, mbData)
-        }
+    fun updateTopMusicSpotifyUri(id: Int, spotifyAlbumUri: String) {
+        topMusicDao.updateTopMusicSpotifyUri(id, spotifyAlbumUri)
     }
 
-    fun updateTopMusicSpotifyData(id: Int, spotifyData: SpotifyData?) {
-        spotifyData?.let{
-            topMusicDao.updateTopMusicSpotifyData(id, spotifyData)
-        }
+    fun updateHasThirdPartyInfo(id: Int, hasThirdPartyInfo: Boolean) {
+        topMusicDao.updateTopMusicHasThirdPartyInfo(id, hasThirdPartyInfo)
     }
 }

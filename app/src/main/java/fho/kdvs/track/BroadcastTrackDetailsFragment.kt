@@ -23,13 +23,11 @@ import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.global.web.uri
 import kotlinx.android.synthetic.main.fragment_track_details.*
 import timber.log.Timber
 import javax.inject.Inject
 
 // TODO: Refactor this + FavoriteTrackDetails + TopMusicDetails to share overlapping code
-@kotlinx.serialization.UnstableDefault
 class BroadcastTrackDetailsFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
@@ -205,9 +203,11 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
             albumInfo.visibility = View.VISIBLE
         } else albumInfo.visibility = View.GONE
 
-        spotifyIcon.visibility = if (track.spotifyData != null && !track.spotifyData.uri.isNullOrBlank())
+        spotifyIcon.visibility = if (track.spotifyAlbumUri?.isNotBlank() == true) {
             View.VISIBLE
-        else View.GONE
+        } else {
+            View.GONE
+        }
     }
 
     private fun setShowNameAndDate() {

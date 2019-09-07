@@ -6,10 +6,25 @@ import com.jakewharton.threetenabp.AndroidThreeTen
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
 import fho.kdvs.BuildConfig
+import fho.kdvs.api.endpoint.SpotifyEndpoint
+import fho.kdvs.global.util.Keys
 import fho.kdvs.injection.DaggerAppComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
-class KdvsApp : DaggerApplication() {
+class KdvsApp : DaggerApplication(), CoroutineScope {
+
+    @Inject
+    internal lateinit var spotifyEndpoint: SpotifyEndpoint
+
+    internal val job = Job()
+    override val coroutineContext: CoroutineContext
+        get() = job + Dispatchers.Main
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
         return DaggerAppComponent.builder().create(this)
@@ -25,6 +40,13 @@ class KdvsApp : DaggerApplication() {
             Timber.plant(KdvsDebugTree())
         } else {
             Timber.plant(CrashReportingTree())
+        }
+
+        launch {
+            val authResponse = spotifyEndpoint.authorize()
+            authResponse.body()?.token?.let {
+                Keys.spotfiyAuthToken = it
+            }
         }
     }
 

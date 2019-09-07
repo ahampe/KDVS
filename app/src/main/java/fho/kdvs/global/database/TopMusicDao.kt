@@ -4,8 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import fho.kdvs.global.web.MusicBrainzReleaseData
-import fho.kdvs.global.web.SpotifyData
 import fho.kdvs.topmusic.TopMusicType
 import org.threeten.bp.LocalDate
 
@@ -23,11 +21,11 @@ abstract class TopMusicDao {
     @Query("SELECT * from topMusicData where type = :type and weekOf = :weekOf")
     abstract fun getTopMusicForWeekOfType(weekOf: LocalDate?, type: TopMusicType): LiveData<List<TopMusicEntity>>
 
-    @Query("UPDATE topMusicData SET musicBrainzData = :mbData where topMusicId = :id")
-    abstract fun updateTopMusicMusicBrainzData(id: Int, mbData: MusicBrainzReleaseData)
+    @Query("UPDATE topMusicData SET spotifyAlbumUri = :spotifyAlbumUri where topMusicId = :id")
+    abstract fun updateTopMusicSpotifyUri(id: Int, spotifyAlbumUri: String)
 
-    @Query("UPDATE topMusicData SET spotifyData = :spotifyData where topMusicId = :id")
-    abstract fun updateTopMusicSpotifyData(id: Int, spotifyData: SpotifyData)
+    @Query("UPDATE topMusicData SET hasThirdPartyInfo = :hasThirdPartyInfo where topMusicId = :id")
+    abstract fun updateTopMusicHasThirdPartyInfo(id: Int, hasThirdPartyInfo: Boolean)
 
     @Query("UPDATE topMusicData SET album = :album where topMusicId = :id")
     abstract fun updateTopMusicAlbum(id: Int, album: String)

@@ -15,13 +15,14 @@ data class TimeSlot(
     val ids: List<Int>,
     val names: List<String?>
 ) : Parcelable {
+
     constructor(shows: List<ShowEntity>, _isFirstHalfOrEntireSegment: Boolean) : this(
-        shows.first().timeStart,
-        shows.first().timeEnd,
-        _isFirstHalfOrEntireSegment,
-        shows.first().defaultImageHref,
-        shows.map { it.id },
-        shows.map { it.name }
+        timeStart = shows.first().timeStart,
+        timeEnd = shows.first().timeEnd,
+        isFirstHalfOrEntireSegment = _isFirstHalfOrEntireSegment,
+        imageHref = shows.first().defaultImageHref,
+        ids = shows.map { it.id },
+        names = shows.map { it.name }
     )
 
     constructor(parcel: Parcel) : this(

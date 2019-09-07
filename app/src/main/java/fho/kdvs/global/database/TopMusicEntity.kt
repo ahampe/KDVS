@@ -5,8 +5,6 @@ import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import fho.kdvs.global.web.MusicBrainzReleaseData
-import fho.kdvs.global.web.SpotifyData
 import fho.kdvs.topmusic.TopMusicType
 import org.threeten.bp.LocalDate
 
@@ -21,8 +19,8 @@ data class TopMusicEntity(
     @ColumnInfo(name = "year") var year: Int? = null,
     @ColumnInfo(name = "label") var label: String? = null,
     @ColumnInfo(name = "imageHref") var imageHref: String? = null,
-    @ColumnInfo(name = "musicBrainzData") var musicBrainzData: MusicBrainzReleaseData? = null,
-    @ColumnInfo(name = "spotifyData") var spotifyData: SpotifyData? = null
+    @ColumnInfo(name = "spotifyAlbumUri") var spotifyAlbumUri: String? = null,
+    @ColumnInfo(name = "hasThirdPartyInfo") var hasThirdPartyInfo: Boolean = false
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
@@ -35,8 +33,8 @@ data class TopMusicEntity(
         year = parcel.readInt(),
         label = parcel.readString(),
         imageHref = parcel.readString(),
-        musicBrainzData = parcel.readValue(MusicBrainzReleaseData::class.java.classLoader) as MusicBrainzReleaseData,
-        spotifyData = parcel.readValue(SpotifyData::class.java.classLoader) as SpotifyData
+        spotifyAlbumUri = parcel.readString(),
+        hasThirdPartyInfo = parcel.readValue(Boolean::class.java.classLoader) as Boolean
     )
 
     override fun writeToParcel(dest: Parcel?, flags: Int) {
@@ -49,16 +47,12 @@ data class TopMusicEntity(
         dest?.writeValue(year)
         dest?.writeValue(label)
         dest?.writeValue(imageHref)
-        dest?.writeValue(musicBrainzData)
-        dest?.writeValue(spotifyData)
+        dest?.writeValue(spotifyAlbumUri)
+        dest?.writeValue(hasThirdPartyInfo)
     }
 
     override fun describeContents(): Int {
         return 0
-    }
-
-    fun hasScrapedMetadata(): Boolean {
-        return musicBrainzData != null && spotifyData != null
     }
 
     companion object {

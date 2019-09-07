@@ -7,7 +7,7 @@ import android.widget.Filter
 import android.widget.Filterable
 import fho.kdvs.databinding.CellShowSearchResultBinding
 import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.global.extensions.withoutLeadingArticles
+import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
@@ -63,7 +63,7 @@ class ShowSearchViewAdapter(
                             if ("^$query".toRegex() // with articles
                                     .find(it.name?.toLowerCase() ?: "") != null ||
                                 "^$query".toRegex() // without articles
-                                    .find(it.name?.toLowerCase()?.withoutLeadingArticles ?: "") != null)
+                                    .find(it.name?.toLowerCase()?.removeLeadingArticles() ?: "") != null)
                                 filteredList.add(it)
                         }
 
@@ -101,7 +101,7 @@ class ShowSearchViewAdapter(
         submitList(this@ShowSearchViewAdapter.results.sortedBy { s -> s.name
             ?.toLowerCase()
             ?.trim()
-            ?.withoutLeadingArticles})
+            ?.removeLeadingArticles()})
     }
 
     class ViewHolder(
