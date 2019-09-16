@@ -22,11 +22,9 @@ import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.database.getTracks
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.global.web.uri
 import kotlinx.android.synthetic.main.fragment_track_details.*
 import javax.inject.Inject
 
-@kotlinx.serialization.UnstableDefault
 class FavoriteTrackDetailsFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
@@ -213,9 +211,11 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
             albumInfo.visibility = View.VISIBLE
         } else albumInfo.visibility = View.GONE
 
-        spotifyIcon.visibility = if (track.spotifyData != null && !track.spotifyData.uri.isNullOrBlank())
+        spotifyIcon.visibility = if (track.spotifyAlbumUri?.isNotBlank() == true) {
             View.VISIBLE
-        else View.GONE
+        } else {
+            View.GONE
+        }
     }
 
     private fun setShowNameAndDate(track: TrackEntity) {

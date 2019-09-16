@@ -5,8 +5,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
-import fho.kdvs.global.web.MusicBrainzReleaseData
-import fho.kdvs.global.web.SpotifyData
 import io.reactivex.Flowable
 
 @Dao
@@ -62,11 +60,11 @@ interface TrackDao {
     @Query("UPDATE trackData SET label= :label WHERE trackId = :id")
     fun updateLabel(id: Int?, label: String?)
 
-    @Query("UPDATE trackData SET musicBrainzData = :musicBrainzData WHERE trackId = :id")
-    fun updateMusicBrainzData(id: Int?, musicBrainzData: MusicBrainzReleaseData?)
+    @Query("UPDATE trackData SET spotifyAlbumUri = :spotifyAlbumUri WHERE trackId = :id")
+    fun updateSpotifyAlbumUri(id: Int?, spotifyAlbumUri: String)
 
-    @Query("UPDATE trackData SET spotifyData = :spotifyData WHERE trackId = :id")
-    fun updateSpotifyData(id: Int?, spotifyData: SpotifyData?)
+    @Query("UPDATE trackData SET hasThirdPartyInfo = :hasThirdPartyInfo WHERE trackId = :id")
+    fun updateHasThirdPartyInfo(id: Int?, hasThirdPartyInfo: Boolean)
 
     @Query("UPDATE trackData SET year = :year WHERE trackId = :id")
     fun updateYear(id: Int?, year: Int?)

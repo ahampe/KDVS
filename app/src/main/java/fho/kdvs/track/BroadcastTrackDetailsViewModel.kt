@@ -15,7 +15,6 @@ import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TrackEntity
 import javax.inject.Inject
 
-@kotlinx.serialization.UnstableDefault
 class BroadcastTrackDetailsViewModel @Inject constructor(
     val trackRepository: TrackRepository,
     private val broadcastRepository: BroadcastRepository,

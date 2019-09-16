@@ -22,7 +22,6 @@ import kotlin.coroutines.CoroutineContext
 /**
  * [AndroidViewModel] for holding home-related data.
  */
-@kotlinx.serialization.UnstableDefault
 class HomeViewModel @Inject constructor(
     private val showRepository: ShowRepository,
     private val newsRepository: NewsRepository,

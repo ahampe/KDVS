@@ -18,7 +18,6 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.ui.LoadScreen
-import fho.kdvs.global.web.uri
 import kotlinx.android.synthetic.main.fragment_topmusic_details.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +26,6 @@ import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
-@kotlinx.serialization.UnstableDefault
 class TopMusicDetailsFragment : DaggerFragment(), CoroutineScope {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
@@ -156,9 +154,11 @@ class TopMusicDetailsFragment : DaggerFragment(), CoroutineScope {
                     albumInfo.visibility = View.VISIBLE
                 } else albumInfo.visibility = View.GONE
 
-                spotifyIcon.visibility = if (topMusic.spotifyData != null && !topMusic.spotifyData.uri.isNullOrBlank())
+                spotifyIcon.visibility = if (topMusic.spotifyAlbumUri?.isNotBlank() == true) {
                     View.VISIBLE
-                else View.GONE
+                } else {
+                    View.GONE
+                }
             }
         }
     }

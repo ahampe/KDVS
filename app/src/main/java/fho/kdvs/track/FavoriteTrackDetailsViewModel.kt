@@ -11,7 +11,6 @@ import fho.kdvs.global.database.ShowBroadcastTrackFavoriteJoin
 import fho.kdvs.global.database.TrackEntity
 import javax.inject.Inject
 
-@kotlinx.serialization.UnstableDefault
 class FavoriteTrackDetailsViewModel @Inject constructor(
     val trackRepository: TrackRepository,
     private val broadcastRepository: BroadcastRepository,

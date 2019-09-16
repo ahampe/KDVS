@@ -15,7 +15,6 @@ import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.home.TrackDiffCallback
 
 /** A [RecyclerView.Adapter] which cycles through [TrackEntity] items */
-@kotlinx.serialization.UnstableDefault
 class TracksViewAdapter(onClick: (ClickData<TrackEntity>) -> Unit) :
     BindingRecyclerViewAdapter<TrackEntity, BindingViewHolder<TrackEntity>>(onClick, TrackDiffCallback()){
 

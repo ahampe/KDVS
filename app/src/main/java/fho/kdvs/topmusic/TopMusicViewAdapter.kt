@@ -12,7 +12,6 @@ import fho.kdvs.global.util.ClickData
 import fho.kdvs.home.TopMusicDiffCallback
 
 /** A [RecyclerView.Adapter] which cycles through [TopMusicEntity] items */
-@kotlinx.serialization.UnstableDefault
 class TopMusicViewAdapter(onClick: (ClickData<TopMusicEntity>) -> Unit) :
     BindingRecyclerViewAdapter<TopMusicEntity, BindingViewHolder<TopMusicEntity>>(onClick, TopMusicDiffCallback()){
 

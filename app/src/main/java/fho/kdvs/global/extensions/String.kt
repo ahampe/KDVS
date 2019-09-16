@@ -16,9 +16,6 @@
 
 package fho.kdvs.global.extensions
 
-import java.net.URLEncoder
-import java.nio.charset.Charset
-
 /**
  * This file contains extension methods for the java.lang package.
  */
@@ -35,20 +32,7 @@ fun String?.containsCaseInsensitive(other: String?) =
         false
     }
 
-/**
- * Helper extension to URL encode a [String]. Returns an empty string when called on null.
- */
-inline val String?.urlEncoded: String
-    get() = if (Charset.isSupported("UTF-8")) {
-        URLEncoder.encode(this ?: "", "UTF-8")
-    } else {
-        // If UTF-8 is not supported, use the default charset.
-        @Suppress("deprecation")
-        URLEncoder.encode(this ?: "")
-    }
-
-inline val String?.withoutLeadingArticles: String
-    get() = """^(?:(the|THE|The|a|A|an|AN|An) +)""".toRegex()
+fun String?.removeLeadingArticles() = """^(?:(the|THE|The|a|A|an|AN|An) +)""".toRegex()
     .replace(this ?: "", "")
 
 inline val String?.withoutTrailingExtension: String

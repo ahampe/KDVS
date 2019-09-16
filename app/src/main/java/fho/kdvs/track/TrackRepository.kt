@@ -8,8 +8,6 @@ import fho.kdvs.global.extensions.toLiveData
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
-import fho.kdvs.global.web.MusicBrainzReleaseData
-import fho.kdvs.global.web.SpotifyData
 import fho.kdvs.global.web.WebScraperManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -80,15 +78,11 @@ class TrackRepository @Inject constructor(
         }
     }
 
-    fun updateTrackMusicBrainzData(id: Int, mbData: MusicBrainzReleaseData?) {
-        mbData?.let {
-            trackDao.updateMusicBrainzData(id, mbData)
-        }
+    fun updateSpotifyAlbumUri(id: Int, spotifyAlbumUri: String) {
+        trackDao.updateSpotifyAlbumUri(id, spotifyAlbumUri)
     }
 
-    fun updateTrackSpotifyData(id: Int, spotifyData: SpotifyData?) {
-        spotifyData?.let{
-            trackDao.updateSpotifyData(id, spotifyData)
-        }
+    fun updateHasThirdPartyInfo(id: Int, hasThirdPartyInfo: Boolean) {
+        trackDao.updateHasThirdPartyInfo(id, hasThirdPartyInfo)
     }
 }

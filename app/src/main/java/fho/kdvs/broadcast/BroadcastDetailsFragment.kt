@@ -40,7 +40,6 @@ import javax.inject.Inject
 const val DOWNLOAD_ICON = "download"
 const val DELETE_ICON = "delete"
 
-@kotlinx.serialization.UnstableDefault
 class BroadcastDetailsFragment : DaggerFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
