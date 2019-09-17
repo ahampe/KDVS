@@ -163,7 +163,6 @@ class KdvsPlaybackPreparer @Inject constructor(
             val showId = extras?.getInt(SHOW_ID) ?: return
             val broadcastId = mediaId?.toIntOrNull() ?: return
 
-
             prepareBroadcast(broadcastId, showId, position)
         }
     }
@@ -223,7 +222,7 @@ class KdvsPlaybackPreparer @Inject constructor(
         val mediaSource = broadcastMetadata.toMediaSource(dataSourceFactory)
 
         withContext(Dispatchers.Main) {
-            exoPlayer.seekTo(position)
+            exoPlayer.seekTo(position) // TODO not working yet -- may not be possible with stream container?
             exoPlayer.prepare(mediaSource, position == 0L, true)
         }
     }

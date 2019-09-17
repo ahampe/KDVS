@@ -232,6 +232,7 @@ class HomeFragment : DaggerFragment() {
                         launch {
                             adds.forEach {
                                 sharedViewModel.fetchThirdPartyDataForTopMusic(it)
+                                // TODO this causes observer to fire each time a db entry is updated resulting in redundant cycles
                             }
                         }
 
@@ -259,6 +260,7 @@ class HomeFragment : DaggerFragment() {
                         launch {
                             albums.forEach {
                                 sharedViewModel.fetchThirdPartyDataForTopMusic(it)
+                                // TODO this causes observer to fire each time a db entry is updated resulting in redundant cycles
                             }
                         }
 
