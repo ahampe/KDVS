@@ -5,7 +5,10 @@ import fho.kdvs.api.endpoint.SpotifyEndpoint
 import fho.kdvs.api.mapped.*
 import fho.kdvs.api.mapper.SpotifyMapper
 import fho.kdvs.base.urlEncoded
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import org.json.JSONArray
@@ -130,7 +133,7 @@ class SpotifyService @Inject constructor(
      * Attempts to locate a playlist in user's Spotify account matching a given title, to prevent
      * the creation of duplicate playlists.
      */
-    suspend fun getSpotifyPlaylistFromTitleAsync(title: String, token: String): Deferred<SpotifyPlaylist?> = coroutineScope {
+    suspend fun getSpotifyPlaylistUriFromTitleAsync(title: String, token: String): Deferred<String?> = coroutineScope {
         async {
             val response = endpoint.getPlaylists(auth = makeAuthHeader(token))
 
@@ -139,7 +142,7 @@ class SpotifyService @Inject constructor(
 
                 return@async playlists?.firstOrNull {
                     it?.name == title
-                }
+                }?.uri
             } else return@async null
         }
     }

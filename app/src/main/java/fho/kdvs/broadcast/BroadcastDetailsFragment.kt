@@ -6,6 +6,8 @@ import android.content.Context.DOWNLOAD_SERVICE
 import android.content.Intent
 import android.os.Bundle
 import android.os.FileObserver
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +26,7 @@ import fho.kdvs.global.MainActivity
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.HttpHelper
@@ -31,6 +34,8 @@ import fho.kdvs.global.util.RequestCodes
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import kotlinx.android.synthetic.main.fragment_broadcast_details.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
@@ -137,6 +142,23 @@ class BroadcastDetailsFragment : DaggerFragment() {
                     })
                 }
             }
+            RequestCodes.SPOTIFY_EXPORT_BROADCAST -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    if (sharedViewModel.isSpotifyAuthVoidOrExpired()) {
+                        sharedViewModel.loginSpotify(requireActivity())
+                        sharedViewModel.spotToken.observe(viewLifecycleOwner, Observer { token ->
+                            token?.let {
+                                exportTracksToSpotify(token)
+                            }
+                        })
+                    } else {
+                        exportTracksToSpotify(kdvsPreferences.spotifyAuthToken as String)
+                    }
+                }
+            }
+            RequestCodes.YOUTUBE_EXPORT_BROADCAST -> {
+                exportTracksToYouTube()
+            }
         }
     }
 
@@ -172,7 +194,55 @@ class BroadcastDetailsFragment : DaggerFragment() {
             noTracksMessage.visibility = if (tracks.isEmpty()) View.VISIBLE
                 else View.GONE
 
+            exportIconsBroadcast.visibility = if (noTracksMessage.visibility == View.VISIBLE) View.GONE
+                else View.VISIBLE
+
             tracksAdapter?.onTracksChanged(tracks)
+        })
+    }
+
+    private fun exportTracksToSpotify(token: String) {
+        viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
+            val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
+
+            viewModel.tracksLiveData.observe(this, Observer { tracks ->
+                GlobalScope.launch {
+                    val uris = tracks.mapNotNull { t -> t.spotifyTrackUri }
+
+                    var playlistUri = kdvsPreferences.spotifyFavoritesPlaylistUri
+
+                    if (playlistUri.isNullOrEmpty()) {
+                        // Attempt to locate a playlist in user's account with our assigned name
+                        // before creating a new one
+                        playlistUri = sharedViewModel.getSpotifyPlaylistUriFromTitleAsync(title, token)
+                            .await() ?:
+                                sharedViewModel.exportTracksToSpotifyPlaylistAsync(uris, title, token)
+                                    .await()
+
+                        kdvsPreferences.spotifyFavoritesPlaylistUri = playlistUri
+                    }
+
+                    if (!playlistUri.isNullOrEmpty()) {
+                        sharedViewModel.openSpotify(requireContext(), playlistUri)
+                    } else {
+                        Handler(Looper.getMainLooper()).post {
+                            Toast.makeText(
+                                requireContext(),
+                                "Error exporting tracks. Try reauthorizing?",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
+            })
+        })
+    }
+
+    private fun exportTracksToYouTube() {
+        viewModel.tracksLiveData.observe(this, Observer { tracks ->
+            val ids = tracks.mapNotNull { t -> t.youTubeId }
+
+            sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
         })
     }
 

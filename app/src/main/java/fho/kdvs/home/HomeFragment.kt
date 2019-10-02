@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
-import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.api.service.YouTubeService
 import fho.kdvs.databinding.FragmentHomeBinding
 import fho.kdvs.global.KdvsViewModelFactory
@@ -54,9 +53,6 @@ class HomeFragment : DaggerFragment() {
 
     @Inject
     lateinit var kdvsPreferences: KdvsPreferences
-
-    @Inject
-    lateinit var spotifyService: SpotifyService
 
     @Inject
     lateinit var youTubeService: YouTubeService
@@ -567,8 +563,10 @@ class HomeFragment : DaggerFragment() {
             val trackUris = getTopMusicSpotifyUris(topMusic)
 
             val playlistUri = trackUris?.let {
-                sharedViewModel.exportTracksToSpotifyPlaylistAsync(trackUris, title, token)
-                    .await()
+                sharedViewModel.getSpotifyPlaylistUriFromTitleAsync(title, token)
+                    .await() ?:
+                        sharedViewModel.exportTracksToSpotifyPlaylistAsync(trackUris, title, token)
+                            .await()
             }
 
             if (!playlistUri.isNullOrEmpty()) {
@@ -586,13 +584,9 @@ class HomeFragment : DaggerFragment() {
     }
 
     private fun exportTopMusicToYouTube(topMusic: List<TopMusicEntity>) {
-        GlobalScope.launch {
-            val ids = topMusic.mapNotNull { t -> t.youTubeId }
+        val ids = topMusic.mapNotNull { t -> t.youTubeId }
 
-            val url = sharedViewModel.makeYouTubePlaylist(ids)
-
-            sharedViewModel.openBrowser(requireContext(), url)
-        }
+        sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
     }
 
     private fun getTopMusicSpotifyUris(topMusic: List<TopMusicEntity?>?): List<String>? =

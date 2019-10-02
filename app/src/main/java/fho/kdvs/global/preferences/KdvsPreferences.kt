@@ -75,9 +75,6 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         // highest topMusic album ID observed
         LAST_OBSERVED_TOP_ALBUMS_ID,
 
-        // spotify id for user's favorites playlsit
-        SPOTIFY_FAVORITES_PLAYLIST_ID,
-
         // scrape frequency (5, 15, 30, 60 minutes in seconds)
         SCRAPE_FREQUENCY,
 
@@ -104,7 +101,10 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         SPOTIFY_AUTH_TOKEN,
 
         // Timestamp of most recent Spotify SSO
-        SPOTIFY_LAST_LOGIN
+        SPOTIFY_LAST_LOGIN,
+
+        // Spotify uri for user's favorites playlist
+        SPOTIFY_FAVORITES_PLAYLIST_URI
     }
 
     val preferences: SharedPreferences = application.getSharedPreferences(FILE_NAME, MODE_PRIVATE)
@@ -133,8 +133,6 @@ open class KdvsPreferences @Inject constructor(application: Application) {
 
     var lastObservedTopAlbumsId: Int? by IntPreference(Key.LAST_OBSERVED_TOP_ALBUMS_ID)
 
-    var spotifyFavoritesPlaylistId: String? by StringPreference(Key.SPOTIFY_FAVORITES_PLAYLIST_ID)
-
     var alarmNoticeInterval: Long? by LongPreference(Key.ALARM_NOTICE_INTERVAL)
 
     var offlineMode: Boolean? by BooleanPreference(Key.DATA_SAVER_MODE)
@@ -144,6 +142,8 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     var spotifyAuthToken: String? by StringPreference(Key.SPOTIFY_AUTH_TOKEN)
 
     var spotifyLastLogin: Long? by LongPreference(Key.SPOTIFY_LAST_LOGIN)
+
+    var spotifyFavoritesPlaylistUri: String? by StringPreference(Key.SPOTIFY_FAVORITES_PLAYLIST_URI)
 
     fun getLastShowScrape(showId: String): Long? {
         val pref by LongPreference(Key.LAST_SHOW_SCRAPE, showId)

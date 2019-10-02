@@ -3,10 +3,13 @@ package fho.kdvs.favorite
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -18,12 +21,14 @@ import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.enums.ThirdPartyService
-import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.extensions.removeLeadingArticles
+import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.RequestCodes
 import kotlinx.android.synthetic.main.cell_favorite_track.view.*
 import kotlinx.android.synthetic.main.fragment_favorite.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -83,17 +88,27 @@ class FavoriteFragment : DaggerFragment() {
         initializeIcons()
     }
 
-    /** Handle track export request. */
+    /** Handle third-party export request. */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         when (requestCode) {
             RequestCodes.SPOTIFY_EXPORT_FAVORITES -> {
                 if (resultCode == Activity.RESULT_OK) {
-                    if (kdvsPreferences.spotifyFavoritesPlaylistId.isNullOrBlank()) {
-                        // TODO
+                    if (sharedViewModel.isSpotifyAuthVoidOrExpired()) {
+                        sharedViewModel.loginSpotify(requireActivity())
+                        sharedViewModel.spotToken.observe(viewLifecycleOwner, Observer { token ->
+                            token?.let {
+                                exportTracksToSpotify(kdvsPreferences.spotifyAuthToken as String)
+                            }
+                        })
+                    } else {
+                        exportTracksToSpotify(kdvsPreferences.spotifyAuthToken as String)
                     }
                 }
+            }
+            RequestCodes.YOUTUBE_EXPORT_FAVORITES -> {
+                exportTracksToYouTube()
             }
         }
     }
@@ -255,6 +270,24 @@ class FavoriteFragment : DaggerFragment() {
                 }
             }
         }
+
+        spotifyExportIconFavorite?.setOnClickListener {
+            sharedViewModel.onClickExportIcon(
+                this,
+                RequestCodes.SPOTIFY_EXPORT_FAVORITES,
+                currentlyDisplayingResults.size,
+                ThirdPartyService.SPOTIFY
+            )
+        }
+
+        youtubeExportIconFavorite?.setOnClickListener {
+            sharedViewModel.onClickExportIcon(
+                this,
+                RequestCodes.YOUTUBE_EXPORT_FAVORITES,
+                currentlyDisplayingResults.size,
+                ThirdPartyService.YOUTUBE
+            )
+        }
     }
 
     private fun initializeSearchBar(){
@@ -291,12 +324,13 @@ class FavoriteFragment : DaggerFragment() {
     }
 
     private fun initializeIcons() {
-        spotifyExportIcon?.let { view ->
+        spotifyExportIconFavorite?.let { view ->
             if (sharedViewModel.isSpotifyInstalledOnDevice(view.context)) {
                 view.visibility = View.VISIBLE
 
                 view.setOnClickListener {
-                    val visibleTracksSpotifyUris = getVisibleTrackSpotifyUris()
+                    val visibleTracksSpotifyUris = currentlyDisplayingResults
+                        .mapNotNull { r -> r?.track?.spotifyAlbumUri }
 
                     val count = visibleTracksSpotifyUris.count()
 
@@ -306,6 +340,46 @@ class FavoriteFragment : DaggerFragment() {
         }
     }
 
-    private fun getVisibleTrackSpotifyUris() = currentlyDisplayingResults
-        .mapNotNull { r -> r?.track?.spotifyAlbumUri }
+    private fun exportTracksToSpotify(token: String) {
+        val uris = currentlyDisplayingResults
+            .mapNotNull { r -> r?.track?.spotifyAlbumUri }
+
+        GlobalScope.launch {
+            var playlistUri = kdvsPreferences.spotifyFavoritesPlaylistUri
+
+            if (playlistUri.isNullOrEmpty()) {
+                // Attempt to locate a playlist in user's account with our assigned name
+                // before creating a new one
+                playlistUri = sharedViewModel.getSpotifyPlaylistUriFromTitleAsync(SPOTIFY_PLAYLIST_TITLE, token)
+                    .await() ?:
+                        sharedViewModel.exportTracksToSpotifyPlaylistAsync(uris, SPOTIFY_PLAYLIST_TITLE, token)
+                            .await()
+
+                kdvsPreferences.spotifyFavoritesPlaylistUri = playlistUri
+            }
+
+            if (!playlistUri.isNullOrEmpty()) {
+                sharedViewModel.openSpotify(requireContext(), playlistUri)
+            } else {
+                Handler(Looper.getMainLooper()).post {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error exporting tracks. Try reauthorizing?",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
+
+    private fun exportTracksToYouTube() {
+        val ids = currentlyDisplayingResults
+            .mapNotNull { r -> r?.track?.youTubeId }
+
+        sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
+    }
+
+    companion object {
+        const val SPOTIFY_PLAYLIST_TITLE = "My KDVS Favorites"
+    }
 }
