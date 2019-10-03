@@ -402,7 +402,7 @@ class SharedViewModel @Inject constructor(
         openBrowser(context, url)
     }
 
-    fun makeYouTubePlaylist(ids: List<String>) =
+    private fun makeYouTubePlaylist(ids: List<String>) =
         ("https://www.youtube.com/watch_videos?video_ids=" + ids.joinToString(",")).let{
             it.substring(0, min(it.length, 2048))
             .substringBeforeLast(",")
@@ -441,7 +441,8 @@ class SharedViewModel @Inject constructor(
             openBrowser(context, url)
     }
 
-    suspend fun getSpotifyPlaylistUriFromTitleAsync(title: String, token: String): Deferred<String?> = coroutineScope {
+    suspend fun getSpotifyPlaylistUriFromTitleAsync(title: String,
+                                                    token: String): Deferred<String?> = coroutineScope {
         async {
             return@async spotifyService.getSpotifyPlaylistUriFromTitleAsync(title, token).await()
         }
@@ -568,7 +569,7 @@ class SharedViewModel @Inject constructor(
                 val destPath = src.path.substring(0, extensionIndex)
 
                 if (destPath.isNotBlank())
-                    return src.renameTo(File(destPath)) // TODO: this is failing
+                    return src.renameTo(File(destPath))
             }
         }
 
@@ -649,8 +650,7 @@ class SharedViewModel @Inject constructor(
             val spotTracks = spotifyGet.await()?.tracks
 
             val mbAlbumHref = mbAlbum?.id?.let { id ->
-                null
-                //musicBrainzService.getAlbumArtHrefAsync(id).await() TODO uncomment
+                musicBrainzService.getAlbumArtHrefAsync(id).await()
             }
 
             val album = mbAlbum?.name ?: spotAlbum?.name
@@ -711,8 +711,7 @@ class SharedViewModel @Inject constructor(
             val mbAlbum = musicBrainzFind.await()
 
             val mbAlbumHref = mbAlbum?.id?.let { id ->
-                null
-                //musicBrainzService.getAlbumArtHrefAsync(id).await() TODO uncomment
+                musicBrainzService.getAlbumArtHrefAsync(id).await()
             }
 
             val album = mbAlbum?.name ?: spotAlbum?.name

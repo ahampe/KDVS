@@ -20,6 +20,7 @@ import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
+import fho.kdvs.global.database.getTracks
 import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.preferences.KdvsPreferences
@@ -193,6 +194,10 @@ class FavoriteFragment : DaggerFragment() {
                     false -> {
                         resultsRecycler.visibility = View.VISIBLE
                         noResults.visibility = View.GONE
+
+                        joins.getTracks()?.filterNotNull()?.forEach {
+                            sharedViewModel.fetchThirdPartyDataForTrack(it)
+                        }
 
                         favoriteViewAdapter = FavoriteViewAdapter(joins, fragment) {
                             Timber.d("clicked ${it.item}")

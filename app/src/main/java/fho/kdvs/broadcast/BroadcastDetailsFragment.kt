@@ -26,7 +26,6 @@ import fho.kdvs.global.MainActivity
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.HttpHelper
@@ -75,8 +74,6 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
         sharedViewModel = ViewModelProviders.of(this, vmFactory)
             .get(SharedViewModel::class.java)
-
-        subscribeToViewModel()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -88,6 +85,9 @@ class BroadcastDetailsFragment : DaggerFragment() {
         }
 
         binding.lifecycleOwner = this
+
+        subscribeToViewModel()
+
         return binding.root
     }
 
@@ -198,6 +198,12 @@ class BroadcastDetailsFragment : DaggerFragment() {
                 else View.VISIBLE
 
             tracksAdapter?.onTracksChanged(tracks)
+
+            GlobalScope.launch {
+                tracks.forEach {
+                    sharedViewModel.fetchThirdPartyDataForTrack(it)
+                }
+            }
         })
     }
 
