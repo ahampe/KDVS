@@ -8,8 +8,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
@@ -31,7 +29,6 @@ import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.api.service.YouTubeService
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.dialog.BinaryChoiceDialogFragment
-import fho.kdvs.favorite.FavoriteFragment
 import fho.kdvs.fundraiser.FundraiserRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.enums.ThirdPartyService
@@ -57,7 +54,10 @@ import fho.kdvs.track.BroadcastTrackDetailsFragmentDirections
 import fho.kdvs.track.FavoriteTrackDetailsFragmentDirections
 import fho.kdvs.track.TrackDetailsType
 import fho.kdvs.track.TrackRepository
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
 import java.io.File
@@ -439,33 +439,6 @@ class SharedViewModel @Inject constructor(
         val url = makeSpotifyUrl(spotifyUri ?: "")
         if (url.isNotEmpty())
             openBrowser(context, url)
-    }
-
-    suspend fun getSpotifyPlaylistUriFromTitleAsync(title: String,
-                                                    token: String): Deferred<String?> = coroutineScope {
-        async {
-            return@async spotifyService.getSpotifyPlaylistUriFromTitleAsync(title, token).await()
-        }
-    }
-
-    suspend fun exportTracksToSpotifyPlaylistAsync(trackUris: List<String>?,
-                                                   title: String,
-                                                   token: String): Deferred<String> = coroutineScope {
-        async {
-            trackUris?.let {
-                val playlist = spotifyService.createPlaylistAsync(title, token).await()
-
-                playlist?.let { p ->
-                    trackUris.chunked(100).forEach {
-                        spotifyService.addTracksToPlaylistAsync(it, p.id, token).await()
-                    }
-
-                    return@async playlist.uri
-                }
-            }
-
-            return@async ""
-        }
     }
 
     fun openSpotify(context: Context, spotifyUri: String?) {

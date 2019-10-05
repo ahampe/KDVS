@@ -6,8 +6,6 @@ import android.content.Context.DOWNLOAD_SERVICE
 import android.content.Intent
 import android.os.Bundle
 import android.os.FileObserver
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
+import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.databinding.FragmentBroadcastDetailsBinding
 import fho.kdvs.dialog.BinaryChoiceDialogFragment
 import fho.kdvs.global.KdvsViewModelFactory
@@ -28,10 +27,7 @@ import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
-import fho.kdvs.global.util.HttpHelper
-import fho.kdvs.global.util.RequestCodes
-import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.global.util.URLs
+import fho.kdvs.global.util.*
 import kotlinx.android.synthetic.main.fragment_broadcast_details.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -52,6 +48,9 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
     @Inject
     lateinit var kdvsPreferences: KdvsPreferences
+
+    @Inject
+    lateinit var spotifyService: SpotifyService
 
     private var tracksAdapter: BroadcastTracksAdapter? = null
 
@@ -215,30 +214,15 @@ class BroadcastDetailsFragment : DaggerFragment() {
                 GlobalScope.launch {
                     val uris = tracks.mapNotNull { t -> t.spotifyTrackUri }
 
-                    var playlistUri = kdvsPreferences.spotifyFavoritesPlaylistUri
+                    val playlistUri = ExportManagerSpotify(
+                        context = requireContext(),
+                        spotifyService = spotifyService,
+                        trackUris = uris,
+                        userToken = token,
+                        playlistTitle = title
+                    ).getExportPlaylistUri()
 
-                    if (playlistUri.isNullOrEmpty()) {
-                        // Attempt to locate a playlist in user's account with our assigned name
-                        // before creating a new one
-                        playlistUri = sharedViewModel.getSpotifyPlaylistUriFromTitleAsync(title, token)
-                            .await() ?:
-                                sharedViewModel.exportTracksToSpotifyPlaylistAsync(uris, title, token)
-                                    .await()
-
-                        kdvsPreferences.spotifyFavoritesPlaylistUri = playlistUri
-                    }
-
-                    if (!playlistUri.isNullOrEmpty()) {
-                        sharedViewModel.openSpotify(requireContext(), playlistUri)
-                    } else {
-                        Handler(Looper.getMainLooper()).post {
-                            Toast.makeText(
-                                requireContext(),
-                                "Error exporting tracks. Try reauthorizing?",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
+                    sharedViewModel.openSpotify(requireContext(), playlistUri)
                 }
             })
         })

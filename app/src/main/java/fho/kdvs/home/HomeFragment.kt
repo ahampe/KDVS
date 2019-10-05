@@ -3,12 +3,9 @@ package fho.kdvs.home
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -19,7 +16,7 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
-import fho.kdvs.api.service.YouTubeService
+import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.databinding.FragmentHomeBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
@@ -30,13 +27,11 @@ import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.fade
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
-import fho.kdvs.global.util.BindingViewHolder
-import fho.kdvs.global.util.RequestCodes
-import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.global.util.URLs
+import fho.kdvs.global.util.*
 import fho.kdvs.news.NewsArticlesAdapter
 import fho.kdvs.staff.StaffAdapter
 import fho.kdvs.topmusic.TopMusicAdapter
+import fho.kdvs.topmusic.TopMusicType
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -55,7 +50,7 @@ class HomeFragment : DaggerFragment() {
     lateinit var kdvsPreferences: KdvsPreferences
 
     @Inject
-    lateinit var youTubeService: YouTubeService
+    lateinit var spotifyService: SpotifyService
 
     private lateinit var viewModel: HomeViewModel
     private lateinit var sharedViewModel: SharedViewModel
@@ -204,7 +199,7 @@ class HomeFragment : DaggerFragment() {
         setExpandableSections()
     }
 
-    /** Handle third-party export request. */
+    /** Handle third-party getExportPlaylistUri request. */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -216,7 +211,7 @@ class HomeFragment : DaggerFragment() {
                         sharedViewModel.spotToken.observe(viewLifecycleOwner, Observer { token ->
                             token?.let {
                                 viewModel.topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
-                                    exportTopMusicToSpotify(adds, it)
+                                    exportTopMusicToSpotify(adds, token)
                                 })
                             }
                         })
@@ -234,7 +229,7 @@ class HomeFragment : DaggerFragment() {
                         sharedViewModel.spotToken.observe(viewLifecycleOwner, Observer { token ->
                             token?.let {
                                 viewModel.topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
-                                    exportTopMusicToSpotify(albums, it)
+                                    exportTopMusicToSpotify(albums, token)
                                 })
                             }
                         })
@@ -557,29 +552,20 @@ class HomeFragment : DaggerFragment() {
     private fun exportTopMusicToSpotify(topMusic: List<TopMusicEntity>, token: String) {
         val mostRecentDate = topMusic.maxBy { a -> a.topMusicId }?.weekOf
 
-        val title = "KDVS Top Albums (${TimeHelper.uiDateFormatter.format(mostRecentDate)})"
+        val type = if (topMusic.first().type == TopMusicType.ADD) "Adds" else "Albums"
+
+        val title = "KDVS Top $type (${TimeHelper.uiDateFormatter.format(mostRecentDate)})"
 
         GlobalScope.launch {
-            val trackUris = getTopMusicSpotifyUris(topMusic)
+            val playlistUri = ExportManagerSpotify(
+                context = requireContext(),
+                spotifyService = spotifyService,
+                trackUris = getTopMusicSpotifyUris(topMusic),
+                userToken = token,
+                playlistTitle = title
+            ).getExportPlaylistUri()
 
-            val playlistUri = trackUris?.let {
-                sharedViewModel.getSpotifyPlaylistUriFromTitleAsync(title, token)
-                    .await() ?:
-                        sharedViewModel.exportTracksToSpotifyPlaylistAsync(trackUris, title, token)
-                            .await()
-            }
-
-            if (!playlistUri.isNullOrEmpty()) {
-                sharedViewModel.openSpotify(requireContext(), playlistUri)
-            } else {
-                Handler(Looper.getMainLooper()).post {
-                    Toast.makeText(
-                        requireContext(),
-                        "Error exporting tracks. Try reauthorizing?",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
+            sharedViewModel.openSpotify(requireContext(), playlistUri)
         }
     }
 

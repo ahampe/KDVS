@@ -31,6 +31,9 @@ class SpotifyService @Inject constructor(
     private val mapper = SpotifyMapper()
     private var clientToken: String = ""
 
+    /**
+     * Returns first search result (if any) for an album query.
+     */
     suspend fun findAlbumAsync(album: String?,
                                artist: String?): Deferred<SpotifySimpleAlbum?> = coroutineScope {
         async {
@@ -73,6 +76,9 @@ class SpotifyService @Inject constructor(
         }
     }
 
+    /**
+     * Returns first search result (if any) for a track query.
+     */
     suspend fun findTrackAsync(track: String?,
                                artist: String?): Deferred<SpotifyTrack?> = coroutineScope {
         async {
@@ -130,6 +136,23 @@ class SpotifyService @Inject constructor(
     }
 
     /**
+     * Returns true if passed-in URI corresponds to one in the user's playlists.
+     */
+    suspend fun playlistExistsAsync(uri: String, token: String): Deferred<Boolean?> = coroutineScope {
+        async {
+            val response = endpoint.getPlaylists(auth = makeAuthHeader(token))
+
+            if (response.isSuccessful) {
+                val playlists = mapper.playlists(response.body())
+
+                return@async playlists?.any {
+                    it?.uri == uri
+                }
+            } else return@async false
+        }
+    }
+
+    /**
      * Attempts to locate a playlist in user's Spotify account matching a given title, to prevent
      * the creation of duplicate playlists.
      */
@@ -180,7 +203,9 @@ class SpotifyService @Inject constructor(
      * Adds music from a list of Spotify track URIs to a playlist of a given ID.
      * Takes a max of 100 tracks at a time.
      */
-    suspend fun addTracksToPlaylistAsync(uris: List<String>, playlistId: String, token: String): Deferred<Boolean> = coroutineScope {
+    suspend fun addTracksToPlaylistAsync(uris: List<String>,
+                                         playlistId: String,
+                                         token: String): Deferred<Boolean> = coroutineScope {
         async {
             val body = JSONObject()
             body.put("uris", JSONArray(uris))
@@ -219,22 +244,6 @@ class SpotifyService @Inject constructor(
         }
     }
 
-    suspend fun getUserTokenAsync(code: String): Deferred<String?> = coroutineScope {
-        async {
-            val body = JSONObject().apply {
-                this.put("grant_type", "authorization_code")
-                this.put("code", code)
-                this.put("redirect_uri", SpotifyEndpoint.SPOTIFY_REDIRECT_URI)
-            }
-
-            val response = endpoint.getUserToken(body = body)
-
-            if (response.isSuccessful) {
-                response.body()?.token
-            } else return@async null
-        }
-    }
-
     /**
      * Creates an encoded query for music search for a given [SearchType] and [artist]
      */
@@ -263,11 +272,6 @@ class SpotifyService @Inject constructor(
     private fun getUserPlaylistsUrl(id: String) = "https://api.spotify.com/v1/users/$id/playlists"
 
     private fun String?.encode() = this.urlEncoded.replace("+", " ")
-
-    private fun String?.parseIDFromURI() = "spotify:\\w+:(.*)".toRegex()
-        .find(this ?: "")
-        ?.groupValues
-        ?.getOrNull(1)
 
     private fun makeAuthHeader(token: String) = "Bearer $token"
 

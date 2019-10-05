@@ -3,13 +3,10 @@ package fho.kdvs.favorite
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -18,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
 import fho.kdvs.R
+import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.getTracks
@@ -25,6 +23,7 @@ import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
+import fho.kdvs.global.util.ExportManagerSpotify
 import fho.kdvs.global.util.RequestCodes
 import kotlinx.android.synthetic.main.cell_favorite_track.view.*
 import kotlinx.android.synthetic.main.fragment_favorite.*
@@ -39,6 +38,9 @@ class FavoriteFragment : DaggerFragment() {
 
     @Inject
     lateinit var kdvsPreferences: KdvsPreferences
+
+    @Inject
+    lateinit var spotifyService: SpotifyService
 
     private lateinit var viewModel: FavoriteViewModel
     private lateinit var sharedViewModel: SharedViewModel
@@ -89,7 +91,7 @@ class FavoriteFragment : DaggerFragment() {
         initializeIcons()
     }
 
-    /** Handle third-party export request. */
+    /** Handle third-party getExportPlaylistUri request. */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -350,30 +352,16 @@ class FavoriteFragment : DaggerFragment() {
             .mapNotNull { r -> r?.track?.spotifyAlbumUri }
 
         GlobalScope.launch {
-            var playlistUri = kdvsPreferences.spotifyFavoritesPlaylistUri
+            val playlistUri = ExportManagerSpotify(
+                context = requireContext(),
+                spotifyService = spotifyService,
+                trackUris = uris,
+                userToken = token,
+                playlistTitle = "My KDVS Favorites",
+                storedPlaylistUri = kdvsPreferences.spotifyFavoritesPlaylistUri
+            ).getExportPlaylistUri()
 
-            if (playlistUri.isNullOrEmpty()) {
-                // Attempt to locate a playlist in user's account with our assigned name
-                // before creating a new one
-                playlistUri = sharedViewModel.getSpotifyPlaylistUriFromTitleAsync(SPOTIFY_PLAYLIST_TITLE, token)
-                    .await() ?:
-                        sharedViewModel.exportTracksToSpotifyPlaylistAsync(uris, SPOTIFY_PLAYLIST_TITLE, token)
-                            .await()
-
-                kdvsPreferences.spotifyFavoritesPlaylistUri = playlistUri
-            }
-
-            if (!playlistUri.isNullOrEmpty()) {
-                sharedViewModel.openSpotify(requireContext(), playlistUri)
-            } else {
-                Handler(Looper.getMainLooper()).post {
-                    Toast.makeText(
-                        requireContext(),
-                        "Error exporting tracks. Try reauthorizing?",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
+            sharedViewModel.openSpotify(requireContext(), playlistUri)
         }
     }
 
@@ -382,9 +370,5 @@ class FavoriteFragment : DaggerFragment() {
             .mapNotNull { r -> r?.track?.youTubeId }
 
         sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
-    }
-
-    companion object {
-        const val SPOTIFY_PLAYLIST_TITLE = "My KDVS Favorites"
     }
 }
