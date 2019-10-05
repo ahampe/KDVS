@@ -19,22 +19,24 @@ class ExportManagerSpotify @Inject constructor(
     val storedPlaylistUri: String? = null
 ): ExportManager {
 
+    var playlistUri: String? = null
+
     override suspend fun getExportPlaylistUri(): String? {
         if (trackUris.isNullOrEmpty()) return null
 
         // Check for stored URI, then check user's Spotify playlists for matching title,
         // then create playlist
-        val playlistUri =
+        playlistUri =
             if (!storedPlaylistUri.isNullOrEmpty() &&
                 spotifyService.playlistExistsAsync(storedPlaylistUri, userToken).await() == true) {
                     storedPlaylistUri
             } else getSpotifyPlaylistUriFromTitleAsync(playlistTitle, userToken)
                     .await() ?:
-                exportTracksToSpotifyPlaylistAsync(trackUris, playlistTitle, userToken)
-                    .await()
+                spotifyService.createPlaylistAsync(playlistTitle, userToken).await()
 
-        return if (!playlistUri.isNullOrEmpty()) {
-            playlistUri
+        return if (!playlistUri.isNullOrEmpty() &&
+                   exportTracksToSpotifyPlaylistAsync().await() == true) {
+                        playlistUri
         } else {
             Handler(Looper.getMainLooper()).post {
                 Toast.makeText(
@@ -55,23 +57,19 @@ class ExportManagerSpotify @Inject constructor(
         }
     }
 
-    private suspend fun exportTracksToSpotifyPlaylistAsync(trackUris: List<String>?,
-                                                   title: String,
-                                                   token: String): Deferred<String?> = coroutineScope {
+    private suspend fun exportTracksToSpotifyPlaylistAsync(): Deferred<Boolean?> = coroutineScope {
         async {
             trackUris?.let {
-                val playlist = spotifyService.createPlaylistAsync(title, token).await()
-
-                playlist?.let { p ->
-                    trackUris.chunked(100).forEach {
-                        spotifyService.addTracksToPlaylistAsync(it, p.id, token).await()
-                    }
-
-                    return@async playlist.uri
+                it.chunked(100).forEach { tracks ->
+                    val id = getPlaylistIDFromUri(playlistUri!!)
+                    return@async spotifyService.addTracksToPlaylistAsync(tracks, id, userToken).await()
                 }
             }
 
-            return@async null
+            return@async false
         }
     }
+
+    private fun getPlaylistIDFromUri(uri: String) =
+        uri.replace("spotify:playlist:", "")
 }

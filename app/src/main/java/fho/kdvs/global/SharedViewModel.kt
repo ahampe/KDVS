@@ -815,7 +815,10 @@ class SharedViewModel @Inject constructor(
         val args = Bundle()
 
         args.putString("title", "Export")
-        args.putString("message", "Export $count tracks to a ${service.title} playlist?")
+        args.putString(
+            "message",
+            "Export $count ${if (count > 1) "tracks" else "track"} to a ${service.title} playlist?"
+        )
 
         dialog.arguments = args
         dialog.setTargetFragment(fragment, requestCode)

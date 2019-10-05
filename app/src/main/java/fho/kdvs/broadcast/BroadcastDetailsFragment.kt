@@ -25,6 +25,7 @@ import fho.kdvs.global.MainActivity
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.*
@@ -197,6 +198,24 @@ class BroadcastDetailsFragment : DaggerFragment() {
                 else View.VISIBLE
 
             tracksAdapter?.onTracksChanged(tracks)
+
+            spotifyExportIconBroadcast?.setOnClickListener {
+                sharedViewModel.onClickExportIcon(
+                    this,
+                    RequestCodes.SPOTIFY_EXPORT_FAVORITES,
+                    tracks.count { t -> !t.spotifyTrackUri.isNullOrEmpty() },
+                    ThirdPartyService.SPOTIFY
+                )
+            }
+
+            youtubeExportIconBroadcast?.setOnClickListener {
+                sharedViewModel.onClickExportIcon(
+                    this,
+                    RequestCodes.YOUTUBE_EXPORT_FAVORITES,
+                    tracks.count { t -> !t.youTubeId.isNullOrEmpty() },
+                    ThirdPartyService.YOUTUBE
+                )
+            }
 
             GlobalScope.launch {
                 tracks.forEach {

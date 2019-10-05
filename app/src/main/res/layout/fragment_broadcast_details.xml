@@ -142,9 +142,7 @@
                     app:layout_constraintEnd_toStartOf="@+id/youtubeExportIconBroadcast"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:visibility="gone"
-                    tools:visibility="visible"/>
+                    app:layout_constraintTop_toTopOf="parent"/>
 
                 <ImageView
                     android:id="@+id/youtubeExportIconBroadcast"

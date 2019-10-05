@@ -6,10 +6,12 @@ import fho.kdvs.api.endpoint.CoverArtArchiveEndpoint
 import fho.kdvs.api.endpoint.MusicBrainzEndpoint
 import fho.kdvs.api.endpoint.SpotifyEndpoint
 import fho.kdvs.api.endpoint.YouTubeEndpoint
-import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
+
 
 @Module
 class ApiModule {
@@ -39,10 +41,16 @@ class ApiModule {
     }
 
     private fun buildRetrofit(baseUrl: String): Retrofit {
+        val client = OkHttpClient.Builder()
+        client.connectTimeout(15, TimeUnit.SECONDS)
+        client.readTimeout(15, TimeUnit.SECONDS)
+        client.writeTimeout(15, TimeUnit.SECONDS)
+
         return Retrofit.Builder()
             .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .addConverterFactory(ScalarsConverterFactory.create())
+            .client(client.build())
             .build()
     }
 }

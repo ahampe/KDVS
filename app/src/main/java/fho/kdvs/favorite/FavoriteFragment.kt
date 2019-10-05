@@ -197,10 +197,6 @@ class FavoriteFragment : DaggerFragment() {
                         resultsRecycler.visibility = View.VISIBLE
                         noResults.visibility = View.GONE
 
-                        joins.getTracks()?.filterNotNull()?.forEach {
-                            sharedViewModel.fetchThirdPartyDataForTrack(it)
-                        }
-
                         favoriteViewAdapter = FavoriteViewAdapter(joins, fragment) {
                             Timber.d("clicked ${it.item}")
 
@@ -282,7 +278,7 @@ class FavoriteFragment : DaggerFragment() {
             sharedViewModel.onClickExportIcon(
                 this,
                 RequestCodes.SPOTIFY_EXPORT_FAVORITES,
-                currentlyDisplayingResults.size,
+                currentlyDisplayingResults.count { r -> !r?.track?.spotifyTrackUri.isNullOrEmpty()},
                 ThirdPartyService.SPOTIFY
             )
         }
@@ -291,7 +287,7 @@ class FavoriteFragment : DaggerFragment() {
             sharedViewModel.onClickExportIcon(
                 this,
                 RequestCodes.YOUTUBE_EXPORT_FAVORITES,
-                currentlyDisplayingResults.size,
+                currentlyDisplayingResults.count { r -> !r?.track?.youTubeId.isNullOrEmpty()},
                 ThirdPartyService.YOUTUBE
             )
         }
@@ -337,7 +333,7 @@ class FavoriteFragment : DaggerFragment() {
 
                 view.setOnClickListener {
                     val visibleTracksSpotifyUris = currentlyDisplayingResults
-                        .mapNotNull { r -> r?.track?.spotifyAlbumUri }
+                        .mapNotNull { r -> r?.track?.spotifyTrackUri }
 
                     val count = visibleTracksSpotifyUris.count()
 
@@ -349,7 +345,7 @@ class FavoriteFragment : DaggerFragment() {
 
     private fun exportTracksToSpotify(token: String) {
         val uris = currentlyDisplayingResults
-            .mapNotNull { r -> r?.track?.spotifyAlbumUri }
+            .mapNotNull { r -> r?.track?.spotifyTrackUri }
 
         GlobalScope.launch {
             val playlistUri = ExportManagerSpotify(

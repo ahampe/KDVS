@@ -173,7 +173,7 @@ class SpotifyService @Inject constructor(
     /**
      * Create Spotify playlist with specified title for user of corresponding token.
      */
-    suspend fun createPlaylistAsync(title: String, token: String): Deferred<SpotifyPlaylist?> = coroutineScope {
+    suspend fun createPlaylistAsync(title: String, token: String): Deferred<String?> = coroutineScope {
         async {
             val profile = getUserProfileAsync(token).await()
 
@@ -189,7 +189,7 @@ class SpotifyService @Inject constructor(
 
                 val response = endpoint.createPlaylist(url = url, body = req, auth = makeAuthHeader(token))
                 if (response.isSuccessful) {
-                    return@async mapper.playlist(response.body())
+                    return@async mapper.playlist(response.body())?.uri
                 } else {
                     Timber.e("Error creating Spotify playlist")// TODO errors + retry
                 }
