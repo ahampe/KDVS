@@ -195,7 +195,7 @@ class MainActivity : DaggerAppCompatActivity() {
     private fun initLastPlayedBroadcast(broadcastId: Int) {
         var hasCalled = false
 
-        viewModel.broadcastRepository.showBroadcastJoinById(broadcastId).observe(this, Observer { join ->
+        viewModel.getBroadcastRepo().showBroadcastJoinById(broadcastId).observe(this, Observer { join ->
             val broadcast = join.broadcast.singleOrNull { b -> b.broadcastId == broadcastId }
 
             broadcast?.let {

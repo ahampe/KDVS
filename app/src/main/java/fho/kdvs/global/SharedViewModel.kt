@@ -59,7 +59,7 @@ class SharedViewModel @Inject constructor(
     // TODO: This class is a bit too monolithic -- split up into different repo subclasses?
     application: Application,
     private val showRepository: ShowRepository,
-    val broadcastRepository: BroadcastRepository,
+    private val broadcastRepository: BroadcastRepository,
     private val newsRepository: NewsRepository,
     private val staffRepository: StaffRepository,
     private val fundraiserRepository: FundraiserRepository,
@@ -121,6 +121,8 @@ class SharedViewModel @Inject constructor(
 
     /** Forces the [Fundraiser Repository] to scrape the fundraiser page. */
     private fun forceFetchFundraiser() = fundraiserRepository.forceScrapeFundraiser()
+
+    fun getBroadcastRepo() = broadcastRepository
 
     fun getCurrentQuarterYear() : LiveData<QuarterYear> =
         showRepository.getCurrentQuarterYear()
