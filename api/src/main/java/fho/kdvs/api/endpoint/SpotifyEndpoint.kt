@@ -7,10 +7,10 @@ import fho.kdvs.api.raw.SpotifyPlaylistResponse
 import fho.kdvs.api.raw.album.SpotifyAlbumResponse
 import fho.kdvs.api.raw.album.SpotifySimpleAlbumsResponse
 import fho.kdvs.api.raw.objects.SpotifyPager
+import fho.kdvs.api.raw.objects.SpotifyPlaylistTrackObject
 import fho.kdvs.api.raw.objects.SpotifyPrivateUserObject
 import fho.kdvs.api.raw.track.SpotifyTracksResponse
 import okhttp3.RequestBody
-import org.json.JSONObject
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -37,15 +37,6 @@ interface SpotifyEndpoint {
     suspend fun authorizeApp(@Url url: String = TOKEN_URL,
                              @Header("Authorization") auth: String = authHeaderValue,
                              @Field("grant_type") grant: String = "client_credentials"
-    ): Response<SpotifyAuthResponse>
-
-    /**
-     * Requests an access token for user (Authorization Code Flow).
-     */
-    @GET
-    suspend fun getUserToken(@Url url: String = TOKEN_URL,
-                             @Header("Authorization") auth: String = authHeaderValue,
-                             @Body body: JSONObject
     ): Response<SpotifyAuthResponse>
 
     /**
@@ -86,16 +77,26 @@ interface SpotifyEndpoint {
      * Returns list of current user's Spotify playlists.
      */
     @GET("/v1/me/playlists")
-    suspend fun getPlaylists(@Header("Authorization") auth: String): Response<SpotifyPager<SpotifyPlaylistResponse>>
+    suspend fun getPlaylists(@Header("Authorization") auth: String
+    ): Response<SpotifyPager<SpotifyPlaylistResponse>>
+
+    /**
+     * Returns list of tracks, limit 100, in playlist starting at [offset] index.
+     */
+    @GET("/v1/playlists/{playlist_id}/tracks")
+    suspend fun getTracksInPlaylist(@Path(value = "playlist_id", encoded = true) id: String,
+                                    @Header("Authorization") auth: String,
+                                    @Query("offset") offset: Int
+    ): Response<SpotifyPager<SpotifyPlaylistTrackObject>>
 
     /**
      * Creates a playlist for logged-in user with given title.
      */
     @POST
     suspend fun createPlaylist(@Url url: String,
-                          @Header("Authorization") auth: String,
-                          @Header("content_type") grant: String = "application/json",
-                          @Body body: RequestBody
+                               @Header("Authorization") auth: String,
+                               @Header("content_type") grant: String = "application/json",
+                               @Body body: RequestBody
     ): Response<SpotifyPlaylistResponse>
 
     /**
@@ -103,9 +104,9 @@ interface SpotifyEndpoint {
      */
     @POST("/v1/playlists/{playlist_id}/tracks")
     suspend fun addTracksToPlaylist(@Path(value = "playlist_id", encoded = true) id: String,
-                               @Header("Authorization") auth: String,
-                               @Header("content_type") grant: String = "application/json",
-                               @Body body: RequestBody
+                                    @Header("Authorization") auth: String,
+                                    @Header("content_type") grant: String = "application/json",
+                                    @Body body: RequestBody
     ): Response<SpotifyAddToPlaylistResponse>
 
     companion object {

@@ -13,12 +13,11 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.api.service.SpotifyService
+import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
-import fho.kdvs.global.database.getTracks
 import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.preferences.KdvsPreferences
@@ -27,12 +26,11 @@ import fho.kdvs.global.util.ExportManagerSpotify
 import fho.kdvs.global.util.RequestCodes
 import kotlinx.android.synthetic.main.cell_favorite_track.view.*
 import kotlinx.android.synthetic.main.fragment_favorite.*
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-class FavoriteFragment : DaggerFragment() {
+class FavoriteFragment : BaseFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
 
@@ -278,8 +276,8 @@ class FavoriteFragment : DaggerFragment() {
             sharedViewModel.onClickExportIcon(
                 this,
                 RequestCodes.SPOTIFY_EXPORT_FAVORITES,
-                currentlyDisplayingResults.count { r -> !r?.track?.spotifyTrackUri.isNullOrEmpty()},
-                ThirdPartyService.SPOTIFY
+                ThirdPartyService.SPOTIFY,
+                currentlyDisplayingResults.count { r -> !r?.track?.spotifyTrackUri.isNullOrEmpty()}
             )
         }
 
@@ -287,8 +285,8 @@ class FavoriteFragment : DaggerFragment() {
             sharedViewModel.onClickExportIcon(
                 this,
                 RequestCodes.YOUTUBE_EXPORT_FAVORITES,
-                currentlyDisplayingResults.count { r -> !r?.track?.youTubeId.isNullOrEmpty()},
-                ThirdPartyService.YOUTUBE
+                ThirdPartyService.YOUTUBE,
+                currentlyDisplayingResults.count { r -> !r?.track?.youTubeId.isNullOrEmpty()}
             )
         }
     }
@@ -337,7 +335,12 @@ class FavoriteFragment : DaggerFragment() {
 
                     val count = visibleTracksSpotifyUris.count()
 
-                    sharedViewModel.onClickExportIcon(this, RequestCodes.SPOTIFY_EXPORT_FAVORITES, count, ThirdPartyService.SPOTIFY)
+                    sharedViewModel.onClickExportIcon(
+                        this,
+                        RequestCodes.SPOTIFY_EXPORT_FAVORITES,
+                        ThirdPartyService.SPOTIFY,
+                        count
+                    )
                 }
             }
         }
@@ -347,8 +350,8 @@ class FavoriteFragment : DaggerFragment() {
         val uris = currentlyDisplayingResults
             .mapNotNull { r -> r?.track?.spotifyTrackUri }
 
-        GlobalScope.launch {
-            val playlistUri = ExportManagerSpotify(
+        launch {
+            ExportManagerSpotify(
                 context = requireContext(),
                 spotifyService = spotifyService,
                 trackUris = uris,
@@ -356,8 +359,11 @@ class FavoriteFragment : DaggerFragment() {
                 playlistTitle = "My KDVS Favorites",
                 storedPlaylistUri = kdvsPreferences.spotifyFavoritesPlaylistUri
             ).getExportPlaylistUri()
+                ?.let {
+                    kdvsPreferences.spotifyFavoritesPlaylistUri = it
 
-            sharedViewModel.openSpotify(requireContext(), playlistUri)
+                    sharedViewModel.openSpotify(requireContext(), it)
+                }
         }
     }
 

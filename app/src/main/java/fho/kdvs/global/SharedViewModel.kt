@@ -54,10 +54,7 @@ import fho.kdvs.track.BroadcastTrackDetailsFragmentDirections
 import fho.kdvs.track.FavoriteTrackDetailsFragmentDirections
 import fho.kdvs.track.TrackDetailsType
 import fho.kdvs.track.TrackRepository
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
 import java.io.File
@@ -435,13 +432,13 @@ class SharedViewModel @Inject constructor(
         return isYoutubeInstalled
     }
 
-    private fun onClickSpotifyNoApp(context: Context, spotifyUri: String?) {
-        val url = makeSpotifyUrl(spotifyUri ?: "")
+    private fun onClickSpotifyNoApp(context: Context, spotifyUri: String) {
+        val url = makeSpotifyUrl(spotifyUri)
         if (url.isNotEmpty())
             openBrowser(context, url)
     }
 
-    fun openSpotify(context: Context, spotifyUri: String?) {
+    fun openSpotify(context: Context, spotifyUri: String) {
         if (isSpotifyInstalledOnDevice(context))
             openSpotifyApp(context, spotifyUri)
         else
@@ -470,7 +467,7 @@ class SharedViewModel @Inject constructor(
     fun isSpotifyAuthVoidOrExpired() = kdvsPreferences.spotifyAuthToken.isNullOrEmpty() ||
         kdvsPreferences.spotifyLastLogin ?: 0 < TimeHelper.getOneHourAgoUTC().toEpochSecond()
 
-    private fun openSpotifyApp(context: Context, spotifyUri: String?) {
+    private fun openSpotifyApp(context: Context, spotifyUri: String) {
         val intent = Intent(Intent.ACTION_VIEW).apply{
             data = Uri.parse(spotifyUri)
             putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + context.packageName))
@@ -512,6 +509,9 @@ class SharedViewModel @Inject constructor(
 
     fun getBroadcastDownloadTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
         "${show.name} (${TimeHelper.dateFormatter.format(broadcast.date)})"
+
+    fun getBroadcastDownloadUiTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
+        "${show.name} (${TimeHelper.uiDateFormatter.format(broadcast.date)})"
 
     fun getDownloadFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File? =
         getFileInDownloadFolder(getDownloadedFilename(getBroadcastDownloadTitle(broadcast, show)))
@@ -670,10 +670,10 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun fetchThirdPartyDataForTrack(track: TrackEntity) {
-        if (track.hasThirdPartyInfo || kdvsPreferences.offlineMode == true) return
+    fun fetchThirdPartyDataForTrack(track: TrackEntity): Job? {
+        if (track.hasThirdPartyInfo || kdvsPreferences.offlineMode == true) return null
 
-        launch {
+        return launch {
             val spotifyAlbumFind = spotifyService.findAlbumAsync(track.album, track.artist)
             val spotifyTrackFind = spotifyService.findTrackAsync(track.song, track.artist)
             val musicBrainzFind = musicBrainzService.findAlbumsAsync(track.album, track.artist)
@@ -800,7 +800,10 @@ class SharedViewModel @Inject constructor(
     }
 
     /** Method to generalize the process of exporting music to third-party playlists via dialog. */
-    fun onClickExportIcon(fragment: Fragment, requestCode: Int, count: Int, service: ThirdPartyService) {
+    fun onClickExportIcon(fragment: Fragment,
+                          requestCode: Int,
+                          service: ThirdPartyService,
+                          count: Int? = null) {
         if (count == 0) {
             Toast.makeText(
                 fragment.context,
@@ -817,7 +820,7 @@ class SharedViewModel @Inject constructor(
         args.putString("title", "Export")
         args.putString(
             "message",
-            "Export $count ${if (count > 1) "tracks" else "track"} to a ${service.title} playlist?"
+            "Export${count ?: ""} ${if (count == 1) "track" else "tracks"} to a ${service.title} playlist?"
         )
 
         dialog.arguments = args

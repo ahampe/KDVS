@@ -60,9 +60,21 @@ class SpotifyMapper {
         }
     }
 
+    fun track(track: SpotifyPlaylistTrackObject?): SpotifyTrack? {
+        return track?.let {
+            SpotifyTrack(id = it.track.id, uri = it.track.uri, name = it.track.name)
+        }
+    }
+
+    fun tracks(response: SpotifyPager<SpotifyPlaylistTrackObject>?): List<SpotifyTrack?>? {
+        return response?.let {
+            it.items.map { i -> track(i)}
+        }
+    }
+
     fun playlist(response: SpotifyPlaylistResponse?): SpotifyPlaylist? {
         return response?.let {
-            SpotifyPlaylist(uri = it.uri, id = it.id, name = it.name)
+            SpotifyPlaylist(uri = it.uri, id = it.id, name = it.name, count = it.tracks?.total ?: 0)
         }
     }
 

@@ -14,10 +14,10 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.databinding.FragmentHomeBinding
+import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.FundraiserEntity
@@ -33,7 +33,6 @@ import fho.kdvs.staff.StaffAdapter
 import fho.kdvs.topmusic.TopMusicAdapter
 import fho.kdvs.topmusic.TopMusicType
 import kotlinx.android.synthetic.main.fragment_home.*
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
 import timber.log.Timber
@@ -42,7 +41,7 @@ import java.util.*
 import javax.inject.Inject
 
 
-class HomeFragment : DaggerFragment() {
+class HomeFragment : BaseFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
 
@@ -102,7 +101,7 @@ class HomeFragment : DaggerFragment() {
             topAlbumsExportSpotify.visibility = View.VISIBLE
         }
 
-        settingsIcon.setOnClickListener { viewModel.onClickSettings(findNavController()) }
+        settingsIcon.setOnClickListener { viewModel.onClickSettings(findNavController())}
 
         currentShowsAdapter = CurrentShowsAdapter(viewModel) {
             Timber.d("Clicked ${it.item}")
@@ -316,8 +315,8 @@ class HomeFragment : DaggerFragment() {
                             sharedViewModel.onClickExportIcon(
                                 this@HomeFragment,
                                 RequestCodes.SPOTIFY_EXPORT_TOP_ADDS,
-                                count,
-                                ThirdPartyService.SPOTIFY
+                                ThirdPartyService.SPOTIFY,
+                                count
                             )
                         }
 
@@ -325,8 +324,8 @@ class HomeFragment : DaggerFragment() {
                             sharedViewModel.onClickExportIcon(
                                 this@HomeFragment,
                                 RequestCodes.YOUTUBE_EXPORT_TOP_ADDS,
-                                adds.size,
-                                ThirdPartyService.YOUTUBE
+                                ThirdPartyService.YOUTUBE,
+                                adds.size
                             )
                         }
                     }
@@ -365,8 +364,8 @@ class HomeFragment : DaggerFragment() {
                             sharedViewModel.onClickExportIcon(
                                 this@HomeFragment,
                                 RequestCodes.SPOTIFY_EXPORT_TOP_ALBUMS,
-                                count,
-                                ThirdPartyService.SPOTIFY
+                                ThirdPartyService.SPOTIFY,
+                                count
                             )
                         }
 
@@ -374,8 +373,8 @@ class HomeFragment : DaggerFragment() {
                             sharedViewModel.onClickExportIcon(
                                 this@HomeFragment,
                                 RequestCodes.YOUTUBE_EXPORT_TOP_ALBUMS,
-                                albums.size,
-                                ThirdPartyService.YOUTUBE
+                                ThirdPartyService.YOUTUBE,
+                                albums.size
                             )
                         }
                     }
@@ -556,16 +555,17 @@ class HomeFragment : DaggerFragment() {
 
         val title = "KDVS Top $type (${TimeHelper.uiDateFormatter.format(mostRecentDate)})"
 
-        GlobalScope.launch {
-            val playlistUri = ExportManagerSpotify(
+        launch {
+            ExportManagerSpotify(
                 context = requireContext(),
                 spotifyService = spotifyService,
                 trackUris = getTopMusicSpotifyUris(topMusic),
                 userToken = token,
                 playlistTitle = title
             ).getExportPlaylistUri()
-
-            sharedViewModel.openSpotify(requireContext(), playlistUri)
+                ?.let {
+                    sharedViewModel.openSpotify(requireContext(), it)
+                }
         }
     }
 

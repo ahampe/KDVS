@@ -136,19 +136,18 @@ class SpotifyService @Inject constructor(
     }
 
     /**
-     * Returns true if passed-in URI corresponds to one in the user's playlists.
+     * Returns playlist, if any, in user's playlists corresponding to uri.
      */
-    suspend fun playlistExistsAsync(uri: String, token: String): Deferred<Boolean?> = coroutineScope {
+    suspend fun getPlaylistFromUserAsync(uri: String,
+                                         token: String): Deferred<SpotifyPlaylist?> = coroutineScope {
         async {
             val response = endpoint.getPlaylists(auth = makeAuthHeader(token))
 
             if (response.isSuccessful) {
-                val playlists = mapper.playlists(response.body())
-
-                return@async playlists?.any {
+                return@async mapper.playlists(response.body())?.firstOrNull {
                     it?.uri == uri
                 }
-            } else return@async false
+            } else return@async null
         }
     }
 
@@ -156,7 +155,8 @@ class SpotifyService @Inject constructor(
      * Attempts to locate a playlist in user's Spotify account matching a given title, to prevent
      * the creation of duplicate playlists.
      */
-    suspend fun getSpotifyPlaylistUriFromTitleAsync(title: String, token: String): Deferred<String?> = coroutineScope {
+    suspend fun getSpotifyPlaylistFromTitleAsync(title: String,
+                                                 token: String): Deferred<SpotifyPlaylist?> = coroutineScope {
         async {
             val response = endpoint.getPlaylists(auth = makeAuthHeader(token))
 
@@ -165,7 +165,7 @@ class SpotifyService @Inject constructor(
 
                 return@async playlists?.firstOrNull {
                     it?.name == title
-                }?.uri
+                }
             } else return@async null
         }
     }
@@ -173,7 +173,8 @@ class SpotifyService @Inject constructor(
     /**
      * Create Spotify playlist with specified title for user of corresponding token.
      */
-    suspend fun createPlaylistAsync(title: String, token: String): Deferred<String?> = coroutineScope {
+    suspend fun createPlaylistAsync(title: String,
+                                    token: String): Deferred<SpotifyPlaylist?> = coroutineScope {
         async {
             val profile = getUserProfileAsync(token).await()
 
@@ -189,9 +190,40 @@ class SpotifyService @Inject constructor(
 
                 val response = endpoint.createPlaylist(url = url, body = req, auth = makeAuthHeader(token))
                 if (response.isSuccessful) {
-                    return@async mapper.playlist(response.body())?.uri
+                    return@async mapper.playlist(response.body())
                 } else {
                     Timber.e("Error creating Spotify playlist")// TODO errors + retry
+                }
+            }
+
+            return@async null
+        }
+    }
+
+    suspend fun getTracksInPlaylistAsync(playlistId: String,
+                                         token: String,
+                                         offset: Int = 0): Deferred<List<SpotifyTrack?>?> = coroutineScope {
+        async {
+            val response = endpoint.getTracksInPlaylist(
+                auth = makeAuthHeader(token),
+                id = playlistId,
+                offset = offset
+            )
+
+            if (response.isSuccessful) {
+                return@async mapper.tracks(response.body())
+            } else {
+                when (response.code()) {
+                    403 -> {
+                        Timber.d("Playlist's tracks GET forbidden.")
+                        Timber.d(response.message())
+                        response.errorBody()?.string()?.let { Timber.d(it) }
+                    }
+                    else -> {
+                        Timber.d("Error getting playlist's tracks.")
+                        Timber.d(response.message())
+                        response.errorBody()?.string()?.let { Timber.d(it) }
+                    }
                 }
             }
 

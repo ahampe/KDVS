@@ -35,7 +35,7 @@ class ApiModule {
     }
 
     @Provides
-    fun provideCovertArtArchiveEndpoint(): CoverArtArchiveEndpoint {
+    fun provideCoverArtArchiveEndpoint(): CoverArtArchiveEndpoint {
         val retrofit = buildRetrofit(CoverArtArchiveEndpoint.BASE_URL)
         return retrofit.create(CoverArtArchiveEndpoint::class.java)
     }

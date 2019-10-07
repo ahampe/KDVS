@@ -11,8 +11,6 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
 import org.threeten.bp.ZoneOffset
 import java.io.File
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 
 
 @Database(

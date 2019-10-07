@@ -15,11 +15,11 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.databinding.FragmentBroadcastDetailsBinding
 import fho.kdvs.dialog.BinaryChoiceDialogFragment
+import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.MainActivity
 import fho.kdvs.global.SharedViewModel
@@ -30,7 +30,8 @@ import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.*
 import kotlinx.android.synthetic.main.fragment_broadcast_details.*
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.runOnUiThread
@@ -41,7 +42,7 @@ import javax.inject.Inject
 const val DOWNLOAD_ICON = "download"
 const val DELETE_ICON = "delete"
 
-class BroadcastDetailsFragment : DaggerFragment() {
+class BroadcastDetailsFragment : BaseFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
     private lateinit var viewModel: BroadcastDetailsViewModel
@@ -194,16 +195,17 @@ class BroadcastDetailsFragment : DaggerFragment() {
             noTracksMessage.visibility = if (tracks.isEmpty()) View.VISIBLE
                 else View.GONE
 
-            exportIconsBroadcast.visibility = if (noTracksMessage.visibility == View.VISIBLE) View.GONE
+            spotifyExportIconBroadcast.visibility = if (noTracksMessage.visibility == View.VISIBLE) View.GONE
                 else View.VISIBLE
+
+            youtubeExportIconBroadcast.visibility = spotifyExportIconBroadcast.visibility
 
             tracksAdapter?.onTracksChanged(tracks)
 
             spotifyExportIconBroadcast?.setOnClickListener {
                 sharedViewModel.onClickExportIcon(
                     this,
-                    RequestCodes.SPOTIFY_EXPORT_FAVORITES,
-                    tracks.count { t -> !t.spotifyTrackUri.isNullOrEmpty() },
+                    RequestCodes.SPOTIFY_EXPORT_BROADCAST,
                     ThirdPartyService.SPOTIFY
                 )
             }
@@ -211,37 +213,45 @@ class BroadcastDetailsFragment : DaggerFragment() {
             youtubeExportIconBroadcast?.setOnClickListener {
                 sharedViewModel.onClickExportIcon(
                     this,
-                    RequestCodes.YOUTUBE_EXPORT_FAVORITES,
-                    tracks.count { t -> !t.youTubeId.isNullOrEmpty() },
+                    RequestCodes.YOUTUBE_EXPORT_BROADCAST,
                     ThirdPartyService.YOUTUBE
                 )
-            }
-
-            GlobalScope.launch {
-                tracks.forEach {
-                    sharedViewModel.fetchThirdPartyDataForTrack(it)
-                }
             }
         })
     }
 
     private fun exportTracksToSpotify(token: String) {
+        var hasExecuted = false
+
         viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
-            val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
-
             viewModel.tracksLiveData.observe(this, Observer { tracks ->
-                GlobalScope.launch {
-                    val uris = tracks.mapNotNull { t -> t.spotifyTrackUri }
+                if (!hasExecuted) {
+                    val jobs = mutableListOf<Job?>() // We must fetch data prior to export
+`
+                    tracks.forEach {
+                        jobs.add(sharedViewModel.fetchThirdPartyDataForTrack(it))
+                    }
 
-                    val playlistUri = ExportManagerSpotify(
-                        context = requireContext(),
-                        spotifyService = spotifyService,
-                        trackUris = uris,
-                        userToken = token,
-                        playlistTitle = title
-                    ).getExportPlaylistUri()
+                    launch {
+                        jobs.filterNotNull()
+                            .joinAll()
 
-                    sharedViewModel.openSpotify(requireContext(), playlistUri)
+                        val uris = tracks.mapNotNull { t -> t.spotifyTrackUri }
+                        val title = sharedViewModel.getBroadcastDownloadUiTitle(broadcast, show)
+
+                        ExportManagerSpotify(
+                            context = requireContext(),
+                            spotifyService = spotifyService,
+                            trackUris = uris,
+                            userToken = token,
+                            playlistTitle = title
+                        ).getExportPlaylistUri()
+                            ?.let {
+                                sharedViewModel.openSpotify(requireContext(), it)
+                            }
+                    }
+
+                    hasExecuted = true
                 }
             })
         })
