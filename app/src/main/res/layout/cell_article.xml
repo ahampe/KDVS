@@ -26,7 +26,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/spacing_medium"
+        android:layout_marginBottom="@dimen/spacing_large"
         android:orientation="horizontal"
         android:onClick="@{(view) -> vm.openBrowser(view, article.articleHref)}">
 
@@ -63,6 +63,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/spacing_large"
+                    android:textColor="@color/colorSecondary"
                     app:layout_constraintTop_toBottomOf="@id/title"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/articleImage"
@@ -74,6 +75,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@{article.author}"
+                    android:textColor="@color/colorSecondary"
                     android:layout_marginEnd="@dimen/spacing_large"
                     app:layout_constraintTop_toBottomOf="@id/date"
                     app:layout_constraintStart_toStartOf="parent"

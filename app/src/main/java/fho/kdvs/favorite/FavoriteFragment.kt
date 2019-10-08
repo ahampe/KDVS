@@ -155,7 +155,7 @@ class FavoriteFragment : DaggerFragment() {
                         resultsRecycler.visibility = View.VISIBLE
                         noResults.visibility = View.GONE
 
-                        favoriteViewAdapter = FavoriteViewAdapter(joins, fragment) {
+                        favoriteViewAdapter = FavoriteViewAdapter(joins.distinct(), fragment) {
                             Timber.d("clicked ${it.item}")
 
                             val array = resultIds

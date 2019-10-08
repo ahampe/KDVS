@@ -29,7 +29,7 @@
 
     <dimen name="home_top_gradient_height">250dp</dimen>
     <dimen name="current_show_base_height">100dp</dimen>
-    <dimen name="current_show_max_height">300dp</dimen>
+    <dimen name="current_show_max_height">320dp</dimen>
     <dimen name="label_base_height">25dp</dimen>
     <dimen name="home_artwork_height">170dp</dimen>
     <dimen name="home_topmusic_height">234dp</dimen>

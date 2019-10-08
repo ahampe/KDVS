@@ -8,6 +8,7 @@ import androidx.navigation.NavController
 import fho.kdvs.R
 import fho.kdvs.fundraiser.FundraiserRepository
 import fho.kdvs.global.database.*
+import fho.kdvs.global.extensions.isNullOrEmptyGeneric
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.news.NewsRepository
 import fho.kdvs.show.ShowRepository
@@ -45,6 +46,7 @@ class HomeViewModel @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = parentJob + Dispatchers.IO
 
+    /** Emits true if all home data streams emitted value; false if at least one such data stream does. */
     fun fetchHomeData(): LiveData<Boolean> {
         fetchShows()
         fetchNewsArticles()
@@ -65,7 +67,10 @@ class HomeViewModel @Inject constructor(
             .apply {
                 dataStreams.forEach { liveData ->
                     addSource(liveData) {
-                        postValue(dataStreams.all { stream -> stream.value != null })
+                        if (dataStreams.all { d -> d.value != null})
+                            postValue(true)
+                        else if (dataStreams.any { d -> !d.value.isNullOrEmptyGeneric()}) // Without extension, empty ArrayLists cause this expression to be true
+                            postValue(false)
                     }
                 }
             }

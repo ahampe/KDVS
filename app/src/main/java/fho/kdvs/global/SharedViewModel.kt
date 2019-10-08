@@ -110,17 +110,22 @@ class SharedViewModel @Inject constructor(
     /** Signals the [Show Repository] to scrape the schedule grid. */
     fun fetchShows() = showRepository.scrapeSchedule()
 
-    /** Signals the [News Repository] to scrape the news page(s). */
-    private fun fetchNewsArticles() = newsRepository.scrapeNews()
+    /** Forces the [Show Repository] to scrape the schedule grid. */
+    private fun forceFetchShows() = showRepository.forceScrapeSchedule()
 
-    /** Signals the [TopMusic Repository] to scrape the top music pages. */
-    private fun fetchTopMusicItems() = topMusicRepository.scrapeTopMusic()
+    /** Forces the [News Repository] to scrape the news page(s). */
+    private fun forceFetchNewsArticles() = newsRepository.forceScrapeNews()
 
-    /** Signals the [Staff Repository] to scrape the staff page. */
-    private fun fetchStaff() = staffRepository.scrapeStaff()
+    /** Forces the [TopMusic Repository] to scrape the top music pages. */
+    private fun forceFetchTopMusicItems() = topMusicRepository.forceScrapeTopMusic()
 
-    /** Signals the [Fundraiser Repository] to scrape the fundraiser page. */
-    private fun fetchFundraiser() = fundraiserRepository.scrapeFundraiser()
+    /** Forces the [Staff Repository] to scrape the staff page. */
+    private fun forceFetchStaff() = staffRepository.forceScrapeStaff()
+
+    /** Forces the [Fundraiser Repository] to scrape the fundraiser page. */
+    private fun forceFetchFundraiser() = fundraiserRepository.forceScrapeFundraiser()
+
+    fun getBroadcastRepo() = broadcastRepository
 
     fun getCurrentQuarterYear() : LiveData<QuarterYear> =
         showRepository.getCurrentQuarterYear()
@@ -134,7 +139,7 @@ class SharedViewModel @Inject constructor(
     private val currentQuarterYearLiveData = showRepository.getCurrentQuarterYear()
 
     /** The currently selected quarter-year. */
-    val selectedQuarterYearLiveData = quarterRepository.selectedQuarterYearLiveData
+    private val selectedQuarterYearLiveData = quarterRepository.selectedQuarterYearLiveData
 
     /** Sets the given [QuarterYear]. Change will be reflected in [selectedQuarterYearLiveData]. */
     fun selectQuarterYear(quarterYear: QuarterYear) =
@@ -210,21 +215,31 @@ class SharedViewModel @Inject constructor(
         prepareLivePlayback()
     }
 
-    fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity, activity: FragmentActivity) {
+    fun preparePastBroadcastForPlaybackAndPlay(broadcast: BroadcastEntity, show: ShowEntity, activity: FragmentActivity) {
+        preparePastBroadcastForPlayback(broadcast, show, activity)
+        playPastBroadcast(broadcast, show)
+    }
+
+    fun preparePastBroadcastForPlayback(broadcast: BroadcastEntity, show: ShowEntity, activity: FragmentActivity) {
         val file = getDestinationFileForBroadcast(broadcast, show)
 
         when (file?.exists()) {
             true -> {
                 try {
-                    mediaSessionConnection.transportControls?.playFromUri(
+                    mediaSessionConnection.transportControls?.prepareFromUri(
                         Uri.fromFile(file),
                         Bundle().apply {
                             putInt("SHOW_ID", show.id)
+
+                            kdvsPreferences.lastPlayedBroadcastId?.let {
+                                putLong("POSITION", kdvsPreferences.lastPlayedBroadcastPosition ?: 0L)
+                            }
+
                             putString("TYPE", PlaybackType.ARCHIVE.type)
                         }
                     )
                 } catch (e: Exception) {
-                    Timber.d("Error with URI playback: $e")
+                    Timber.e("Error with URI playback: $e")
                     Toast.makeText(activity as? MainActivity,
                         "Error playing downloaded broadcast. Try re-downloading.",
                         Toast.LENGTH_SHORT)
@@ -240,15 +255,20 @@ class SharedViewModel @Inject constructor(
                 }
 
                 try {
-                    mediaSessionConnection.transportControls?.playFromMediaId(
+                    mediaSessionConnection.transportControls?.prepareFromMediaId(
                         broadcast.broadcastId.toString(),
                         Bundle().apply {
                             putInt("SHOW_ID", show.id)
+
+                            kdvsPreferences.lastPlayedBroadcastId?.let {
+                                putLong("POSITION", kdvsPreferences.lastPlayedBroadcastPosition ?: 0L)
+                            }
+
                             putString("TYPE", PlaybackType.ARCHIVE.type)
                         }
                     )
                 } catch (e: Exception) {
-                    Timber.d("Error with stream playback: $e")
+                    Timber.e("Error with stream playback: $e")
                     Toast.makeText(activity as? MainActivity,
                         "Error streaming broadcast. Try again later.",
                         Toast.LENGTH_SHORT)
@@ -257,6 +277,10 @@ class SharedViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
+        mediaSessionConnection.transportControls?.play()
 
         mediaSessionConnection.isLiveNow.postValue(false)
         broadcastRepository.playingLiveBroadcast = false
@@ -367,22 +391,20 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    private fun onClickSpotifyNoApp(view: View, spotifyUri: String) {
-        val url = makeSpotifyUrl(spotifyUri)
-        if (url.isNotEmpty()) openBrowser(view, url)
-    }
-
     fun openSpotify(view: View, spotifyUri: String?) {
-        if (spotifyUri == null) return
-
-        if (isSpotifyInstalledOnDevice(view)) {
+        if (isSpotifyInstalledOnDevice(view))
             openSpotifyApp(view, spotifyUri)
-        } else {
+        else
             onClickSpotifyNoApp(view, spotifyUri)
-        }
     }
 
-    fun openSpotifyApp(view: View, spotifyUri: String) {
+    private fun onClickSpotifyNoApp(view: View, spotifyUri: String?) { // TODO test
+        val url = makeSpotifyUrl(spotifyUri ?: "")
+        if (url.isNotEmpty())
+            openBrowser(view, url)
+    }
+
+    private fun openSpotifyApp(view: View, spotifyUri: String?) {
         val intent = Intent(Intent.ACTION_VIEW).apply{
             data = Uri.parse(spotifyUri)
             putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + view.context.packageName))
@@ -428,9 +450,6 @@ class SharedViewModel @Inject constructor(
     fun getDownloadFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File? =
         getFileInDownloadFolder(getDownloadedFilename(getBroadcastDownloadTitle(broadcast, show)))
 
-    fun getDownloadingFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File? =
-        getFileInDownloadFolder(getDownloadingFilename(getBroadcastDownloadTitle(broadcast, show)))
-
     private fun getFileInDownloadFolder(filename: String): File {
         val folder = getDownloadFolder()
         return File(Uri.parse("${folder?.absolutePath}${File.separator}$filename").path)
@@ -442,7 +461,7 @@ class SharedViewModel @Inject constructor(
         } else null
     }
 
-    fun getDownloadedFilename(title: String) = "$title$BROADCAST_EXT"
+    private fun getDownloadedFilename(title: String) = "$title$BROADCAST_EXT"
 
     fun getDownloadingFilename(title: String) = "$title$BROADCAST_EXT$TEMP_EXT"
 
@@ -454,7 +473,7 @@ class SharedViewModel @Inject constructor(
                 val destPath = src.path.substring(0, extensionIndex)
 
                 if (destPath.isNotBlank())
-                    return src.renameTo(File(destPath)) // TODO: this is failing
+                    return src.renameTo(File(destPath))
             }
         }
 
@@ -469,7 +488,7 @@ class SharedViewModel @Inject constructor(
             .setDestinationInExternalPublicDir(
                 Environment.DIRECTORY_MUSIC,
                 "${File.separator}$DOWNLOAD_CHILD${File.separator}$filename")
-            .setAllowedOverMetered(true)
+            .setAllowedOverMetered(true) // TODO: make preference
             .setAllowedOverRoaming(true)
     }
 
@@ -479,10 +498,6 @@ class SharedViewModel @Inject constructor(
         } catch (e: Exception) {
             Timber.d("File deletion failed ${file.name}")
         }
-    }
-
-    fun moveFile(file: File, destParent: String) {
-
     }
 
     fun isBroadcastDownloaded(broadcast: BroadcastEntity, show: ShowEntity): Boolean {
@@ -615,11 +630,11 @@ class SharedViewModel @Inject constructor(
 
     fun refreshData() {
         launch {
-            fetchShows()
-            fetchNewsArticles()
-            fetchTopMusicItems()
-            fetchStaff()
-            fetchFundraiser()
+            forceFetchShows()
+            forceFetchNewsArticles()
+            forceFetchTopMusicItems()
+            forceFetchStaff()
+            forceFetchFundraiser()
         }
     }
 
@@ -683,14 +698,29 @@ class SharedViewModel @Inject constructor(
 
     // endregion
 
-    // region subscription
+    // region alarm
+
+    fun reRegisterAlarms() {
+        val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
+
+        launch {
+            val subscribedShows = getSubscribedShows()
+
+            subscribedShows.forEach {
+                alarmMgr.cancelShowAlarm(it)
+                alarmMgr.registerShowAlarmAsync(it)
+            }
+
+            Timber.d("Alarms reregistered")
+        }
+    }
 
     /**
      * When user changes the alarm notification window in settings, we'll need to re-register all alarms
      * with the new window. We must first cancel all alarms before updating the preference,
      * such that we can initialize matching Intents.
      */
-    fun reRegisterSubscriptionsAndUpdatePreference(newWindow: Long?) {
+    fun reRegisterAlarmsAndUpdatePreference(newWindow: Long?) {
         if (newWindow == null) return
 
         val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
@@ -707,18 +737,23 @@ class SharedViewModel @Inject constructor(
             subscribedShows.forEach {
                 alarmMgr.registerShowAlarmAsync(it)
             }
+
+            Timber.d("Alarms reregistered")
         }
     }
 
+    // endregion
+
+    // region subscription
     /**
      * After a quarter change, subscribed recurring shows will have new database objects, and possibly new timeslots,
      * so we must cancel existing ones and insert new ones based on matching show names in the current quarter.
      * Nonrecurring shows will simply have their subscriptions cancelled.
      */
-    private fun processSubscriptionsOnQuarterChange() {
+    private fun processSubscriptionsOnQuarterChange() { // TODO: test
         launch {
             val subscribedShows = getSubscribedShows()
-            val recurringSubscribedShows = getRecurringSubscribedShows(subscribedShows)
+            val recurringSubscribedShows = getRecurringShows(subscribedShows)
             val nonRecurringSubscribedShows = subscribedShows
                 .filterNot { s -> recurringSubscribedShows?.contains(s) == true }
 
@@ -785,11 +820,15 @@ class SharedViewModel @Inject constructor(
         return subscriptionRepository.subscribedShows()
     }
 
-    private fun getRecurringSubscribedShows(subscribedShows: List<ShowEntity>): List<ShowEntity>? {
+    /**
+     * Takes in list of shows and returns those from list that are present in current quarter,
+     * based on show name.
+     */
+    private fun getRecurringShows(shows: List<ShowEntity>): List<ShowEntity>? {
         val currentShows = getCurrentQuarterShows()
 
         currentShows?.let {
-            return subscribedShows
+            return shows
                 .filter { show ->
                     currentShows
                     .map { s -> s.name }

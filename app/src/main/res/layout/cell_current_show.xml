@@ -78,6 +78,7 @@
             app:layout_constrainedWidth="true"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="packed"
+            android:layout_marginTop="@dimen/spacing_small"
             tools:text="Testing a Long Show Name To See Multiline Display"/>
 
         <TextView
@@ -90,6 +91,7 @@
             android:ellipsize="end"
             android:gravity="center"
             android:textSize="@dimen/text_xsmall"
+            android:textColor="@color/colorSecondary"
             app:layout_constraintEnd_toEndOf="@id/currentShowImage"
             app:layout_constraintStart_toStartOf="@id/currentShowImage"
             app:layout_constraintTop_toBottomOf="@id/currentShowName"

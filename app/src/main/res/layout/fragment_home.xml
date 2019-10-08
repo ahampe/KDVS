@@ -87,59 +87,67 @@
                         android:text="@string/notification_live"/>
                 </LinearLayout>
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/fundraiserSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/spacing_large"
-                    android:layout_marginEnd="@dimen/spacing_large"
                     android:visibility="gone"
                     tools:visibility="visible"
+                    android:layout_marginTop="@dimen/spacing_large"
                     app:layout_constraintTop_toBottomOf="@+id/nowPlayingSection"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
                     android:orientation="vertical">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/fundraiserHeader"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent">
 
                         <TextView
                             android:id="@+id/fundraiserHeaderText"
                             style="@style/TextAppearance.MaterialComponents.Headline4"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/spacing_large"
                             android:text="@string/fundraiser"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintStart_toStartOf="parent"/>
 
                         <ImageView
                             android:id="@+id/fundraiserNotification"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_constraintDimensionRatio="1:1"
                             android:src="@drawable/ic_info_white_24dp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="@id/fundraiserHeaderText"
-                            app:layout_constraintBottom_toBottomOf="@id/fundraiserHeaderText"
+                            android:layout_marginEnd="@dimen/spacing_large"
+                            android:padding="@dimen/spacing_medium"
+                            app:layout_constraintStart_toEndOf="@id/fundraiserHeaderText"
+                            app:layout_constraintTop_toTopOf="@id/fundraiserHeader"
+                            app:layout_constraintBottom_toBottomOf="@id/fundraiserHeader"
                             android:visibility="gone"
                             tools:visibility="visible"/>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
                     <net.cachapa.expandablelayout.ExpandableLayout
                         android:id="@+id/fundraiserExpandable"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/fundraiserHeader"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:el_duration="500"
                         app:el_expanded="false"
                         app:el_parallax="0.5"
-                        tools:el_expanded="false">
+                        tools:el_expanded="true">
 
                         <LinearLayout
                             android:id="@+id/fundraiserContent"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_medium"
                             android:orientation="vertical">
 
                             <LinearLayout
@@ -150,54 +158,58 @@
                                 <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
-                                    android:orientation="vertical"
-                                    android:layout_weight="1">
+                                    android:layout_weight="1"
+                                    android:orientation="vertical">
 
                                     <TextView
                                         android:id="@+id/fundraiserDates"
                                         style="@style/TextAppearance.MaterialComponents.Headline6"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:nestedScrollingEnabled="false"
                                         android:layout_marginStart="@dimen/spacing_large"
                                         android:layout_marginEnd="@dimen/spacing_large"
-                                        tools:text="April 22-28, 2019"/>
+                                        android:nestedScrollingEnabled="false"
+                                        android:textColor="@color/colorSecondary"
+                                        tools:text="April 22-28, 2019" />
 
                                     <LinearLayout
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:orientation="horizontal"
-                                        android:layout_marginStart="@dimen/spacing_large">
+                                        android:layout_marginStart="@dimen/spacing_large"
+                                        android:orientation="horizontal">
 
                                         <TextView
                                             android:id="@+id/fundraiserCurrent"
+                                            style="@style/TextAppearance.MaterialComponents.Subtitle2"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:nestedScrollingEnabled="false"
-                                            style="@style/TextAppearance.MaterialComponents.Subtitle2"
-                                            tools:text="$1,324"/>
+                                            android:textColor="@color/colorSecondary"
+                                            tools:text="$1,324" />
 
                                         <Space
                                             android:layout_width="@dimen/spacing_small"
-                                            android:layout_height="wrap_content"/>
+                                            android:layout_height="wrap_content" />
 
                                         <TextView
+                                            style="@style/TextAppearance.MaterialComponents.Subtitle2"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
-                                            style="@style/TextAppearance.MaterialComponents.Subtitle2"
-                                            android:text="@string/fundraiser_progress_separator"/>
+                                            android:textColor="@color/colorSecondary"
+                                            android:text="@string/fundraiser_progress_separator" />
 
                                         <Space
                                             android:layout_width="@dimen/spacing_small"
-                                            android:layout_height="wrap_content"/>
+                                            android:layout_height="wrap_content" />
 
                                         <TextView
                                             android:id="@+id/fundraiserGoal"
+                                            style="@style/TextAppearance.MaterialComponents.Subtitle2"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:nestedScrollingEnabled="false"
-                                            style="@style/TextAppearance.MaterialComponents.Subtitle2"
-                                            tools:text="$50,000"/>
+                                            android:textColor="@color/colorSecondary"
+                                            tools:text="$50,000" />
 
                                     </LinearLayout>
 
@@ -208,6 +220,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:src="@drawable/ic_open_in_browser_white_36dp"
+                                    android:layout_marginEnd="@dimen/spacing_large"
                                     android:onClick="@{(view) -> sharedVm.openBrowser(view, urlObj.FUNDRAISER)}"/>
 
                             </LinearLayout>
@@ -217,21 +230,20 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="@dimen/spacing_large"
+                                android:layout_marginEnd="@dimen/spacing_large"
                                 android:layout_marginTop="@dimen/spacing_medium"
                                 style="@android:style/Widget.ProgressBar.Horizontal"
                                 tools:progress="43"/>
 
                         </LinearLayout>
-
                     </net.cachapa.expandablelayout.ExpandableLayout>
-                </LinearLayout>
 
-                <LinearLayout
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/news"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/spacing_large"
-                    android:layout_marginEnd="@dimen/spacing_large"
                     android:layout_marginTop="@dimen/spacing_medium"
                     app:layout_constraintTop_toBottomOf="@id/fundraiserSection"
                     app:layout_constraintStart_toStartOf="parent"
@@ -239,6 +251,8 @@
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/newsHeader"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -247,6 +261,7 @@
                             style="@style/TextAppearance.MaterialComponents.Headline4"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/spacing_large"
                             android:layout_marginEnd="@dimen/spacing_large"
                             android:text="@string/news"
                             app:layout_constraintTop_toTopOf="parent"
@@ -254,23 +269,26 @@
 
                         <ImageView
                             android:id="@+id/newsNotification"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_constraintDimensionRatio="1:1"
                             android:src="@drawable/ic_info_white_24dp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="@id/newsHeaderText"
-                            app:layout_constraintBottom_toBottomOf="@id/newsHeaderText"
+                            android:layout_marginEnd="@dimen/spacing_large"
+                            android:padding="@dimen/spacing_medium"
+                            app:layout_constraintStart_toEndOf="@id/newsHeaderText"
+                            app:layout_constraintTop_toTopOf="@id/newsHeader"
+                            app:layout_constraintBottom_toBottomOf="@id/newsHeader"
                             android:visibility="gone"
                             tools:visibility="visible"/>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
                     <net.cachapa.expandablelayout.ExpandableLayout
                         android:id="@+id/newsExpandable"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_medium"
+                        app:layout_constraintTop_toBottomOf="@id/newsHeader"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:el_duration="500"
                         app:el_expanded="false"
                         app:el_parallax="0.5"
@@ -280,23 +298,25 @@
                             android:id="@+id/newsRecycler"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_medium"
                             android:layout_marginStart="@dimen/spacing_large"
                             android:layout_marginEnd="@dimen/spacing_large"
                             android:nestedScrollingEnabled="false" />
 
                     </net.cachapa.expandablelayout.ExpandableLayout>
 
-
-                </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <LinearLayout
                     android:id="@+id/topAdds"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_medium"
                     app:layout_constraintTop_toBottomOf="@+id/news"
                     app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginTop="@dimen/spacing_medium"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
                     
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/topAddsHeader"
@@ -306,23 +326,25 @@
                         <TextView
                             android:id="@+id/topAddsHeaderText"
                             style="@style/TextAppearance.MaterialComponents.Headline4"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/spacing_large"
                             android:layout_marginEnd="@dimen/spacing_large"
                             android:text="@string/top_adds" 
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintStart_toStartOf="parent"/>
-                        
+
                         <ImageView
                             android:id="@+id/topAddsNotification"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_constraintDimensionRatio="1:1"
                             android:src="@drawable/ic_info_white_24dp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="@id/topAddsHeaderText"
-                            app:layout_constraintBottom_toBottomOf="@id/topAddsHeaderText"
                             android:layout_marginEnd="@dimen/spacing_large"
+                            android:padding="@dimen/spacing_medium"
+                            app:layout_constraintStart_toEndOf="@id/topAddsHeaderText"
+                            app:layout_constraintTop_toTopOf="@id/topAddsHeader"
+                            app:layout_constraintBottom_toBottomOf="@id/topAddsHeader"
                             android:visibility="gone"
                             tools:visibility="visible"/>
                         
@@ -332,11 +354,10 @@
                         android:id="@+id/topAddsExpandable"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_medium"
                         app:el_duration="500"
                         app:el_expanded="false"
                         app:el_parallax="0.5"
-                        tools:el_expanded="false">
+                        tools:el_expanded="true">
 
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/topAddsRecycler"
@@ -345,6 +366,7 @@
                             android:nestedScrollingEnabled="false"
                             android:orientation="horizontal"
                             android:clipToPadding="false"
+                            android:paddingTop="@dimen/spacing_medium"
                             android:paddingStart="@dimen/spacing_large"
                             android:paddingEnd="@dimen/spacing_large"/>
 
@@ -355,10 +377,12 @@
                     android:id="@+id/topAlbums"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_medium"
                     app:layout_constraintTop_toBottomOf="@id/topAdds"
                     app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginTop="@dimen/spacing_medium"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/topAlbumsHeader"
@@ -368,23 +392,25 @@
                         <TextView
                             android:id="@+id/topAlbumsHeaderText"
                             style="@style/TextAppearance.MaterialComponents.Headline4"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/spacing_large"
                             android:layout_marginEnd="@dimen/spacing_large"
                             android:text="@string/top_albums"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintStart_toStartOf="parent"/>
-
+                        
                         <ImageView
                             android:id="@+id/topAlbumsNotification"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_constraintDimensionRatio="1:1"
                             android:src="@drawable/ic_info_white_24dp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="@id/topAlbumsHeaderText"
-                            app:layout_constraintBottom_toBottomOf="@id/topAlbumsHeaderText"
                             android:layout_marginEnd="@dimen/spacing_large"
+                            android:padding="@dimen/spacing_medium"
+                            app:layout_constraintStart_toEndOf="@id/topAlbumsHeaderText"
+                            app:layout_constraintTop_toTopOf="@id/topAlbumsHeader"
+                            app:layout_constraintBottom_toBottomOf="@id/topAlbumsHeader"
                             android:visibility="gone"
                             tools:visibility="visible"/>
 
@@ -394,7 +420,6 @@
                         android:id="@+id/topAlbumsExpandable"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_medium"
                         app:el_duration="500"
                         app:el_expanded="false"
                         app:el_parallax="0.5"
@@ -407,6 +432,7 @@
                             android:orientation="horizontal"
                             android:nestedScrollingEnabled="false"
                             android:clipToPadding="false"
+                            android:paddingTop="@dimen/spacing_medium"
                             android:paddingStart="@dimen/spacing_large"
                             android:paddingEnd="@dimen/spacing_large"/>
 

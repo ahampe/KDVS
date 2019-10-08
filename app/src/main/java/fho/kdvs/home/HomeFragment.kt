@@ -186,15 +186,17 @@ class HomeFragment : DaggerFragment() {
 
     private fun subscribeToViewModel() {
         viewModel.run {
-            combinedLiveData.observe(viewLifecycleOwner, Observer {
-                Timber.d("All home observations complete")
-                LoadScreen.hideLoadScreen(homeRoot)
+            combinedLiveData.observe(viewLifecycleOwner, Observer { allDataObserved ->
+                if (allDataObserved) {
+                    Timber.d("All home observations complete")
+                }
             })
 
             // TODO: sometimes current show recycler doesn't load upon startup
             currentShows.observe(viewLifecycleOwner, Observer { shows ->
                 Timber.d("Got current shows: $shows")
                 currentShowsAdapter?.onCurrentShowsChanged(shows)
+                LoadScreen.hideLoadScreen(homeRoot)
             })
 
             newsArticles.observe(viewLifecycleOwner, Observer { articles ->
@@ -229,6 +231,7 @@ class HomeFragment : DaggerFragment() {
                         launch {
                             adds.forEach {
                                 sharedViewModel.fetchThirdPartyDataForTopMusic(it, topMusicRepository)
+                                // TODO this causes observer to fire each time a db entry is updated resulting in redundant cycles
                             }
                         }
 
@@ -243,7 +246,7 @@ class HomeFragment : DaggerFragment() {
 
                 val highestId = albums.maxBy { a -> a.topMusicId}?.topMusicId
 
-                // Display info icon when there are unviewed fundraiser progress
+                // Display info icon when there are unviewed top albums
                 if (highestId != kdvsPreferences.lastObservedTopAlbumsId) {
                     topAlbumsNotification.fade(true)
                 }
@@ -256,6 +259,7 @@ class HomeFragment : DaggerFragment() {
                         launch {
                             albums.forEach {
                                 sharedViewModel.fetchThirdPartyDataForTopMusic(it, topMusicRepository)
+                                // TODO this causes observer to fire each time a db entry is updated resulting in redundant cycles
                             }
                         }
 
@@ -303,7 +307,8 @@ class HomeFragment : DaggerFragment() {
             allQuarterYearsLiveData.observe(viewLifecycleOwner, Observer {
                 it.first().let { q ->
                     if (q != kdvsPreferences.mostRecentQuarterYear) {
-                        this.onNewQuarter(context)
+                        if (!kdvsPreferences.isInitialLaunch())
+                            this.onNewQuarter(context)
                         kdvsPreferences.mostRecentQuarterYear = q
                     }
                 }

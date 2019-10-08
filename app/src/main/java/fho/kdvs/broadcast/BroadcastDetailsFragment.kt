@@ -9,6 +9,7 @@ import android.os.FileObserver
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -24,6 +25,7 @@ import fho.kdvs.global.MainActivity
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.extensions.collapseExpand
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.HttpHelper
@@ -89,7 +91,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        LoadScreen.displayLoadScreen(detailsRoot)
+        LoadScreen.displayLoadScreen(detailsRoot) // TODO: this renders beneath motionscene stuff
 
         tracksAdapter = BroadcastTracksAdapter(viewModel, sharedViewModel) {
             Timber.d("Clicked ${it.item}")
@@ -103,7 +105,7 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
         archivePlayButton.setOnClickListener {
             viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
-                sharedViewModel.playPastBroadcast(broadcast, show, requireActivity())
+                sharedViewModel.preparePastBroadcastForPlaybackAndPlay(broadcast, show, requireActivity())
             })
         }
 
@@ -113,13 +115,25 @@ class BroadcastDetailsFragment : DaggerFragment() {
 
                 folder?.let {
                     if (icon.tag == DOWNLOAD_ICON) {
-                        downloadBroadcast(broadcast, show, folder)
-                        setDownloadingIcon()
+                        if (downloadBroadcast(broadcast, show, folder))
+                            setDownloadingIcon()
                     } else if (icon.tag == DELETE_ICON) {
                         displayDialog()
                     }
                 }
             })
+        }
+
+        broadcast_description.setOnClickListener {
+            (it as? TextView).collapseExpand(5)
+        }
+
+        broadcast_parent_show.setOnClickListener {
+            onClickHeader()
+        }
+
+        broadcast_date.setOnClickListener {
+            onClickHeader()
         }
     }
 
@@ -144,6 +158,9 @@ class BroadcastDetailsFragment : DaggerFragment() {
         val fragment = this
 
         viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
+            if (broadcast.description?.trim().isNullOrBlank())
+                description_container?.visibility = View.GONE
+
             val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
             observeDownloadFolder(title)
 
@@ -176,10 +193,10 @@ class BroadcastDetailsFragment : DaggerFragment() {
         })
     }
 
-    private fun downloadBroadcast(broadcast: BroadcastEntity, show: ShowEntity, folder: File) {
+    private fun downloadBroadcast(broadcast: BroadcastEntity, show: ShowEntity, folder: File): Boolean {
         if (kdvsPreferences.offlineMode == true) {
             sharedViewModel.makeOfflineModeToast(activity)
-            return
+            return false
         }
 
         val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
@@ -204,20 +221,22 @@ class BroadcastDetailsFragment : DaggerFragment() {
                         Toast.makeText(
                             activity as? MainActivity, "Download started", Toast.LENGTH_SHORT
                         ).show()
+
+                        return true
                     } catch (e: Exception) {
                         Timber.e("Error downloading broadcast: ${e.message}")
 
                         Toast.makeText(
                             activity as? MainActivity, "Error downloading broadcast", Toast.LENGTH_SHORT
                         ).show()
+
+                        return false
                     }
                 }
-            } else {
-                Toast.makeText(
-                    activity as? MainActivity, "Download permission not granted", Toast.LENGTH_SHORT
-                ).show()
             }
         }
+
+        return false
     }
 
     /** Update UI reactively to match state of download. */
@@ -309,7 +328,15 @@ class BroadcastDetailsFragment : DaggerFragment() {
     }
 
     private fun setDownloadViewsVisible() {
+        Timber.d("Download or stream found for broadcast.")
         archivePlayButton?.let { it.visibility = View.VISIBLE }
         downloadDeleteIcon?.let { it.visibility = View.VISIBLE }
+    }
+
+    private fun onClickHeader() {
+        val navAction = BroadcastDetailsFragmentDirections
+            .actionBroadcastDetailsFragmentToShowDetailsFragment(showId)
+        if (findNavController().currentDestination?.id == R.id.broadcastDetailsFragment)
+            findNavController().navigate(navAction)
     }
 }

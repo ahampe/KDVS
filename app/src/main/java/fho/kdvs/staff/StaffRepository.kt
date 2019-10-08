@@ -20,8 +20,6 @@ class StaffRepository @Inject constructor(
     private val scraperManager: WebScraperManager,
     private val kdvsPreferences: KdvsPreferences
 ) : BaseRepository() {
-
-    // TODO: Make this quarterly?
     /** Runs a staff scrape if it hasn't been fetched recently. */
     fun scrapeStaff() = launch {
         val now = TimeHelper.getNow().toEpochSecond()
@@ -39,7 +37,7 @@ class StaffRepository @Inject constructor(
      * Runs a staff scrape without checking when it was last performed.
      * The only acceptable public usage of this method is when user explicitly refreshes.
      */
-    private fun forceScrapeStaff(): Job? = scraperManager.scrape(URLs.CONTACT)
+    fun forceScrapeStaff(): Job? = scraperManager.scrape(URLs.CONTACT)
 
     fun getStaff(): LiveData<List<StaffEntity>> =
         staffDao.getAll()

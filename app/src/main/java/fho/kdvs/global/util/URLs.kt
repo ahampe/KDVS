@@ -38,8 +38,7 @@ object URLs {
 
     const val YOUTUBE_QUERYSTRING = "&sp=EgIQAQ%253D%253D"
 
-    // TODO: change this to an email where people can reach us
-    const val CONTACT_EMAIL = "test@test.com"
+    const val CONTACT_EMAIL = "kdvsappdevs@gmail.com"
 
     fun showDetails(id: String) = "https://kdvs.org/past-playlists/$id/"
 
@@ -49,8 +48,4 @@ object URLs {
         val dateString = broadcast.date?.let { TimeHelper.dateFormatter.format(it) } ?: return null
         return "https://archives.kdvs.org/archives/${dateString}_${broadcast.showId}_320kbps.mp3"
     }
-
-    // TODO temp
-    const val WFMU = "http://stream0.wfmu.org/freeform-128k"
-    const val WMNF = "https://stream.wmnf.org:4443/wmnf_high_quality"
 }

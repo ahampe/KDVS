@@ -2,14 +2,10 @@
 A pure Kotlin Android app made for [KDVS](https://kdvs.org/) in Davis, CA. Streams the station live from anywhere with internet access, plays past broadcasts, and supports offline access.
 
 ## TODO
-* Accurately determine currently playing show (assuming an arbitrary number of shows can occupy a single time slot)
-* Reimplement home screen and migrate playback controls to a BottomSheetDialogFragment that can be opened from any screen
-* Make scroll state consistent on the schedule view (when swiping between days)
-* Handle HTML in show / broadcast descriptions
+* Consolidate multi-timeslot shows (e.g. Democracy Now) into single entities
+* Integrate app with an actual back-end database API
 
 ## Nice-to-haves
-* Downloads management for past broadcasts
-* Integration with other services (e.g., Spotify, Facebook)
 * Search functionality (on hold currently; would require unacceptable network usage as it stands)
 * Audio fingerprinting to determine the currently playing track (might be infeasible)
 

@@ -114,8 +114,7 @@ class MediaSessionConnection(context: Context, serviceComponent: ComponentName) 
             nowPlaying.postValue(md)
         }
 
-        override fun onQueueChanged(queue: MutableList<MediaSessionCompat.QueueItem>?) {
-        }
+        override fun onQueueChanged(queue: MutableList<MediaSessionCompat.QueueItem>?) {}
 
         /**
          * Normally if a [MediaBrowserServiceCompat] drops its connection the callback comes via
@@ -139,4 +138,3 @@ val NOTHING_PLAYING: MediaMetadataCompat = MediaMetadataCompat.Builder()
     .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, "")
     .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 0)
     .build()
-

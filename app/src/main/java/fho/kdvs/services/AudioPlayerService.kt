@@ -1,8 +1,6 @@
 package fho.kdvs.services
 
-import android.app.Notification
-import android.app.PendingIntent
-import android.app.Service
+import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -19,6 +17,7 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
@@ -31,6 +30,7 @@ import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.upstream.HttpDataSource
 import dagger.android.AndroidInjection
+import fho.kdvs.R
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -194,7 +194,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
         // Because ExoPlayer will manage the MediaSession, add the service as a callback for
         // state changes.
         mediaController = MediaControllerCompat(this, mediaSession).also {
-            it.registerCallback(MediaControllerCallback())
+            it.registerCallback(MediaControllerCallback(applicationContext))
         }
 
         notificationManager = NotificationManagerCompat.from(this)
@@ -289,8 +289,10 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
      * - Register/unregister a broadcast receiver for [AudioManager.ACTION_AUDIO_BECOMING_NOISY].
      * - Calls [Service.startForeground] and [Service.stopForeground].
      */
-    private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
-        // TODO: notification isn't updating when shows change
+    private inner class MediaControllerCallback(private val context: Context) : MediaControllerCompat.Callback() {
+        private val platformNotificationManager: NotificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             mediaController.playbackState?.let { updateNotification(it) }
         }
@@ -304,14 +306,19 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
         }
 
         private fun updateNotification(state: PlaybackStateCompat) {
-            val updatedState = state.state
+            if (shouldCreateNowPlayingChannel()) {
+                createNowPlayingChannel()
+            }
+
             if (mediaController.metadata == null) {
                 removeNowPlayingNotification()
                 return
             }
 
+            val updatedState = state.state
+
             val playbackType = PlaybackTypeHelper.getPlaybackTypeFromTag(
-                mediaController.metadata.description.title.toString(), applicationContext)
+                mediaController.metadata?.description?.title.toString(), applicationContext)
 
             // Skip building a notification when state is "none".
             val notification = when {
@@ -337,12 +344,14 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                      * notes that "calling this method does *not* put the service in the started
                      * state itself, even though the name sounds like it."
                      */
-                    if (!isForegroundService) {
-                        startService(Intent(applicationContext, this@AudioPlayerService.javaClass))
-                        startForeground(NOW_PLAYING_NOTIFICATION, notification)
-                        isForegroundService = true
-                    } else if (notification != null) {
-                        notificationManager.notify(NOW_PLAYING_NOTIFICATION, notification)
+                    notification?.let {
+                        if (!isForegroundService) {
+                            startService(Intent(applicationContext, this@AudioPlayerService.javaClass))
+                            startForeground(NOW_PLAYING_NOTIFICATION, it)
+                            isForegroundService = true
+                        } else  {
+                            notificationManager.notify(NOW_PLAYING_NOTIFICATION, it)
+                        }
                     }
                 }
                 else -> {
@@ -365,6 +374,26 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                     }
                 }
             }
+        }
+
+        fun shouldCreateNowPlayingChannel() =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !nowPlayingChannelExists()
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        fun nowPlayingChannelExists() =
+            platformNotificationManager.getNotificationChannel(NOW_PLAYING_CHANNEL) != null
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        fun createNowPlayingChannel() {
+            val notificationChannel = NotificationChannel(
+                NOW_PLAYING_CHANNEL,
+                context.getString(R.string.notification_channel),
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = context.getString(R.string.notification_channel_description)
+            }
+
+            platformNotificationManager.createNotificationChannel(notificationChannel)
         }
     }
 }

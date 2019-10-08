@@ -39,7 +39,7 @@ class NewsRepository @Inject constructor(
      * Runs a news scrape without checking when it was last performed.
      * The only acceptable public usage of this method is when user explicitly refreshes.
      */
-    private fun forceScrapeNews(): Job? = scraperManager.scrape(URLs.NEWS)
+    fun forceScrapeNews(): Job? = scraperManager.scrape(URLs.NEWS)
 
     fun getAllNews(): LiveData<List<NewsEntity>> =
         newsDao.getAll()
