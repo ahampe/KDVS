@@ -244,7 +244,7 @@ class BroadcastDetailsFragment : BaseFragment() {
             viewModel.tracksLiveData.observe(this, Observer { tracks ->
                 if (!hasExecuted) {
                     val jobs = mutableListOf<Job?>() // We must fetch data prior to export
-`
+
                     tracks.forEach {
                         jobs.add(sharedViewModel.fetchThirdPartyDataForTrack(it))
                     }

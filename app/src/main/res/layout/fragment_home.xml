@@ -221,7 +221,7 @@
                                     android:layout_height="wrap_content"
                                     android:src="@drawable/ic_open_in_browser_white_36dp"
                                     android:layout_marginEnd="@dimen/spacing_large"
-                                    android:onClick="@{(view) -> sharedVm.openBrowser(view, urlObj.FUNDRAISER)}"/>
+                                    android:onClick="@{(view) -> sharedVm.openBrowser(view.context, urlObj.FUNDRAISER)}"/>
                             </LinearLayout>
 
                             <ProgressBar
@@ -364,16 +364,6 @@
                             android:layout_height="wrap_content"
                             android:paddingStart="@dimen/spacing_large">
 
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/topAddsRecycler"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:nestedScrollingEnabled="false"
-                            android:orientation="horizontal"
-                            android:clipToPadding="false"
-                            android:paddingTop="@dimen/spacing_medium"
-                            android:paddingStart="@dimen/spacing_large"
-                            android:paddingEnd="@dimen/spacing_large"/>
                             <androidx.recyclerview.widget.RecyclerView
                                 android:id="@+id/topAddsRecycler"
                                 android:layout_width="0dp"

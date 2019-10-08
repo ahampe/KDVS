@@ -54,7 +54,8 @@ import fho.kdvs.track.BroadcastTrackDetailsFragmentDirections
 import fho.kdvs.track.FavoriteTrackDetailsFragmentDirections
 import fho.kdvs.track.TrackDetailsType
 import fho.kdvs.track.TrackRepository
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
 import java.io.File

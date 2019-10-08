@@ -109,34 +109,6 @@
             tools:visibility="visible"
             android:tag="download"/>
 
-        <ImageView
-            android:id="@+id/spotifyExportIconBroadcast"
-            android:layout_width="@dimen/external_link_icon"
-            android:layout_height="0dp"
-            android:src="@drawable/ic_spotify_icon_rgb_white"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/archivePlayButton"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toStartOf="@+id/youtubeExportIconBroadcast"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/downloadDeleteIcon"
-            app:layout_constraintTop_toTopOf="@id/archivePlayButton"
-            tools:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/youtubeExportIconBroadcast"
-            android:layout_width="@dimen/external_link_icon"
-            android:layout_height="0dp"
-            android:src="@drawable/ic_yt_icon_mono_dark"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/archivePlayButton"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/spotifyExportIconBroadcast"
-            app:layout_constraintTop_toTopOf="@id/archivePlayButton"
-            tools:visibility="visible" />
-
         <!--end header region-->
 
         <LinearLayout
@@ -180,6 +152,36 @@
             android:visibility="gone"
             tools:visibility="visible"/>
 
+        <ImageView
+            android:id="@+id/spotifyExportIconBroadcast"
+            android:layout_width="@dimen/external_link_icon"
+            android:layout_height="0dp"
+            android:src="@drawable/ic_spotify_icon_rgb_white"
+            android:visibility="gone"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:layout_marginStart="@dimen/spacing_large"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toStartOf="@+id/youtubeExportIconBroadcast"
+            app:layout_constraintTop_toBottomOf="@id/description_container"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/youtubeExportIconBroadcast"
+            android:layout_width="@dimen/external_link_icon"
+            android:layout_height="0dp"
+            android:src="@drawable/ic_yt_icon_mono_dark"
+            android:visibility="gone"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:layout_marginEnd="@dimen/spacing_large"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/spotifyExportIconBroadcast"
+            app:layout_constraintTop_toBottomOf="@id/description_container"
+            tools:visibility="visible" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/trackRecycler"
             android:layout_width="match_parent"
@@ -190,7 +192,7 @@
             android:paddingBottom="@dimen/spacing_medium"
             android:clipToPadding="false"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/description_container"
+            app:layout_constraintTop_toBottomOf="@id/spotifyExportIconBroadcast"
             tools:visibility="gone"/>
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
