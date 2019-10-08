@@ -12,26 +12,36 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
+import com.spotify.sdk.android.authentication.AuthenticationClient
+import com.spotify.sdk.android.authentication.AuthenticationRequest
+import com.spotify.sdk.android.authentication.AuthenticationResponse
 import fho.kdvs.R
+import fho.kdvs.api.endpoint.SpotifyEndpoint
 import fho.kdvs.api.service.MusicBrainzService
 import fho.kdvs.api.service.SpotifyService
+import fho.kdvs.api.service.YouTubeService
 import fho.kdvs.broadcast.BroadcastRepository
+import fho.kdvs.dialog.BinaryChoiceDialogFragment
 import fho.kdvs.fundraiser.FundraiserRepository
 import fho.kdvs.global.database.*
+import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
+import fho.kdvs.global.extensions.urlEncoded
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.RequestCodes
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
 import fho.kdvs.global.util.URLs.YOUTUBE_QUERYSTRING
 import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
-import fho.kdvs.global.web.*
 import fho.kdvs.news.NewsRepository
 import fho.kdvs.schedule.QuarterRepository
 import fho.kdvs.schedule.QuarterYear
@@ -44,11 +54,12 @@ import fho.kdvs.track.BroadcastTrackDetailsFragmentDirections
 import fho.kdvs.track.FavoriteTrackDetailsFragmentDirections
 import fho.kdvs.track.TrackDetailsType
 import fho.kdvs.track.TrackRepository
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
+import kotlin.math.min
 
 const val BROADCAST_EXT = ".mp3"
 const val TEMP_EXT = ".download"
@@ -74,6 +85,7 @@ class SharedViewModel @Inject constructor(
     private val mediaSessionConnection: MediaSessionConnection,
     private val kdvsPreferences: KdvsPreferences,
     private val spotifyService: SpotifyService,
+    private val youTubeService: YouTubeService,
     private val musicBrainzService: MusicBrainzService
 ) : BaseViewModel(application) {
 
@@ -97,6 +109,8 @@ class SharedViewModel @Inject constructor(
 
     val liveBroadcast: LiveData<BroadcastEntity>
         get() = broadcastRepository.liveBroadcastLiveData
+
+    val spotToken = MutableLiveData<String>()
 
     val isPlayingAudioNow = mediaSessionConnection.playbackState
 
@@ -349,12 +363,12 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun openBrowser(view: View, url: String?) {
+    fun openBrowser(context: Context, url: String?) {
         val intent = Intent(Intent.ACTION_VIEW).apply {
             data = Uri.parse(url)
         }
-        if (intent.resolveActivity(view.context.packageManager) != null) {
-            startActivity(view.context, intent, null)
+        if (intent.resolveActivity(context.packageManager) != null) {
+            startActivity(context, intent, null)
         }
     }
 
@@ -367,53 +381,137 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun onClickDiscogs(view: View, track: TrackEntity?) {
+    fun onClickDiscogs(context: Context, track: TrackEntity?) {
         track?.let {
-            openBrowser(view, "$DISCOGS_SEARCH_URL${track.artist} ${track.song}$DISCOGS_QUERYSTRING")
+            openBrowser(context, "$DISCOGS_SEARCH_URL${track.artist} ${track.song}$DISCOGS_QUERYSTRING")
         }
     }
 
-    fun onClickDiscogs(view: View, topMusic: TopMusicEntity?) {
+    fun onClickDiscogs(context: Context, topMusic: TopMusicEntity?) {
         topMusic?.let {
-            openBrowser(view, "$DISCOGS_SEARCH_URL${topMusic.artist} ${topMusic.album}$DISCOGS_QUERYSTRING")
+            openBrowser(context, "$DISCOGS_SEARCH_URL${topMusic.artist} ${topMusic.album}$DISCOGS_QUERYSTRING")
         }
     }
 
-    fun onClickYoutube(view: View, track: TrackEntity?) {
+    fun onClickYoutube(context: Context, track: TrackEntity?) {
         track?.let {
-            openBrowser(view, "$YOUTUBE_SEARCH_URL${track.artist} ${track.song}$YOUTUBE_QUERYSTRING")
+            if (isYouTubeInstalledOnDevice(context)) {
+                val result = "" // TODO
+
+                result?.let {
+                    openYouTubeApp(context, it)
+                }
+            } else {
+                openBrowser(context, makeYoutubeQuery(track))
+            }
         }
     }
 
-    fun onClickYoutube(view: View, topMusic: TopMusicEntity?) {
+    fun onClickYoutube(context: Context, topMusic: TopMusicEntity?) {
         topMusic?.let {
-            openBrowser(view, "$YOUTUBE_SEARCH_URL${topMusic.artist} ${topMusic.album}$YOUTUBE_QUERYSTRING")
+            openBrowser(context, makeYoutubeQuery(topMusic))
         }
     }
 
-    fun openSpotify(view: View, spotifyUri: String?) {
-        if (isSpotifyInstalledOnDevice(view))
-            openSpotifyApp(view, spotifyUri)
-        else
-            onClickSpotifyNoApp(view, spotifyUri)
+    /**
+     * Opens browser to URL of temporary YouTube playlist generated by concatenating list of
+     * video IDs (max URL size: 2048 chars). If user has YouTube app installed, they'll be redirected
+     * automatically from their browser to the app.
+     */
+    fun exportVideosToYouTubePlaylist(context: Context, ids: List<String>) {
+        val url = makeYouTubePlaylist(ids)
+        openBrowser(context, url)
     }
 
-    private fun onClickSpotifyNoApp(view: View, spotifyUri: String?) { // TODO test
-        val url = makeSpotifyUrl(spotifyUri ?: "")
+    private fun makeYouTubePlaylist(ids: List<String>) =
+        ("https://www.youtube.com/watch_videos?video_ids=" + ids.joinToString(",")).let{
+            it.substring(0, min(it.length, 2048))
+            .substringBeforeLast(",")
+        }
+
+    private fun makeYoutubeQuery(topMusic: TopMusicEntity?) =
+        "$YOUTUBE_SEARCH_URL${topMusic?.artist} ${topMusic?.album}$YOUTUBE_QUERYSTRING".urlEncoded
+
+    private fun makeYoutubeQuery(track: TrackEntity?) =
+        "$YOUTUBE_SEARCH_URL${track?.artist} ${track?.song}$YOUTUBE_QUERYSTRING".urlEncoded
+
+    private fun openYouTubeApp(context: Context, uri: String) {
+        val intent = Intent(Intent.ACTION_VIEW).apply{
+            data = Uri.parse(uri)
+            putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + context.packageName))
+        }
+        if (intent.resolveActivity(context.packageManager) != null) {
+            startActivity(context, intent, null)
+        }
+    }
+
+    private fun isYouTubeInstalledOnDevice(context: Context): Boolean {
+        var isYoutubeInstalled = false
+
+        try {
+            context.packageManager.getPackageInfo("com.spotify.music", 0)
+            isYoutubeInstalled = true
+        } catch (e: PackageManager.NameNotFoundException) {}
+
+        return isYoutubeInstalled
+    }
+
+    private fun onClickSpotifyNoApp(context: Context, spotifyUri: String) {
+        val url = makeSpotifyUrl(spotifyUri)
         if (url.isNotEmpty())
-            openBrowser(view, url)
+            openBrowser(context, url)
     }
 
-    private fun openSpotifyApp(view: View, spotifyUri: String?) {
+    fun openSpotify(context: Context, spotifyUri: String) {
+        if (isSpotifyInstalledOnDevice(context))
+            openSpotifyApp(context, spotifyUri)
+        else
+            onClickSpotifyNoApp(context, spotifyUri)
+    }
+
+    /** Launches Spotify login activity. */
+    fun loginSpotify(activity: FragmentActivity) {
+        val builder = AuthenticationRequest.Builder(
+            SpotifyEndpoint.SPOTIFY_CLIENT_ID,
+            AuthenticationResponse.Type.TOKEN,
+            SpotifyEndpoint.SPOTIFY_REDIRECT_URI
+        )
+
+        builder.setScopes(arrayOf(
+            "playlist-modify-public",
+            "playlist-read-private",
+            "playlist-modify-private")
+        )
+
+        val request = builder.build()
+
+        AuthenticationClient.openLoginActivity(activity, RequestCodes.SPOTIFY_LOGIN, request)
+    }
+
+    fun isSpotifyAuthVoidOrExpired() = kdvsPreferences.spotifyAuthToken.isNullOrEmpty() ||
+        kdvsPreferences.spotifyLastLogin ?: 0 < TimeHelper.getOneHourAgoUTC().toEpochSecond()
+
+    private fun openSpotifyApp(context: Context, spotifyUri: String) {
         val intent = Intent(Intent.ACTION_VIEW).apply{
             data = Uri.parse(spotifyUri)
-            putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + view.context.packageName))
+            putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + context.packageName))
         }
-        if (intent.resolveActivity(view.context.packageManager) != null) {
-            startActivity(view.context, intent, null)
+        if (intent.resolveActivity(context.packageManager) != null) {
+            startActivity(context, intent, null)
         } else {
-            onClickSpotifyNoApp(view, spotifyUri)
+            onClickSpotifyNoApp(context, spotifyUri)
         }
+    }
+
+    fun isSpotifyInstalledOnDevice(context: Context): Boolean {
+        var isSpotifyInstalled = false
+
+        try {
+            context.packageManager.getPackageInfo("com.spotify.music", 0)
+            isSpotifyInstalled = true
+        } catch (e: PackageManager.NameNotFoundException) {}
+
+        return isSpotifyInstalled
     }
 
     private fun makeSpotifyUrl(spotifyUri: String): String {
@@ -429,23 +527,15 @@ class SharedViewModel @Inject constructor(
         return url
     }
 
-    private fun isSpotifyInstalledOnDevice(view: View): Boolean {
-        var isSpotifyInstalled = false
-
-        try {
-            view.context.packageManager.getPackageInfo("com.spotify.music", 0)
-            isSpotifyInstalled = true
-        } catch (e: PackageManager.NameNotFoundException) {}
-
-        return isSpotifyInstalled
-    }
-
     // endregion
 
     // region Download
 
     fun getBroadcastDownloadTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
         "${show.name} (${TimeHelper.dateFormatter.format(broadcast.date)})"
+
+    fun getBroadcastDownloadUiTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
+        "${show.name} (${TimeHelper.uiDateFormatter.format(broadcast.date)})"
 
     fun getDownloadFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File? =
         getFileInDownloadFolder(getDownloadedFilename(getBroadcastDownloadTitle(broadcast, show)))
@@ -544,9 +634,15 @@ class SharedViewModel @Inject constructor(
         launch {
             val spotifyFind = spotifyService.findAlbumAsync(topMusic.album, topMusic.artist)
             val musicBrainzFind = musicBrainzService.findAlbumsAsync(topMusic.album, topMusic.artist)
+            val youTubeFind = youTubeService.findVideoAsync(topMusic.artist, topMusic.album)
 
             val spotAlbum = spotifyFind.await()
             val mbAlbum = musicBrainzFind.await()
+
+            // We must make another API request to obtain tracks
+            val spotifyGet = spotifyService.getAlbumFromIDAsync(spotAlbum?.id)
+            val spotTracks = spotifyGet.await()?.tracks
+
             val mbAlbumHref = mbAlbum?.id?.let { id ->
                 musicBrainzService.getAlbumArtHrefAsync(id).await()
             }
@@ -556,6 +652,7 @@ class SharedViewModel @Inject constructor(
             val label = mbAlbum?.label
             val imageHref = mbAlbumHref ?: spotAlbum?.imageHref
             val uri = spotAlbum?.uri
+            val spotTrackUris = spotTracks?.mapNotNull { t -> t?.uri }
 
             album?.let {
                 topMusicRepository.updateTopMusicAlbum(topMusic.topMusicId, it)
@@ -574,24 +671,39 @@ class SharedViewModel @Inject constructor(
             }
 
             uri?.let {
-                topMusicRepository.updateTopMusicSpotifyUri(topMusic.topMusicId, it)
+                topMusicRepository.updateTopMusicSpotifyAlbumUri(topMusic.topMusicId, it)
             }
 
-            if (listOfNotNull(album, year, label, imageHref).isNotEmpty()) {
+            spotTrackUris?.let {
+                topMusicRepository.updateTopMusicSpotifyTrackUris(topMusic.topMusicId, it)
+            }
+
+            val youTubeVideo = youTubeFind.await()
+            val youTubeId = youTubeVideo?.id
+
+            youTubeId?.let {
+                topMusicRepository.updateTopMusicYouTubeId(topMusic.topMusicId, it)
+            }
+
+            if (listOfNotNull(album, year, label, imageHref, youTubeId).isNotEmpty()) {
                 topMusicRepository.updateHasThirdPartyInfo(topMusic.topMusicId, true)
             }
         }
     }
 
-    fun fetchThirdPartyDataForTrack(track: TrackEntity) {
-        if (track.hasThirdPartyInfo || kdvsPreferences.offlineMode == true) return
+    fun fetchThirdPartyDataForTrack(track: TrackEntity): Job? {
+        if (track.hasThirdPartyInfo || kdvsPreferences.offlineMode == true) return null
 
-        launch {
-            val spotifyFind = spotifyService.findAlbumAsync(track.album, track.artist)
+        return launch {
+            val spotifyAlbumFind = spotifyService.findAlbumAsync(track.album, track.artist)
+            val spotifyTrackFind = spotifyService.findTrackAsync(track.song, track.artist)
             val musicBrainzFind = musicBrainzService.findAlbumsAsync(track.album, track.artist)
+            val youTubeFind = youTubeService.findVideoAsync(track.artist, track.album)
 
-            val spotAlbum = spotifyFind.await()
+            val spotAlbum = spotifyAlbumFind.await()
+            val spotTrack = spotifyTrackFind.await()
             val mbAlbum = musicBrainzFind.await()
+
             val mbAlbumHref = mbAlbum?.id?.let { id ->
                 musicBrainzService.getAlbumArtHrefAsync(id).await()
             }
@@ -600,7 +712,8 @@ class SharedViewModel @Inject constructor(
             val year = mbAlbum?.year ?: spotAlbum?.year
             val label = mbAlbum?.label
             val imageHref = mbAlbumHref ?: spotAlbum?.imageHref
-            val uri = spotAlbum?.uri
+            val albumUri = spotAlbum?.uri
+            val trackUri = spotTrack?.uri
 
             album?.let {
                 trackRepository.updateTrackAlbum(track.trackId, it)
@@ -618,11 +731,22 @@ class SharedViewModel @Inject constructor(
                 trackRepository.updateTrackImageHref(track.trackId, imageHref)
             }
 
-            uri?.let {
-                trackRepository.updateSpotifyAlbumUri(track.trackId, uri)
+            albumUri?.let {
+                trackRepository.updateSpotifyAlbumUri(track.trackId, albumUri)
             }
 
-            if (listOfNotNull(album, year, label, imageHref).isNotEmpty()) {
+            trackUri?.let {
+                trackRepository.updateSpotifyTrackUri(track.trackId, trackUri)
+            }
+
+            val youTubeVideo = youTubeFind.await()
+            val youTubeId = youTubeVideo?.id
+
+            youTubeId?.let {
+                trackRepository.updateTrackYouTubeId(track.trackId, it)
+            }
+
+            if (listOfNotNull(album, year, label, imageHref, albumUri, trackUri, youTubeId).isNotEmpty()) {
                 trackRepository.updateHasThirdPartyInfo(track.trackId, true)
             }
         }
@@ -694,6 +818,35 @@ class SharedViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    /** Method to generalize the process of exporting music to third-party playlists via dialog. */
+    fun onClickExportIcon(fragment: Fragment,
+                          requestCode: Int,
+                          service: ThirdPartyService,
+                          count: Int? = null) {
+        if (count == 0) {
+            Toast.makeText(
+                fragment.context,
+                "Sorry, there are no exportable items.",
+                Toast.LENGTH_LONG)
+            .show()
+
+            return
+        }
+
+        val dialog = BinaryChoiceDialogFragment()
+        val args = Bundle()
+
+        args.putString("title", "Export")
+        args.putString(
+            "message",
+            "Export${count ?: ""} ${if (count == 1) "track" else "tracks"} to a ${service.title} playlist?"
+        )
+
+        dialog.arguments = args
+        dialog.setTargetFragment(fragment, requestCode)
+        dialog.show(fragment.requireFragmentManager(), "tag")
     }
 
     // endregion

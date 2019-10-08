@@ -123,6 +123,7 @@
     <string name="song_header">Song</string>
     <string name="timeslot_desc">Show image</string>
     <string name="timeslot_placeholder">kdvs-image-placeholder</string>
+    <string name="export_header">Export</string>
 
     <string name="show_notification_title">KDVS</string>
     <string name="show_notification_text_live">%1$s is live %2$s!</string>
@@ -149,5 +150,6 @@
     <string name="sort_track">Track</string>
     <string name="no_favorites">No favorites found.</string>
 
-    <string name="user_agent">kdvsapp@gmail.com</string>
+    <string name="com_spotify_sdk_redirect_scheme">fho</string>
+    <string name="com_spotify_sdk_redirect_host">kdvs</string>
 </resources>

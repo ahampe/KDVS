@@ -1,5 +1,7 @@
 package fho.kdvs.home
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,35 +14,42 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import dagger.android.support.DaggerFragment
 import fho.kdvs.R
+import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.databinding.FragmentHomeBinding
+import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.FundraiserEntity
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.TopMusicEntity
+import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.fade
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
-import fho.kdvs.global.util.BindingViewHolder
-import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.global.util.URLs
+import fho.kdvs.global.util.*
 import fho.kdvs.news.NewsArticlesAdapter
 import fho.kdvs.staff.StaffAdapter
 import fho.kdvs.topmusic.TopMusicAdapter
+import fho.kdvs.topmusic.TopMusicType
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
 import timber.log.Timber
 import java.text.DecimalFormat
+import java.util.*
 import javax.inject.Inject
 
-class HomeFragment : DaggerFragment() {
+
+class HomeFragment : BaseFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
 
     @Inject
     lateinit var kdvsPreferences: KdvsPreferences
+
+    @Inject
+    lateinit var spotifyService: SpotifyService
 
     private lateinit var viewModel: HomeViewModel
     private lateinit var sharedViewModel: SharedViewModel
@@ -87,7 +96,12 @@ class HomeFragment : DaggerFragment() {
 
         LoadScreen.displayLoadScreen(homeRoot)
 
-        settingsIcon.setOnClickListener { viewModel.onClickSettings(findNavController()) }
+        if (sharedViewModel.isSpotifyInstalledOnDevice(requireContext())) {
+            topAddsExportSpotify.visibility = View.VISIBLE
+            topAlbumsExportSpotify.visibility = View.VISIBLE
+        }
+
+        settingsIcon.setOnClickListener { viewModel.onClickSettings(findNavController())}
 
         currentShowsAdapter = CurrentShowsAdapter(viewModel) {
             Timber.d("Clicked ${it.item}")
@@ -184,6 +198,64 @@ class HomeFragment : DaggerFragment() {
         setExpandableSections()
     }
 
+    /** Handle third-party getExportPlaylistUri request. */
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        when (requestCode) {
+            RequestCodes.SPOTIFY_EXPORT_TOP_ADDS -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    if (sharedViewModel.isSpotifyAuthVoidOrExpired()) {
+                        sharedViewModel.loginSpotify(requireActivity())
+                        sharedViewModel.spotToken.observe(viewLifecycleOwner, Observer { token ->
+                            token?.let {
+                                viewModel.topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
+                                    exportTopMusicToSpotify(adds, token)
+                                })
+                            }
+                        })
+                    } else {
+                        viewModel.topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
+                            exportTopMusicToSpotify(adds, kdvsPreferences.spotifyAuthToken as String)
+                        })
+                    }
+                }
+            }
+            RequestCodes.SPOTIFY_EXPORT_TOP_ALBUMS -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    if (sharedViewModel.isSpotifyAuthVoidOrExpired()) {
+                        sharedViewModel.loginSpotify(requireActivity())
+                        sharedViewModel.spotToken.observe(viewLifecycleOwner, Observer { token ->
+                            token?.let {
+                                viewModel.topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
+                                    exportTopMusicToSpotify(albums, token)
+                                })
+                            }
+                        })
+                    } else {
+                        viewModel.topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
+                            exportTopMusicToSpotify(albums, kdvsPreferences.spotifyAuthToken as String)
+                        })
+                    }
+                }
+            }
+            RequestCodes.YOUTUBE_EXPORT_TOP_ADDS -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    viewModel.topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
+                        exportTopMusicToYouTube(adds)
+                    })
+                }
+            }
+            RequestCodes.YOUTUBE_EXPORT_TOP_ALBUMS -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    viewModel.topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
+                        exportTopMusicToYouTube(albums)
+                    })
+                }
+            }
+        }
+    }
+
     private fun subscribeToViewModel() {
         viewModel.run {
             combinedLiveData.observe(viewLifecycleOwner, Observer { allDataObserved ->
@@ -237,6 +309,28 @@ class HomeFragment : DaggerFragment() {
 
                         topAddsAdapter?.onTopAddsChanged(adds)
                         topAdds.visibility = View.VISIBLE
+
+                        topAddsExportSpotify.setOnClickListener {
+                            val uris = getTopMusicSpotifyUris(adds)
+
+                            val count = uris?.count() ?: 0
+
+                            sharedViewModel.onClickExportIcon(
+                                this@HomeFragment,
+                                RequestCodes.SPOTIFY_EXPORT_TOP_ADDS,
+                                ThirdPartyService.SPOTIFY,
+                                count
+                            )
+                        }
+
+                        topAddsExportYoutube.setOnClickListener {
+                            sharedViewModel.onClickExportIcon(
+                                this@HomeFragment,
+                                RequestCodes.YOUTUBE_EXPORT_TOP_ADDS,
+                                ThirdPartyService.YOUTUBE,
+                                adds.size
+                            )
+                        }
                     }
                 }
             })
@@ -265,6 +359,28 @@ class HomeFragment : DaggerFragment() {
 
                         topAlbumsAdapter?.onTopAlbumsChanged(albums)
                         topAlbums.visibility = View.VISIBLE
+
+                        topAlbumsExportSpotify.setOnClickListener {
+                            val uris = getTopMusicSpotifyUris(albums)
+
+                            val count = uris?.count() ?: 0
+
+                            sharedViewModel.onClickExportIcon(
+                                this@HomeFragment,
+                                RequestCodes.SPOTIFY_EXPORT_TOP_ALBUMS,
+                                ThirdPartyService.SPOTIFY,
+                                count
+                            )
+                        }
+
+                        topAlbumsExportYoutube.setOnClickListener {
+                            sharedViewModel.onClickExportIcon(
+                                this@HomeFragment,
+                                RequestCodes.YOUTUBE_EXPORT_TOP_ALBUMS,
+                                ThirdPartyService.YOUTUBE,
+                                albums.size
+                            )
+                        }
                     }
                 }
             })
@@ -382,12 +498,13 @@ class HomeFragment : DaggerFragment() {
         }
     }
 
+    @SuppressWarnings
     private fun setFundraiserView(fundraiser: FundraiserEntity){
         val startMonthStr = TimeHelper.monthIntToStr(fundraiser.dateStart?.monthValue)
-            .toLowerCase()
+            .toLowerCase(Locale.US)
             .capitalize()
         val endMonthStr = TimeHelper.monthIntToStr(fundraiser.dateEnd?.monthValue)
-            .toLowerCase()
+            .toLowerCase(Locale.US)
             .capitalize()
         val dayStart = fundraiser.dateStart
             ?.dayOfMonth
@@ -435,5 +552,34 @@ class HomeFragment : DaggerFragment() {
         val progress = ((fundraiser.current?.toFloat() ?: 0f) / (fundraiser.goal?.toFloat() ?: 1f)) * 100
         fundraiserProgress.progress = if (progress > 100) 100 else progress.toInt()
     }
-}
 
+    private fun exportTopMusicToSpotify(topMusic: List<TopMusicEntity>, token: String) {
+        val mostRecentDate = topMusic.maxBy { a -> a.topMusicId }?.weekOf
+
+        val type = if (topMusic.first().type == TopMusicType.ADD) "Adds" else "Albums"
+
+        val title = "KDVS Top $type (${TimeHelper.uiDateFormatter.format(mostRecentDate)})"
+
+        launch {
+            ExportManagerSpotify(
+                context = requireContext(),
+                spotifyService = spotifyService,
+                trackUris = getTopMusicSpotifyUris(topMusic),
+                userToken = token,
+                playlistTitle = title
+            ).getExportPlaylistUri()
+                ?.let {
+                    sharedViewModel.openSpotify(requireContext(), it)
+                }
+        }
+    }
+
+    private fun exportTopMusicToYouTube(topMusic: List<TopMusicEntity>) {
+        val ids = topMusic.mapNotNull { t -> t.youTubeId }
+
+        sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
+    }
+
+    private fun getTopMusicSpotifyUris(topMusic: List<TopMusicEntity?>?): List<String>? =
+        topMusic?.mapNotNull { t -> t?.spotifyTrackUris?.split(",")}?.flatten()
+}

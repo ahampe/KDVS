@@ -104,8 +104,16 @@ class TopMusicRepository @Inject constructor(
         }
     }
 
-    fun updateTopMusicSpotifyUri(id: Int, spotifyAlbumUri: String) {
-        topMusicDao.updateTopMusicSpotifyUri(id, spotifyAlbumUri)
+    fun updateTopMusicSpotifyAlbumUri(id: Int, spotifyAlbumUri: String) {
+        topMusicDao.updateTopMusicSpotifyAlbumUri(id, spotifyAlbumUri)
+    }
+
+    fun updateTopMusicSpotifyTrackUris(id: Int, spotifyTrackUris: List<String>) {
+        topMusicDao.updateTopMusicSpotifyTrackUris(id, spotifyTrackUris.joinToString(","))
+    }
+
+    fun updateTopMusicYouTubeId(id: Int, youTubeId: String) {
+        topMusicDao.updateTopMusicYouTubeId(id, youTubeId)
     }
 
     fun updateHasThirdPartyInfo(id: Int, hasThirdPartyInfo: Boolean) {

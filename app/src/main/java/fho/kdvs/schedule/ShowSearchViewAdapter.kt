@@ -89,7 +89,7 @@ class ShowSearchViewAdapter(
 
             @SuppressWarnings("unchecked")
             override fun publishResults(charSeq: CharSequence, results: FilterResults) {
-                Timber.d("${results.count} results found")
+                Timber.d("${results.count} currentlyDisplayingResults found")
                 if (results.values is List<*>) {
                     submitResults()
                 }

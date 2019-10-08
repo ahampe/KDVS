@@ -22,7 +22,13 @@ abstract class TopMusicDao {
     abstract fun getTopMusicForWeekOfType(weekOf: LocalDate?, type: TopMusicType): LiveData<List<TopMusicEntity>>
 
     @Query("UPDATE topMusicData SET spotifyAlbumUri = :spotifyAlbumUri where topMusicId = :id")
-    abstract fun updateTopMusicSpotifyUri(id: Int, spotifyAlbumUri: String)
+    abstract fun updateTopMusicSpotifyAlbumUri(id: Int, spotifyAlbumUri: String)
+
+    @Query("UPDATE topMusicData SET spotifyTrackUris = :spotifyTrackUris where topMusicId = :id")
+    abstract fun updateTopMusicSpotifyTrackUris(id: Int, spotifyTrackUris: String)
+
+    @Query("UPDATE topMusicData SET youTubeId = :youTubeId where topMusicId = :id")
+    abstract fun updateTopMusicYouTubeId(id: Int, youTubeId: String)
 
     @Query("UPDATE topMusicData SET hasThirdPartyInfo = :hasThirdPartyInfo where topMusicId = :id")
     abstract fun updateTopMusicHasThirdPartyInfo(id: Int, hasThirdPartyInfo: Boolean)

@@ -222,7 +222,6 @@
                                     android:src="@drawable/ic_open_in_browser_white_36dp"
                                     android:layout_marginEnd="@dimen/spacing_large"
                                     android:onClick="@{(view) -> sharedVm.openBrowser(view, urlObj.FUNDRAISER)}"/>
-
                             </LinearLayout>
 
                             <ProgressBar
@@ -358,6 +357,12 @@
                         app:el_expanded="false"
                         app:el_parallax="0.5"
                         tools:el_expanded="true">
+                        tools:el_expanded="true">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="@dimen/spacing_large">
 
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/topAddsRecycler"
@@ -369,6 +374,67 @@
                             android:paddingTop="@dimen/spacing_medium"
                             android:paddingStart="@dimen/spacing_large"
                             android:paddingEnd="@dimen/spacing_large"/>
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/topAddsRecycler"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:nestedScrollingEnabled="false"
+                                android:orientation="horizontal"
+                                android:clipToPadding="false"
+                                android:paddingEnd="@dimen/spacing_large"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"/>
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:id="@+id/topAddsExportSection"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/topAddsRecycler"
+                                app:layout_constraintBottom_toBottomOf="parent">
+
+                                <TextView
+                                    android:id="@+id/topAddsExportHeader"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/export_header"
+                                    style="@style/TextAppearance.MaterialComponents.Overline"
+                                    app:layout_constraintTop_toTopOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    android:paddingTop="@dimen/spacing_medium"
+                                    android:paddingBottom="@dimen/spacing_medium"/>
+
+                                <ImageView
+                                    android:id="@+id/topAddsExportSpotify"
+                                    android:layout_width="0dp"
+                                    android:layout_height="@dimen/external_link_icon"
+                                    android:src="@drawable/ic_spotify_icon_rgb_white"
+                                    app:layout_constraintDimensionRatio="1:1"
+                                    app:layout_constraintTop_toBottomOf="@id/topAddsExportHeader"
+                                    app:layout_constraintEnd_toStartOf="@+id/topAddsExportYoutube"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintHorizontal_bias="0.5"
+                                    android:visibility="gone"
+                                    tools:visibility="visible"
+                                    android:layout_marginEnd="@dimen/spacing_large"/>
+
+                                <ImageView
+                                    android:id="@+id/topAddsExportYoutube"
+                                    android:layout_width="@dimen/external_link_icon"
+                                    android:layout_height="0dp"
+                                    android:src="@drawable/ic_yt_icon_mono_dark"
+                                    app:layout_constraintDimensionRatio="1:1"
+                                    app:layout_constraintTop_toBottomOf="@id/topAddsExportHeader"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintHorizontal_bias="0.5"
+                                    app:layout_constraintStart_toEndOf="@+id/topAddsExportSpotify"/>
+
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
 
                     </net.cachapa.expandablelayout.ExpandableLayout>
                 </LinearLayout>
@@ -399,7 +465,7 @@
                             android:text="@string/top_albums"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintStart_toStartOf="parent"/>
-                        
+
                         <ImageView
                             android:id="@+id/topAlbumsNotification"
                             android:layout_width="0dp"
@@ -423,18 +489,74 @@
                         app:el_duration="500"
                         app:el_expanded="false"
                         app:el_parallax="0.5"
-                        tools:el_expanded="false">
+                        tools:el_expanded="true">
 
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/topAlbumsRecycler"
+                        <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:nestedScrollingEnabled="false"
-                            android:clipToPadding="false"
-                            android:paddingTop="@dimen/spacing_medium"
-                            android:paddingStart="@dimen/spacing_large"
-                            android:paddingEnd="@dimen/spacing_large"/>
+                            android:paddingStart="@dimen/spacing_large">
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/topAlbumsRecycler"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:nestedScrollingEnabled="false"
+                                android:orientation="horizontal"
+                                android:clipToPadding="false"
+                                android:paddingEnd="@dimen/spacing_large"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"/>
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:id="@+id/topAlbumsExportSection"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/topAlbumsRecycler"
+                                app:layout_constraintBottom_toBottomOf="parent">
+
+                                <TextView
+                                    android:id="@+id/topAlbumsExportHeader"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/export_header"
+                                    style="@style/TextAppearance.MaterialComponents.Overline"
+                                    app:layout_constraintTop_toTopOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    android:paddingTop="@dimen/spacing_medium"
+                                    android:paddingBottom="@dimen/spacing_medium"/>
+
+                                <ImageView
+                                    android:id="@+id/topAlbumsExportSpotify"
+                                    android:layout_width="0dp"
+                                    android:layout_height="@dimen/external_link_icon"
+                                    android:src="@drawable/ic_spotify_icon_rgb_white"
+                                    app:layout_constraintDimensionRatio="1:1"
+                                    app:layout_constraintTop_toBottomOf="@id/topAlbumsExportHeader"
+                                    app:layout_constraintEnd_toStartOf="@+id/topAlbumsExportYoutube"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintHorizontal_bias="0.5"
+                                    android:visibility="gone"
+                                    tools:visibility="visible"
+                                    android:layout_marginEnd="@dimen/spacing_large"/>
+
+                                <ImageView
+                                    android:id="@+id/topAlbumsExportYoutube"
+                                    android:layout_width="@dimen/external_link_icon"
+                                    android:layout_height="0dp"
+                                    android:src="@drawable/ic_yt_icon_mono_dark"
+                                    app:layout_constraintDimensionRatio="1:1"
+                                    app:layout_constraintTop_toBottomOf="@id/topAlbumsExportHeader"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintHorizontal_bias="0.5"
+                                    app:layout_constraintStart_toEndOf="@+id/topAlbumsExportSpotify"/>
+
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
 
                     </net.cachapa.expandablelayout.ExpandableLayout>
                 </LinearLayout>

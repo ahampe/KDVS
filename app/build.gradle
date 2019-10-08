@@ -128,13 +128,7 @@ dependencies {
     // Expandable Layout
     implementation 'net.cachapa.expandablelayout:expandablelayout:2.9.2'
 
-    // Spring
-    implementation "org.springframework.android:spring-android-rest-template:$spring_android_version"
-
-    // Apache
-    implementation 'org.apache.commons:commons-text:1.6'
-
     // Spotify
     implementation project(':spotify-app-remote')
-
+    implementation "com.spotify.android:auth:$spotify_auth_version"
 }

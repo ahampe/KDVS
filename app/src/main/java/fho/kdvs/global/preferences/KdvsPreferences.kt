@@ -97,7 +97,16 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         DATA_SAVER_MODE,
 
         // theme
-        THEME
+        THEME,
+
+        // Spotify user auth token, valid for one hour
+        SPOTIFY_AUTH_TOKEN,
+
+        // Timestamp of most recent Spotify SSO
+        SPOTIFY_LAST_LOGIN,
+
+        // Spotify uri for user's favorites playlist
+        SPOTIFY_FAVORITES_PLAYLIST_URI
     }
 
     val preferences: SharedPreferences = application.getSharedPreferences(FILE_NAME, MODE_PRIVATE)
@@ -135,6 +144,12 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     var lastPlayedBroadcastId: Int? by IntPreference(Key.LAST_PLAYED_BROADCAST_ID)
 
     var lastPlayedBroadcastPosition: Long? by LongPreference(Key.LAST_PLAYED_BROADCAST_POSITION)
+
+    var spotifyAuthToken: String? by StringPreference(Key.SPOTIFY_AUTH_TOKEN)
+
+    var spotifyLastLogin: Long? by LongPreference(Key.SPOTIFY_LAST_LOGIN)
+
+    var spotifyFavoritesPlaylistUri: String? by StringPreference(Key.SPOTIFY_FAVORITES_PLAYLIST_URI)
 
     fun getLastShowScrape(showId: String): Long? {
         val pref by LongPreference(Key.LAST_SHOW_SCRAPE, showId)

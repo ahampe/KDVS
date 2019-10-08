@@ -107,7 +107,7 @@ class ShowSearchFragment : DaggerFragment() {
                 }
             })
 
-            // Display all results upon closing filter
+            // Display all currentlyDisplayingResults upon closing filter
             setOnCloseListener {
                 showSearchViewAdapter?.let { adapter ->
                     adapter.results.clear()

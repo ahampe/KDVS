@@ -1,5 +1,7 @@
 package fho.kdvs.favorite
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,28 +13,40 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import dagger.android.support.DaggerFragment
 import fho.kdvs.R
+import fho.kdvs.api.service.SpotifyService
+import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
+import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.removeLeadingArticles
+import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
+import fho.kdvs.global.util.ExportManagerSpotify
+import fho.kdvs.global.util.RequestCodes
 import kotlinx.android.synthetic.main.cell_favorite_track.view.*
 import kotlinx.android.synthetic.main.fragment_favorite.*
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-class FavoriteFragment : DaggerFragment() {
+class FavoriteFragment : BaseFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
+
+    @Inject
+    lateinit var kdvsPreferences: KdvsPreferences
+
+    @Inject
+    lateinit var spotifyService: SpotifyService
 
     private lateinit var viewModel: FavoriteViewModel
     private lateinit var sharedViewModel: SharedViewModel
 
     private var favoriteViewAdapter: FavoriteViewAdapter? = null
-    
+
     val hashedResults = mutableMapOf<String, ArrayList<FavoriteJoin>>()
-    val resultIds = mutableListOf<Int?>()
+    val currentlyDisplayingResults = mutableListOf<FavoriteJoin?>()
 
     var sortType = FavoriteViewAdapter.SortType.RECENT
     var sortDirection = FavoriteViewAdapter.SortDirection.DES
@@ -72,6 +86,32 @@ class FavoriteFragment : DaggerFragment() {
 
         initializeClickListeners()
         initializeSearchBar()
+        initializeIcons()
+    }
+
+    /** Handle third-party getExportPlaylistUri request. */
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        when (requestCode) {
+            RequestCodes.SPOTIFY_EXPORT_FAVORITES -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    if (sharedViewModel.isSpotifyAuthVoidOrExpired()) {
+                        sharedViewModel.loginSpotify(requireActivity())
+                        sharedViewModel.spotToken.observe(viewLifecycleOwner, Observer { token ->
+                            token?.let {
+                                exportTracksToSpotify(kdvsPreferences.spotifyAuthToken as String)
+                            }
+                        })
+                    } else {
+                        exportTracksToSpotify(kdvsPreferences.spotifyAuthToken as String)
+                    }
+                }
+            }
+            RequestCodes.YOUTUBE_EXPORT_FAVORITES -> {
+                exportTracksToYouTube()
+            }
+        }
     }
 
     /** Separate name-based results by alphabetical character headers. */
@@ -158,11 +198,11 @@ class FavoriteFragment : DaggerFragment() {
                         favoriteViewAdapter = FavoriteViewAdapter(joins.distinct(), fragment) {
                             Timber.d("clicked ${it.item}")
 
-                            val array = resultIds
-                                .filterNotNull()
+                            val ids = currentlyDisplayingResults
+                                .mapNotNull { r -> r?.track?.trackId }
                                 .toIntArray()
 
-                            viewModel.onClickTrack(findNavController(), it.item.track, array)
+                            viewModel.onClickTrack(findNavController(), it.item.track, ids)
                         }
 
                         resultsRecycler.run {
@@ -231,6 +271,24 @@ class FavoriteFragment : DaggerFragment() {
                 }
             }
         }
+
+        spotifyExportIconFavorite?.setOnClickListener {
+            sharedViewModel.onClickExportIcon(
+                this,
+                RequestCodes.SPOTIFY_EXPORT_FAVORITES,
+                ThirdPartyService.SPOTIFY,
+                currentlyDisplayingResults.count { r -> !r?.track?.spotifyTrackUri.isNullOrEmpty()}
+            )
+        }
+
+        youtubeExportIconFavorite?.setOnClickListener {
+            sharedViewModel.onClickExportIcon(
+                this,
+                RequestCodes.YOUTUBE_EXPORT_FAVORITES,
+                ThirdPartyService.YOUTUBE,
+                currentlyDisplayingResults.count { r -> !r?.track?.youTubeId.isNullOrEmpty()}
+            )
+        }
     }
 
     private fun initializeSearchBar(){
@@ -264,5 +322,55 @@ class FavoriteFragment : DaggerFragment() {
                 true
             }
         }
+    }
+
+    private fun initializeIcons() {
+        spotifyExportIconFavorite?.let { view ->
+            if (sharedViewModel.isSpotifyInstalledOnDevice(view.context)) {
+                view.visibility = View.VISIBLE
+
+                view.setOnClickListener {
+                    val visibleTracksSpotifyUris = currentlyDisplayingResults
+                        .mapNotNull { r -> r?.track?.spotifyTrackUri }
+
+                    val count = visibleTracksSpotifyUris.count()
+
+                    sharedViewModel.onClickExportIcon(
+                        this,
+                        RequestCodes.SPOTIFY_EXPORT_FAVORITES,
+                        ThirdPartyService.SPOTIFY,
+                        count
+                    )
+                }
+            }
+        }
+    }
+
+    private fun exportTracksToSpotify(token: String) {
+        val uris = currentlyDisplayingResults
+            .mapNotNull { r -> r?.track?.spotifyTrackUri }
+
+        launch {
+            ExportManagerSpotify(
+                context = requireContext(),
+                spotifyService = spotifyService,
+                trackUris = uris,
+                userToken = token,
+                playlistTitle = "My KDVS Favorites",
+                storedPlaylistUri = kdvsPreferences.spotifyFavoritesPlaylistUri
+            ).getExportPlaylistUri()
+                ?.let {
+                    kdvsPreferences.spotifyFavoritesPlaylistUri = it
+
+                    sharedViewModel.openSpotify(requireContext(), it)
+                }
+        }
+    }
+
+    private fun exportTracksToYouTube() {
+        val ids = currentlyDisplayingResults
+            .mapNotNull { r -> r?.track?.youTubeId }
+
+        sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
     }
 }

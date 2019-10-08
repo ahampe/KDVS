@@ -30,6 +30,8 @@ data class TrackEntity(
     @ColumnInfo(name = "imageHref") var imageHref: String? = null,
     @ColumnInfo(name = "year") var year: Int? = null,
     @ColumnInfo(name = "spotifyAlbumUri") var spotifyAlbumUri: String? = null,
+    @ColumnInfo(name = "spotifyTrackUri") var spotifyTrackUri: String? = null,
+    @ColumnInfo(name = "youTubeId") var youTubeId: String? = null,
     @ColumnInfo(name = "hasThirdPartyInfo") var hasThirdPartyInfo: Boolean = false
 ) : Parcelable {
 
@@ -46,6 +48,8 @@ data class TrackEntity(
         imageHref = parcel.readString(),
         year = parcel.readInt(),
         spotifyAlbumUri = parcel.readString(),
+        spotifyTrackUri = parcel.readString(),
+        youTubeId = parcel.readString(),
         hasThirdPartyInfo = parcel.readValue(Boolean::class.java.classLoader) as Boolean
     )
 
@@ -62,6 +66,8 @@ data class TrackEntity(
         dest?.writeValue(imageHref)
         dest?.writeValue(year)
         dest?.writeValue(spotifyAlbumUri)
+        dest?.writeValue(spotifyTrackUri)
+        dest?.writeValue(youTubeId)
         dest?.writeValue(hasThirdPartyInfo)
     }
 

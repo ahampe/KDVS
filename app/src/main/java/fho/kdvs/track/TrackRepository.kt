@@ -82,6 +82,14 @@ class TrackRepository @Inject constructor(
         trackDao.updateSpotifyAlbumUri(id, spotifyAlbumUri)
     }
 
+    fun updateSpotifyTrackUri(id: Int, spotifyTrackUri: String) {
+        trackDao.updateSpotifyTrackUri(id, spotifyTrackUri)
+    }
+
+    fun updateTrackYouTubeId(id: Int, youTubeId: String) {
+        trackDao.updateYouTubeId(id, youTubeId)
+    }
+
     fun updateHasThirdPartyInfo(id: Int, hasThirdPartyInfo: Boolean) {
         trackDao.updateHasThirdPartyInfo(id, hasThirdPartyInfo)
     }

@@ -36,7 +36,7 @@ class BroadcastDetailsViewModel @Inject constructor(
     lateinit var broadcastLiveData: LiveData<BroadcastEntity>
     lateinit var showWithBroadcast: MediatorLiveData<Pair<ShowEntity, BroadcastEntity>>
 
-    private lateinit var tracksLiveData: LiveData<List<TrackEntity>>
+    lateinit var tracksLiveData: LiveData<List<TrackEntity>>
     private lateinit var favoritesLiveData: LiveData<List<FavoriteEntity>>
     lateinit var tracksWithFavorites: MediatorLiveData<Pair<List<TrackEntity>,List<FavoriteEntity>?>>
 
