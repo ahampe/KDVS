@@ -25,6 +25,8 @@ import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.fragment_schedule.*
 import kotlinx.android.synthetic.main.fragment_schedule.view.*
+import org.jetbrains.anko.bundleOf
+import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -186,16 +188,10 @@ class ScheduleFragment : DaggerFragment() {
         }
     }
 
-    fun showSelection(timeslot: TimeSlot) {
-        // TODO should use Navigation for this as they now support dialogs
+    fun showSelectionForTimeslot(timeslot: TimeSlot) {
         fragmentManager?.let {
-            val args = Bundle()
-            args.putParcelable("timeslot", timeslot)
-
-            val newFragment = ScheduleSelectionFragment()
-
-            newFragment.arguments = args
-            newFragment.show(it, "schedule_selection_fragment")
+            val bundle = bundleOf("timeStart" to timeslot.timeStart.toString())
+            weekRecyclerView.findNavController().navigate(R.id.scheduleSelectionFragment, bundle)
         }
     }
 

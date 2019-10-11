@@ -49,11 +49,6 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
     // Simple flag for scrolling to clicked-on item view. This will only be done once, after the fragment is created.
     private var scrollingToCurrentItem = true
 
-    private val track: TrackEntity by lazy {
-        arguments?.let { BroadcastTrackDetailsFragmentArgs.fromBundle(it) }?.track
-            ?: throw IllegalArgumentException("Should have passed a track to TrackDetailsFragment")
-    }
-
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
@@ -62,17 +57,13 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        sharedViewModel = ViewModelProviders.of(this, vmFactory)
+            .get(SharedViewModel::class.java)
+
         viewModel = ViewModelProviders.of(this, vmFactory)
             .get(BroadcastTrackDetailsViewModel::class.java)
             .also {
-                it.initialize(track)
                 it.navController = findNavController()
-            }
-
-        sharedViewModel = ViewModelProviders.of(this, vmFactory)
-            .get(SharedViewModel::class.java)
-            .also {
-                it.fetchThirdPartyDataForTrack(track)
             }
 
         subscribeToViewModel()
@@ -95,7 +86,31 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         LoadScreen.displayLoadScreen(trackDetailsRoot)
+    }
 
+    private fun subscribeToViewModel() {
+        sharedViewModel.selectedTrack.observe(viewLifecycleOwner, Observer { track ->
+            sharedViewModel.fetchThirdPartyDataForTrack(track)
+
+            viewModel.initialize(track)
+
+            initializeView(track)
+
+            viewModel.combinedLiveData.observe(this, Observer { combinedData ->
+                Timber.d("Got updated track details livedata")
+
+                tracks = combinedData.tracks
+                favorites = combinedData.favorites
+                show = combinedData.show
+                broadcast = combinedData.broadcast
+
+                processObservedTracks(tracks)
+                setShowNameAndDate()
+            })
+        })
+    }
+
+    private fun initializeView(track: TrackEntity) {
         setTrackInfo(track)
 
         tracksViewAdapter = TracksViewAdapter { }
@@ -123,20 +138,6 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
         })
     }
 
-    private fun subscribeToViewModel() {
-        viewModel.combinedLiveData.observe(this, Observer { combinedData ->
-            Timber.d("Got updated track details livedata")
-
-            tracks = combinedData.tracks
-            favorites = combinedData.favorites
-            show = combinedData.show
-            broadcast = combinedData.broadcast
-
-            processObservedTracks(tracks)
-            setShowNameAndDate()
-        })
-    }
-
     private fun processObservedTracks(tracks: List<TrackEntity?>) {
         tracks.forEach {
             it?.let {
@@ -158,8 +159,10 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
         LoadScreen.hideLoadScreen(trackDetailsRoot)
     }
 
-    // Correct for airbreak slots
-    private fun getAdjustedTrackPosition(track: TrackEntity): Int? {
+    /**
+     * Correct for airbreak slots.
+     */
+    private fun getAdjustedTrackPosition(track: TrackEntity?): Int? {
         return tracks.indexOf(track)
     }
 
@@ -218,11 +221,14 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
     }
 
     private fun setFavorite() {
-        if (::favorites.isInitialized && favorites.count { f -> f.trackId == track.trackId } > 0) {
-            sharedViewModel.onClickFavorite(favoriteIcon, track)
-        } else {
-            favoriteIcon.setImageResource(R.drawable.ic_favorite_border_white_24dp)
-            favoriteIcon.tag = 0
+        track?.let { t ->
+            if (::favorites.isInitialized && favorites.count { f -> f.trackId == t.trackId } > 0) {
+                sharedViewModel.onClickFavorite(favoriteIcon, t)
+            } else {
+                favoriteIcon.setImageResource(R.drawable.ic_favorite_border_white_24dp)
+                favoriteIcon.tag = 0
+            }
         }
+
     }
 }

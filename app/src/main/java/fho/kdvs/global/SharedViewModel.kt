@@ -111,6 +111,8 @@ class SharedViewModel @Inject constructor(
     val liveBroadcast: LiveData<BroadcastEntity>
         get() = broadcastRepository.liveBroadcastLiveData
 
+    val selectedTrack = MutableLiveData<TrackEntity>()
+
     val spotToken = MutableLiveData<String>()
 
     val isPlayingAudioNow = mediaSessionConnection.playbackState

@@ -4,8 +4,6 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.navigation.NavController
-import fho.kdvs.R
 import fho.kdvs.favorite.FavoriteRepository
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.FavoriteEntity
@@ -91,12 +89,5 @@ class BroadcastDetailsViewModel @Inject constructor(
 
     private fun fetchTracks(broadcastId: Int) {
         trackRepository.scrapePlaylist(broadcastId.toString())
-    }
-
-    fun onClickTrack(navController: NavController, track: TrackEntity) {
-        val navAction = BroadcastDetailsFragmentDirections
-            .actionBroadcastDetailsFragmentToBroadcastTrackDetailsFragment(track)
-        if (navController.currentDestination?.id == R.id.broadcastDetailsFragment)
-            navController.navigate(navAction)
     }
 }

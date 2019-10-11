@@ -13,9 +13,6 @@ class ScheduleSelectionViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
 
-    lateinit var pairedIdsAndNames: List<Pair<Int, String>>
-    lateinit var orderedShows: List<ShowEntity?>
-
     fun initialize() {
         fetchShows()
     }

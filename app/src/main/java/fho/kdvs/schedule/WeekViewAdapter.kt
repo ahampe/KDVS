@@ -53,7 +53,7 @@ class WeekViewAdapter(
             // Here is where we navigate to the ShowDetailsFragment or display show selection view
             Timber.d("clicked ${clickData.item.names.joinToString()}")
             if (clickData.item.ids.count() > 1)
-                fragment.showSelection(clickData.item)
+                fragment.showSelectionForTimeslot(clickData.item)
             else
                 fragment.viewModel.onClickTimeSlot(fragment.findNavController(), clickData.item)
         }

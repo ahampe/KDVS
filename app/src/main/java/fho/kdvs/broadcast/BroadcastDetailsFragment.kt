@@ -101,7 +101,15 @@ class BroadcastDetailsFragment : BaseFragment() {
 
         tracksAdapter = BroadcastTracksAdapter(viewModel, sharedViewModel) {
             Timber.d("Clicked ${it.item}")
-            viewModel.onClickTrack(this.findNavController(), it.item)
+
+            sharedViewModel.selectedTrack.postValue(it.item)
+
+            val navController = this.findNavController()
+
+            val navAction = BroadcastDetailsFragmentDirections
+                .actionBroadcastDetailsFragmentToBroadcastTrackDetailsFragment()
+            if (navController.currentDestination?.id == R.id.broadcastDetailsFragment)
+                navController.navigate(navAction)
         }
 
         trackRecycler.apply {

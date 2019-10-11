@@ -22,6 +22,8 @@ class BroadcastTrackDetailsViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
 
+    lateinit var track: LiveData<TrackEntity>
+
     private lateinit var liveTracks: LiveData<List<TrackEntity>>
     private lateinit var liveFavorites: LiveData<List<FavoriteEntity>>
     private lateinit var liveBroadcast: LiveData<BroadcastEntity>

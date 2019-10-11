@@ -30,7 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.jetbrains.anko.runOnUiThread
+import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -68,10 +68,10 @@ class ScheduleSelectionFragment : BottomSheetDialogFragment(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.IO
 
-    // Retrieves the timeslot from the arguments bundle. Throws an exception if it doesn't exist.
-    private val timeslot: TimeSlot by lazy {
-        arguments?.let { ScheduleSelectionFragmentArgs.fromBundle(it) }?.timeslot
-            ?: throw IllegalArgumentException("Should have passed a TimeSlot to ScheduleSelectionFragment")
+    // Retrieves the timeStart string from the arguments bundle. Throws an exception if it doesn't exist.
+    private val timeStart: String by lazy {
+        arguments?.let { ScheduleSelectionFragmentArgs.fromBundle(it) }?.timeStart
+            ?: throw IllegalArgumentException("Should have passed a string to ScheduleSelectionFragment")
     }
 
     override fun onAttach(context: Context) {
@@ -133,14 +133,14 @@ class ScheduleSelectionFragment : BottomSheetDialogFragment(), CoroutineScope {
         }
 
         activity?.runOnUiThread {
-            timeslot.timeStart?.let {
-                launch {
-                    val shows = viewModel.allOrderedShowsForTime(it)
-                    if (shows.isNotEmpty()) {
-                        val pairs = viewModel.getPairedIdsAndNamesForShows(shows)
-                        activity?.runOnUiThread {
-                            showSelectionViewAdapter?.submitList(pairs)
-                        }
+            val time = OffsetDateTime.parse(timeStart)
+
+            launch {
+                val shows = viewModel.allOrderedShowsForTime(time)
+                if (shows.isNotEmpty()) {
+                    val pairs = viewModel.getPairedIdsAndNamesForShows(shows)
+                    activity?.runOnUiThread {
+                        showSelectionViewAdapter?.submitList(pairs)
                     }
                 }
             }
