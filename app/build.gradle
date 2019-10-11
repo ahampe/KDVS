@@ -131,4 +131,7 @@ dependencies {
     // Spotify
     implementation project(':spotify-app-remote')
     implementation "com.spotify.android:auth:$spotify_auth_version"
+
+    // Leak Canary
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
 }

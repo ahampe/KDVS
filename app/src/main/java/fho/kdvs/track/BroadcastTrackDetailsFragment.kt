@@ -25,6 +25,7 @@ import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.fragment_track_details.*
 import timber.log.Timber
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 // TODO: Refactor this + FavoriteTrackDetails + TopMusicDetails to share overlapping code
@@ -94,7 +95,7 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        LoadScreen.displayLoadScreen(trackDetailsRoot)
+        LoadScreen.displayLoadScreen(WeakReference(trackDetailsRoot))
 
         setTrackInfo(track)
 
@@ -155,7 +156,7 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
             scrollingToCurrentItem = false
         }
 
-        LoadScreen.hideLoadScreen(trackDetailsRoot)
+        LoadScreen.hideLoadScreen(WeakReference(trackDetailsRoot))
     }
 
     // Correct for airbreak slots

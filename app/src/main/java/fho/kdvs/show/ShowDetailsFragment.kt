@@ -17,6 +17,7 @@ import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.ui.LoadScreen
 import kotlinx.android.synthetic.main.fragment_show_details.*
 import timber.log.Timber
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 class ShowDetailsFragment : DaggerFragment() {
@@ -57,7 +58,7 @@ class ShowDetailsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        LoadScreen.displayLoadScreen(showDetailsRoot) // TODO: this renders beneath motionscene stuff
+        LoadScreen.displayLoadScreen(WeakReference(showDetailsRoot))// TODO: this renders beneath motionscene stuff
 
         broadcastListAdapter = ShowBroadcastsAdapter {
             Timber.d("clicked ${it.item}")
@@ -75,7 +76,7 @@ class ShowDetailsFragment : DaggerFragment() {
             Timber.d("got broadcasts: $broadcasts")
             broadcastListAdapter?.onBroadcastsChanged(broadcasts)
 
-            LoadScreen.hideLoadScreen(showDetailsRoot)
+            LoadScreen.hideLoadScreen(WeakReference(showDetailsRoot))
         })
 
         viewModel.show.observe(this, Observer { show ->

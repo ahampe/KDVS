@@ -23,6 +23,7 @@ import fho.kdvs.global.database.getTracks
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.fragment_track_details.*
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 class FavoriteTrackDetailsFragment : DaggerFragment() {
@@ -94,7 +95,7 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        LoadScreen.displayLoadScreen(trackDetailsRoot)
+        LoadScreen.displayLoadScreen(WeakReference(trackDetailsRoot))
 
         setTrackInfo(track)
 
@@ -162,7 +163,7 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
             scrollingToCurrentItem = false
         }
 
-        LoadScreen.hideLoadScreen(trackDetailsRoot)
+        LoadScreen.hideLoadScreen(WeakReference(trackDetailsRoot))
     }
 
     // Correct for airbreak slots

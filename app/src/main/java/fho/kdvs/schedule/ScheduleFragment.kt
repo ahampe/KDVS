@@ -26,6 +26,7 @@ import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.fragment_schedule.*
 import kotlinx.android.synthetic.main.fragment_schedule.view.*
 import timber.log.Timber
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 class ScheduleFragment : DaggerFragment() {
@@ -70,7 +71,7 @@ class ScheduleFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        LoadScreen.displayLoadScreen(scheduleRoot)
+        LoadScreen.displayLoadScreen(WeakReference(scheduleRoot))
 
         // Configure the layout manager and keep a reference to it
         weekLayoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
@@ -93,7 +94,7 @@ class ScheduleFragment : DaggerFragment() {
             }
         }
 
-        LoadScreen.hideLoadScreen(scheduleRoot)
+        LoadScreen.hideLoadScreen(WeakReference(scheduleRoot))
     }
 
     /** Reconfigures the week recycler view and time recycler view. Use when the quarter-year changes or the fragment is recreated. */

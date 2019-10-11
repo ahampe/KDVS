@@ -23,6 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import timber.log.Timber
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -87,7 +88,7 @@ class TopMusicDetailsFragment : DaggerFragment(), CoroutineScope {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        LoadScreen.displayLoadScreen(topMusicDetailsRoot)
+        LoadScreen.displayLoadScreen(WeakReference(topMusicDetailsRoot))
 
         topMusicViewAdapter = TopMusicViewAdapter { }
         topMusicLayoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
@@ -126,7 +127,7 @@ class TopMusicDetailsFragment : DaggerFragment(), CoroutineScope {
                 scrollingToCurrentItem = false
             }
 
-            LoadScreen.hideLoadScreen(topMusicDetailsRoot)
+            LoadScreen.hideLoadScreen(WeakReference(topMusicDetailsRoot))
         })
     }
 

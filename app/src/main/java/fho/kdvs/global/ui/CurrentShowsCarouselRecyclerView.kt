@@ -7,10 +7,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
-import android.view.animation.AnimationSet
-import android.view.animation.DecelerateInterpolator
+import java.lang.ref.WeakReference
 
 
 class CurrentShowsCarouselRecyclerView(
@@ -98,8 +95,8 @@ class CurrentShowsCarouselRecyclerView(
         }
     }
 
-    fun setButton(view: Button) {
-        button = view
+    fun setButton(view: WeakReference<Button>) {
+        button = view.get()
     }
 
     private fun clearTags() {

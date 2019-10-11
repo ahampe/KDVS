@@ -17,6 +17,7 @@ import fho.kdvs.schedule.TimeSlot.Companion.DUMMY_ID
 import kotlinx.android.synthetic.main.cell_day_column.view.*
 import kotlinx.android.synthetic.main.fragment_schedule.view.*
 import timber.log.Timber
+import java.lang.ref.WeakReference
 
 
 /** A [RecyclerView.Adapter] which cycles through days of the week */
@@ -32,7 +33,7 @@ class WeekViewAdapter(
     // Timeblock view, for synced scrolling.
     private var timeRecyclerView: RecyclerView? = null
 
-    private var nestedScrollView: NestedScrollView? = null
+    private var weakNestedScrollView: WeakReference<NestedScrollView?>? = null
 
     private var scrollY: Float? = null
 
@@ -97,16 +98,18 @@ class WeekViewAdapter(
         })
 
         holder.recyclerView.viewTreeObserver.addOnGlobalLayoutListener {
-            if (nestedScrollView == null) initNestedScrollView(parent)
+            if (weakNestedScrollView == null) initNestedScrollView(parent)
 
-            if (scrollingToCurrentShow) {
-                scrollY?.let {
-                    nestedScrollView?.scrollTo(0, it.toInt())
-                    scrollingToCurrentShow = false
-                }
-            } else {
-                fragment.lastDayScrollY?.let {
-                    nestedScrollView?.scrollTo(0, it)
+            weakNestedScrollView?.get()?.let { nestedScrollView ->
+                if (scrollingToCurrentShow) {
+                    scrollY?.let {
+                        nestedScrollView.scrollTo(0, it.toInt())
+                        scrollingToCurrentShow = false
+                    }
+                } else {
+                    fragment.lastDayScrollY?.let {
+                        nestedScrollView.scrollTo(0, it)
+                    }
                 }
             }
         }
@@ -149,10 +152,12 @@ class WeekViewAdapter(
     }
 
     private fun initNestedScrollView(parent: View) {
-        nestedScrollView = parent.parent?.parent?.parent as NestedScrollView?
-        nestedScrollView?.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, newY, _, _ ->
-            fragment.lastDayScrollY = newY
-        })
+        weakNestedScrollView = WeakReference(parent.parent?.parent?.parent as NestedScrollView?)
+        weakNestedScrollView?.get()?.setOnScrollChangeListener(
+            NestedScrollView.OnScrollChangeListener { _, _, newY, _, _ ->
+                fragment.lastDayScrollY = newY
+            }
+        )
     }
 
     class ViewHolder(dayContainer: ConstraintLayout) : RecyclerView.ViewHolder(dayContainer) {

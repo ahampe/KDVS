@@ -36,6 +36,7 @@ import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
 import timber.log.Timber
+import java.lang.ref.WeakReference
 import java.text.DecimalFormat
 import java.util.*
 import javax.inject.Inject
@@ -53,7 +54,6 @@ class HomeFragment : BaseFragment() {
 
     private lateinit var viewModel: HomeViewModel
     private lateinit var sharedViewModel: SharedViewModel
-    private lateinit var fragmentHomeBinding: FragmentHomeBinding
 
     private var currentShowsAdapter: CurrentShowsAdapter? = null
     private var newsArticlesAdapter: NewsArticlesAdapter? = null
@@ -72,21 +72,20 @@ class HomeFragment : BaseFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        fragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false)
         sharedViewModel = ViewModelProviders.of(requireActivity(), vmFactory)
             .get(SharedViewModel::class.java)
 
-        fragmentHomeBinding.apply {
+        val binding = FragmentHomeBinding.inflate(inflater, container, false).apply {
             vm = viewModel
             sharedVm = sharedViewModel
             urlObj = URLs
         }
 
-        fragmentHomeBinding.lifecycleOwner = this
+        binding.lifecycleOwner = this
 
         subscribeToViewModel()
 
-        return fragmentHomeBinding.root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -94,7 +93,7 @@ class HomeFragment : BaseFragment() {
 
         val snapHelper = PagerSnapHelper()
 
-        LoadScreen.displayLoadScreen(homeRoot)
+        LoadScreen.displayLoadScreen(WeakReference(homeRoot))
 
         if (sharedViewModel.isSpotifyInstalledOnDevice(requireContext())) {
             topAddsExportSpotify.visibility = View.VISIBLE
@@ -113,7 +112,7 @@ class HomeFragment : BaseFragment() {
 
             this.initialize(adapter)
             this.setDefaultPos(1)
-            this.setButton(playButton)
+            this.setButton(WeakReference(playButton))
             this.setViewsToChangeColor(listOf(
                 R.id.currentShowImage,
                 R.id.currentShowName,
@@ -268,7 +267,7 @@ class HomeFragment : BaseFragment() {
             currentShows.observe(viewLifecycleOwner, Observer { shows ->
                 Timber.d("Got current shows: $shows")
                 currentShowsAdapter?.onCurrentShowsChanged(shows)
-                LoadScreen.hideLoadScreen(homeRoot)
+                LoadScreen.hideLoadScreen(WeakReference(homeRoot))
             })
 
             newsArticles.observe(viewLifecycleOwner, Observer { articles ->

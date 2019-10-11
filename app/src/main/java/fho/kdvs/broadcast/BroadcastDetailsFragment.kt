@@ -39,6 +39,7 @@ import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
 import java.io.File
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 const val DOWNLOAD_ICON = "download"
@@ -97,7 +98,7 @@ class BroadcastDetailsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        LoadScreen.displayLoadScreen(detailsRoot) // TODO: this renders beneath motionscene stuff
+        LoadScreen.displayLoadScreen(WeakReference(detailsRoot)) // TODO: this renders beneath motionscene stuff
 
         tracksAdapter = BroadcastTracksAdapter(viewModel, sharedViewModel) {
             Timber.d("Clicked ${it.item}")
@@ -193,14 +194,14 @@ class BroadcastDetailsFragment : BaseFragment() {
 
                     enableDeleteIcon()
 
-                    LoadScreen.hideLoadScreen(detailsRoot)
+                    LoadScreen.hideLoadScreen(WeakReference(detailsRoot))
                 }
                 sharedViewModel.isBroadcastDownloading(broadcast, show) -> {
                     setDownloadViewsVisible()
 
                     setDownloadingIcon()
 
-                    LoadScreen.hideLoadScreen(detailsRoot)
+                    LoadScreen.hideLoadScreen(WeakReference(detailsRoot))
                 }
                 else -> setPlaybackViewsAndHideProgressBar(broadcast)
             }
@@ -368,7 +369,7 @@ class BroadcastDetailsFragment : BaseFragment() {
             }
 
             context?.runOnUiThread {
-                LoadScreen.hideLoadScreen(detailsRoot)
+                LoadScreen.hideLoadScreen(WeakReference(detailsRoot))
             }
         }
     }

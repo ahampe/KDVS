@@ -28,6 +28,7 @@ import kotlinx.android.synthetic.main.cell_favorite_track.view.*
 import kotlinx.android.synthetic.main.fragment_favorite.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 class FavoriteFragment : BaseFragment() {
@@ -82,7 +83,7 @@ class FavoriteFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        LoadScreen.displayLoadScreen(favoritesRoot)
+        LoadScreen.displayLoadScreen(WeakReference(favoritesRoot))
 
         initializeClickListeners()
         initializeSearchBar()
@@ -189,7 +190,7 @@ class FavoriteFragment : BaseFragment() {
                         resultsRecycler.visibility = View.GONE
                         noResults.visibility = View.VISIBLE
 
-                        LoadScreen.hideLoadScreen(favoritesRoot)
+                        LoadScreen.hideLoadScreen(WeakReference(favoritesRoot))
                     }
                     false -> {
                         resultsRecycler.visibility = View.VISIBLE
@@ -216,7 +217,7 @@ class FavoriteFragment : BaseFragment() {
                             }
                         }
 
-                        LoadScreen.hideLoadScreen(favoritesRoot)
+                        LoadScreen.hideLoadScreen(WeakReference(favoritesRoot))
                     }
                 }
             })
