@@ -80,6 +80,8 @@ class TopMusicRepository @Inject constructor(
     fun getTopAlbums(): LiveData<List<TopMusicEntity>> =
         topMusicDao.getAllOfType(TopMusicType.ALBUM)
 
+    fun insert(topMusic: TopMusicEntity) = topMusicDao.insert(topMusic)
+
     fun updateTopMusicAlbum(id: Int, title: String?) {
         title?.let{
             topMusicDao.updateTopMusicAlbum(id, title)

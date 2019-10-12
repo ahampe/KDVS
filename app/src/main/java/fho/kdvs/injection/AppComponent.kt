@@ -5,7 +5,6 @@ import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
 import fho.kdvs.api.injection.ApiModule
 import fho.kdvs.global.KdvsApp
-import fho.kdvs.global.SplashActivity
 import javax.inject.Singleton
 
 @Singleton
@@ -14,6 +13,7 @@ import javax.inject.Singleton
         AndroidSupportInjectionModule::class,
         AppModule::class,
         ApiModule::class,
+        DatabaseModule::class,
         MainActivityModule::class,
         SplashActivityModule::class,
         ServiceModule::class,

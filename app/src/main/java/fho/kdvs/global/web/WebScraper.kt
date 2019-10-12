@@ -1,6 +1,9 @@
 package fho.kdvs.global.web
 
 import androidx.annotation.VisibleForTesting
+import fho.kdvs.broadcast.BroadcastRepository
+import fho.kdvs.favorite.FavoriteRepository
+import fho.kdvs.fundraiser.FundraiserRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
@@ -8,10 +11,16 @@ import fho.kdvs.global.enums.enumValueOrDefault
 import fho.kdvs.global.extensions.listOfNulls
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.global.util.URLs
 import fho.kdvs.global.util.URLs.SHOW_IMAGE_PLACEHOLDER
+import fho.kdvs.news.NewsRepository
+import fho.kdvs.schedule.QuarterRepository
 import fho.kdvs.schedule.QuarterYear
+import fho.kdvs.show.ShowRepository
+import fho.kdvs.staff.StaffRepository
+import fho.kdvs.subscription.SubscriptionRepository
+import fho.kdvs.topmusic.TopMusicRepository
 import fho.kdvs.topmusic.TopMusicType
+import fho.kdvs.track.TrackRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -32,7 +41,13 @@ import kotlin.coroutines.CoroutineContext
 /** This class will handle the scraping for each web page and will insert items into the database one by one. */
 @Singleton
 class WebScraperManager @Inject constructor(
-    private val db: KdvsDatabase,
+    private val showRepository: ShowRepository,
+    private val broadcastRepository: BroadcastRepository,
+    private val newsRepository: NewsRepository,
+    private val staffRepository: StaffRepository,
+    private val fundraiserRepository: FundraiserRepository,
+    private val topMusicRepository: TopMusicRepository,
+    private val trackRepository: TrackRepository,
     private val kdvsPreferences: KdvsPreferences
 ) : CoroutineScope {
 
@@ -183,7 +198,7 @@ class WebScraperManager @Inject constructor(
         }
 
         showsScraped.forEach { show ->
-            db.showDao().updateOrInsert(show)
+            showRepository.updateOrInsert(show)
         }
 
         kdvsPreferences.lastScheduleScrape = TimeHelper.getNow().toEpochSecond()
@@ -202,7 +217,7 @@ class WebScraperManager @Inject constructor(
         val genreHeaderNode = document.select("div.grid_6 h3:contains(Genre)")?.firstOrNull()
         val genre = if (genreHeaderNode == null) "" else genreHeaderNode.nextElementSibling()?.parseHtml()
 
-        db.showDao().updateShowDetails(showId, host, genre, defaultDesc)
+        showRepository.updateShowDetails(showId, host, genre, defaultDesc)
 
         val broadcastsScraped = mutableListOf<BroadcastEntity>()
 
@@ -231,7 +246,7 @@ class WebScraperManager @Inject constructor(
         }
 
         broadcastsScraped.forEach { broadcast ->
-            db.broadcastDao().updateOrInsert(broadcast)
+            broadcastRepository.updateOrInsert(broadcast)
         }
 
         kdvsPreferences.setLastShowScrape(showId.toString(), TimeHelper.getNow().toEpochSecond())
@@ -261,21 +276,21 @@ class WebScraperManager @Inject constructor(
 
             if (imageHref == SHOW_IMAGE_PLACEHOLDER) imageHref = null
 
-            db.broadcastDao().updateBroadcastDetails(broadcastId, desc.trim(), imageHref)
+            broadcastRepository.updateBroadcastDetails(broadcastId, desc.trim(), imageHref)
 
             // If the show doesn't have an imageHref, and this is the most recent broadcast, set it
-            val showId = db.broadcastDao().getBroadcastById(broadcastId)?.showId
+            val showId = broadcastRepository.getBroadcastById(broadcastId)?.showId
             if (showId != null && imageHref != null &&
-                broadcastId == db.broadcastDao().getLatestBroadcastForShow(showId)?.broadcastId
+                broadcastId == broadcastRepository.getLatestBroadcastForShow(showId)?.broadcastId
             ) {
-                val showHref = db.showDao().getShowById(showId)?.defaultImageHref
+                val showHref = showRepository.getShowById(showId)?.defaultImageHref
                 if (showHref.isNullOrEmpty()) {
-                    db.showDao().updateShowDefaultImageHref(showId, imageHref)
+                    showRepository.updateShowDefaultImageHref(showId, imageHref)
                 }
             }
 
             // Because tracks have auto-generated IDs, we have to clear any already scraped tracks to avoid dupes
-            db.trackDao().deleteByBroadcast(broadcastId)
+            trackRepository.deleteByBroadcast(broadcastId)
             // TODO: this deletion may pose a conflict if user has favorited prior tracks
 
             // filter out empty playlists
@@ -308,7 +323,7 @@ class WebScraperManager @Inject constructor(
                     )
                 }
 
-                db.trackDao().insert(trackEntity)
+                trackRepository.insert(trackEntity)
                 tracksScraped.add(trackEntity)
             }
         }
@@ -359,7 +374,7 @@ class WebScraperManager @Inject constructor(
         }
 
         topMusicItemsScraped.forEach { topMusic ->
-            db.topMusicDao().insert(topMusic)
+            topMusicRepository.insert(topMusic)
         }
 
         when (type) {
@@ -407,10 +422,10 @@ class WebScraperManager @Inject constructor(
                 ))
             }
 
-            db.staffDao().deleteAll()
+            staffRepository.deleteAll()
 
             staffScraped.forEach { staff ->
-                db.staffDao().insert(staff)
+                staffRepository.insert(staff)
             }
         }
 
@@ -465,7 +480,7 @@ class WebScraperManager @Inject constructor(
             }
 
             articlesScraped.forEach { article ->
-                db.newsDao().insert(article)
+                newsRepository.insert(article)
             }
 
             // if the last article on the page is within the past 6 months, scrape the next page as well
@@ -527,8 +542,9 @@ class WebScraperManager @Inject constructor(
                     dateStart = dateStart,
                     dateEnd = dateEnd
                 )
-                db.fundraiserDao().deleteAll()
-                db.fundraiserDao().insert(fundraiser)
+
+                fundraiserRepository.deleteAll()
+                fundraiserRepository.insert(fundraiser)
             }
         }
 

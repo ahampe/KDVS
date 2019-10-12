@@ -54,6 +54,10 @@ class TrackRepository @Inject constructor(
             .debounce(100L, TimeUnit.MILLISECONDS)
             .toLiveData()
 
+    fun insert(track: TrackEntity) = trackDao.insert(track)
+
+    fun deleteByBroadcast(broadcastId: Int) = trackDao.deleteByBroadcast(broadcastId)
+
     fun updateTrackAlbum(id: Int, title: String?) {
         title?.let{
             trackDao.updateAlbum(id, title)

@@ -46,4 +46,6 @@ class NewsRepository @Inject constructor(
 
     fun getAllNewsPastDate(date: LocalDate): LiveData<List<NewsEntity>> =
         newsDao.getAllNewsPastDate(date)
+
+    fun insert(news: NewsEntity) = newsDao.insert(news)
 }

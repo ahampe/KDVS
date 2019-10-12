@@ -14,15 +14,15 @@ import javax.inject.Singleton
 class FavoriteRepository @Inject constructor(
     private val favoriteDao: FavoriteDao
 ) : BaseRepository() {
+    fun insert(favorite: FavoriteEntity) = favoriteDao.insert(favorite)
+
     fun allShowBroadcastTrackFavoriteJoins(): LiveData<List<ShowBroadcastTrackFavoriteJoin>> {
         return favoriteDao.allShowBroadcastTrackFavoriteJoins()
             .debounce(100L, TimeUnit.MILLISECONDS)
             .toLiveData()
     }
 
-    fun favoriteByTrackId(trackId: Int): LiveData<FavoriteEntity> {
-        return favoriteDao.getByTrackId(trackId)
-    }
+    fun deleteByTrackId(trackId: Int) = favoriteDao.deleteByTrackId(trackId)
 
     fun allFavoritesByBroadcast(broadcastId: Int): LiveData<List<FavoriteEntity>> {
         return favoriteDao.allFavoritesByBroadcast(broadcastId)

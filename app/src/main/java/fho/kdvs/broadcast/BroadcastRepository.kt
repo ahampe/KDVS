@@ -151,6 +151,11 @@ class BroadcastRepository @Inject constructor(
     fun getShowByBroadcastId(broadcastId: Int): ShowEntity? =
         broadcastDao.getShowByBroadcastId(broadcastId)
 
+    fun updateOrInsert(broadcast: BroadcastEntity) = broadcastDao.updateOrInsert(broadcast)
+
+    fun updateBroadcastDetails(broadcastId: Int, desc: String?, href: String?) =
+        broadcastDao.updateBroadcastDetails(broadcastId, desc, href)
+
     /** Called when the live show changes so that the playing broadcast can be updated */
     internal fun updateLiveBroadcast(showId: Int) {
         launch(mainContext) { _liveBroadcastLiveData?.removeObserver(liveBroadcastObserver) }

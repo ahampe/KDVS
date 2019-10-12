@@ -16,6 +16,10 @@ class SubscriptionRepository @Inject constructor(
     private val showDao: ShowDao
 ) : BaseRepository() {
 
+    fun insert(subscription: SubscriptionEntity) = subscriptionDao.insert(subscription)
+
+    fun deleteByShowId(id: Int) = subscriptionDao.deleteByShowId(id)
+
     fun subscriptionByShowId(showId: Int): LiveData<SubscriptionEntity> {
         return subscriptionDao.getByShowId(showId)
     }

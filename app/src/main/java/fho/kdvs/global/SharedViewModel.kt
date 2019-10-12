@@ -29,6 +29,7 @@ import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.api.service.YouTubeService
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.dialog.BinaryChoiceDialogFragment
+import fho.kdvs.favorite.FavoriteRepository
 import fho.kdvs.fundraiser.FundraiserRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.enums.ThirdPartyService
@@ -69,7 +70,6 @@ const val DOWNLOAD_CHILD = "KDVS"
 /** An [AndroidViewModel] scoped to the main activity.
  * Use this for data that will be consumed in many places. */
 class SharedViewModel @Inject constructor(
-    // TODO: This class is a bit too monolithic -- split up into different repo subclasses?
     application: Application,
     private val showRepository: ShowRepository,
     private val broadcastRepository: BroadcastRepository,
@@ -80,8 +80,7 @@ class SharedViewModel @Inject constructor(
     private val quarterRepository: QuarterRepository,
     private val subscriptionRepository: SubscriptionRepository,
     private val trackRepository: TrackRepository,
-    private val favoriteDao: FavoriteDao,
-    private val subscriptionDao: SubscriptionDao,
+    private val favoriteRepository: FavoriteRepository,
     private val liveShowUpdater: LiveShowUpdater,
     private val mediaSessionConnection: MediaSessionConnection,
     private val kdvsPreferences: KdvsPreferences,
@@ -773,14 +772,14 @@ class SharedViewModel @Inject constructor(
         if (imageView?.tag == 0) {
             imageView.setImageResource(R.drawable.ic_favorite_white_24dp)
             imageView.tag = 1
-            launch { favoriteDao.insert(FavoriteEntity(0, track.trackId)) }
+            launch { favoriteRepository.insert(FavoriteEntity(0, track.trackId)) }
 
             // Fetch third party data now to make entry into FavoriteFragment seamless
             launch { fetchThirdPartyDataForTrack(track)}
         } else if (imageView?.tag == 1) {
             imageView.setImageResource(R.drawable.ic_favorite_border_white_24dp)
             imageView.tag = 0
-            launch { favoriteDao.deleteByTrackId(track.trackId) }
+            launch { favoriteRepository.deleteByTrackId(track.trackId) }
         }
     }
 
@@ -938,7 +937,7 @@ class SharedViewModel @Inject constructor(
             val success = subscribeToShow(show)
 
             if (success) {
-                launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
+                launch { subscriptionRepository.insert(SubscriptionEntity(0, show.id)) }
             }
         }
     }
@@ -948,7 +947,7 @@ class SharedViewModel @Inject constructor(
             val success = subscribeToShow(show)
 
             if (success) {
-                launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
+                launch { subscriptionRepository.insert(SubscriptionEntity(0, show.id)) }
                 context?.runOnUiThread {
                     Toast.makeText(context, "Subscribed to ${show.name}", Toast.LENGTH_SHORT)
                         .show()
@@ -963,7 +962,7 @@ class SharedViewModel @Inject constructor(
     }
 
     private fun cancelSubscription(show: ShowEntity) {
-        launch { subscriptionDao.deleteByShowId(show.id) }
+        launch { subscriptionRepository.deleteByShowId(show.id) }
         launch {
             val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
             alarmMgr.cancelShowAlarm(show)

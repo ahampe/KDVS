@@ -41,4 +41,8 @@ class StaffRepository @Inject constructor(
 
     fun getStaff(): LiveData<List<StaffEntity>> =
         staffDao.getAll()
+
+    fun insert(staff: StaffEntity) = staffDao.insert(staff)
+
+    fun deleteAll() = staffDao.deleteAll()
 }

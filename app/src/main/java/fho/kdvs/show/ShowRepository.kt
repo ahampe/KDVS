@@ -162,9 +162,13 @@ class ShowRepository @Inject constructor(
             .debounce (100L, TimeUnit.MILLISECONDS)
             .toLiveData()
 
+    fun allDistinctQuarterYears() = showDao.allDistinctQuarterYears()
+
     /** Fetches a [LiveData] that will wrap the show matching the provided ID. */
     fun showById(showId: Int): LiveData<ShowEntity> =
         showDao.showById(showId)
+
+    fun getShowById(showId: Int) = showDao.getShowById(showId)
 
     fun showsForQuarterYear(quarterYear: QuarterYear): Flowable<List<ShowEntity>> {
         val (quarter, year) = quarterYear
@@ -197,6 +201,14 @@ class ShowRepository @Inject constructor(
                     }
             }
     }
+
+    fun updateOrInsert(show: ShowEntity) = showDao.updateOrInsert(show)
+
+    fun updateShowDetails(showId: Int, host: String?, genre: String?, desc: String?) =
+        showDao.updateShowDetails(showId, host, genre, desc)
+
+    fun updateShowDefaultImageHref(showId: Int, href: String?) =
+        showDao.updateShowDefaultImageHref(showId, href)
 
     suspend fun allShowsAtTimeOrderedRelativeToCurrentWeek(timeStart: OffsetDateTime): List<ShowEntity?> {
         val liveShowUpdater = LiveShowUpdater(this, broadcastRepository, showDao)

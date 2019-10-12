@@ -42,4 +42,8 @@ class FundraiserRepository @Inject constructor(
 
     fun getFundraiser(): LiveData<FundraiserEntity> =
         fundraiserDao.get()
+
+    fun deleteAll() = fundraiserDao.deleteAll()
+
+    fun insert(fundraiser: FundraiserEntity) = fundraiserDao.insert(fundraiser)
 }
