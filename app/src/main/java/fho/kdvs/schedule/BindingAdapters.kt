@@ -68,9 +68,8 @@ fun setTimeSlotLayoutProperties(view: CardView, timeslot: TimeSlot, numHalfHours
         return
     }
 
-    view.layoutParams.height = (
-        numHalfHours * view.context.resources.getDimension(R.dimen.timeslot_halfhour_height)
-    ).toInt()
+    view.layoutParams.height = numHalfHours *
+            view.context.resources.getDimensionPixelSize(R.dimen.timeslot_halfhour_height)
 
     val hourCardHeight = view.resources.getDimension(R.dimen.timeslot_image)
         + (2 * view.resources.getDimension(R.dimen.timeslot_margin))
