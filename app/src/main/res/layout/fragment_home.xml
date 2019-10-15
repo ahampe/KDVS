@@ -99,19 +99,28 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     android:orientation="vertical">
 
+                    <ImageView
+                        android:id="@+id/fundraiserExpandIcon"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintDimensionRatio="1:1"
+                        android:src="@drawable/ic_expand_more_white_24dp"
+                        app:layout_constraintTop_toTopOf="@id/fundraiserHeader"
+                        app:layout_constraintBottom_toBottomOf="@id/fundraiserHeader"
+                        app:layout_constraintStart_toStartOf="parent"/>
+
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/fundraiserHeader"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintStart_toStartOf="parent">
+                        app:layout_constraintStart_toEndOf="@id/fundraiserExpandIcon">
 
                         <TextView
                             android:id="@+id/fundraiserHeaderText"
                             style="@style/TextAppearance.MaterialComponents.Headline4"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/spacing_large"
                             android:text="@string/fundraiser"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintStart_toStartOf="parent"/>
@@ -141,7 +150,7 @@
                         app:el_duration="500"
                         app:el_expanded="false"
                         app:el_parallax="0.5"
-                        tools:el_expanded="true">
+                        tools:el_expanded="false">
 
                         <LinearLayout
                             android:id="@+id/fundraiserContent"
@@ -248,11 +257,21 @@
                     app:layout_constraintStart_toStartOf="parent"
                     android:orientation="vertical">
 
+                    <ImageView
+                        android:id="@+id/newsExpandIcon"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintDimensionRatio="1:1"
+                        android:src="@drawable/ic_expand_more_white_24dp"
+                        app:layout_constraintTop_toTopOf="@id/newsHeader"
+                        app:layout_constraintBottom_toBottomOf="@id/newsHeader"
+                        app:layout_constraintStart_toStartOf="parent"/>
+
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/newsHeader"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        android:layout_width="match_parent"
+                        app:layout_constraintStart_toEndOf="@id/newsExpandIcon"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 
                         <TextView
@@ -260,7 +279,6 @@
                             style="@style/TextAppearance.MaterialComponents.Headline4"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/spacing_large"
                             android:layout_marginEnd="@dimen/spacing_large"
                             android:text="@string/news"
                             app:layout_constraintTop_toTopOf="parent"
@@ -306,7 +324,7 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/topAdds"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -316,18 +334,29 @@
                     android:orientation="vertical"
                     android:visibility="gone"
                     tools:visibility="visible">
+
+                    <ImageView
+                        android:id="@+id/topAddsExpandIcon"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintDimensionRatio="1:1"
+                        android:src="@drawable/ic_expand_more_white_24dp"
+                        app:layout_constraintTop_toTopOf="@id/topAddsHeader"
+                        app:layout_constraintBottom_toBottomOf="@id/topAddsHeader"
+                        app:layout_constraintStart_toStartOf="parent"/>
                     
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/topAddsHeader"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/topAddsExpandIcon">
 
                         <TextView
                             android:id="@+id/topAddsHeaderText"
                             style="@style/TextAppearance.MaterialComponents.Headline4"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/spacing_large"
                             android:layout_marginEnd="@dimen/spacing_large"
                             android:text="@string/top_adds" 
                             app:layout_constraintTop_toTopOf="parent"
@@ -356,13 +385,13 @@
                         app:el_duration="500"
                         app:el_expanded="false"
                         app:el_parallax="0.5"
-                        tools:el_expanded="true">
-                        tools:el_expanded="true">
+                        tools:el_expanded="false"
+                        app:layout_constraintTop_toBottomOf="@id/topAddsHeader"
+                        app:layout_constraintStart_toStartOf="parent">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="@dimen/spacing_large">
+                            android:layout_height="wrap_content">
 
                             <androidx.recyclerview.widget.RecyclerView
                                 android:id="@+id/topAddsRecycler"
@@ -371,7 +400,9 @@
                                 android:nestedScrollingEnabled="false"
                                 android:orientation="horizontal"
                                 android:clipToPadding="false"
-                                android:paddingEnd="@dimen/spacing_large"
+                                android:layout_marginTop="@dimen/spacing_medium"
+                                android:layout_marginStart="@dimen/spacing_large"
+                                android:layout_marginEnd="@dimen/spacing_large"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"/>
@@ -427,30 +458,41 @@
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                     </net.cachapa.expandablelayout.ExpandableLayout>
-                </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/topAlbums"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_medium"
-                    app:layout_constraintTop_toBottomOf="@id/topAdds"
+                    app:layout_constraintTop_toBottomOf="@+id/topAdds"
                     app:layout_constraintStart_toStartOf="parent"
                     android:orientation="vertical"
                     android:visibility="gone"
                     tools:visibility="visible">
 
+                    <ImageView
+                        android:id="@+id/topAlbumsExpandIcon"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintDimensionRatio="1:1"
+                        android:src="@drawable/ic_expand_more_white_24dp"
+                        app:layout_constraintTop_toTopOf="@id/topAlbumsHeader"
+                        app:layout_constraintBottom_toBottomOf="@id/topAlbumsHeader"
+                        app:layout_constraintStart_toStartOf="parent"/>
+
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/topAlbumsHeader"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/topAlbumsExpandIcon">
 
                         <TextView
                             android:id="@+id/topAlbumsHeaderText"
                             style="@style/TextAppearance.MaterialComponents.Headline4"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/spacing_large"
                             android:layout_marginEnd="@dimen/spacing_large"
                             android:text="@string/top_albums"
                             app:layout_constraintTop_toTopOf="parent"
@@ -479,12 +521,13 @@
                         app:el_duration="500"
                         app:el_expanded="false"
                         app:el_parallax="0.5"
-                        tools:el_expanded="true">
+                        tools:el_expanded="false"
+                        app:layout_constraintTop_toBottomOf="@id/topAlbumsHeader"
+                        app:layout_constraintStart_toStartOf="parent">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="@dimen/spacing_large">
+                            android:layout_height="wrap_content">
 
                             <androidx.recyclerview.widget.RecyclerView
                                 android:id="@+id/topAlbumsRecycler"
@@ -493,7 +536,9 @@
                                 android:nestedScrollingEnabled="false"
                                 android:orientation="horizontal"
                                 android:clipToPadding="false"
-                                android:paddingEnd="@dimen/spacing_large"
+                                android:layout_marginTop="@dimen/spacing_medium"
+                                android:layout_marginStart="@dimen/spacing_large"
+                                android:layout_marginEnd="@dimen/spacing_large"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"/>
@@ -549,25 +594,34 @@
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                     </net.cachapa.expandablelayout.ExpandableLayout>
-                </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/staff"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/spacing_64dp"
                     android:layout_marginTop="@dimen/spacing_medium"
                     app:layout_constraintTop_toBottomOf="@id/topAlbums"
-                    app:layout_constraintStart_toStartOf="parent"
-                    android:orientation="vertical">
+                    app:layout_constraintStart_toStartOf="parent">
+
+                    <ImageView
+                        android:id="@+id/staffExpandIcon"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintDimensionRatio="1:1"
+                        android:src="@drawable/ic_expand_more_white_24dp"
+                        app:layout_constraintTop_toTopOf="@id/staffHeader"
+                        app:layout_constraintBottom_toBottomOf="@id/staffHeader"
+                        app:layout_constraintStart_toStartOf="parent"/>
 
                     <TextView
                         android:id="@+id/staffHeader"
                         style="@style/TextAppearance.MaterialComponents.Headline4"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/spacing_large"
-                        android:layout_marginEnd="@dimen/spacing_large"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/staffExpandIcon"
                         android:text="@string/staff" />
 
                     <net.cachapa.expandablelayout.ExpandableLayout
@@ -577,6 +631,8 @@
                         app:el_duration="500"
                         app:el_expanded="false"
                         app:el_parallax="0.5"
+                        app:layout_constraintTop_toBottomOf="@id/staffHeader"
+                        app:layout_constraintStart_toStartOf="parent"
                         tools:el_expanded="false">
 
                         <androidx.recyclerview.widget.RecyclerView
@@ -590,25 +646,34 @@
 
                     </net.cachapa.expandablelayout.ExpandableLayout>
 
-                </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/contact"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/spacing_large"
                     android:layout_marginTop="@dimen/spacing_medium"
                     app:layout_constraintTop_toBottomOf="@id/staff"
-                    app:layout_constraintStart_toStartOf="parent"
-                    android:orientation="vertical">
+                    app:layout_constraintStart_toStartOf="parent">
 
+                    <ImageView
+                        android:id="@+id/contactExpandIcon"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintDimensionRatio="1:1"
+                        android:src="@drawable/ic_expand_more_white_24dp"
+                        app:layout_constraintTop_toTopOf="@id/contactHeader"
+                        app:layout_constraintBottom_toBottomOf="@id/contactHeader"
+                        app:layout_constraintStart_toStartOf="parent"/>
+                    
                     <TextView
                         android:id="@+id/contactHeader"
                         style="@style/TextAppearance.MaterialComponents.Headline4"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/spacing_large"
-                        android:layout_marginEnd="@dimen/spacing_large"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/contactExpandIcon"
                         android:text="@string/contact" />
 
                     <net.cachapa.expandablelayout.ExpandableLayout
@@ -618,7 +683,8 @@
                         app:el_duration="500"
                         app:el_expanded="false"
                         app:el_parallax="0.5"
-                        tools:el_expanded="true">
+                        tools:el_expanded="false"
+                        app:layout_constraintTop_toBottomOf="@id/contactHeader">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/contacts"
@@ -672,13 +738,13 @@
 
                             <androidx.constraintlayout.widget.ConstraintLayout
                                 android:id="@+id/studioContact"
-                                android:orientation="vertical"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:onClick="@{(view) -> sharedVm.openPhone(view, fho.kdvs.global.util.PhoneNumbers.STUDIO)}"
-                                app:layout_constraintTop_toTopOf="parent"
+                                android:orientation="vertical"
+                                app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/businessContact"
-                                app:layout_constraintEnd_toEndOf="parent">
+                                app:layout_constraintTop_toTopOf="parent">
 
                                 <ImageView
                                     android:id="@+id/studioContactBg"
@@ -686,37 +752,38 @@
                                     android:layout_height="@dimen/home_phone_height"
                                     android:background="@color/colorPrimary"
                                     app:layout_constraintDimensionRatio="1:1"
-                                    app:layout_constraintTop_toTopOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
                                     app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintEnd_toEndOf="parent"/>
+                                    app:layout_constraintTop_toTopOf="parent" />
 
                                 <ImageView
                                     android:id="@+id/studioContactIcon"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
                                     android:src="@drawable/ic_phone_white_24dp"
-                                    app:layout_constraintTop_toTopOf="@id/studioContactBg"
-                                    app:layout_constraintStart_toStartOf="@id/studioContactBg"
-                                    app:layout_constraintEnd_toEndOf="@id/studioContactBg"
-                                    app:layout_constraintBottom_toBottomOf="@id/studioContactBg"/>
+                                    app:layout_constraintBottom_toBottomOf="@id/studioContactBg"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintHorizontal_bias="0.5"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="@id/studioContactBg" />
 
                                 <TextView
                                     android:id="@+id/studioContactText"
+                                    style="@style/TextAppearance.MaterialComponents.Headline6"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    app:layout_constraintTop_toBottomOf="@id/studioContactBg"
-                                    app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintEnd_toEndOf="parent"
                                     android:text="@string/studio"
                                     android:textColor="@color/colorWhite"
-                                    style="@style/TextAppearance.MaterialComponents.Headline6"/>
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toBottomOf="@id/studioContactBg" />
 
                             </androidx.constraintlayout.widget.ConstraintLayout>
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                     </net.cachapa.expandablelayout.ExpandableLayout>
-                </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.core.widget.NestedScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>

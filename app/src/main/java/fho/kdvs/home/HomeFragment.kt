@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -434,7 +435,7 @@ class HomeFragment : BaseFragment() {
 
     private fun setExpandableSections() {
         fundraiserHeader.setOnClickListener {
-            onExpandClick(fundraiserExpandable)
+            onExpandClick(fundraiserExpandable, fundraiserExpandIcon)
 
             fundraiserNotification.tag?.let {
                 if (it is Int) {
@@ -446,7 +447,7 @@ class HomeFragment : BaseFragment() {
         }
 
         newsHeader.setOnClickListener {
-            onExpandClick(newsExpandable)
+            onExpandClick(newsExpandable, newsExpandIcon)
 
             newsNotification.tag?.let {
                 if (it is Int) {
@@ -458,7 +459,7 @@ class HomeFragment : BaseFragment() {
         }
 
         topAddsHeader.setOnClickListener {
-            onExpandClick(topAddsExpandable)
+            onExpandClick(topAddsExpandable, topAddsExpandIcon)
 
             topAddsNotification.tag?.let {
                 if (it is Int) {
@@ -470,7 +471,7 @@ class HomeFragment : BaseFragment() {
         }
 
         topAlbumsHeader.setOnClickListener {
-            onExpandClick(topAlbumsExpandable)
+            onExpandClick(topAlbumsExpandable, topAlbumsExpandIcon)
 
             topAlbumsNotification.tag?.let {
                 if (it is Int) {
@@ -482,19 +483,31 @@ class HomeFragment : BaseFragment() {
         }
 
         staffHeader.setOnClickListener {
-            onExpandClick(staffExpandable)
+            onExpandClick(staffExpandable, staffExpandIcon)
         }
 
         contactHeader.setOnClickListener {
-            onExpandClick(contactExpandable)
+            onExpandClick(contactExpandable, contactExpandIcon)
         }
     }
 
-    private fun onExpandClick(expandable: ExpandableLayout) {
+    private fun onExpandClick(expandable: ExpandableLayout, icon: ImageView) {
         if (expandable.isExpanded) {
             expandable.collapse()
+            icon.setImageDrawable(
+                icon.resources.getDrawable(
+                    R.drawable.ic_expand_more_white_24dp,
+                    context?.theme
+                )
+            )
         } else {
             expandable.expand()
+            icon.setImageDrawable(
+                icon.resources.getDrawable(
+                    R.drawable.ic_expand_less_white_24dp,
+                    context?.theme
+                )
+            )
         }
     }
 
