@@ -680,7 +680,7 @@ class SharedViewModel @Inject constructor(
             val spotifyAlbumFind = spotifyService.findAlbumAsync(track.album, track.artist)
             val spotifyTrackFind = spotifyService.findTrackAsync(track.song, track.artist)
             val musicBrainzFind = musicBrainzService.findAlbumsAsync(track.album, track.artist)
-            val youTubeFind = youTubeService.findVideoAsync(track.artist, track.album)
+            val youTubeFind = youTubeService.findVideoAsync(track.artist, track.song)
 
             val spotAlbum = spotifyAlbumFind.await()
             val spotTrack = spotifyTrackFind.await()
