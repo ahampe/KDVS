@@ -104,7 +104,7 @@
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         app:layout_constraintDimensionRatio="1:1"
-                        android:src="@drawable/ic_expand_more_white_24dp"
+                        android:src="@drawable/ic_arrow_drop_down_white_24dp"
                         app:layout_constraintTop_toTopOf="@id/fundraiserHeader"
                         app:layout_constraintBottom_toBottomOf="@id/fundraiserHeader"
                         app:layout_constraintStart_toStartOf="parent"/>
@@ -262,7 +262,7 @@
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         app:layout_constraintDimensionRatio="1:1"
-                        android:src="@drawable/ic_expand_more_white_24dp"
+                        android:src="@drawable/ic_arrow_drop_down_white_24dp"
                         app:layout_constraintTop_toTopOf="@id/newsHeader"
                         app:layout_constraintBottom_toBottomOf="@id/newsHeader"
                         app:layout_constraintStart_toStartOf="parent"/>
@@ -340,7 +340,7 @@
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         app:layout_constraintDimensionRatio="1:1"
-                        android:src="@drawable/ic_expand_more_white_24dp"
+                        android:src="@drawable/ic_arrow_drop_down_white_24dp"
                         app:layout_constraintTop_toTopOf="@id/topAddsHeader"
                         app:layout_constraintBottom_toBottomOf="@id/topAddsHeader"
                         app:layout_constraintStart_toStartOf="parent"/>
@@ -476,7 +476,7 @@
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         app:layout_constraintDimensionRatio="1:1"
-                        android:src="@drawable/ic_expand_more_white_24dp"
+                        android:src="@drawable/ic_arrow_drop_down_white_24dp"
                         app:layout_constraintTop_toTopOf="@id/topAlbumsHeader"
                         app:layout_constraintBottom_toBottomOf="@id/topAlbumsHeader"
                         app:layout_constraintStart_toStartOf="parent"/>
@@ -610,7 +610,7 @@
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         app:layout_constraintDimensionRatio="1:1"
-                        android:src="@drawable/ic_expand_more_white_24dp"
+                        android:src="@drawable/ic_arrow_drop_down_white_24dp"
                         app:layout_constraintTop_toTopOf="@id/staffHeader"
                         app:layout_constraintBottom_toBottomOf="@id/staffHeader"
                         app:layout_constraintStart_toStartOf="parent"/>
@@ -662,7 +662,7 @@
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         app:layout_constraintDimensionRatio="1:1"
-                        android:src="@drawable/ic_expand_more_white_24dp"
+                        android:src="@drawable/ic_arrow_drop_down_white_24dp"
                         app:layout_constraintTop_toTopOf="@id/contactHeader"
                         app:layout_constraintBottom_toBottomOf="@id/contactHeader"
                         app:layout_constraintStart_toStartOf="parent"/>

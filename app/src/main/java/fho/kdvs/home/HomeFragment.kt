@@ -3,10 +3,12 @@ package fho.kdvs.home
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ScrollView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -488,6 +490,10 @@ class HomeFragment : BaseFragment() {
 
         contactHeader.setOnClickListener {
             onExpandClick(contactExpandable, contactExpandIcon)
+
+            if (contactExpandable.isExpanded) {
+                scrollToBottom()
+            }
         }
     }
 
@@ -496,7 +502,7 @@ class HomeFragment : BaseFragment() {
             expandable.collapse()
             icon.setImageDrawable(
                 icon.resources.getDrawable(
-                    R.drawable.ic_expand_more_white_24dp,
+                    R.drawable.ic_arrow_drop_down_white_24dp,
                     context?.theme
                 )
             )
@@ -504,11 +510,21 @@ class HomeFragment : BaseFragment() {
             expandable.expand()
             icon.setImageDrawable(
                 icon.resources.getDrawable(
-                    R.drawable.ic_expand_less_white_24dp,
+                    R.drawable.ic_arrow_drop_up_white_24dp,
                     context?.theme
                 )
             )
         }
+    }
+
+    private fun scrollToBottom() {
+        val handler = Handler()
+
+        val scrollToBottomRunnable = Runnable {
+            scrollView.fullScroll(ScrollView.FOCUS_DOWN)
+        }
+
+        handler.postDelayed(scrollToBottomRunnable, 400)
     }
 
     @SuppressWarnings
