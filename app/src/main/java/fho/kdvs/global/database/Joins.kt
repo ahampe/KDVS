@@ -2,12 +2,78 @@ package fho.kdvs.global.database
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import fho.kdvs.favorite.FavoriteJoin
+import fho.kdvs.favorite.FavoriteBroadcastJoin
+import fho.kdvs.favorite.FavoriteTrackJoin
 
 /**
- * Classes to encapsulate the joins between [FavoriteEntity], its associated [TrackEntity],
+ * Classes to encapsulate the joins between [FavoriteBroadcastEntity], its [BroadcastEntity],
+ * and the broadcast's corresponding [ShowEntity].
+ * */
+
+class ShowBroadcastFavoriteJoin {
+    @Embedded
+    var show: ShowEntity? = null
+
+    @Relation(parentColumn = "id", entityColumn = "showId", entity = BroadcastEntity::class)
+    var broadcastFavorite: List<BroadcastFavoriteJoin> = ArrayList()
+}
+
+class BroadcastFavoriteJoin {
+    @Embedded
+    var broadcast: BroadcastEntity? = null
+
+    @Relation(parentColumn = "broadcastId", entityColumn = "broadcastId")
+    var favorite: List<FavoriteBroadcastEntity> = ArrayList()
+}
+
+fun ShowBroadcastFavoriteJoin.getBroadcasts(): List<BroadcastEntity?> {
+    return this.broadcastFavorite
+        .map{ it.broadcast }
+        .toList()
+        .distinct()
+}
+
+fun ShowBroadcastFavoriteJoin.getFavorites(): List<FavoriteBroadcastEntity?> {
+    return this.broadcastFavorite
+        .flatMap { it.favorite }
+        .toList()
+        .distinct()
+}
+
+fun List<ShowBroadcastFavoriteJoin>?.getBroadcastFavoriteJoins(): List<FavoriteBroadcastJoin>? {
+    val results = mutableListOf<FavoriteBroadcastJoin>()
+
+    val shows = this
+        ?.map { it.show }
+        ?.distinct()
+    val broadcasts = this
+        ?.flatMap { it.getBroadcasts() }
+        ?.distinct()
+    val favorites = this
+        ?.flatMap { it.getFavorites()}
+        ?.distinct()
+
+    favorites?.forEach { favorite ->
+        val broadcast = broadcasts
+            ?.firstOrNull {
+                it?.broadcastId == favorite?.broadcastId
+            }
+        val show = shows
+            ?.firstOrNull {
+                it?.id == broadcast?.showId
+            }
+
+        results.add(FavoriteBroadcastJoin(favorite, broadcast, show))
+    }
+
+    return results
+}
+
+/**
+ * Classes to encapsulate the joins between [FavoriteTrackEntity], its associated [TrackEntity],
  * the [BroadcastEntity] on which the track aired, and the broadcast's corresponding [ShowEntity].
  * */
+
 class ShowBroadcastTrackFavoriteJoin {
     @Embedded
     var show: ShowEntity? = null
@@ -29,7 +95,7 @@ class TrackFavoriteJoin {
     var track: TrackEntity? = null
 
     @Relation(parentColumn = "trackId", entityColumn = "trackId")
-    var favorite: List<FavoriteEntity> = ArrayList()
+    var favorite: List<FavoriteTrackEntity> = ArrayList()
 }
 
 class ShowBroadcastJoin {
@@ -63,7 +129,7 @@ fun ShowBroadcastTrackFavoriteJoin.getTracks(): List<TrackEntity?> {
         .distinct()
 }
 
-fun ShowBroadcastTrackFavoriteJoin.getFavorites(): List<FavoriteEntity?> {
+fun ShowBroadcastTrackFavoriteJoin.getFavorites(): List<FavoriteTrackEntity?> {
     return this.broadcastTrackFavorite
         .flatMap { it.trackFavorite
             .flatMap { tf -> tf.favorite }
@@ -77,11 +143,11 @@ fun List<ShowBroadcastTrackFavoriteJoin>?.getBroadcasts(): List<BroadcastEntity?
 fun List<ShowBroadcastTrackFavoriteJoin>?.getTracks(): List<TrackEntity?>? =
     this?.flatMap { f -> f.getTracks() }
 
-fun List<ShowBroadcastTrackFavoriteJoin>?.getFavorites(): List<FavoriteEntity?>? =
+fun List<ShowBroadcastTrackFavoriteJoin>?.getFavorites(): List<FavoriteTrackEntity?>? =
     this?.flatMap { f -> f.getFavorites() }
 
-fun List<ShowBroadcastTrackFavoriteJoin>?.getFavoriteJoins(): List<FavoriteJoin>? {
-    val results = mutableListOf<FavoriteJoin>()
+fun List<ShowBroadcastTrackFavoriteJoin>?.getTrackFavoriteJoins(): List<FavoriteTrackJoin>? {
+    val results = mutableListOf<FavoriteTrackJoin>()
 
     val shows = this
         ?.map { it.show }
@@ -110,7 +176,7 @@ fun List<ShowBroadcastTrackFavoriteJoin>?.getFavoriteJoins(): List<FavoriteJoin>
                 it?.id == broadcast?.showId
             }
 
-        results.add(FavoriteJoin(favorite, track, broadcast, show))
+        results.add(FavoriteTrackJoin(favorite, track, broadcast, show))
     }
 
     return results

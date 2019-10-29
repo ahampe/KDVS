@@ -14,9 +14,9 @@ import java.io.File
 
 
 @Database(
-    entities = [ShowEntity::class, BroadcastEntity::class, FavoriteEntity::class, TrackEntity::class,
-        StaffEntity::class, NewsEntity::class, TopMusicEntity::class, FundraiserEntity::class,
-        SubscriptionEntity::class],
+    entities = [ShowEntity::class, BroadcastEntity::class, FavoriteBroadcastEntity::class,
+        FavoriteTrackEntity::class, TrackEntity::class, StaffEntity::class, NewsEntity::class,
+        TopMusicEntity::class, FundraiserEntity::class, SubscriptionEntity::class],
     version = 1,
     exportSchema = false
 )
@@ -30,7 +30,8 @@ abstract class KdvsDatabase : RoomDatabase() {
 
     abstract fun showDao(): ShowDao
     abstract fun broadcastDao(): BroadcastDao
-    abstract fun favoriteDao(): FavoriteDao
+    abstract fun favoriteBroadcastDao(): FavoriteBroadcastDao
+    abstract fun favoriteTrackDao(): FavoriteTrackDao
     abstract fun trackDao(): TrackDao
     abstract fun topMusicDao(): TopMusicDao
     abstract fun staffDao(): StaffDao
@@ -81,7 +82,8 @@ class OffsetDateTimeTypeConverter {
 class LocalDateTypeConverter {
 
     @TypeConverter
-    fun toLocalDate(value: String?): LocalDate? = value?.let { LocalDate.parse(it, TimeHelper.dateFormatter) }
+    fun toLocalDate(value: String?): LocalDate? =
+        value?.let { LocalDate.parse(it, TimeHelper.dateFormatter) }
 
     @TypeConverter
     fun toString(date: LocalDate?): String? = TimeHelper.dateFormatter.format(date)

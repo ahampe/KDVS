@@ -104,7 +104,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:visibility="gone">
-        
+
         <TextView
             android:id="@+id/sortHeader"
             android:layout_width="match_parent"
@@ -144,7 +144,7 @@
                 app:layout_constraintEnd_toEndOf="parent"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-        
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/show"
             android:layout_width="0dp"
@@ -173,7 +173,7 @@
                 app:layout_constraintTop_toTopOf="@id/sortShow"
                 app:layout_constraintBottom_toBottomOf="@id/sortShow"
                 app:layout_constraintEnd_toEndOf="parent"/>
-            
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout

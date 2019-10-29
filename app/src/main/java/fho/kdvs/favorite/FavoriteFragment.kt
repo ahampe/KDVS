@@ -18,6 +18,8 @@ import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
+import fho.kdvs.global.database.ShowBroadcastFavoriteJoin
+import fho.kdvs.global.database.ShowBroadcastTrackFavoriteJoin
 import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.preferences.KdvsPreferences
@@ -45,8 +47,8 @@ class FavoriteFragment : BaseFragment() {
 
     private var favoriteViewAdapter: FavoriteViewAdapter? = null
 
-    val hashedResults = mutableMapOf<String, ArrayList<FavoriteJoin>>()
-    val currentlyDisplayingResults = mutableListOf<FavoriteJoin?>()
+    val hashedResults = mutableMapOf<String, ArrayList<FavoriteTrackJoin>>()
+    val currentlyDisplayingResults = mutableListOf<FavoriteTrackJoin?>()
 
     var sortType = FavoriteViewAdapter.SortType.RECENT
     var sortDirection = FavoriteViewAdapter.SortDirection.DES
@@ -183,43 +185,53 @@ class FavoriteFragment : BaseFragment() {
         val fragment = this
 
         viewModel.run {
-            getShowBroadcastTrackFavoriteJoins().observe(fragment, Observer { joins ->
-                when (joins.isEmpty()) {
-                    true -> {
-                        resultsRecycler.visibility = View.GONE
-                        noResults.visibility = View.VISIBLE
+            allJoins.observe(fragment, Observer { (broadcastFavoriteJoins, trackFavoriteJoins) ->
+                processBroadcastFavorites(broadcastFavoriteJoins)
 
-                        LoadScreen.hideLoadScreen(favoritesRoot)
-                    }
-                    false -> {
-                        resultsRecycler.visibility = View.VISIBLE
-                        noResults.visibility = View.GONE
+                processTrackFavorites(trackFavoriteJoins)
 
-                        favoriteViewAdapter = FavoriteViewAdapter(joins.distinct(), fragment) {
-                            Timber.d("clicked ${it.item}")
+                LoadScreen.hideLoadScreen(favoritesRoot)
+            })
+        }
+    }
 
-                            val ids = currentlyDisplayingResults
-                                .mapNotNull { r -> r?.track?.trackId }
-                                .toIntArray()
+    private fun processBroadcastFavorites(joins: List<ShowBroadcastFavoriteJoin>?) {
 
-                            viewModel.onClickTrack(findNavController(), it.item.track, ids)
-                        }
+    }
 
-                        resultsRecycler.run {
-                            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-                            adapter = favoriteViewAdapter
-                        }
+    private fun processTrackFavorites(joins: List<ShowBroadcastTrackFavoriteJoin>?) {
+        when (joins?.isEmpty()) {
+            true -> {
+                resultsRecycler.visibility = View.GONE
+                noResults.visibility = View.VISIBLE
 
-                        if (resultsRecycler.viewTreeObserver.isAlive) {
-                            resultsRecycler.viewTreeObserver.addOnDrawListener {
-                                setSectionHeaders()
-                            }
-                        }
+                LoadScreen.hideLoadScreen(favoritesRoot)
+            }
+            false -> {
+                resultsRecycler.visibility = View.VISIBLE
+                noResults.visibility = View.GONE
 
-                        LoadScreen.hideLoadScreen(favoritesRoot)
+                favoriteViewAdapter = FavoriteViewAdapter(joins.distinct(), this) {
+                    Timber.d("clicked ${it.item}")
+
+                    val ids = currentlyDisplayingResults
+                        .mapNotNull { r -> r?.track?.trackId }
+                        .toIntArray()
+
+                    viewModel.onClickTrack(findNavController(), it.item.track, ids)
+                }
+
+                resultsRecycler.run {
+                    layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+                    adapter = favoriteViewAdapter
+                }
+
+                if (resultsRecycler.viewTreeObserver.isAlive) {
+                    resultsRecycler.viewTreeObserver.addOnDrawListener {
+                        setSectionHeaders()
                     }
                 }
-            })
+            }
         }
     }
 

@@ -80,7 +80,7 @@ class SharedViewModel @Inject constructor(
     private val quarterRepository: QuarterRepository,
     private val subscriptionRepository: SubscriptionRepository,
     private val trackRepository: TrackRepository,
-    private val favoriteDao: FavoriteDao,
+    private val favoriteDao: FavoriteTrackDao,
     private val subscriptionDao: SubscriptionDao,
     private val liveShowUpdater: LiveShowUpdater,
     private val mediaSessionConnection: MediaSessionConnection,
@@ -754,7 +754,7 @@ class SharedViewModel @Inject constructor(
         if (imageView?.tag == 0) {
             imageView.setImageResource(R.drawable.ic_favorite_white_24dp)
             imageView.tag = 1
-            launch { favoriteDao.insert(FavoriteEntity(0, track.trackId)) }
+            launch { favoriteDao.insert(FavoriteTrackEntity(0, track.trackId)) }
 
             // Fetch third party data now to make entry into FavoriteFragment seamless
             launch { fetchThirdPartyDataForTrack(track)}

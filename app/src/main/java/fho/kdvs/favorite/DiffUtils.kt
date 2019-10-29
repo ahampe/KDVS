@@ -1,10 +1,10 @@
 package fho.kdvs.favorite
 
 import androidx.recyclerview.widget.DiffUtil
-class FavoriteTrackDiffCallback : DiffUtil.ItemCallback<FavoriteJoin>() {
-    override fun areItemsTheSame(oldItem: FavoriteJoin, newItem: FavoriteJoin) =
+class FavoriteTrackDiffCallback : DiffUtil.ItemCallback<FavoriteTrackJoin>() {
+    override fun areItemsTheSame(oldItem: FavoriteTrackJoin, newItem: FavoriteTrackJoin) =
         oldItem.favorite == newItem.favorite
 
-    override fun areContentsTheSame(oldItem:  FavoriteJoin, newItem:  FavoriteJoin) =
+    override fun areContentsTheSame(oldItem:  FavoriteTrackJoin, newItem:  FavoriteTrackJoin) =
         oldItem == newItem
 }

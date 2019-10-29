@@ -8,7 +8,7 @@ import androidx.navigation.NavController
 import fho.kdvs.R
 import fho.kdvs.favorite.FavoriteRepository
 import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.FavoriteEntity
+import fho.kdvs.global.database.FavoriteTrackEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.show.ShowRepository
@@ -37,10 +37,10 @@ class BroadcastDetailsViewModel @Inject constructor(
     lateinit var showWithBroadcast: MediatorLiveData<Pair<ShowEntity, BroadcastEntity>>
 
     lateinit var tracksLiveData: LiveData<List<TrackEntity>>
-    private lateinit var favoritesLiveData: LiveData<List<FavoriteEntity>>
-    lateinit var tracksWithFavorites: MediatorLiveData<Pair<List<TrackEntity>,List<FavoriteEntity>?>>
+    private lateinit var favoritesLiveData: LiveData<List<FavoriteTrackEntity>>
+    lateinit var tracksWithFavorites: MediatorLiveData<Pair<List<TrackEntity>,List<FavoriteTrackEntity>?>>
 
-    var favorites: List<FavoriteEntity>?= null
+    var favorites: List<FavoriteTrackEntity>?= null
 
     fun initialize(showId: Int, broadcastId: Int) {
         fetchTracks(broadcastId)
@@ -69,7 +69,7 @@ class BroadcastDetailsViewModel @Inject constructor(
                 }
             }
 
-        tracksWithFavorites = MediatorLiveData<Pair<List<TrackEntity>,List<FavoriteEntity>?>>()
+        tracksWithFavorites = MediatorLiveData<Pair<List<TrackEntity>,List<FavoriteTrackEntity>?>>()
             .apply {
                 var tracks: List<TrackEntity>? = null
 

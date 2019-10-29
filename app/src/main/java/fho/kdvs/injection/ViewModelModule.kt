@@ -74,13 +74,14 @@ abstract class ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(FavoriteViewModel::class)
-    abstract fun bindFavoriteViewModel(favoriteViewModel: FavoriteViewModel): ViewModel
+    @ViewModelKey(TopMusicDetailsViewModel::class)
+    abstract fun bindTopMusicDetailsViewModel(topMusicDetailsViewModel: TopMusicDetailsViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @ViewModelKey(TopMusicDetailsViewModel::class)
-    abstract fun bindTopMusicDetailsViewModel(topMusicDetailsViewModel: TopMusicDetailsViewModel): ViewModel
+    @ViewModelKey(FavoriteViewModel::class)
+    abstract fun bindFavoriteViewModel(favoriteViewModel: FavoriteViewModel): ViewModel
+
 
     @Binds
     abstract fun bindViewModelFactory(factory: KdvsViewModelFactory): ViewModelProvider.Factory

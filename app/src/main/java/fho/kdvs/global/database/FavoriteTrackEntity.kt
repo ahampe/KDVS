@@ -6,7 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "favoriteData",
+    tableName = "favoriteTrackData",
     foreignKeys = [
         ForeignKey(
             entity = TrackEntity::class,
@@ -15,7 +15,7 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )]
 )
-data class FavoriteEntity (
+data class FavoriteTrackEntity (
     @PrimaryKey(autoGenerate = true) val favoriteId: Int = 0,
     @ColumnInfo(name = "trackId", index = true) val trackId: Int = 0
 )

@@ -17,7 +17,7 @@ import fho.kdvs.R
 import fho.kdvs.databinding.FragmentTrackDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
-import fho.kdvs.global.database.FavoriteEntity
+import fho.kdvs.global.database.FavoriteTrackEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.database.getTracks
 import fho.kdvs.global.ui.LoadScreen
@@ -33,7 +33,7 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
     private lateinit var fragmentTrackDetailsBinding: FragmentTrackDetailsBinding
 
     private lateinit var tracks: List<TrackEntity?>
-    private lateinit var favorites: List<FavoriteEntity>
+    private lateinit var favorites: List<FavoriteTrackEntity>
 
     private var tracksViewAdapter: TracksViewAdapter? = null
 

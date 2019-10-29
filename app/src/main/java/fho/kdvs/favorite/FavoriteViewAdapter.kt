@@ -14,20 +14,20 @@ import fho.kdvs.global.util.ClickData
 import timber.log.Timber
 
 class FavoriteViewAdapter(
-    joins: List<ShowBroadcastTrackFavoriteJoin>?,
+    trackJoins: List<ShowBroadcastTrackFavoriteJoin>?,
     private val fragment: FavoriteFragment,
-    onClick: (ClickData<FavoriteJoin>) -> Unit
-) : BindingRecyclerViewAdapter<FavoriteJoin, FavoriteViewAdapter.ViewHolder>(onClick, FavoriteTrackDiffCallback()), Filterable {
+    onClick: (ClickData<FavoriteTrackJoin>) -> Unit
+) : BindingRecyclerViewAdapter<FavoriteTrackJoin, FavoriteViewAdapter.ViewHolder>(onClick, FavoriteTrackDiffCallback()), Filterable {
 
     var query: String = ""
 
-    val results = mutableListOf<FavoriteJoin>()
-    var allFavorites = mutableListOf<FavoriteJoin>()
+    val results = mutableListOf<FavoriteTrackJoin>()
+    var allFavorites = mutableListOf<FavoriteTrackJoin>()
     
     init {
-        val favoriteJoins = joins.getFavoriteJoins()
+        val trackFavoriteJoins = trackJoins.getTrackFavoriteJoins()
 
-        favoriteJoins?.let {
+        trackFavoriteJoins?.let {
             results.addAll(it)
         }
 
@@ -51,7 +51,7 @@ class FavoriteViewAdapter(
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(charSeq: CharSequence): FilterResults {
-                val filteredList = ArrayList<FavoriteJoin>()
+                val filteredList = ArrayList<FavoriteTrackJoin>()
                 val query = charSeq.toString().trim()
 
                 if (query.isNotEmpty()){
@@ -120,7 +120,7 @@ class FavoriteViewAdapter(
         fragment.currentlyDisplayingResults.addAll(results)
     }
 
-    private fun sortFavorites(list: List<FavoriteJoin>?): List<FavoriteJoin>? {
+    private fun sortFavorites(list: List<FavoriteTrackJoin>?): List<FavoriteTrackJoin>? {
         return (when (fragment.sortDirection) {
             SortDirection.ASC -> when (fragment.sortType) {
                 SortType.RECENT -> list?.sortedBy{it.favorite?.favoriteId}
@@ -155,8 +155,8 @@ class FavoriteViewAdapter(
     class ViewHolder(
         private val binding: CellFavoriteTrackBinding,
         private val queryStr: String
-    ) : BindingViewHolder<FavoriteJoin>(binding.root) {
-        override fun bind(listener: View.OnClickListener, item: FavoriteJoin) {
+    ) : BindingViewHolder<FavoriteTrackJoin>(binding.root) {
+        override fun bind(listener: View.OnClickListener, item: FavoriteTrackJoin) {
             binding.apply {
                 clickListener = listener
                 track = item.track
