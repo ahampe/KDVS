@@ -1,4 +1,4 @@
-package fho.kdvs.favorite
+package fho.kdvs.favorite.track
 
 import fho.kdvs.global.database.*
 

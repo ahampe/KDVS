@@ -1,4 +1,4 @@
-package fho.kdvs.favorite
+package fho.kdvs.favorite.track
 
 import android.view.LayoutInflater
 import android.view.View
@@ -13,17 +13,20 @@ import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
 import timber.log.Timber
 
-class FavoriteViewAdapter(
+class FavoriteTrackViewAdapter(
     trackJoins: List<ShowBroadcastTrackFavoriteJoin>?,
-    private val fragment: FavoriteFragment,
+    private val fragment: FavoriteTrackFragment,
     onClick: (ClickData<FavoriteTrackJoin>) -> Unit
-) : BindingRecyclerViewAdapter<FavoriteTrackJoin, FavoriteViewAdapter.ViewHolder>(onClick, FavoriteTrackDiffCallback()), Filterable {
+) : BindingRecyclerViewAdapter<FavoriteTrackJoin, FavoriteTrackViewAdapter.ViewHolder>(
+    onClick,
+    FavoriteTrackDiffCallback()
+), Filterable {
 
     var query: String = ""
 
     val results = mutableListOf<FavoriteTrackJoin>()
     var allFavorites = mutableListOf<FavoriteTrackJoin>()
-    
+
     init {
         val trackFavoriteJoins = trackJoins.getTrackFavoriteJoins()
 
@@ -54,7 +57,7 @@ class FavoriteViewAdapter(
                 val filteredList = ArrayList<FavoriteTrackJoin>()
                 val query = charSeq.toString().trim()
 
-                if (query.isNotEmpty()){
+                if (query.isNotEmpty()) {
                     if (!fragment.hashedResults[query].isNullOrEmpty()) {
                         filteredList.addAll(fragment.hashedResults[query]!!)
                         results.clear()
@@ -72,7 +75,8 @@ class FavoriteViewAdapter(
                                 field?.let {
                                     if (!filteredList.contains(join) &&
                                         "^$query".toRegex()
-                                            .find(it.toLowerCase().removeLeadingArticles()) != null)
+                                            .find(it.toLowerCase().removeLeadingArticles()) != null
+                                    )
                                         filteredList.add(join)
                                 }
                             }
@@ -123,21 +127,39 @@ class FavoriteViewAdapter(
     private fun sortFavorites(list: List<FavoriteTrackJoin>?): List<FavoriteTrackJoin>? {
         return (when (fragment.sortDirection) {
             SortDirection.ASC -> when (fragment.sortType) {
-                SortType.RECENT -> list?.sortedBy{it.favorite?.favoriteId}
-                SortType.ALBUM  -> list?.sortedBy{it.track?.album?.toUpperCase().removeLeadingArticles()}
-                SortType.ARTIST -> list?.sortedBy{it.track?.artist?.toUpperCase().removeLeadingArticles()}
-                SortType.TRACK  -> list?.sortedBy{it.track?.song?.toUpperCase().removeLeadingArticles()}
-                SortType.SHOW   -> list?.sortedBy{it.show?.name?.toUpperCase().removeLeadingArticles()}
+                SortType.RECENT -> list?.sortedBy { it.favorite?.favoriteId }
+                SortType.ALBUM -> list?.sortedBy {
+                    it.track?.album?.formatName()
+                }
+                SortType.ARTIST -> list?.sortedBy {
+                    it.track?.artist?.formatName()
+                }
+                SortType.TRACK -> list?.sortedBy {
+                    it.track?.song?.formatName()
+                }
+                SortType.SHOW -> list?.sortedBy {
+                    it.show?.name?.formatName()
+                }
             }
             SortDirection.DES -> when (fragment.sortType) {
-                SortType.RECENT -> list?.sortedByDescending{it.favorite?.favoriteId}
-                SortType.ALBUM  -> list?.sortedByDescending{it.track?.album?.toUpperCase().removeLeadingArticles()}
-                SortType.ARTIST -> list?.sortedByDescending{it.track?.artist?.toUpperCase().removeLeadingArticles()}
-                SortType.TRACK  -> list?.sortedByDescending{it.track?.song?.toUpperCase().removeLeadingArticles()}
-                SortType.SHOW   -> list?.sortedByDescending{it.show?.name?.toUpperCase().removeLeadingArticles()}
+                SortType.RECENT -> list?.sortedByDescending { it.favorite?.favoriteId }
+                SortType.ALBUM -> list?.sortedByDescending {
+                    it.track?.album?.formatName()
+                }
+                SortType.ARTIST -> list?.sortedByDescending {
+                    it.track?.artist?.formatName()
+                }
+                SortType.TRACK -> list?.sortedByDescending {
+                    it.track?.song?.formatName()
+                }
+                SortType.SHOW -> list?.sortedByDescending {
+                    it.show?.name?.formatName()
+                }
             }
         })
     }
+    
+    private fun String?.formatName() = this?.toUpperCase().removeLeadingArticles()
 
     enum class SortDirection(val type: String) {
         ASC("asc"),

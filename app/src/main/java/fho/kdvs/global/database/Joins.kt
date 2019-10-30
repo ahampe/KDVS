@@ -2,8 +2,8 @@ package fho.kdvs.global.database
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import fho.kdvs.favorite.FavoriteBroadcastJoin
-import fho.kdvs.favorite.FavoriteTrackJoin
+import fho.kdvs.favorite.broadcast.FavoriteBroadcastJoin
+import fho.kdvs.favorite.track.FavoriteTrackJoin
 
 /**
  * Classes to encapsulate the joins between [FavoriteBroadcastEntity], its [BroadcastEntity],

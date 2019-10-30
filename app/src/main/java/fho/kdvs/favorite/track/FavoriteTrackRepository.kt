@@ -1,4 +1,4 @@
-package fho.kdvs.favorite
+package fho.kdvs.favorite.track
 
 import androidx.lifecycle.LiveData
 import fho.kdvs.global.BaseRepository
@@ -9,7 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FavoriteRepository @Inject constructor(
+class FavoriteTrackRepository @Inject constructor(
     private val favoriteBroadcastDao: FavoriteBroadcastDao,
     private val favoriteTrackDao: FavoriteTrackDao
 ) : BaseRepository() {

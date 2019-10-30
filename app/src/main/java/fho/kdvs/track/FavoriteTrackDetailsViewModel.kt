@@ -3,9 +3,8 @@ package fho.kdvs.track
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.navigation.NavController
 import fho.kdvs.broadcast.BroadcastRepository
-import fho.kdvs.favorite.FavoriteRepository
+import fho.kdvs.favorite.track.FavoriteTrackRepository
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowBroadcastTrackFavoriteJoin
 import fho.kdvs.global.database.TrackEntity
@@ -14,7 +13,7 @@ import javax.inject.Inject
 class FavoriteTrackDetailsViewModel @Inject constructor(
     val trackRepository: TrackRepository,
     private val broadcastRepository: BroadcastRepository,
-    private val favoriteRepository: FavoriteRepository,
+    private val favoriteRepository: FavoriteTrackRepository,
     application: Application
 ) : AndroidViewModel(application) {
 

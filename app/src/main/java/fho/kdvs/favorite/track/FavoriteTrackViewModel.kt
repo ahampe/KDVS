@@ -1,19 +1,20 @@
-package fho.kdvs.favorite
+package fho.kdvs.favorite.track
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MediatorLiveData
 import androidx.navigation.NavController
 import fho.kdvs.R
+import fho.kdvs.favorite.FavoriteFragmentDirections
 import fho.kdvs.global.database.ShowBroadcastFavoriteJoin
 import fho.kdvs.global.database.ShowBroadcastTrackFavoriteJoin
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.track.TrackRepository
 import javax.inject.Inject
 
-class FavoriteViewModel @Inject constructor(
+class FavoriteTrackViewModel @Inject constructor(
     val trackRepository: TrackRepository,
-    favoriteRepository: FavoriteRepository,
+    favoriteRepository: FavoriteTrackRepository,
     application: Application
 ) : AndroidViewModel(application) {
 
@@ -44,8 +45,11 @@ class FavoriteViewModel @Inject constructor(
 
     fun onClickTrack(navController: NavController, track: TrackEntity?, resultIds: IntArray) {
         track?.let {
-            val navAction = FavoriteFragmentDirections
-                .actionFavoriteFragmentToFavoriteTrackDetailsFragment(track, resultIds)
+            val navAction =
+                FavoriteFragmentDirections.actionFavoriteFragmentToFavoriteTrackDetailsFragment(
+                    track,
+                    resultIds
+                )
             if (navController.currentDestination?.id == R.id.favoriteFragment)
                 navController.navigate(navAction)
         }
