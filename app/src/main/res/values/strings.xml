@@ -144,6 +144,7 @@
 
     <string name="sort_header">Sort By</string>
     <string name="sort_recent">Time Added</string>
+    <string name="sort_date">Date</string>
     <string name="sort_show">Show</string>
     <string name="sort_artist">Artist</string>
     <string name="sort_album">Album</string>
@@ -152,4 +153,7 @@
 
     <string name="com_spotify_sdk_redirect_scheme">fho</string>
     <string name="com_spotify_sdk_redirect_host">kdvs</string>
+
+    <!-- Favorites -->
+    <string name="download_all">Download All</string>
 </resources>

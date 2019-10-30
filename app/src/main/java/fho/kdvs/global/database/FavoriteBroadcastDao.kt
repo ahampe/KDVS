@@ -22,7 +22,7 @@ interface FavoriteBroadcastDao {
     fun getByBroadcastId(broadcastId: Int?): LiveData<FavoriteBroadcastEntity>
 
     @Query(
-        """SELECT favoriteId, favoriteBroadcastData.broadcastId from favoriteBroadcastData
+        """SELECT favoriteBroadcastId, favoriteBroadcastData.broadcastId from favoriteBroadcastData
         INNER JOIN broadcastData on broadcastData.broadcastId = broadcastData.broadcastId
         WHERE broadcastData.broadcastId = :broadcastId"""
     )

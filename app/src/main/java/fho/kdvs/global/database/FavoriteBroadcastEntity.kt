@@ -16,6 +16,6 @@ import androidx.room.PrimaryKey
         )]
 )
 data class FavoriteBroadcastEntity (
-    @PrimaryKey(autoGenerate = true) val favoriteId: Int = 0,
+    @PrimaryKey(autoGenerate = true) val favoriteBroadcastId: Int = 0,
     @ColumnInfo(name = "broadcastId") val broadcastId: Int = 0
 )

@@ -8,4 +8,7 @@ class FavoriteTrackJoin (
     val track: TrackEntity?,
     val broadcast: BroadcastEntity?,
     val show: ShowEntity?
-)
+) {
+    override fun equals(other: Any?): Boolean =
+        this.favorite?.favoriteTrackId == (other as? FavoriteTrackJoin)?.favorite?.favoriteTrackId
+}

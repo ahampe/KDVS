@@ -29,6 +29,8 @@ import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.api.service.YouTubeService
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.dialog.BinaryChoiceDialogFragment
+import fho.kdvs.favorite.FavoriteFragment.SortDirection
+import fho.kdvs.favorite.FavoriteFragment.SortType
 import fho.kdvs.fundraiser.FundraiserRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.enums.ThirdPartyService
@@ -116,6 +118,28 @@ class SharedViewModel @Inject constructor(
     val isPlayingAudioNow = mediaSessionConnection.playbackState
 
     val isLiveNow: LiveData<Boolean?> = showRepository.isLiveNow
+
+    val favoriteSortDirection = MutableLiveData<SortDirection>()
+
+    val favoriteSortType = MutableLiveData<SortType>()
+
+    val favoriteSortDirectionAndType = MediatorLiveData<Pair<SortDirection, SortType>>()
+        .apply {
+            var dirEnt: SortDirection? = null
+            var typeEnt: SortType? = null
+
+            addSource(favoriteSortDirection) { dir ->
+                dirEnt = dir
+                val type = typeEnt ?: return@addSource
+                postValue(Pair(dir, type))
+            }
+
+            addSource(favoriteSortType) { type ->
+                typeEnt = type
+                val dir = dirEnt ?: return@addSource
+                postValue(Pair(dir, type))
+            }
+        }
 
     /** Use across various lifecycles of PlayerFragment to maintain list of scraped tracks for live broadcast. */
     val scrapedTracksForBroadcast= mutableListOf<TrackEntity>()

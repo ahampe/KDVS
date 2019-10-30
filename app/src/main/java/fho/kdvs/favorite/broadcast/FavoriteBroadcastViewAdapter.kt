@@ -1,4 +1,4 @@
-package fho.kdvs.favorite.track
+package fho.kdvs.favorite.broadcast
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,12 +6,12 @@ import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
 import androidx.lifecycle.Observer
-import fho.kdvs.databinding.CellFavoriteTrackBinding
+import fho.kdvs.databinding.CellFavoriteBroadcastBinding
 import fho.kdvs.favorite.FavoriteFragment.SortDirection
 import fho.kdvs.favorite.FavoriteFragment.SortType
 import fho.kdvs.global.SharedViewModel
-import fho.kdvs.global.database.ShowBroadcastTrackFavoriteJoin
-import fho.kdvs.global.database.getTrackFavoriteJoins
+import fho.kdvs.global.database.ShowBroadcastFavoriteJoin
+import fho.kdvs.global.database.getBroadcastFavoriteJoins
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
@@ -19,23 +19,23 @@ import fho.kdvs.global.util.ClickData
 import timber.log.Timber
 
 
-class FavoriteTrackViewAdapter(
-    trackJoins: List<ShowBroadcastTrackFavoriteJoin>?,
-    private val fragment: FavoriteTrackFragment,
+class FavoriteBroadcastViewAdapter(
+    broadcastJoins: List<ShowBroadcastFavoriteJoin>?,
+    private val fragment: FavoriteBroadcastFragment,
     private val sharedViewModel: SharedViewModel,
-    onClick: (ClickData<FavoriteTrackJoin>) -> Unit
-) : BindingRecyclerViewAdapter<FavoriteTrackJoin, FavoriteTrackViewAdapter.ViewHolder>(
+    onClick: (ClickData<FavoriteBroadcastJoin>) -> Unit
+) : BindingRecyclerViewAdapter<FavoriteBroadcastJoin, FavoriteBroadcastViewAdapter.ViewHolder>(
     onClick,
-    FavoriteTrackDiffCallback()
+    FavoriteBroadcastDiffCallback()
 ), Filterable {
     var query: String = ""
-    val results = mutableListOf<FavoriteTrackJoin>()
-    var allFavorites = mutableListOf<FavoriteTrackJoin>()
+    val results = mutableListOf<FavoriteBroadcastJoin>()
+    var allFavorites = mutableListOf<FavoriteBroadcastJoin>()
 
     init {
-        val trackFavoriteJoins = trackJoins.getTrackFavoriteJoins()
+        val broadcastFavoriteJoins = broadcastJoins.getBroadcastFavoriteJoins()
 
-        trackFavoriteJoins?.let {
+        broadcastFavoriteJoins?.let {
             results.addAll(it)
         }
 
@@ -48,7 +48,7 @@ class FavoriteTrackViewAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = CellFavoriteTrackBinding.inflate(inflater, parent, false)
+        val binding = CellFavoriteBroadcastBinding.inflate(inflater, parent, false)
         return ViewHolder(binding, query)
     }
 
@@ -59,7 +59,7 @@ class FavoriteTrackViewAdapter(
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(charSeq: CharSequence): FilterResults {
-                val filteredList = ArrayList<FavoriteTrackJoin>()
+                val filteredList = ArrayList<FavoriteBroadcastJoin>()
                 val query = charSeq.toString().trim()
 
                 if (query.isNotEmpty()) {
@@ -70,9 +70,6 @@ class FavoriteTrackViewAdapter(
                     } else {
                         allFavorites.forEach { join ->
                             val fieldsToSearch = listOf(
-                                join.track?.song,
-                                join.track?.artist,
-                                join.track?.album,
                                 join.show?.name
                             )
 
@@ -117,34 +114,22 @@ class FavoriteTrackViewAdapter(
             Observer { (sortDirection, sortType) ->
                 val newResults = (when (sortDirection) {
                     SortDirection.ASC -> when (sortType) {
-                        SortType.RECENT -> results.sortedBy { it.favorite?.favoriteTrackId }
-                        SortType.ALBUM -> results.sortedBy {
-                            it.track?.album?.formatName()
-                        }
-                        SortType.ARTIST -> results.sortedBy {
-                            it.track?.artist?.formatName()
-                        }
-                        SortType.TRACK -> results.sortedBy {
-                            it.track?.song?.formatName()
-                        }
+                        SortType.RECENT -> results.sortedBy { it.favorite?.favoriteBroadcastId }
                         SortType.SHOW -> results.sortedBy {
                             it.show?.name?.formatName()
+                        }
+                        SortType.DATE -> results.sortedBy {
+                            it.broadcast?.date
                         }
                         else -> results
                     }
                     SortDirection.DES -> when (sortType) {
-                        SortType.RECENT -> results.sortedByDescending { it.favorite?.favoriteTrackId }
-                        SortType.ALBUM -> results.sortedByDescending {
-                            it.track?.album?.formatName()
-                        }
-                        SortType.ARTIST -> results.sortedByDescending {
-                            it.track?.artist?.formatName()
-                        }
-                        SortType.TRACK -> results.sortedByDescending {
-                            it.track?.song?.formatName()
-                        }
+                        SortType.RECENT -> results.sortedByDescending { it.favorite?.favoriteBroadcastId }
                         SortType.SHOW -> results.sortedByDescending {
                             it.show?.name?.formatName()
+                        }
+                        SortType.DATE -> results.sortedByDescending {
+                            it.broadcast?.date
                         }
                         else -> results
                     }
@@ -170,13 +155,13 @@ class FavoriteTrackViewAdapter(
 
 
     class ViewHolder(
-        private val binding: CellFavoriteTrackBinding,
+        private val binding: CellFavoriteBroadcastBinding,
         private val queryStr: String
-    ) : BindingViewHolder<FavoriteTrackJoin>(binding.root) {
-        override fun bind(listener: View.OnClickListener, item: FavoriteTrackJoin) {
+    ) : BindingViewHolder<FavoriteBroadcastJoin>(binding.root) {
+        override fun bind(listener: View.OnClickListener, item: FavoriteBroadcastJoin) {
             binding.apply {
                 clickListener = listener
-                track = item.track
+                broadcast = item.broadcast
                 show = item.show
                 query = queryStr
             }

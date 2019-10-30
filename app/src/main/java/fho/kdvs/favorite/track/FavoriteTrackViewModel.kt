@@ -21,27 +21,8 @@ class FavoriteTrackViewModel @Inject constructor(
     private val showBroadcastFavoriteJoins =
         favoriteRepository.allShowBroadcastFavoriteJoins()
 
-    private val showBroadcastTrackFavoriteJoins =
+    val showBroadcastTrackFavoriteJoins =
         favoriteRepository.allShowBroadcastTrackFavoriteJoins()
-
-    val allJoins =
-        MediatorLiveData<Pair<List<ShowBroadcastFavoriteJoin>?, List<ShowBroadcastTrackFavoriteJoin>?>>().apply {
-            var broadcastFavoriteEnt: List<ShowBroadcastFavoriteJoin>? = null
-            var trackFavoriteEnt: List<ShowBroadcastTrackFavoriteJoin>? = null
-
-            addSource(showBroadcastFavoriteJoins) { join ->
-                broadcastFavoriteEnt = join
-                val trackFavorite = trackFavoriteEnt ?: return@addSource
-                postValue(Pair(broadcastFavoriteEnt, trackFavorite))
-            }
-
-            addSource(showBroadcastTrackFavoriteJoins) { join ->
-                trackFavoriteEnt = join
-                val broadcastFavorite = broadcastFavoriteEnt ?: return@addSource
-                postValue(Pair(broadcastFavorite, trackFavoriteEnt))
-            }
-        }
-
 
     fun onClickTrack(navController: NavController, track: TrackEntity?, resultIds: IntArray) {
         track?.let {

@@ -208,7 +208,7 @@ class HomeFragment : BaseFragment() {
         when (requestCode) {
             RequestCodes.SPOTIFY_EXPORT_TOP_ADDS -> {
                 if (resultCode == Activity.RESULT_OK) {
-                    if (sharedViewModel.isSpotifyAuthVoidOrExpired()) {
+                    if (sharedViewModel.isSpotifyAuthVoidOrExpired()) { // TODO refactor this code block to share with other exports
                         sharedViewModel.loginSpotify(requireActivity())
                         sharedViewModel.spotToken.observe(viewLifecycleOwner, Observer { token ->
                             token?.let {

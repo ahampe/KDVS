@@ -26,7 +26,7 @@ interface FavoriteTrackDao {
     fun getByTrackId(trackId: Int?): LiveData<FavoriteTrackEntity>
 
     @Query(
-        """SELECT favoriteId, favoriteTrackData.trackId from favoriteTrackData
+        """SELECT favoriteTrackId, favoriteTrackData.trackId from favoriteTrackData
         INNER JOIN trackData on favoriteTrackData.trackId = trackData.trackId
         INNER JOIN broadcastData on trackData.broadcastId = broadcastData.broadcastId
         WHERE broadcastData.broadcastId = :broadcastId"""

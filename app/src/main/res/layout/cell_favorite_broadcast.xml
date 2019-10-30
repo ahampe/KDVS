@@ -4,8 +4,8 @@
     <data>
 
         <variable
-            name="track"
-            type="fho.kdvs.global.database.TrackEntity" />
+            name="broadcast"
+            type="fho.kdvs.global.database.BroadcastEntity" />
 
         <variable
             name="show"
@@ -18,6 +18,10 @@
         <variable
             name="clickListener"
             type="android.view.View.OnClickListener" />
+
+        <variable
+            name="dateFormatter"
+            type="org.threeten.bp.format.DateTimeFormatter" />
 
         <import type="fho.kdvs.global.util.TimeHelper" />
     </data>
@@ -47,13 +51,13 @@
             tools:text="D"/>
 
         <ImageView
-            android:id="@+id/trackImage"
+            android:id="@+id/broadcastImage"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
             android:contentDescription="@string/timeslot_desc"
-            glideHref="@{track.imageHref}"
+            glideHref="@{broadcast.imageHref}"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/sectionHeader"
@@ -64,7 +68,7 @@
             tools:background="@drawable/show_placeholder"/>
 
         <TextView
-            android:id="@+id/song"
+            android:id="@+id/showName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
@@ -72,54 +76,35 @@
             android:layout_marginEnd="@dimen/timeslot_margin"
             android:maxLines="1"
             android:ellipsize="end"
-            android:text="@{track.song}"
+            android:text="@{show.name}"
             style="@style/TextAppearance.MaterialComponents.Headline6"
-            app:layout_constraintStart_toEndOf="@id/trackImage"
+            app:layout_constraintStart_toEndOf="@id/broadcastImage"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/sectionHeader"
             app:layout_constrainedWidth="true"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="packed"
-            tools:text="Name of the Song"/>
+            tools:text="Cosmic Tones"/>
 
         <TextView
-            android:id="@+id/trackInfo"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:layout_marginStart="@dimen/timeslot_margin"
-            android:layout_marginEnd="@dimen/timeslot_margin"
-            android:ellipsize="end"
-            android:maxLines="1"
-            trackInfo="@{track}"
-            style="@style/TextAppearance.MaterialComponents.Subtitle2"
-            app:layout_constraintStart_toEndOf="@id/trackImage"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/song"
-            app:layout_constrainedWidth="true"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            tools:text="Darkthrone"/>
-
-        <TextView
-            android:id="@+id/showName"
+            android:id="@+id/date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textColor="@color/colorPrimary"
-            android:layout_marginStart="@dimen/timeslot_margin"
             android:layout_marginEnd="@dimen/timeslot_margin"
             android:ellipsize="end"
-            android:textSize="12sp"
-            android:text="@{show.name}"
+            android:maxLines="1"
+            dateFormatter="@{dateFormatter}"
+            localDate="@{broadcast.date}"
             style="@style/TextAppearance.MaterialComponents.Subtitle2"
-            app:layout_constraintStart_toEndOf="@id/trackImage"
+            app:layout_constraintStart_toStartOf="@id/showName"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/trackInfo"
+            app:layout_constraintTop_toBottomOf="@id/showName"
             app:layout_constrainedWidth="true"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="packed"
-            tools:visibility="visible"
-            tools:text="Radio Fenriz"/>
+            tools:text="January 3, 2019"/>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
