@@ -6,6 +6,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
 import fho.kdvs.broadcast.BroadcastDetailsViewModel
+import fho.kdvs.favorite.broadcast.FavoriteBroadcastViewModel
 import fho.kdvs.favorite.track.FavoriteTrackViewModel
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
@@ -79,8 +80,13 @@ abstract class ViewModelModule {
 
     @Binds
     @IntoMap
+    @ViewModelKey(FavoriteBroadcastViewModel::class)
+    abstract fun bindFavoriteBroadcastViewModel(favoriteBroadcastViewModel: FavoriteBroadcastViewModel): ViewModel
+
+    @Binds
+    @IntoMap
     @ViewModelKey(FavoriteTrackViewModel::class)
-    abstract fun bindFavoriteViewModel(favoriteViewModel: FavoriteTrackViewModel): ViewModel
+    abstract fun bindFavoriteTrackViewModel(favoriteTrackViewModel: FavoriteTrackViewModel): ViewModel
 
 
     @Binds

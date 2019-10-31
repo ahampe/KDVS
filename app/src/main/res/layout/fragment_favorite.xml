@@ -37,6 +37,7 @@
         android:layout_height="match_parent"
         android:background="@android:color/transparent"
         android:visibility="gone"
+        android:elevation="@dimen/spacing_small"
         tools:visibility="visible"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout

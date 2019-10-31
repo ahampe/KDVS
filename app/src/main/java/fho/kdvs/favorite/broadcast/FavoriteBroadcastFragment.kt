@@ -118,6 +118,10 @@ class FavoriteBroadcastFragment : BaseFragment() {
         }
     }
 
+    private fun setDownloadIcons() {
+
+    }
+
     private fun subscribeToViewModel() {
         val fragment = this
 

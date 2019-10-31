@@ -154,7 +154,7 @@ class FavoriteBroadcastViewAdapter(
     private fun String?.formatName() = this?.toUpperCase().removeLeadingArticles()
 
 
-    class ViewHolder(
+    class ViewHolder (
         private val binding: CellFavoriteBroadcastBinding,
         private val queryStr: String
     ) : BindingViewHolder<FavoriteBroadcastJoin>(binding.root) {

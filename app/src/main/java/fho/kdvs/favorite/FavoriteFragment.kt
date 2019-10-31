@@ -72,6 +72,8 @@ class FavoriteFragment : BaseFragment() {
 
         tabLayout.setupWithViewPager(favoritePager)
 
+        initSortMenu()
+
         favoritePager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
@@ -86,8 +88,6 @@ class FavoriteFragment : BaseFragment() {
                 }
             }
         })
-
-
 
         initializeClickListeners()
     }
@@ -152,7 +152,7 @@ class FavoriteFragment : BaseFragment() {
     }
 
     private fun sortBroadcasts() {
-
+        getBroadcastTrackViewAdapter()?.updateData()
     }
 
     private fun initForTracks() {
@@ -200,30 +200,30 @@ class FavoriteFragment : BaseFragment() {
         }
     }
 
-    private fun initSearchBarForBroadcasts() { // TODO
-        val favoriteViewAdapter = favoritePagerAdapter.favoriteTrackFrag.favoriteTrackViewAdapter
+    private fun initSearchBarForBroadcasts() {
+        val favoriteBroadcastViewAdapter = getBroadcastTrackViewAdapter()
 
         searchBar?.run {
             queryHint = resources.getString(R.string.filter_query_hint)
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
                 override fun onQueryTextSubmit(query: String): Boolean {
-                    favoriteViewAdapter?.filter?.filter(query)
-                    favoriteViewAdapter?.query = query
+                    favoriteBroadcastViewAdapter?.filter?.filter(query)
+                    favoriteBroadcastViewAdapter?.query = query
                     searchBar.clearFocus()
                     return false
                 }
 
                 override fun onQueryTextChange(query: String): Boolean {
-                    favoriteViewAdapter?.filter?.filter(query)
-                    favoriteViewAdapter?.query = query
+                    favoriteBroadcastViewAdapter?.filter?.filter(query)
+                    favoriteBroadcastViewAdapter?.query = query
                     return false
                 }
             })
 
             // Display all results upon closing filter
             setOnCloseListener {
-                favoriteViewAdapter?.let {
+                favoriteBroadcastViewAdapter?.let {
                     it.results.clear()
                     it.results.addAll(it.allFavorites)
                     it.updateData()
@@ -261,7 +261,8 @@ class FavoriteFragment : BaseFragment() {
     }
 
     private fun initSortMenu() {
-        // reset sortType / Dir to default
+        sharedViewModel.favoriteSortType.postValue(SortType.RECENT)
+        sharedViewModel.favoriteSortDirection.postValue(SortDirection.DES)
     }
 
     private fun hideSortMenu() {
@@ -270,6 +271,9 @@ class FavoriteFragment : BaseFragment() {
 
     private fun getFavoriteTrackViewAdapter() =
         favoritePagerAdapter.favoriteTrackFrag.favoriteTrackViewAdapter
+
+    private fun getBroadcastTrackViewAdapter() =
+        favoritePagerAdapter.favoriteBroadcastFrag.favoriteBroadcastViewAdapter
 
     enum class SortDirection(val type: String) {
         ASC("asc"),

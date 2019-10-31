@@ -69,7 +69,7 @@
 
         <TextView
             android:id="@+id/showName"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
             android:layout_marginStart="@dimen/timeslot_margin"
@@ -79,16 +79,16 @@
             android:text="@{show.name}"
             style="@style/TextAppearance.MaterialComponents.Headline6"
             app:layout_constraintStart_toEndOf="@id/broadcastImage"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/downloadDeleteIcon"
             app:layout_constraintTop_toBottomOf="@id/sectionHeader"
             app:layout_constrainedWidth="true"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="packed"
-            tools:text="Cosmic Tones"/>
+            tools:text="Testing Overflow With a Long Name"/>
 
         <TextView
             android:id="@+id/date"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/colorPrimary"
             android:layout_marginEnd="@dimen/timeslot_margin"
@@ -98,12 +98,22 @@
             localDate="@{broadcast.date}"
             style="@style/TextAppearance.MaterialComponents.Subtitle2"
             app:layout_constraintStart_toStartOf="@id/showName"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/downloadDeleteIcon"
             app:layout_constraintTop_toBottomOf="@id/showName"
             app:layout_constrainedWidth="true"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="packed"
             tools:text="January 3, 2019"/>
+
+        <ImageView
+            android:id="@+id/downloadDeleteIcon"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintDimensionRatio="1:1"
+            android:src="@drawable/ic_file_download_white_24dp"
+            app:layout_constraintTop_toTopOf="@id/showName"
+            app:layout_constraintBottom_toBottomOf="@id/date"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
