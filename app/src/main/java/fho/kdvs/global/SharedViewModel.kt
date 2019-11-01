@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.os.FileObserver
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
@@ -40,6 +41,7 @@ import fho.kdvs.global.extensions.urlEncoded
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.RequestCodes
 import fho.kdvs.global.util.TimeHelper
+import fho.kdvs.global.util.URLs
 import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
 import fho.kdvs.global.util.URLs.YOUTUBE_QUERYSTRING
@@ -82,7 +84,8 @@ class SharedViewModel @Inject constructor(
     private val quarterRepository: QuarterRepository,
     private val subscriptionRepository: SubscriptionRepository,
     private val trackRepository: TrackRepository,
-    private val favoriteDao: FavoriteTrackDao,
+    private val favoriteTrackDao: FavoriteTrackDao,
+    private val favoriteBroadcastDao: FavoriteBroadcastDao,
     private val subscriptionDao: SubscriptionDao,
     private val liveShowUpdater: LiveShowUpdater,
     private val mediaSessionConnection: MediaSessionConnection,
@@ -142,7 +145,7 @@ class SharedViewModel @Inject constructor(
         }
 
     /** Use across various lifecycles of PlayerFragment to maintain list of scraped tracks for live broadcast. */
-    val scrapedTracksForBroadcast= mutableListOf<TrackEntity>()
+    val scrapedTracksForBroadcast = mutableListOf<TrackEntity>()
 
     fun updateLiveShows() = liveShowUpdater.beginUpdating()
 
@@ -166,7 +169,7 @@ class SharedViewModel @Inject constructor(
 
     fun getBroadcastRepo() = broadcastRepository
 
-    fun getCurrentQuarterYear() : LiveData<QuarterYear> =
+    fun getCurrentQuarterYear(): LiveData<QuarterYear> =
         showRepository.getCurrentQuarterYear()
 
     // region quarter
@@ -235,8 +238,7 @@ class SharedViewModel @Inject constructor(
         mediaSessionConnection.playbackState.value?.let { playbackState ->
             if (playbackState.isPlaying) {
                 transportControls.pause()
-            }
-            else {
+            } else {
                 transportControls.play()
             }
         }
@@ -254,12 +256,20 @@ class SharedViewModel @Inject constructor(
         prepareLivePlayback()
     }
 
-    fun preparePastBroadcastForPlaybackAndPlay(broadcast: BroadcastEntity, show: ShowEntity, activity: FragmentActivity) {
+    fun preparePastBroadcastForPlaybackAndPlay(
+        broadcast: BroadcastEntity,
+        show: ShowEntity,
+        activity: FragmentActivity
+    ) {
         preparePastBroadcastForPlayback(broadcast, show, activity)
         playPastBroadcast(broadcast, show)
     }
 
-    fun preparePastBroadcastForPlayback(broadcast: BroadcastEntity, show: ShowEntity, activity: FragmentActivity) {
+    fun preparePastBroadcastForPlayback(
+        broadcast: BroadcastEntity,
+        show: ShowEntity,
+        activity: FragmentActivity
+    ) {
         val file = getDestinationFileForBroadcast(broadcast, show)
 
         when (file?.exists()) {
@@ -271,7 +281,10 @@ class SharedViewModel @Inject constructor(
                             putInt("SHOW_ID", show.id)
 
                             kdvsPreferences.lastPlayedBroadcastId?.let {
-                                putLong("POSITION", kdvsPreferences.lastPlayedBroadcastPosition ?: 0L)
+                                putLong(
+                                    "POSITION",
+                                    kdvsPreferences.lastPlayedBroadcastPosition ?: 0L
+                                )
                             }
 
                             putString("TYPE", PlaybackType.ARCHIVE.type)
@@ -279,9 +292,11 @@ class SharedViewModel @Inject constructor(
                     )
                 } catch (e: Exception) {
                     Timber.e("Error with URI playback: $e")
-                    Toast.makeText(activity as? MainActivity,
+                    Toast.makeText(
+                        activity as? MainActivity,
                         "Error playing downloaded broadcast. Try re-downloading.",
-                        Toast.LENGTH_SHORT)
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                     return
                 }
@@ -300,7 +315,10 @@ class SharedViewModel @Inject constructor(
                             putInt("SHOW_ID", show.id)
 
                             kdvsPreferences.lastPlayedBroadcastId?.let {
-                                putLong("POSITION", kdvsPreferences.lastPlayedBroadcastPosition ?: 0L)
+                                putLong(
+                                    "POSITION",
+                                    kdvsPreferences.lastPlayedBroadcastPosition ?: 0L
+                                )
                             }
 
                             putString("TYPE", PlaybackType.ARCHIVE.type)
@@ -308,9 +326,11 @@ class SharedViewModel @Inject constructor(
                     )
                 } catch (e: Exception) {
                     Timber.e("Error with stream playback: $e")
-                    Toast.makeText(activity as? MainActivity,
+                    Toast.makeText(
+                        activity as? MainActivity,
                         "Error streaming broadcast. Try again later.",
-                        Toast.LENGTH_SHORT)
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                     return
                 }
@@ -331,46 +351,55 @@ class SharedViewModel @Inject constructor(
     fun stopPlayback() {
         val transportControls = mediaSessionConnection.transportControls ?: return
         mediaSessionConnection.playbackState.value?.let { playbackState ->
-            if (playbackState.isPlaying) transportControls.stop() }
+            if (playbackState.isPlaying) transportControls.stop()
+        }
     }
 
     fun prepareLivePlayback() {
-        val customAction = CustomAction(getApplication(),
+        val customAction = CustomAction(
+            getApplication(),
             mediaSessionConnection.transportControls,
             mediaSessionConnection.playbackState.value,
-            mediaSessionConnection)
+            mediaSessionConnection
+        )
 
         customAction.live()
     }
 
     fun jumpBack30Seconds() {
-        val customAction = CustomAction(getApplication(),
+        val customAction = CustomAction(
+            getApplication(),
             mediaSessionConnection.transportControls,
             mediaSessionConnection.playbackState.value,
-            mediaSessionConnection)
+            mediaSessionConnection
+        )
 
         customAction.replay()
     }
 
     fun jumpForward30Seconds() {
-        val customAction = CustomAction(getApplication(),
+        val customAction = CustomAction(
+            getApplication(),
             mediaSessionConnection.transportControls,
             mediaSessionConnection.playbackState.value,
-            mediaSessionConnection)
+            mediaSessionConnection
+        )
 
         customAction.forward()
     }
 
-    fun isShowBroadcastLiveNow(show: ShowEntity, broadcast: BroadcastEntity?): Boolean{
+    fun isShowBroadcastLiveNow(show: ShowEntity, broadcast: BroadcastEntity?): Boolean {
         return isLiveNow.value == null ||
-            broadcast == null ||
+                broadcast == null ||
                 TimeHelper.isShowBroadcastLive(show, broadcast)
     }
 
     fun makeOfflineModeToast(activity: FragmentActivity?) {
-        Toast.makeText(activity as? MainActivity,
+        Toast.makeText(
+            activity as? MainActivity,
             "Offline mode prevents live streaming.",
-            Toast.LENGTH_SHORT)
+            Toast.LENGTH_SHORT
+        )
             .show()
     }
 
@@ -408,13 +437,19 @@ class SharedViewModel @Inject constructor(
 
     fun onClickDiscogs(context: Context, track: TrackEntity?) {
         track?.let {
-            openBrowser(context, "$DISCOGS_SEARCH_URL${track.artist} ${track.song}$DISCOGS_QUERYSTRING")
+            openBrowser(
+                context,
+                "$DISCOGS_SEARCH_URL${track.artist} ${track.song}$DISCOGS_QUERYSTRING"
+            )
         }
     }
 
     fun onClickDiscogs(context: Context, topMusic: TopMusicEntity?) {
         topMusic?.let {
-            openBrowser(context, "$DISCOGS_SEARCH_URL${topMusic.artist} ${topMusic.album}$DISCOGS_QUERYSTRING")
+            openBrowser(
+                context,
+                "$DISCOGS_SEARCH_URL${topMusic.artist} ${topMusic.album}$DISCOGS_QUERYSTRING"
+            )
         }
     }
 
@@ -441,9 +476,9 @@ class SharedViewModel @Inject constructor(
     }
 
     private fun makeYouTubePlaylist(ids: List<String>) =
-        ("https://www.youtube.com/watch_videos?video_ids=" + ids.joinToString(",")).let{
+        ("https://www.youtube.com/watch_videos?video_ids=" + ids.joinToString(",")).let {
             it.substring(0, min(it.length, 2048))
-            .substringBeforeLast(",")
+                .substringBeforeLast(",")
         }
 
     private fun makeYoutubeQuery(topMusic: TopMusicEntity?) =
@@ -453,7 +488,7 @@ class SharedViewModel @Inject constructor(
         "$YOUTUBE_SEARCH_URL${track?.artist} ${track?.song}$YOUTUBE_QUERYSTRING".urlEncoded
 
     private fun openYouTubeApp(context: Context, uri: String) {
-        val intent = Intent(Intent.ACTION_VIEW).apply{
+        val intent = Intent(Intent.ACTION_VIEW).apply {
             data = Uri.parse(uri)
             putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + context.packageName))
         }
@@ -483,10 +518,12 @@ class SharedViewModel @Inject constructor(
             SpotifyEndpoint.SPOTIFY_REDIRECT_URI
         )
 
-        builder.setScopes(arrayOf(
-            "playlist-modify-public",
-            "playlist-read-private",
-            "playlist-modify-private")
+        builder.setScopes(
+            arrayOf(
+                "playlist-modify-public",
+                "playlist-read-private",
+                "playlist-modify-private"
+            )
         )
 
         val request = builder.build()
@@ -495,10 +532,10 @@ class SharedViewModel @Inject constructor(
     }
 
     fun isSpotifyAuthVoidOrExpired() = kdvsPreferences.spotifyAuthToken.isNullOrEmpty() ||
-        kdvsPreferences.spotifyLastLogin ?: 0 < TimeHelper.getOneHourAgoUTC().toEpochSecond()
+            kdvsPreferences.spotifyLastLogin ?: 0 < TimeHelper.getOneHourAgoUTC().toEpochSecond()
 
     private fun openSpotifyApp(context: Context, spotifyUri: String) {
-        val intent = Intent(Intent.ACTION_VIEW).apply{
+        val intent = Intent(Intent.ACTION_VIEW).apply {
             data = Uri.parse(spotifyUri)
             putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + context.packageName))
         }
@@ -515,7 +552,8 @@ class SharedViewModel @Inject constructor(
         try {
             context.packageManager.getPackageInfo("com.spotify.music", 0)
             isSpotifyInstalled = true
-        } catch (e: PackageManager.NameNotFoundException) {}
+        } catch (e: PackageManager.NameNotFoundException) {
+        }
 
         return isSpotifyInstalled
     }
@@ -537,6 +575,92 @@ class SharedViewModel @Inject constructor(
 
     // region Download
 
+    /**
+     * Observes a file in download folder corresponding to given filename, and calls function(s) on
+     * completion or deletion.
+     */
+    fun callOnFileEventForFilename(
+        filename: String,
+        onComplete: () -> Unit,
+        onDelete: (() -> Unit)?
+    ) {
+        val folder = getDownloadFolder()
+        val downloadingFilename = getDownloadingFilename(filename)
+
+        val observer = object : FileObserver(folder?.path) {
+            override fun onEvent(event: Int, filename: String?) {
+                filename?.let {
+                    if (it == downloadingFilename) {
+                        when (event) {
+                            MOVED_FROM -> { // capture file rename upon completion
+                                onComplete()
+                            }
+                            DELETE -> {
+                                onDelete?.let { it() }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        observer.startWatching()
+    }
+
+    fun downloadBroadcast(
+        activity: FragmentActivity,
+        broadcast: BroadcastEntity,
+        show: ShowEntity,
+        folder: File
+    ): Boolean {
+        if (kdvsPreferences.offlineMode == true) {
+            makeOfflineModeToast(activity)
+            return false
+        }
+
+        val title = getBroadcastDownloadTitle(broadcast, show)
+        val filename = getDownloadingFilename(title)
+
+        (activity as? MainActivity)?.let { activity ->
+            if (activity.isStoragePermissionGranted()) {
+                val url = URLs.archiveForBroadcast(broadcast)
+
+                url?.let {
+                    if (!folder.exists())
+                        folder.mkdirs()
+
+                    try {
+                        val request = makeDownloadRequest(url, title, filename)
+
+                        val downloadManager =
+                            activity.applicationContext?.getSystemService(Context.DOWNLOAD_SERVICE)
+                                    as DownloadManager
+
+                        downloadManager.enqueue(request)
+
+                        Toast.makeText(
+                            activity as? MainActivity, "Download started", Toast.LENGTH_SHORT
+                        ).show()
+
+                        return true
+                    } catch (e: Exception) {
+                        Timber.e("Error downloading broadcast: ${e.message}")
+
+                        Toast.makeText(
+                            activity as? MainActivity,
+                            "Error downloading broadcast",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        return false
+                    }
+                }
+            }
+        }
+
+        return false
+    }
+
     fun getBroadcastDownloadTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
         "${show.name} (${TimeHelper.dateFormatter.format(broadcast.date)})"
 
@@ -553,7 +677,10 @@ class SharedViewModel @Inject constructor(
 
     fun getDownloadFolder(): File? {
         return if (isExternalStorageWritable()) {
-             File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), DOWNLOAD_CHILD)
+            File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC),
+                DOWNLOAD_CHILD
+            )
         } else null
     }
 
@@ -583,7 +710,8 @@ class SharedViewModel @Inject constructor(
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
             .setDestinationInExternalPublicDir(
                 Environment.DIRECTORY_MUSIC,
-                "${File.separator}$DOWNLOAD_CHILD${File.separator}$filename")
+                "${File.separator}$DOWNLOAD_CHILD${File.separator}$filename"
+            )
             .setAllowedOverMetered(true) // TODO: make preference
             .setAllowedOverRoaming(true)
     }
@@ -602,7 +730,7 @@ class SharedViewModel @Inject constructor(
         val files = folder?.listFiles()
 
         files?.let {
-            return (it.count{ f -> f.name == getDownloadedFilename(title) } > 0)
+            return (it.count { f -> f.name == getDownloadedFilename(title) } > 0)
         }
 
         return false
@@ -614,13 +742,16 @@ class SharedViewModel @Inject constructor(
         val files = folder?.listFiles()
 
         files?.let {
-            return (it.count{ f -> f.name == getDownloadingFilename(title) } > 0)
+            return (it.count { f -> f.name == getDownloadingFilename(title) } > 0)
         }
 
         return false
     }
 
-    private fun getDestinationFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File? {
+    private fun getDestinationFileForBroadcast(
+        broadcast: BroadcastEntity,
+        show: ShowEntity
+    ): File? {
         val filename = getBroadcastDownloadTitle(broadcast, show) + BROADCAST_EXT
         return getFileInDownloadFolder(filename)
     }
@@ -634,12 +765,16 @@ class SharedViewModel @Inject constructor(
     // region fetch
 
     // TODO: multiple attempts?
-    fun fetchThirdPartyDataForTopMusic(topMusic: TopMusicEntity, topMusicRepository: TopMusicRepository) {
+    fun fetchThirdPartyDataForTopMusic(
+        topMusic: TopMusicEntity,
+        topMusicRepository: TopMusicRepository
+    ) {
         if (topMusic.hasThirdPartyInfo || kdvsPreferences.offlineMode == true) return
 
         launch {
             val spotifyFind = spotifyService.findAlbumAsync(topMusic.album, topMusic.artist)
-            val musicBrainzFind = musicBrainzService.findAlbumsAsync(topMusic.album, topMusic.artist)
+            val musicBrainzFind =
+                musicBrainzService.findAlbumsAsync(topMusic.album, topMusic.artist)
             val youTubeFind = youTubeService.findVideoAsync(topMusic.artist, topMusic.album)
 
             val spotAlbum = spotifyFind.await()
@@ -752,7 +887,16 @@ class SharedViewModel @Inject constructor(
                 trackRepository.updateTrackYouTubeId(track.trackId, it)
             }
 
-            if (listOfNotNull(album, year, label, imageHref, albumUri, trackUri, youTubeId).isNotEmpty()) {
+            if (listOfNotNull(
+                    album,
+                    year,
+                    label,
+                    imageHref,
+                    albumUri,
+                    trackUri,
+                    youTubeId
+                ).isNotEmpty()
+            ) {
                 trackRepository.updateHasThirdPartyInfo(track.trackId, true)
             }
         }
@@ -772,20 +916,41 @@ class SharedViewModel @Inject constructor(
 
     // region ui
 
-    fun onClickFavorite(view: View, track: TrackEntity) {
+    fun onClickTrackFavorite(view: View, track: TrackEntity) {
         val imageView = view as? ImageView
 
         if (imageView?.tag == 0) {
             imageView.setImageResource(R.drawable.ic_favorite_white_24dp)
             imageView.tag = 1
-            launch { favoriteDao.insert(FavoriteTrackEntity(0, track.trackId)) }
+            launch { favoriteTrackDao.insert(FavoriteTrackEntity(0, track.trackId)) }
 
             // Fetch third party data now to make entry into FavoriteFragment seamless
-            launch { fetchThirdPartyDataForTrack(track)}
+            launch { fetchThirdPartyDataForTrack(track) }
         } else if (imageView?.tag == 1) {
             imageView.setImageResource(R.drawable.ic_favorite_border_white_24dp)
             imageView.tag = 0
-            launch { favoriteDao.deleteByTrackId(track.trackId) }
+            launch { favoriteTrackDao.deleteByTrackId(track.trackId) }
+        }
+    }
+
+    fun onClickBroadcastFavorite(view: View, broadcast: BroadcastEntity) {
+        val imageView = view as? ImageView
+
+        if (imageView?.tag == 0) {
+            imageView.setImageResource(R.drawable.ic_favorite_white_24dp)
+            imageView.tag = 1
+            launch {
+                favoriteBroadcastDao.insert(
+                    FavoriteBroadcastEntity(
+                        0,
+                        broadcast.broadcastId
+                    )
+                )
+            }
+        } else if (imageView?.tag == 1) {
+            imageView.setImageResource(R.drawable.ic_favorite_border_white_24dp)
+            imageView.tag = 0
+            launch { favoriteBroadcastDao.deleteByBroadcastId(broadcast.broadcastId) }
         }
     }
 
@@ -805,20 +970,31 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun onClickTrackHeader(navController: NavController, view: View, track: TrackEntity, type: TrackDetailsType) {
+    fun onClickTrackHeader(
+        navController: NavController,
+        view: View,
+        track: TrackEntity,
+        type: TrackDetailsType
+    ) {
         val showId = view.tag as? Int?
 
         showId?.let {
-            when(type) {
+            when (type) {
                 TrackDetailsType.BROADCAST -> {
                     val navAction = BroadcastTrackDetailsFragmentDirections
-                        .actionBroadcastTrackDetailsFragmentToBroadcastDetailsFragment(showId, track.broadcastId)
+                        .actionBroadcastTrackDetailsFragmentToBroadcastDetailsFragment(
+                            showId,
+                            track.broadcastId
+                        )
                     if (navController.currentDestination?.id == R.id.broadcastTrackDetailsFragment)
                         navController.navigate(navAction)
                 }
                 TrackDetailsType.FAVORITE -> {
                     val navAction = FavoriteTrackDetailsFragmentDirections
-                        .actionFavoriteTrackDetailsFragmentToBroadcastDetailsFragment(showId, track.broadcastId)
+                        .actionFavoriteTrackDetailsFragmentToBroadcastDetailsFragment(
+                            showId,
+                            track.broadcastId
+                        )
                     if (navController.currentDestination?.id == R.id.favoriteTrackDetailsFragment)
                         navController.navigate(navAction)
                 }
@@ -827,16 +1003,19 @@ class SharedViewModel @Inject constructor(
     }
 
     /** Method to generalize the process of exporting music to third-party playlists via dialog. */
-    fun onClickExportIcon(fragment: Fragment,
-                          requestCode: Int,
-                          service: ThirdPartyService,
-                          count: Int? = null) {
+    fun onClickExportIcon(
+        fragment: Fragment,
+        requestCode: Int,
+        service: ThirdPartyService,
+        count: Int? = null
+    ) {
         if (count == 0) {
             Toast.makeText(
                 fragment.context,
                 "Sorry, there are no exportable items.",
-                Toast.LENGTH_LONG)
-            .show()
+                Toast.LENGTH_LONG
+            )
+                .show()
 
             return
         }
@@ -847,7 +1026,8 @@ class SharedViewModel @Inject constructor(
         args.putString("title", "Export")
         args.putString(
             "message",
-            "Export${count ?: ""} ${if (count == 1) "track" else "tracks"} to a ${service.title} playlist?"
+            "Export${count
+                ?: ""} ${if (count == 1) "track" else "tracks"} to a ${service.title} playlist?"
         )
 
         dialog.arguments = args
@@ -990,8 +1170,8 @@ class SharedViewModel @Inject constructor(
             return shows
                 .filter { show ->
                     currentShows
-                    .map { s -> s.name }
-                    .contains(show.name)
+                        .map { s -> s.name }
+                        .contains(show.name)
                 }
         }
 

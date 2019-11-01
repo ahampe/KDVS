@@ -5,12 +5,14 @@ import androidx.room.Relation
 import fho.kdvs.favorite.broadcast.FavoriteBroadcastJoin
 import fho.kdvs.favorite.track.FavoriteTrackJoin
 
+open class Join
+
 /**
  * Classes to encapsulate the joins between [FavoriteBroadcastEntity], its [BroadcastEntity],
  * and the broadcast's corresponding [ShowEntity].
  * */
 
-class ShowBroadcastFavoriteJoin {
+class ShowBroadcastFavoriteJoin: Join() {
     @Embedded
     var show: ShowEntity? = null
 
@@ -74,7 +76,7 @@ fun List<ShowBroadcastFavoriteJoin>?.getBroadcastFavoriteJoins(): List<FavoriteB
  * the [BroadcastEntity] on which the track aired, and the broadcast's corresponding [ShowEntity].
  * */
 
-class ShowBroadcastTrackFavoriteJoin {
+class ShowBroadcastTrackFavoriteJoin: Join() {
     @Embedded
     var show: ShowEntity? = null
 

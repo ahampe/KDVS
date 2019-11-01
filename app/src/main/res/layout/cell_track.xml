@@ -85,7 +85,7 @@
             android:id="@+id/favorite"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:onClick="@{(view) -> sharedVm.onClickFavorite(view, track)}"
+            android:onClick="@{(view) -> sharedVm.onClickTrackFavorite(view, track)}"
             favorite="@{favorited}"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"

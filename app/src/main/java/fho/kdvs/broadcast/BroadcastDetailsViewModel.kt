@@ -6,11 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.navigation.NavController
 import fho.kdvs.R
+import fho.kdvs.favorite.broadcast.FavoriteBroadcastRepository
 import fho.kdvs.favorite.track.FavoriteTrackRepository
-import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.FavoriteTrackEntity
-import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.database.*
 import fho.kdvs.show.ShowRepository
 import fho.kdvs.track.TrackRepository
 import kotlinx.coroutines.CoroutineScope
@@ -22,7 +20,8 @@ import kotlin.coroutines.CoroutineContext
 class BroadcastDetailsViewModel @Inject constructor(
     private val showRepository: ShowRepository,
     private val broadcastRepository: BroadcastRepository,
-    private val favoriteRepository: FavoriteTrackRepository,
+    private val favoriteTrackRepository: FavoriteTrackRepository,
+    private val favoriteBroadcastRepository: FavoriteBroadcastRepository,
     private val trackRepository: TrackRepository,
     application: Application
 ) : AndroidViewModel(application), CoroutineScope {
@@ -37,10 +36,13 @@ class BroadcastDetailsViewModel @Inject constructor(
     lateinit var showWithBroadcast: MediatorLiveData<Pair<ShowEntity, BroadcastEntity>>
 
     lateinit var tracksLiveData: LiveData<List<TrackEntity>>
-    private lateinit var favoritesLiveData: LiveData<List<FavoriteTrackEntity>>
-    lateinit var tracksWithFavorites: MediatorLiveData<Pair<List<TrackEntity>,List<FavoriteTrackEntity>?>>
+    private lateinit var trackFavoritesLiveData: LiveData<List<FavoriteTrackEntity>>
+    lateinit var tracksWithFavorites: MediatorLiveData<Pair<List<TrackEntity>, List<FavoriteTrackEntity>?>>
 
-    var favorites: List<FavoriteTrackEntity>?= null
+    private lateinit var broadcastFavoriteLiveData: LiveData<FavoriteBroadcastEntity>
+
+    var trackFavorites: List<FavoriteTrackEntity>? = null
+    var broadcastFavorite: FavoriteBroadcastEntity? = null
 
     fun initialize(showId: Int, broadcastId: Int) {
         fetchTracks(broadcastId)
@@ -48,7 +50,8 @@ class BroadcastDetailsViewModel @Inject constructor(
         showLiveData = showRepository.showById(showId)
         broadcastLiveData = broadcastRepository.broadcastById(broadcastId)
         tracksLiveData = trackRepository.tracksForBroadcast(broadcastId)
-        favoritesLiveData = favoriteRepository.allFavoritesByBroadcast(broadcastId)
+        trackFavoritesLiveData = favoriteTrackRepository.allFavoritesByBroadcast(broadcastId)
+        broadcastFavoriteLiveData = favoriteBroadcastRepository.favoriteByBroadcastId(broadcastId)
 
         showWithBroadcast = MediatorLiveData<Pair<ShowEntity, BroadcastEntity>>()
             .apply {
@@ -69,24 +72,25 @@ class BroadcastDetailsViewModel @Inject constructor(
                 }
             }
 
-        tracksWithFavorites = MediatorLiveData<Pair<List<TrackEntity>,List<FavoriteTrackEntity>?>>()
-            .apply {
-                var tracks: List<TrackEntity>? = null
+        tracksWithFavorites =
+            MediatorLiveData<Pair<List<TrackEntity>, List<FavoriteTrackEntity>?>>()
+                .apply {
+                    var tracks: List<TrackEntity>? = null
 
-                addSource(tracksLiveData) { trackEntities ->
-                    tracks = trackEntities
+                    addSource(tracksLiveData) { trackEntities ->
+                        tracks = trackEntities
 
-                    val favoriteEntities = favorites ?: return@addSource
-                    postValue(Pair(trackEntities, favoriteEntities))
+                        val favoriteEntities = trackFavorites ?: return@addSource
+                        postValue(Pair(trackEntities, favoriteEntities))
+                    }
+
+                    addSource(trackFavoritesLiveData) { favoriteEntities ->
+                        trackFavorites = favoriteEntities
+
+                        val trackEntities = tracks ?: return@addSource
+                        postValue(Pair(trackEntities, favoriteEntities))
+                    }
                 }
-
-                addSource(favoritesLiveData) { favoriteEntities ->
-                    favorites = favoriteEntities
-
-                    val trackEntities = tracks ?: return@addSource
-                    postValue(Pair(trackEntities, favoriteEntities))
-                }
-            }
     }
 
     private fun fetchTracks(broadcastId: Int) {

@@ -23,6 +23,10 @@
             name="dateFormatter"
             type="org.threeten.bp.format.DateTimeFormatter" />
 
+        <variable
+            name="sharedVm"
+            type="fho.kdvs.global.SharedViewModel" />
+
         <import type="fho.kdvs.global.util.TimeHelper" />
     </data>
 
@@ -111,6 +115,9 @@
             android:layout_height="0dp"
             app:layout_constraintDimensionRatio="1:1"
             android:src="@drawable/ic_file_download_white_24dp"
+            sharedVm="@{sharedVm}"
+            broadcast="@{broadcast}"
+            show="@{show}"
             app:layout_constraintTop_toTopOf="@id/showName"
             app:layout_constraintBottom_toBottomOf="@id/date"
             app:layout_constraintEnd_toEndOf="parent"/>

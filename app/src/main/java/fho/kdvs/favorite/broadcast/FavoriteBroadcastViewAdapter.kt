@@ -158,6 +158,7 @@ class FavoriteBroadcastViewAdapter(
         private val binding: CellFavoriteBroadcastBinding,
         private val queryStr: String
     ) : BindingViewHolder<FavoriteBroadcastJoin>(binding.root) {
+
         override fun bind(listener: View.OnClickListener, item: FavoriteBroadcastJoin) {
             binding.apply {
                 clickListener = listener

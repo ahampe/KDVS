@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.R
 import fho.kdvs.favorite.FavoriteFragment.SortType
+import fho.kdvs.favorite.FavoritePage
 import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
@@ -19,11 +20,12 @@ import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.preferences.KdvsPreferences
 import kotlinx.android.synthetic.main.cell_favorite_broadcast.view.*
 import kotlinx.android.synthetic.main.fragment_favorite_broadcast.*
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 
-class FavoriteBroadcastFragment : BaseFragment() {
+class FavoriteBroadcastFragment : BaseFragment(), FavoritePage<ShowBroadcastFavoriteJoin> {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
 
@@ -67,15 +69,54 @@ class FavoriteBroadcastFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //LoadScreen.displayLoadScreen(favoritesRoot)
+        initializeClickListeners()
+        initializeIcons()
+    }
 
-        downloadAllButton?.setOnClickListener {
-            // TODO
+    override fun subscribeToViewModel() {
+        val fragment = this
+
+        viewModel.run {
+            showBroadcastFavoriteJoins.observe(fragment, Observer { joins ->
+                processFavorites(joins)
+            })
+        }
+    }
+
+    override fun processFavorites(joins: List<ShowBroadcastFavoriteJoin>?) {
+        when (joins?.isEmpty()) {
+            true -> {
+                resultsRecycler.visibility = View.GONE
+                downloadAllButton.visibility = View.GONE
+                noResults.visibility = View.VISIBLE
+            }
+            false -> {
+                resultsRecycler.visibility = View.VISIBLE
+                noResults.visibility = View.GONE
+
+                favoriteBroadcastViewAdapter =
+                    FavoriteBroadcastViewAdapter(joins.distinct(), this, sharedViewModel) {
+                        Timber.d("clicked ${it.item}")
+
+                        viewModel.onClickBroadcast(findNavController(), it.item.broadcast)
+                    }
+
+                resultsRecycler.run {
+                    layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+                    adapter = favoriteBroadcastViewAdapter
+                }
+
+                if (resultsRecycler.viewTreeObserver.isAlive) {
+                    resultsRecycler.viewTreeObserver.addOnDrawListener {
+                        setSectionHeaders()
+                    }
+                }
+            }
         }
     }
 
     /** Separate name-based results by alphabetical character headers. */
-    private fun setSectionHeaders() {
+    override fun setSectionHeaders() {
         if (resultsRecycler == null) return
 
         val headers = mutableListOf<String>()
@@ -111,60 +152,32 @@ class FavoriteBroadcastFragment : BaseFragment() {
         })
     }
 
-    private fun clearSectionHeaders() {
+    override fun clearSectionHeaders() {
         for (i in 0..resultsRecycler.childCount) {
             val holder = resultsRecycler.findViewHolderForAdapterPosition(i)
             holder?.itemView?.sectionHeader?.visibility = View.GONE
         }
     }
 
-    private fun setDownloadIcons() {
+    override fun initializeClickListeners() {
+        val folder = sharedViewModel.getDownloadFolder()
 
-    }
-
-    private fun subscribeToViewModel() {
-        val fragment = this
-
-        viewModel.run {
-            showBroadcastFavoriteJoins.observe(fragment, Observer { joins ->
-                processBroadcastFavorites(joins)
-
-                //LoadScreen.hideLoadScreen(favoritesRoot)
-            })
-        }
-    }
-
-    private fun processBroadcastFavorites(joins: List<ShowBroadcastFavoriteJoin>?) {
-        when (joins?.isEmpty()) {
-            true -> {
-                resultsRecycler.visibility = View.GONE
-                downloadAllButton.visibility = View.GONE
-                noResults.visibility = View.VISIBLE
-
-                //LoadScreen.hideLoadScreen(favoritesRoot)
-            }
-            false -> {
-                resultsRecycler.visibility = View.VISIBLE
-                noResults.visibility = View.GONE
-
-                favoriteBroadcastViewAdapter =
-                    FavoriteBroadcastViewAdapter(joins.distinct(), this, sharedViewModel) {
-                        Timber.d("clicked ${it.item}")
-
-                        viewModel.onClickBroadcast(findNavController(), it.item.broadcast)
-                    }
-
-                resultsRecycler.run {
-                    layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-                    adapter = favoriteBroadcastViewAdapter
-                }
-
-                if (resultsRecycler.viewTreeObserver.isAlive) {
-                    resultsRecycler.viewTreeObserver.addOnDrawListener {
-                        setSectionHeaders()
+        downloadAllButton?.setOnClickListener {
+            favoriteBroadcastViewAdapter?.allFavorites?.forEach { join ->
+                if (join.broadcast != null && join.show != null && folder != null) {
+                    launch {
+                        sharedViewModel.downloadBroadcast(
+                            requireActivity(),
+                            join.broadcast,
+                            join.show,
+                            folder
+                        )
                     }
                 }
             }
         }
+    }
+
+    private fun initializeIcons() {
     }
 }

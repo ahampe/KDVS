@@ -231,7 +231,7 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
 
     private fun setFavorite() {
         if (::favorites.isInitialized && favorites.count { f -> f.trackId == track.trackId } > 0) {
-            sharedViewModel.onClickFavorite(favoriteIcon, track)
+            sharedViewModel.onClickTrackFavorite(favoriteIcon, track)
         } else {
             favoriteIcon.setImageResource(R.drawable.ic_favorite_border_white_24dp)
             favoriteIcon.tag = 0

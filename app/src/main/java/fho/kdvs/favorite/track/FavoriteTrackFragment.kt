@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.R
 import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.favorite.FavoriteFragment.SortType
+import fho.kdvs.favorite.FavoritePage
 import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
@@ -30,7 +31,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-class FavoriteTrackFragment : BaseFragment() {
+class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFavoriteJoin> {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
 
@@ -78,8 +79,6 @@ class FavoriteTrackFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //LoadScreen.displayLoadScreen(favoritesRoot)
-
         initializeClickListeners()
         initializeIcons()
     }
@@ -109,8 +108,53 @@ class FavoriteTrackFragment : BaseFragment() {
         }
     }
 
+    override fun subscribeToViewModel() {
+        val fragment = this
+
+        viewModel.run {
+            showBroadcastTrackFavoriteJoins.observe(fragment, Observer { joins ->
+                processFavorites(joins)
+            })
+        }
+    }
+
+    override fun processFavorites(joins: List<ShowBroadcastTrackFavoriteJoin>?) {
+        when (joins?.isEmpty()) {
+            true -> {
+                resultsRecycler.visibility = View.GONE
+                noResults.visibility = View.VISIBLE
+            }
+            false -> {
+                resultsRecycler.visibility = View.VISIBLE
+                noResults.visibility = View.GONE
+
+                favoriteTrackViewAdapter =
+                    FavoriteTrackViewAdapter(joins.distinct(), this, sharedViewModel) {
+                        Timber.d("clicked ${it.item}")
+
+                        val ids = currentlyDisplayingResults
+                            .mapNotNull { r -> r?.track?.trackId }
+                            .toIntArray()
+
+                        viewModel.onClickTrack(findNavController(), it.item.track, ids)
+                    }
+
+                resultsRecycler.run {
+                    layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+                    adapter = favoriteTrackViewAdapter
+                }
+
+                if (resultsRecycler.viewTreeObserver.isAlive) {
+                    resultsRecycler.viewTreeObserver.addOnDrawListener {
+                        setSectionHeaders()
+                    }
+                }
+            }
+        }
+    }
+
     /** Separate name-based results by alphabetical character headers. */
-    private fun setSectionHeaders() {
+    override fun setSectionHeaders() {
         if (resultsRecycler == null) return
 
         val headers = mutableListOf<String>()
@@ -170,64 +214,14 @@ class FavoriteTrackFragment : BaseFragment() {
         })
     }
 
-    private fun clearSectionHeaders() {
+    override fun clearSectionHeaders() {
         for (i in 0..resultsRecycler.childCount) {
             val holder = resultsRecycler.findViewHolderForAdapterPosition(i)
             holder?.itemView?.sectionHeader?.visibility = View.GONE
         }
     }
 
-    private fun subscribeToViewModel() {
-        val fragment = this
-
-        viewModel.run {
-            showBroadcastTrackFavoriteJoins.observe(fragment, Observer { joins ->
-                processTrackFavorites(joins)
-
-                //LoadScreen.hideLoadScreen(favoritesRoot)
-            })
-        }
-    }
-
-    private fun processTrackFavorites(joins: List<ShowBroadcastTrackFavoriteJoin>?) {
-        when (joins?.isEmpty()) {
-            true -> {
-                resultsRecycler.visibility = View.GONE
-                noResults.visibility = View.VISIBLE
-
-                //LoadScreen.hideLoadScreen(favoritesRoot)
-            }
-            false -> {
-                resultsRecycler.visibility = View.VISIBLE
-                noResults.visibility = View.GONE
-
-                favoriteTrackViewAdapter =
-                    FavoriteTrackViewAdapter(joins.distinct(), this, sharedViewModel) {
-                        Timber.d("clicked ${it.item}")
-
-                        val ids = currentlyDisplayingResults
-                            .mapNotNull { r -> r?.track?.trackId }
-                            .toIntArray()
-
-                        viewModel.onClickTrack(findNavController(), it.item.track, ids)
-                    }
-
-                resultsRecycler.run {
-                    layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-                    adapter = favoriteTrackViewAdapter
-                }
-
-                if (resultsRecycler.viewTreeObserver.isAlive) {
-                    resultsRecycler.viewTreeObserver.addOnDrawListener {
-                        setSectionHeaders()
-                    }
-                }
-            }
-        }
-    }
-
-
-    private fun initializeClickListeners() {
+    override fun initializeClickListeners() {
         spotifyExportIconFavorite?.setOnClickListener {
             sharedViewModel.onClickExportIcon(
                 this,
@@ -247,25 +241,10 @@ class FavoriteTrackFragment : BaseFragment() {
         }
     }
 
-
     private fun initializeIcons() {
         spotifyExportIconFavorite?.let { view ->
             if (sharedViewModel.isSpotifyInstalledOnDevice(view.context)) {
                 view.visibility = View.VISIBLE
-
-                view.setOnClickListener {
-                    val visibleTracksSpotifyUris = currentlyDisplayingResults
-                        .mapNotNull { r -> r?.track?.spotifyTrackUri }
-
-                    val count = visibleTracksSpotifyUris.count()
-
-                    sharedViewModel.onClickExportIcon(
-                        this,
-                        RequestCodes.SPOTIFY_EXPORT_FAVORITES,
-                        ThirdPartyService.SPOTIFY,
-                        count
-                    )
-                }
             }
         }
     }

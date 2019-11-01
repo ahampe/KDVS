@@ -5,7 +5,6 @@ import android.app.DownloadManager
 import android.content.Context.DOWNLOAD_SERVICE
 import android.content.Intent
 import android.os.Bundle
-import android.os.FileObserver
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -85,6 +84,7 @@ class BroadcastDetailsFragment : BaseFragment() {
         binding.apply {
             vm = viewModel
             dateFormatter = TimeHelper.uiDateFormatter
+            favorited = viewModel.broadcastFavorite != null
         }
 
         binding.lifecycleOwner = this
@@ -121,12 +121,18 @@ class BroadcastDetailsFragment : BaseFragment() {
 
                 folder?.let {
                     if (icon.tag == DOWNLOAD_ICON) {
-                        if (downloadBroadcast(broadcast, show, folder))
+                        if (sharedViewModel.downloadBroadcast(requireActivity(), broadcast, show, folder))
                             setDownloadingIcon()
                     } else if (icon.tag == DELETE_ICON) {
                         displayDialog()
                     }
                 }
+            })
+        }
+
+        broadcastFavoriteButton.setOnClickListener {
+            viewModel.broadcastLiveData.observe(this, Observer { broadcast ->
+                sharedViewModel.onClickBroadcastFavorite(it, broadcast)
             })
         }
 
@@ -185,7 +191,9 @@ class BroadcastDetailsFragment : BaseFragment() {
                 description_container?.visibility = View.GONE
 
             val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
-            observeDownloadFolder(title)
+
+            // Update UI reactively to match state of download
+            sharedViewModel.callOnFileEventForFilename(title, ::enableDeleteIcon, null)
 
             when {
                 sharedViewModel.isBroadcastDownloaded(broadcast, show) -> {
@@ -280,74 +288,6 @@ class BroadcastDetailsFragment : BaseFragment() {
 
             sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
         })
-    }
-
-    private fun downloadBroadcast(broadcast: BroadcastEntity, show: ShowEntity, folder: File): Boolean {
-        if (kdvsPreferences.offlineMode == true) {
-            sharedViewModel.makeOfflineModeToast(activity)
-            return false
-        }
-
-        val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
-        val filename = sharedViewModel.getDownloadingFilename(title)
-
-        (activity as? MainActivity)?.let { activity ->
-            if (activity.isStoragePermissionGranted()) {
-                val url = URLs.archiveForBroadcast(broadcast)
-
-                url?.let {
-                    if (!folder.exists())
-                        folder.mkdirs()
-
-                    try {
-                        val request = sharedViewModel.makeDownloadRequest(url, title, filename)
-
-                        val downloadManager = context?.getSystemService(DOWNLOAD_SERVICE)
-                                as DownloadManager
-
-                        downloadManager.enqueue(request)
-
-                        Toast.makeText(
-                            activity as? MainActivity, "Download started", Toast.LENGTH_SHORT
-                        ).show()
-
-                        return true
-                    } catch (e: Exception) {
-                        Timber.e("Error downloading broadcast: ${e.message}")
-
-                        Toast.makeText(
-                            activity as? MainActivity, "Error downloading broadcast", Toast.LENGTH_SHORT
-                        ).show()
-
-                        return false
-                    }
-                }
-            }
-        }
-
-        return false
-    }
-
-    /** Update UI reactively to match state of download. */
-    private fun observeDownloadFolder(title: String) {
-        val folder = sharedViewModel.getDownloadFolder()
-        val downloadingFilename = sharedViewModel.getDownloadingFilename(title)
-
-        val observer = object: FileObserver(folder?.path) {
-            override fun onEvent(event: Int, filename: String?) {
-                filename?.let {
-                    if (it == downloadingFilename) {
-                        when (event) {
-                            MOVED_FROM -> { // capture file rename upon completion
-                                enableDeleteIcon()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        observer.startWatching()
     }
 
     private fun deleteBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
