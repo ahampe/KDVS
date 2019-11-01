@@ -1,23 +1,29 @@
 package fho.kdvs.favorite.broadcast
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.R
+import fho.kdvs.dialog.BinaryChoiceDialogFragment
 import fho.kdvs.favorite.FavoriteFragment.SortType
 import fho.kdvs.favorite.FavoritePage
 import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.ShowBroadcastFavoriteJoin
+import fho.kdvs.global.database.getBroadcastFavoriteJoins
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.RequestCodes
 import kotlinx.android.synthetic.main.cell_favorite_broadcast.view.*
 import kotlinx.android.synthetic.main.fragment_favorite_broadcast.*
 import kotlinx.coroutines.launch
@@ -73,6 +79,32 @@ class FavoriteBroadcastFragment : BaseFragment(), FavoritePage<ShowBroadcastFavo
         initializeIcons()
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        when (requestCode) {
+            RequestCodes.DOWNLOAD_ALL_FAVORITES_DIALOG -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val folder = sharedViewModel.getDownloadFolder()
+
+                    favoriteBroadcastViewAdapter?.allFavorites?.forEach { join ->
+                        launch {
+                            sharedViewModel.downloadBroadcast(
+                                requireActivity(),
+                                join.broadcast,
+                                join.show,
+                                folder
+                            )
+                        }
+                    }
+
+                    Toast.makeText(requireContext(),  "Downloads queued", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+        }
+    }
+
     override fun subscribeToViewModel() {
         val fragment = this
 
@@ -87,7 +119,6 @@ class FavoriteBroadcastFragment : BaseFragment(), FavoritePage<ShowBroadcastFavo
         when (joins?.isEmpty()) {
             true -> {
                 resultsRecycler.visibility = View.GONE
-                downloadAllButton.visibility = View.GONE
                 noResults.visibility = View.VISIBLE
             }
             false -> {
@@ -160,24 +191,26 @@ class FavoriteBroadcastFragment : BaseFragment(), FavoritePage<ShowBroadcastFavo
     }
 
     override fun initializeClickListeners() {
-        val folder = sharedViewModel.getDownloadFolder()
-
         downloadAllButton?.setOnClickListener {
-            favoriteBroadcastViewAdapter?.allFavorites?.forEach { join ->
-                if (join.broadcast != null && join.show != null && folder != null) {
-                    launch {
-                        sharedViewModel.downloadBroadcast(
-                            requireActivity(),
-                            join.broadcast,
-                            join.show,
-                            folder
-                        )
-                    }
-                }
-            }
+            displayDialog()
         }
     }
 
-    private fun initializeIcons() {
+    private fun initializeIcons() { // TODO
+    }
+
+    private fun displayDialog() {
+        val dialog = BinaryChoiceDialogFragment()
+        val args = Bundle()
+
+        args.putString("title", "Download")
+        args.putString("message", "Download all favorited broadcasts?")
+
+        dialog.arguments = args
+        dialog.setTargetFragment(
+            this@FavoriteBroadcastFragment,
+            RequestCodes.DOWNLOAD_ALL_FAVORITES_DIALOG
+        )
+        dialog.show(requireFragmentManager(), "tag")
     }
 }

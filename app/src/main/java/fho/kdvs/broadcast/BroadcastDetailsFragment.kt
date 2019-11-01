@@ -156,7 +156,7 @@ class BroadcastDetailsFragment : BaseFragment() {
             RequestCodes.DOWNLOAD_DELETE_DIALOG -> {
                 if (resultCode == Activity.RESULT_OK) {
                     viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
-                        deleteBroadcast(broadcast, show)
+                        sharedViewModel.deleteBroadcast(broadcast, show)
                         flipIcon()
                         Toast.makeText(requireContext(),  "Download deleted", Toast.LENGTH_SHORT)
                             .show()
@@ -288,14 +288,6 @@ class BroadcastDetailsFragment : BaseFragment() {
 
             sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
         })
-    }
-
-    private fun deleteBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
-        val file = sharedViewModel.getDownloadFileForBroadcast(broadcast, show)
-
-        file?.let {
-            sharedViewModel.deleteFile(file)
-        }
     }
 
     // TODO: The UI thread appears to get deadlocked sometimes after this?

@@ -6,9 +6,6 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/spacing_medium"
-    android:layout_marginStart="@dimen/spacing_medium"
-    android:layout_marginEnd="@dimen/spacing_medium"
     android:layout_marginBottom="@dimen/double_bottom_nav">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -64,6 +61,5 @@
         app:layout_constraintTop_toBottomOf="@id/exportIconsFavorite"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

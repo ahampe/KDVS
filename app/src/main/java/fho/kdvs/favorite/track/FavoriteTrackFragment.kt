@@ -119,7 +119,9 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
     }
 
     override fun processFavorites(joins: List<ShowBroadcastTrackFavoriteJoin>?) {
-        when (joins?.isEmpty()) {
+        if (joins == null) return
+
+        when (joins.isEmpty()) {
             true -> {
                 resultsRecycler.visibility = View.GONE
                 noResults.visibility = View.VISIBLE

@@ -609,14 +609,17 @@ class SharedViewModel @Inject constructor(
 
     fun downloadBroadcast(
         activity: FragmentActivity,
-        broadcast: BroadcastEntity,
-        show: ShowEntity,
-        folder: File
+        broadcast: BroadcastEntity?,
+        show: ShowEntity?,
+        folder: File?
     ): Boolean {
         if (kdvsPreferences.offlineMode == true) {
             makeOfflineModeToast(activity)
             return false
         }
+
+        if (broadcast == null || show == null || folder == null)
+            return false
 
         val title = getBroadcastDownloadTitle(broadcast, show)
         val filename = getDownloadingFilename(title)
@@ -659,6 +662,12 @@ class SharedViewModel @Inject constructor(
         }
 
         return false
+    }
+
+    fun deleteBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
+        getDownloadFileForBroadcast(broadcast, show)?.let {
+            deleteFile(it)
+        }
     }
 
     fun getBroadcastDownloadTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
