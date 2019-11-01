@@ -37,7 +37,7 @@
         android:onClick="@{clickListener}"
         android:layout_marginTop="@dimen/timeslot_margin"
         android:layout_marginStart="@dimen/timeslot_margin"
-        android:layout_marginEnd="@dimen/timeslot_margin"
+        android:layout_marginEnd="@dimen/spacing_small"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -121,7 +121,6 @@
             app:layout_constraintTop_toTopOf="@id/showName"
             app:layout_constraintBottom_toBottomOf="@id/date"
             app:layout_constraintEnd_toEndOf="parent"/>
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -949,17 +949,23 @@ class SharedViewModel @Inject constructor(
             imageView.setImageResource(R.drawable.ic_favorite_white_24dp)
             imageView.tag = 1
             launch {
-                favoriteBroadcastDao.insert(
-                    FavoriteBroadcastEntity(
-                        0,
-                        broadcast.broadcastId
-                    )
-                )
+                addBroadcastFavorite(broadcast)
             }
         } else if (imageView?.tag == 1) {
             imageView.setImageResource(R.drawable.ic_favorite_border_white_24dp)
             imageView.tag = 0
             launch { favoriteBroadcastDao.deleteByBroadcastId(broadcast.broadcastId) }
+        }
+    }
+
+    fun addBroadcastFavorite(broadcast: BroadcastEntity) {
+        launch {
+            favoriteBroadcastDao.insert(
+                FavoriteBroadcastEntity(
+                    0,
+                    broadcast.broadcastId
+                )
+            )
         }
     }
 

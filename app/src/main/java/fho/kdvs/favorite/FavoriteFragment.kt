@@ -81,6 +81,7 @@ class FavoriteFragment : BaseFragment() {
                 currentPagePosition = position
 
                 hideSortMenu()
+                searchBar?.clearFocus()
 
                 when (position) {
                     POS_TRACKS -> initForTracks()

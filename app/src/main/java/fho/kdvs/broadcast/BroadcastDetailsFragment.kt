@@ -121,8 +121,10 @@ class BroadcastDetailsFragment : BaseFragment() {
 
                 folder?.let {
                     if (icon.tag == DOWNLOAD_ICON) {
-                        if (sharedViewModel.downloadBroadcast(requireActivity(), broadcast, show, folder))
+                        if (sharedViewModel.downloadBroadcast(requireActivity(), broadcast, show, folder)) {
                             setDownloadingIcon()
+                            sharedViewModel.addBroadcastFavorite(broadcast)
+                        }
                     } else if (icon.tag == DELETE_ICON) {
                         displayDialog()
                     }

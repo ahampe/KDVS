@@ -16,6 +16,7 @@ import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
+import fho.kdvs.global.util.TimeHelper
 import timber.log.Timber
 
 
@@ -49,7 +50,7 @@ class FavoriteBroadcastViewAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = CellFavoriteBroadcastBinding.inflate(inflater, parent, false)
-        return ViewHolder(binding, query)
+        return ViewHolder(binding, query, sharedViewModel)
     }
 
     override fun getItemCount(): Int {
@@ -156,7 +157,8 @@ class FavoriteBroadcastViewAdapter(
 
     class ViewHolder (
         private val binding: CellFavoriteBroadcastBinding,
-        private val queryStr: String
+        private val queryStr: String,
+        private val sharedViewModel: SharedViewModel
     ) : BindingViewHolder<FavoriteBroadcastJoin>(binding.root) {
 
         override fun bind(listener: View.OnClickListener, item: FavoriteBroadcastJoin) {
@@ -165,6 +167,8 @@ class FavoriteBroadcastViewAdapter(
                 broadcast = item.broadcast
                 show = item.show
                 query = queryStr
+                dateFormatter = TimeHelper.uiDateFormatter
+                sharedVm = sharedViewModel
             }
         }
     }
