@@ -67,7 +67,7 @@ class FavoriteFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        favoritePagerAdapter = FavoritePagerAdapter(requireFragmentManager())
+        favoritePagerAdapter = FavoritePagerAdapter(childFragmentManager)
         favoritePager.adapter = favoritePagerAdapter
 
         tabLayout.setupWithViewPager(favoritePager)

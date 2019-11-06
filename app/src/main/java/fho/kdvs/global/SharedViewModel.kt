@@ -641,19 +641,25 @@ class SharedViewModel @Inject constructor(
 
                         downloadManager.enqueue(request)
 
-                        Toast.makeText(
-                            mainActivity as? MainActivity, "Download started", Toast.LENGTH_SHORT
-                        ).show()
+                        mainActivity.applicationContext?.runOnUiThread {
+                            Toast.makeText(
+                                this,
+                                "Download Started",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
 
                         return true
                     } catch (e: Exception) {
                         Timber.e("Error downloading broadcast: ${e.message}")
 
-                        Toast.makeText(
-                            mainActivity as? MainActivity,
-                            "Error downloading broadcast",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        mainActivity.applicationContext?.runOnUiThread {
+                            Toast.makeText(
+                                this,
+                                "Error downloading broadcast",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
 
                         return false
                     }
@@ -676,7 +682,7 @@ class SharedViewModel @Inject constructor(
     fun getBroadcastDownloadUiTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
         "${show.name} (${TimeHelper.uiDateFormatter.format(broadcast.date)})"
 
-    fun getDownloadFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File? =
+    private fun getDownloadFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File? =
         getFileInDownloadFolder(getDownloadedFilename(getBroadcastDownloadTitle(broadcast, show)))
 
     private fun getFileInDownloadFolder(filename: String): File {
