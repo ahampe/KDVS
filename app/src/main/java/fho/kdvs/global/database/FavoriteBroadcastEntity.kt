@@ -1,9 +1,6 @@
 package fho.kdvs.global.database
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
+import androidx.room.*
 
 @Entity(
     tableName = "favoriteBroadcastData",
@@ -13,9 +10,14 @@ import androidx.room.PrimaryKey
             parentColumns = ["broadcastId"],
             childColumns = ["broadcastId"],
             onDelete = ForeignKey.CASCADE
+        )],
+    indices = [
+        Index(
+            value = ["broadcastId"],
+            unique = true
         )]
 )
-data class FavoriteBroadcastEntity (
+data class FavoriteBroadcastEntity(
     @PrimaryKey(autoGenerate = true) val favoriteBroadcastId: Int = 0,
-    @ColumnInfo(name = "broadcastId", index = true) val broadcastId: Int = 0
+    @ColumnInfo(name = "broadcastId") val broadcastId: Int = 0
 )
