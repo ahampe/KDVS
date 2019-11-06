@@ -26,7 +26,7 @@ interface TrackDao {
     fun getTracksForBroadcast(broadcastId: Int?): List<TrackEntity>
 
     @Query(
-        "SELECT * from trackData t " +
+        "SELECT t.* from trackData t " +
                 "inner join broadcastData b on b.broadcastId = t.broadcastId " +
                 "inner join showData s on b.showId = s.id " +
                 "WHERE s.id = :showId AND t.airbreak = 0"

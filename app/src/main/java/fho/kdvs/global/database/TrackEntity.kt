@@ -19,7 +19,7 @@ import androidx.room.PrimaryKey
 )
 data class TrackEntity(
     @PrimaryKey(autoGenerate = true) val trackId: Int = 0,
-    @ColumnInfo(name = "broadcastId") val broadcastId: Int = 0,
+    @ColumnInfo(name = "broadcastId", index = true) val broadcastId: Int = 0,
     @ColumnInfo(name = "position") var position: Int? = null,
     @ColumnInfo(name = "artist") var artist: String? = null,
     @ColumnInfo(name = "song") var song: String? = null,

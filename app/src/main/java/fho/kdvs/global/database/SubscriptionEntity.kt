@@ -17,5 +17,5 @@ import androidx.room.PrimaryKey
 )
 data class SubscriptionEntity (
     @PrimaryKey(autoGenerate = true) val subscriptionId: Int = 0,
-    @ColumnInfo(name = "showId") val showId: Int = 0
+    @ColumnInfo(name = "showId", index = true) val showId: Int = 0
 )

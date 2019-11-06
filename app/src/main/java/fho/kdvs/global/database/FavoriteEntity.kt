@@ -17,5 +17,5 @@ import androidx.room.PrimaryKey
 )
 data class FavoriteEntity (
     @PrimaryKey(autoGenerate = true) val favoriteId: Int = 0,
-    @ColumnInfo(name = "trackId") val trackId: Int = 0
+    @ColumnInfo(name = "trackId", index = true) val trackId: Int = 0
 )

@@ -396,15 +396,7 @@ class SharedViewModel @Inject constructor(
 
     fun onClickYoutube(context: Context, track: TrackEntity?) {
         track?.let {
-            if (isYouTubeInstalledOnDevice(context)) {
-                val result = "" // TODO
-
-                result?.let {
-                    openYouTubeApp(context, it)
-                }
-            } else {
-                openBrowser(context, makeYoutubeQuery(track))
-            }
+            openBrowser(context, makeYoutubeQuery(track))
         }
     }
 
@@ -444,17 +436,6 @@ class SharedViewModel @Inject constructor(
         if (intent.resolveActivity(context.packageManager) != null) {
             startActivity(context, intent, null)
         }
-    }
-
-    private fun isYouTubeInstalledOnDevice(context: Context): Boolean {
-        var isYoutubeInstalled = false
-
-        try {
-            context.packageManager.getPackageInfo("com.spotify.music", 0)
-            isYoutubeInstalled = true
-        } catch (e: PackageManager.NameNotFoundException) {}
-
-        return isYoutubeInstalled
     }
 
     private fun onClickSpotifyNoApp(context: Context, spotifyUri: String) {

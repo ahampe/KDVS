@@ -157,8 +157,10 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     }
 
     fun setLastShowScrape(showId: String, value: Long) {
+        @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         var pref by LongPreference(Key.LAST_SHOW_SCRAPE, showId)
         // lint complains about this, but it is not aware that the setter delegate has an important side effect
+        @Suppress("UNUSED_VALUE")
         pref = value
     }
 
@@ -168,8 +170,10 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     }
 
     fun setLastBroadcastScrape(broadcastId: String, value : Long) {
+        @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         var pref by LongPreference(Key.LAST_BROADCAST_SCRAPE, broadcastId)
         // lint complains about this, but it is not aware that the setter delegate has an important side effect
+        @Suppress("UNUSED_VALUE")
         pref = value
     }
 
@@ -204,7 +208,7 @@ open class KdvsPreferences @Inject constructor(application: Application) {
             selectedYear = value?.year
         }
 
-    var mostRecentQuarter: Quarter?
+    private var mostRecentQuarter: Quarter?
         get() = enumValueOrNull<Quarter>(_mostRecentQuarter)
         set(value) {
             _mostRecentQuarter = value?.name

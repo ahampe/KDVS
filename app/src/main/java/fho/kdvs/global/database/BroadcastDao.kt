@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
+import androidx.room.Transaction
 import io.reactivex.Flowable
 import org.threeten.bp.LocalDate
 
@@ -23,21 +24,22 @@ abstract class BroadcastDao {
     abstract fun getLatestBroadcastForShow(showId: Int): BroadcastEntity?
 
     @Query(
-        """SELECT * from broadcastData
+        """SELECT showData.* from broadcastData
             INNER JOIN showData ON broadcastData.showId = showData.id
             WHERE broadcastId = :broadcastId"""
     )
     abstract fun showByBroadcastId(broadcastId: Int): LiveData<ShowEntity>
 
     @Query(
-        """SELECT * from broadcastData
+        """SELECT showData.* from broadcastData
             INNER JOIN showData ON broadcastData.showId = showData.id
             WHERE broadcastId = :broadcastId"""
     )
     abstract fun getShowByBroadcastId(broadcastId: Int): ShowEntity?
 
+    @Transaction
     @Query(
-        """SELECT * from broadcastData
+        """SELECT showData.* from broadcastData
             JOIN showData ON broadcastData.showId = showData.id
             WHERE broadcastId = :broadcastId"""
     )
