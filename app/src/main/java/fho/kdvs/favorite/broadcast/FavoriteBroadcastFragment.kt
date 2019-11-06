@@ -96,9 +96,6 @@ class FavoriteBroadcastFragment : BaseFragment(), FavoritePage<ShowBroadcastFavo
                             )
                         }
                     }
-
-                    Toast.makeText(requireContext(),  "Downloads queued", Toast.LENGTH_SHORT)
-                        .show()
                 }
             }
         }

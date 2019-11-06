@@ -1,8 +1,6 @@
 package fho.kdvs.broadcast
 
 import android.app.Activity
-import android.app.DownloadManager
-import android.content.Context.DOWNLOAD_SERVICE
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -21,10 +19,8 @@ import fho.kdvs.databinding.FragmentBroadcastDetailsBinding
 import fho.kdvs.dialog.BinaryChoiceDialogFragment
 import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
-import fho.kdvs.global.MainActivity
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.collapseExpand
 import fho.kdvs.global.preferences.KdvsPreferences
@@ -37,7 +33,6 @@ import kotlinx.coroutines.launch
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
-import java.io.File
 import javax.inject.Inject
 
 const val DOWNLOAD_ICON = "download"
@@ -128,6 +123,11 @@ class BroadcastDetailsFragment : BaseFragment() {
                     } else if (icon.tag == DELETE_ICON) {
                         displayDialog()
                     }
+                }
+
+                // Downloading a broadcast also adds it to favorites
+                if (broadcastFavoriteButton.tag == 0) {
+                    sharedViewModel.onClickBroadcastFavorite(broadcastFavoriteButton, broadcast)
                 }
             })
         }
