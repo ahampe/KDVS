@@ -73,13 +73,16 @@ class BroadcastDetailsFragment : BaseFragment() {
             .get(SharedViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val binding = FragmentBroadcastDetailsBinding.inflate(inflater, container, false)
 
         binding.apply {
             vm = viewModel
             dateFormatter = TimeHelper.uiDateFormatter
-            favorited = viewModel.broadcastFavorite != null
         }
 
         binding.lifecycleOwner = this
@@ -106,7 +109,11 @@ class BroadcastDetailsFragment : BaseFragment() {
 
         archivePlayButton.setOnClickListener {
             viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
-                sharedViewModel.preparePastBroadcastForPlaybackAndPlay(broadcast, show, requireActivity())
+                sharedViewModel.preparePastBroadcastForPlaybackAndPlay(
+                    broadcast,
+                    show,
+                    requireActivity()
+                )
             })
         }
 
@@ -116,7 +123,13 @@ class BroadcastDetailsFragment : BaseFragment() {
 
                 folder?.let {
                     if (icon.tag == DOWNLOAD_ICON) {
-                        if (sharedViewModel.downloadBroadcast(requireActivity(), broadcast, show, folder)) {
+                        if (sharedViewModel.downloadBroadcast(
+                                requireActivity(),
+                                broadcast,
+                                show,
+                                folder
+                            )
+                        ) {
                             setDownloadingIcon()
                             sharedViewModel.addBroadcastFavorite(broadcast)
                         }
@@ -160,7 +173,7 @@ class BroadcastDetailsFragment : BaseFragment() {
                     viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
                         sharedViewModel.deleteBroadcast(broadcast, show)
                         flipIcon()
-                        Toast.makeText(requireContext(),  "Download deleted", Toast.LENGTH_SHORT)
+                        Toast.makeText(requireContext(), "Download deleted", Toast.LENGTH_SHORT)
                             .show()
                     })
                 }
@@ -220,9 +233,10 @@ class BroadcastDetailsFragment : BaseFragment() {
             Timber.d("Got tracks: $tracks with liveFavorites")
 
             noTracksMessage.visibility = if (tracks.isEmpty()) View.VISIBLE
-                else View.GONE
+            else View.GONE
 
-            spotifyExportIconBroadcast.visibility = if (noTracksMessage.visibility == View.VISIBLE) View.GONE
+            spotifyExportIconBroadcast.visibility =
+                if (noTracksMessage.visibility == View.VISIBLE) View.GONE
                 else View.VISIBLE
 
             youtubeExportIconBroadcast.visibility = spotifyExportIconBroadcast.visibility
@@ -243,6 +257,19 @@ class BroadcastDetailsFragment : BaseFragment() {
                     RequestCodes.YOUTUBE_EXPORT_BROADCAST,
                     ThirdPartyService.YOUTUBE
                 )
+            }
+        })
+
+        viewModel.broadcastFavoriteLiveData.observe(fragment, Observer {
+            when (it != null) {
+                true -> {
+                    broadcastFavoriteButton.setImageResource(R.drawable.ic_favorite_white_24dp)
+                    broadcastFavoriteButton.tag = 1
+                }
+                false -> {
+                    broadcastFavoriteButton.setImageResource(R.drawable.ic_favorite_border_white_24dp)
+                    broadcastFavoriteButton.tag = 0
+                }
             }
         })
     }
@@ -334,7 +361,12 @@ class BroadcastDetailsFragment : BaseFragment() {
 
     private fun enableDeleteIcon() {
         downloadDeleteIcon?.let {
-            it.setImageDrawable(it.resources.getDrawable(R.drawable.ic_delete_forever_white_24dp, context?.theme))
+            it.setImageDrawable(
+                it.resources.getDrawable(
+                    R.drawable.ic_delete_forever_white_24dp,
+                    context?.theme
+                )
+            )
             it.tag = DELETE_ICON
             it.isEnabled = true
             it.alpha = 1f
@@ -343,7 +375,12 @@ class BroadcastDetailsFragment : BaseFragment() {
 
     private fun enableDownloadIcon() {
         downloadDeleteIcon?.let {
-            it.setImageDrawable(it.resources.getDrawable(R.drawable.ic_file_download_white_24dp, context?.theme))
+            it.setImageDrawable(
+                it.resources.getDrawable(
+                    R.drawable.ic_file_download_white_24dp,
+                    context?.theme
+                )
+            )
             it.tag = DOWNLOAD_ICON
             it.isEnabled = true
             it.alpha = 1f

@@ -13,10 +13,6 @@
         <variable
             name="dateFormatter"
             type="org.threeten.bp.format.DateTimeFormatter" />
-
-        <variable
-            name="favorited"
-            type="Boolean" />
     </data>
 
     <androidx.constraintlayout.motion.widget.MotionLayout
@@ -175,7 +171,6 @@
 
             <ImageView
                 android:id="@+id/broadcastFavoriteButton"
-                favorite="@{favorited}"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:paddingTop="@dimen/spacing_small"

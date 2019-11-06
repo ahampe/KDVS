@@ -33,16 +33,14 @@ class BroadcastDetailsViewModel @Inject constructor(
 
     lateinit var showLiveData: LiveData<ShowEntity>
     lateinit var broadcastLiveData: LiveData<BroadcastEntity>
+    lateinit var broadcastFavoriteLiveData: LiveData<FavoriteBroadcastEntity>
     lateinit var showWithBroadcast: MediatorLiveData<Pair<ShowEntity, BroadcastEntity>>
 
     lateinit var tracksLiveData: LiveData<List<TrackEntity>>
     private lateinit var trackFavoritesLiveData: LiveData<List<FavoriteTrackEntity>>
     lateinit var tracksWithFavorites: MediatorLiveData<Pair<List<TrackEntity>, List<FavoriteTrackEntity>?>>
 
-    private lateinit var broadcastFavoriteLiveData: LiveData<FavoriteBroadcastEntity>
-
     var trackFavorites: List<FavoriteTrackEntity>? = null
-    var broadcastFavorite: FavoriteBroadcastEntity? = null
 
     fun initialize(showId: Int, broadcastId: Int) {
         fetchTracks(broadcastId)
