@@ -23,10 +23,6 @@
             name="dateFormatter"
             type="org.threeten.bp.format.DateTimeFormatter" />
 
-        <variable
-            name="sharedVm"
-            type="fho.kdvs.global.SharedViewModel" />
-
         <import type="fho.kdvs.global.util.TimeHelper" />
     </data>
 
@@ -34,7 +30,6 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:onClick="@{clickListener}"
         android:layout_marginTop="@dimen/timeslot_margin"
         android:layout_marginStart="@dimen/timeslot_margin"
         android:layout_marginEnd="@dimen/spacing_small"
@@ -62,6 +57,7 @@
             android:scaleType="centerCrop"
             android:contentDescription="@string/timeslot_desc"
             glideHref="@{broadcast.imageHref}"
+            android:onClick="@{clickListener}"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/sectionHeader"
@@ -81,6 +77,7 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:text="@{show.name}"
+            android:onClick="@{clickListener}"
             style="@style/TextAppearance.MaterialComponents.Headline6"
             app:layout_constraintStart_toEndOf="@id/broadcastImage"
             app:layout_constraintEnd_toStartOf="@id/downloadDeleteIcon"
@@ -98,29 +95,16 @@
             android:layout_marginEnd="@dimen/timeslot_margin"
             android:ellipsize="end"
             android:maxLines="1"
+            android:onClick="@{clickListener}"
             dateFormatter="@{dateFormatter}"
             localDate="@{broadcast.date}"
             style="@style/TextAppearance.MaterialComponents.Subtitle2"
             app:layout_constraintStart_toStartOf="@id/showName"
-            app:layout_constraintEnd_toStartOf="@id/downloadDeleteIcon"
             app:layout_constraintTop_toBottomOf="@id/showName"
             app:layout_constrainedWidth="true"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="packed"
             tools:text="January 3, 2019"/>
-
-        <ImageView
-            android:id="@+id/downloadDeleteIcon"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintDimensionRatio="1:1"
-            android:src="@drawable/ic_file_download_white_24dp"
-            sharedVm="@{sharedVm}"
-            broadcast="@{broadcast}"
-            show="@{show}"
-            app:layout_constraintTop_toTopOf="@id/showName"
-            app:layout_constraintBottom_toBottomOf="@id/date"
-            app:layout_constraintEnd_toEndOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

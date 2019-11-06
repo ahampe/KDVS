@@ -592,7 +592,7 @@ class SharedViewModel @Inject constructor(
                 filename?.let {
                     if (it == downloadingFilename) {
                         when (event) {
-                            MOVED_FROM -> { // capture file rename upon completion
+                            MOVED_FROM -> {
                                 onComplete()
                             }
                             DELETE -> {
@@ -618,7 +618,12 @@ class SharedViewModel @Inject constructor(
             return false
         }
 
-        if (broadcast == null || show == null || folder == null)
+        if (broadcast == null || show == null || folder == null ||
+            isBroadcastDownloaded(
+                broadcast,
+                show
+            )
+        )
             return false
 
         val title = getBroadcastDownloadTitle(broadcast, show)
@@ -676,8 +681,14 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun getBroadcastDownloadTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
-        "${show.name} (${TimeHelper.dateFormatter.format(broadcast.date)})"
+    /** Must escape reserved system chars when writing a file. */
+    fun getBroadcastDownloadTitle(broadcast: BroadcastEntity, show: ShowEntity): String {
+        val reservedChars = """[?:"*|/\\<>]""".toRegex()
+
+        val escapedName = show.name?.replace(reservedChars, "_")
+
+        return "$escapedName (${TimeHelper.dateFormatter.format(broadcast.date)})"
+    }
 
     fun getBroadcastDownloadUiTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
         "${show.name} (${TimeHelper.uiDateFormatter.format(broadcast.date)})"

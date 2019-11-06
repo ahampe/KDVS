@@ -208,7 +208,11 @@ class BroadcastDetailsFragment : BaseFragment() {
             val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
 
             // Update UI reactively to match state of download
-            sharedViewModel.callOnFileEventForFilename(title, ::enableDeleteIcon, null)
+            sharedViewModel.callOnFileEventForFilename(
+                title,
+                ::enableDeleteIcon,
+                ::enableDownloadIcon
+            )
 
             when {
                 sharedViewModel.isBroadcastDownloaded(broadcast, show) -> {

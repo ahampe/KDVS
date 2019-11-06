@@ -50,7 +50,7 @@ class FavoriteBroadcastViewAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = CellFavoriteBroadcastBinding.inflate(inflater, parent, false)
-        return ViewHolder(binding, query, sharedViewModel)
+        return ViewHolder(binding, query)
     }
 
     override fun getItemCount(): Int {
@@ -157,8 +157,7 @@ class FavoriteBroadcastViewAdapter(
 
     class ViewHolder (
         private val binding: CellFavoriteBroadcastBinding,
-        private val queryStr: String,
-        private val sharedViewModel: SharedViewModel
+        private val queryStr: String
     ) : BindingViewHolder<FavoriteBroadcastJoin>(binding.root) {
 
         override fun bind(listener: View.OnClickListener, item: FavoriteBroadcastJoin) {
@@ -168,7 +167,6 @@ class FavoriteBroadcastViewAdapter(
                 show = item.show
                 query = queryStr
                 dateFormatter = TimeHelper.uiDateFormatter
-                sharedVm = sharedViewModel
             }
         }
     }
