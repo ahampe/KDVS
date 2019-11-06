@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             app:layout_constrainedWidth="true"
             app:layout_constraintBottom_toTopOf="@id/broadcast_date"
-            app:layout_constraintEnd_toStartOf="@id/downloadDeleteIcon"
+            app:layout_constraintEnd_toStartOf="@id/broadcastButtons"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/broadcast_header_background"/>
 
@@ -51,24 +51,14 @@
             app:layout_constraintTop_toTopOf="@id/broadcast_parent_show"/>
 
         <Constraint
-            android:id="@+id/archivePlayButton"
-            android:layout_width="0dp"
+            android:id="@+id/broadcastButtons"
+            android:layout_width="wrap_content"
             android:layout_height="0dp"
-            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintBottom_toBottomOf="@id/broadcast_header_background"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/broadcast_parent_show"
-            app:layout_constraintBottom_toBottomOf="@id/broadcast_date"
-            app:visibilityMode="ignore"/>
-
-        <Constraint
-            android:id="@+id/downloadDeleteIcon"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintTop_toTopOf="@id/archivePlayButton"
-            app:layout_constraintBottom_toBottomOf="@id/archivePlayButton"
-            app:layout_constraintEnd_toStartOf="@id/archivePlayButton"
-            app:visibilityMode="ignore"/>
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@id/broadcast_parent_show"
+            app:layout_constraintTop_toTopOf="@id/broadcast_header_background"/>
 
         <Constraint
             android:id="@+id/description_container"
@@ -149,7 +139,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/downloadDeleteIcon"/>
+            app:layout_constraintEnd_toStartOf="@id/broadcastButtons"/>
 
         <Constraint
             android:id="@id/broadcast_header_background"
@@ -161,24 +151,14 @@
             app:layout_constraintTop_toTopOf="@id/broadcast_parent_show" />
 
         <Constraint
-            android:id="@+id/archivePlayButton"
-            android:layout_width="0dp"
+            android:id="@+id/broadcastButtons"
+            android:layout_width="wrap_content"
             android:layout_height="0dp"
-            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintBottom_toBottomOf="@id/broadcast_header_background"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/broadcast_parent_show"
-            app:layout_constraintBottom_toBottomOf="@id/broadcast_date"
-            app:visibilityMode="ignore"/>
-
-        <Constraint
-            android:id="@+id/downloadDeleteIcon"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintTop_toTopOf="@id/archivePlayButton"
-            app:layout_constraintBottom_toBottomOf="@id/archivePlayButton"
-            app:layout_constraintEnd_toStartOf="@id/archivePlayButton"
-            app:visibilityMode="ignore"/>
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@id/broadcast_parent_show"
+            app:layout_constraintTop_toTopOf="@id/broadcast_header_background"/>
 
         <Constraint
             android:id="@+id/description_container"
