@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
+import androidx.room.Transaction
 import io.reactivex.Flowable
 
 @Dao
@@ -12,7 +13,8 @@ interface FavoriteBroadcastDao {
     @Query("SELECT * from favoriteBroadcastData")
     fun getAll(): Flowable<List<FavoriteBroadcastEntity>>
 
-    @Query("""SELECT favoriteBroadcastData.*, broadcastData.*, showData.* from favoriteBroadcastData
+    @Transaction
+    @Query("""SELECT id, name, host, genre, defaultDesc, defaultImageHref, timeStart, timeEnd, quarter, year from favoriteBroadcastData
         INNER JOIN broadcastData on broadcastData.broadcastId = broadcastData.broadcastId
         INNER JOIN showData on showData.id = broadcastData.showId"""
     )

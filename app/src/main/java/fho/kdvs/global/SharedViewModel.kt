@@ -624,8 +624,8 @@ class SharedViewModel @Inject constructor(
         val title = getBroadcastDownloadTitle(broadcast, show)
         val filename = getDownloadingFilename(title)
 
-        (activity as? MainActivity)?.let { activity ->
-            if (activity.isStoragePermissionGranted()) {
+        (activity as? MainActivity)?.let { mainActivity ->
+            if (mainActivity.isStoragePermissionGranted()) {
                 val url = URLs.archiveForBroadcast(broadcast)
 
                 url?.let {
@@ -636,13 +636,13 @@ class SharedViewModel @Inject constructor(
                         val request = makeDownloadRequest(url, title, filename)
 
                         val downloadManager =
-                            activity.applicationContext?.getSystemService(Context.DOWNLOAD_SERVICE)
+                            mainActivity.applicationContext?.getSystemService(Context.DOWNLOAD_SERVICE)
                                     as DownloadManager
 
                         downloadManager.enqueue(request)
 
                         Toast.makeText(
-                            activity as? MainActivity, "Download started", Toast.LENGTH_SHORT
+                            mainActivity as? MainActivity, "Download started", Toast.LENGTH_SHORT
                         ).show()
 
                         return true
@@ -650,7 +650,7 @@ class SharedViewModel @Inject constructor(
                         Timber.e("Error downloading broadcast: ${e.message}")
 
                         Toast.makeText(
-                            activity as? MainActivity,
+                            mainActivity as? MainActivity,
                             "Error downloading broadcast",
                             Toast.LENGTH_SHORT
                         ).show()
