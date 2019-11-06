@@ -3,7 +3,9 @@ package fho.kdvs.favorite.broadcast
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.navigation.NavController
+import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
+import fho.kdvs.favorite.FavoriteFragmentDirections
 import fho.kdvs.global.database.BroadcastEntity
 import javax.inject.Inject
 
@@ -18,7 +20,13 @@ class FavoriteBroadcastViewModel @Inject constructor(
 
     fun onClickBroadcast(navController: NavController, broadcast: BroadcastEntity?) {
         broadcast?.let {
-            // TODO
+            val navAction =
+                FavoriteFragmentDirections.actionFavoriteFragmentToBroadcastDetailsFragment(
+                    broadcast.showId,
+                    broadcast.broadcastId
+                )
+            if (navController.currentDestination?.id == R.id.favoriteFragment)
+                navController.navigate(navAction)
         }
     }
 }
