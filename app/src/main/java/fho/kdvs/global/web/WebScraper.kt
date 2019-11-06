@@ -284,8 +284,6 @@ class WebScraperManager @Inject constructor(
                         !t.html().toUpperCase().contains("EMPTY PLAYLIST")
             }
             tracks.forEachIndexed { index, element ->
-                val brId = broadcastId ?: return@forEachIndexed
-
                 val trackEntity: TrackEntity
                 if (element.select("td.airbreak").isNotEmpty()) {
                     trackEntity =
@@ -386,7 +384,7 @@ class WebScraperManager @Inject constructor(
                     ?.groupValues
 
                 val name = positionCaptures?.getOrNull(1).toString()
-                    ?.replace("&", "&\n")
+                    .replace("&", "&\n")
                     .processHtml()
                 val position = positionCaptures?.getOrNull(2).toString().processHtml()
                 val email = positionCaptures?.getOrNull(3).toString().processHtml()
@@ -409,8 +407,8 @@ class WebScraperManager @Inject constructor(
 
             db.staffDao().deleteAll()
 
-            staffScraped.forEach { staff ->
-                db.staffDao().insert(staff)
+            staffScraped.forEach { s ->
+                db.staffDao().insert(s)
             }
         }
 

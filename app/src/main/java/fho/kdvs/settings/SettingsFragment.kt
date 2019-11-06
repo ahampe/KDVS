@@ -206,7 +206,7 @@ class SettingsFragment : DaggerFragment() {
         offlineSwitch.setOnCheckedChangeListener(offlineSwitchChangeListener)
 
         refresh.setOnClickListener {
-            viewModel?.refreshData()
+            viewModel.refreshData()
 
             Toast.makeText(activity,
                 "Information updated.",
@@ -214,7 +214,7 @@ class SettingsFragment : DaggerFragment() {
                 .show()
         }
 
-        contactDevs.setOnClickListener { viewModel?.composeEmail(contactDevs, URLs.CONTACT_EMAIL) }
+        contactDevs.setOnClickListener { viewModel.composeEmail(contactDevs, URLs.CONTACT_EMAIL) }
 
         resetSettings.setOnClickListener {
             reset()

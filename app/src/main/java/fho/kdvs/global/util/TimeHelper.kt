@@ -266,7 +266,7 @@ object TimeHelper {
     @JvmStatic
     fun isTimeSlotForCurrentShow(timeslot: TimeSlot): Boolean {
         val scheduleTime = makeEpochRelativeTime(getNow())
-        return (scheduleTime >= timeslot?.timeStart) && (scheduleTime < timeslot?.timeEnd)
+        return (scheduleTime >= timeslot.timeStart) && (scheduleTime < timeslot.timeEnd)
     }
 
     /** Returns true if broadcast is currently live on-air. */
