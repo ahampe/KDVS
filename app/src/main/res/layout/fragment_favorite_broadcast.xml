@@ -7,165 +7,18 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/searchBar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/border"
-        android:layout_marginTop="@dimen/spacing_medium"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/filter"
-        app:layout_constraintTop_toTopOf="parent" />
+    <include
+        layout="@layout/favorite_page_top_controls" />
 
-    <ImageButton
-        android:id="@+id/filter"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintDimensionRatio="1:1"
-        android:src="@drawable/ic_filter_list_white_24dp"
-        android:background="@android:color/transparent"
-        android:layout_marginStart="@dimen/spacing_med_large"
-        android:layout_marginEnd="@dimen/spacing_med_large"
-        app:layout_constraintTop_toTopOf="@id/searchBar"
-        app:layout_constraintBottom_toBottomOf="@id/searchBar"
-        app:layout_constraintStart_toEndOf="@id/searchBar"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <ImageView
-        android:id="@+id/dummy"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/transparent"
-        android:visibility="gone"
-        android:elevation="@dimen/spacing_small"
-        tools:visibility="visible"/>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/sortMenu"
-        android:background="@color/colorPrimary"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/searchBar"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:padding="@dimen/spacing_medium"
-        android:layout_marginEnd="@dimen/spacing_small"
-        android:elevation="@dimen/spacing_medium"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:visibility="visible">
-
-        <TextView
-            android:id="@+id/sortMenuHeader"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/sort_header"
-            android:textStyle="bold"
-            style="@style/TextAppearance.MaterialComponents.Headline6"/>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/sortRecent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/sortMenuHeader"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <TextView
-                android:id="@+id/sortRecentText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_large"
-                android:layout_marginEnd="@dimen/spacing_extra_large"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/sortRecentButton"
-                android:text="@string/sort_recent"
-                style="@style/TextAppearance.MaterialComponents.Headline6"/>
-
-            <ImageView
-                android:id="@+id/sortRecentButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_arrow_upward_white_24dp"
-                android:tag="des"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintTop_toTopOf="@id/sortRecentText"
-                app:layout_constraintBottom_toBottomOf="@id/sortRecentText"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/sortShow"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/sortRecent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <TextView
-                android:id="@+id/sortShowText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_large"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                android:text="@string/sort_show"
-                style="@style/TextAppearance.MaterialComponents.Headline6"/>
-
-            <ImageView
-                android:id="@+id/sortShowButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:visibility="invisible"
-                android:tag="des"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintTop_toTopOf="@id/sortShowText"
-                app:layout_constraintBottom_toBottomOf="@id/sortShowText"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/sortDate"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/sortShow"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:visibility="visible">
-
-            <TextView
-                android:id="@+id/sortDateText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_large"
-                android:layout_marginEnd="@dimen/spacing_extra_large"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                android:text="@string/sort_date"
-                style="@style/TextAppearance.MaterialComponents.Headline6"/>
-
-            <ImageView
-                android:id="@+id/sortDateButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_arrow_upward_white_24dp"
-                android:tag="des"
-                android:visibility="invisible"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintTop_toTopOf="@id/sortDateText"
-                app:layout_constraintBottom_toBottomOf="@id/sortDateText"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <include
+        layout="@layout/favorite_page_sort_menu" />
 
     <Button
         android:id="@+id/downloadAllButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_medium"
-        app:layout_constraintTop_toBottomOf="@id/searchBar"
+        app:layout_constraintTop_toBottomOf="@id/topControls"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:text="@string/download_all"/>

@@ -26,6 +26,8 @@ import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.RequestCodes
 import kotlinx.android.synthetic.main.cell_favorite_broadcast.view.*
+import kotlinx.android.synthetic.main.favorite_page_sort_menu.*
+import kotlinx.android.synthetic.main.favorite_page_top_controls.*
 import kotlinx.android.synthetic.main.fragment_favorite_broadcast.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -220,6 +222,8 @@ class FavoriteBroadcastFragment : BaseFragment(), FavoritePage<ShowBroadcastFavo
         layoutToSortType.forEach { pair ->
             val layout = pair.first
             val button = layout.getChildAt(1) as? ImageView
+
+            layout.visibility = View.VISIBLE
 
             layout.setOnClickListener {
                 button?.visibility = View.VISIBLE

@@ -96,7 +96,7 @@
             android:layout_marginEnd="@dimen/timeslot_margin"
             android:maxLines="1"
             android:ellipsize="end"
-            android:text="@{show.name}"
+            android:text="@{show.host}"
             android:onClick="@{clickListener}"
             style="@style/TextAppearance.MaterialComponents.Subtitle2"
             app:layout_constraintStart_toEndOf="@id/broadcastImage"
