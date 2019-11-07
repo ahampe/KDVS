@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
     <include
         layout="@layout/favorite_page_top_controls" />
@@ -38,12 +38,14 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/spacing_medium"
-        android:paddingBottom="@dimen/spacing_large"
+        android:paddingBottom="@dimen/spacing_extra_large"
         android:clipToPadding="false"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/downloadAllButton"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+    <!--TODO don't rely on this padding hack -->
 
     <TextView
         android:id="@+id/noResults"

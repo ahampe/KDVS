@@ -21,7 +21,7 @@
         android:background="@android:color/transparent"
         android:visibility="gone"
         android:elevation="@dimen/spacing_small"
-        tools:visibility="visible"/>
+        tools:visibility="gone"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/exportIconsFavorite"
@@ -61,13 +61,15 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/spacing_medium"
-        android:paddingBottom="@dimen/spacing_large"
+        android:paddingBottom="@dimen/spacing_extra_large"
         android:clipToPadding="false"
         android:visibility="gone"
+        tools:visibility="visible"
         app:layout_constraintTop_toBottomOf="@id/exportIconsFavorite"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+    <!--TODO don't rely on this padding hack -->
 
     <TextView
         android:id="@+id/noResults"

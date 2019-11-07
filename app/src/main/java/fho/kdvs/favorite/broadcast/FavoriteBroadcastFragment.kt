@@ -163,11 +163,10 @@ class FavoriteBroadcastFragment : BaseFragment(), FavoritePage<ShowBroadcastFavo
                         ?.toUpperCase()
                         ?.toString()
                     SortType.DATE -> {
-                        val dateView = holder?.itemView?.date
+                        val date =
+                            TimeHelper.makeLocalDateUI(holder?.itemView?.date?.text.toString())
 
-                        if (dateView != null) {
-                            val date = TimeHelper.makeLocalDateUI(dateView.text.toString())
-
+                        if (date != null) {
                             val now = TimeHelper.getNow()
                             val oneDayAgo = now.minusDays(1L).toLocalDate()
                             val oneWeekAgo = now.minusDays(7L).toLocalDate()
@@ -274,7 +273,6 @@ class FavoriteBroadcastFragment : BaseFragment(), FavoritePage<ShowBroadcastFavo
                 override fun onQueryTextSubmit(query: String): Boolean {
                     favoriteBroadcastViewAdapter?.filter?.filter(query)
                     favoriteBroadcastViewAdapter?.query = query
-                    searchBar.clearFocus()
                     return false
                 }
 

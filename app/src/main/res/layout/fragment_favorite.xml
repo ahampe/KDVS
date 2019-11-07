@@ -17,7 +17,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_large"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.tabs.TabLayout
