@@ -69,7 +69,7 @@
             app:layout_constraintTop_toBottomOf="@id/header"/>
 
         <TextView
-            android:id="@+id/sortAlbum"
+            android:id="@+id/album"
             style="@style/TextAppearance.MaterialComponents.Headline5"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -87,7 +87,7 @@
             tools:text="The Name of the Album" />
 
         <TextView
-            android:id="@+id/sortArtist"
+            android:id="@+id/artist"
             style="@style/TextAppearance.MaterialComponents.Headline6"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
