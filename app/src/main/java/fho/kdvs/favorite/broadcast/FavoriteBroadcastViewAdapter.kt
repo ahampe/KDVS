@@ -5,11 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
-import androidx.lifecycle.Observer
 import fho.kdvs.databinding.CellFavoriteBroadcastBinding
 import fho.kdvs.favorite.FavoriteFragment.SortDirection
 import fho.kdvs.favorite.FavoriteFragment.SortType
-import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.ShowBroadcastFavoriteJoin
 import fho.kdvs.global.database.getBroadcastFavoriteJoins
 import fho.kdvs.global.extensions.removeLeadingArticles
@@ -23,7 +21,6 @@ import timber.log.Timber
 class FavoriteBroadcastViewAdapter(
     broadcastJoins: List<ShowBroadcastFavoriteJoin>?,
     private val fragment: FavoriteBroadcastFragment,
-    private val sharedViewModel: SharedViewModel,
     onClick: (ClickData<FavoriteBroadcastJoin>) -> Unit
 ) : BindingRecyclerViewAdapter<FavoriteBroadcastJoin, FavoriteBroadcastViewAdapter.ViewHolder>(
     onClick,
@@ -110,41 +107,40 @@ class FavoriteBroadcastViewAdapter(
     }
 
     fun updateData() {
-        sharedViewModel.favoriteSortDirectionAndType.observe(
-            fragment,
-            Observer { (sortDirection, sortType) ->
-                val newResults = (when (sortDirection) {
-                    SortDirection.ASC -> when (sortType) {
-                        SortType.RECENT -> results.sortedBy { it.favorite?.favoriteBroadcastId }
-                        SortType.SHOW -> results.sortedBy {
-                            it.show?.name?.formatName()
-                        }
-                        SortType.DATE -> results.sortedBy {
-                            it.broadcast?.date
-                        }
-                        else -> results
-                    }
-                    SortDirection.DES -> when (sortType) {
-                        SortType.RECENT -> results.sortedByDescending { it.favorite?.favoriteBroadcastId }
-                        SortType.SHOW -> results.sortedByDescending {
-                            it.show?.name?.formatName()
-                        }
-                        SortType.DATE -> results.sortedByDescending {
-                            it.broadcast?.date
-                        }
-                        else -> results
-                    }
-                })
+        val sortDirection = fragment.sortDirection
+        val sortType = fragment.sortType
 
-                newResults.let {
-                    results.clear()
-                    results.addAll(it)
-
-                    updateFragmentResults()
-
-                    notifyDataSetChanged()
+        val newResults = (when (sortDirection) {
+            SortDirection.ASC -> when (sortType) {
+                SortType.RECENT -> results.sortedBy { it.favorite?.favoriteBroadcastId }
+                SortType.SHOW -> results.sortedBy {
+                    it.show?.name?.formatName()
                 }
-            })
+                SortType.DATE -> results.sortedBy {
+                    it.broadcast?.date
+                }
+                else -> results
+            }
+            SortDirection.DES -> when (sortType) {
+                SortType.RECENT -> results.sortedByDescending { it.favorite?.favoriteBroadcastId }
+                SortType.SHOW -> results.sortedByDescending {
+                    it.show?.name?.formatName()
+                }
+                SortType.DATE -> results.sortedByDescending {
+                    it.broadcast?.date
+                }
+                else -> results
+            }
+        })
+
+        newResults.let {
+            results.clear()
+            results.addAll(it)
+
+            updateFragmentResults()
+
+            notifyDataSetChanged()
+        }
     }
 
     private fun updateFragmentResults() {
@@ -154,8 +150,7 @@ class FavoriteBroadcastViewAdapter(
 
     private fun String?.formatName() = this?.toUpperCase().removeLeadingArticles()
 
-
-    class ViewHolder (
+    class ViewHolder(
         private val binding: CellFavoriteBroadcastBinding,
         private val queryStr: String
     ) : BindingViewHolder<FavoriteBroadcastJoin>(binding.root) {

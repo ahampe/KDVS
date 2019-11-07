@@ -109,7 +109,6 @@
             android:layout_marginStart="@dimen/timeslot_margin"
             android:layout_marginEnd="@dimen/timeslot_margin"
             android:ellipsize="end"
-            android:textSize="12sp"
             android:text="@{show.name}"
             style="@style/TextAppearance.MaterialComponents.Subtitle2"
             app:layout_constraintStart_toEndOf="@id/trackImage"

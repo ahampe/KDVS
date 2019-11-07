@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
@@ -13,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.R
 import fho.kdvs.api.service.SpotifyService
+import fho.kdvs.favorite.FavoriteFragment.SortDirection
 import fho.kdvs.favorite.FavoriteFragment.SortType
 import fho.kdvs.favorite.FavoritePage
 import fho.kdvs.global.BaseFragment
@@ -49,6 +52,8 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
     val hashedResults = mutableMapOf<String, ArrayList<FavoriteTrackJoin>>()
     val currentlyDisplayingResults = mutableListOf<FavoriteTrackJoin?>()
 
+    var sortType = SortType.RECENT
+    var sortDirection = SortDirection.DES
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,7 +85,14 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
         super.onViewCreated(view, savedInstanceState)
 
         initializeClickListeners()
+        initializeSearchBar()
         initializeIcons()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        searchBar?.clearFocus()
     }
 
     /** Handle third-party getExportPlaylistUri request launched in [FavoriteTrackFragment]. */
@@ -131,7 +143,7 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
                 noResults.visibility = View.GONE
 
                 favoriteTrackViewAdapter =
-                    FavoriteTrackViewAdapter(joins.distinct(), this, sharedViewModel) {
+                    FavoriteTrackViewAdapter(joins.distinct(), this) {
                         Timber.d("clicked ${it.item}")
 
                         val ids = currentlyDisplayingResults
@@ -163,57 +175,55 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
 
         clearSectionHeaders()
 
-        sharedViewModel.favoriteSortType.observe(this, Observer { sortType ->
-            if (sortType != SortType.RECENT) {
-                for (i in 0..resultsRecycler.childCount) {
-                    val holder =
-                        resultsRecycler.findViewHolderForAdapterPosition(i) as? FavoriteTrackViewAdapter.ViewHolder
-                    val key = when (sortType) {
-                        SortType.SHOW -> holder?.itemView?.trackInfo?.text
-                            ?.toString()
-                            ?.removeLeadingArticles()
-                            ?.firstOrNull()
-                            ?.toUpperCase()
-                            ?.toString()
-                        SortType.ARTIST -> holder?.itemView?.trackInfo?.text
-                            ?.toString()
-                            ?.removeLeadingArticles()
-                            ?.split(getString(R.string.track_info_separator))
-                            ?.firstOrNull()
-                            ?.trim()
-                            ?.firstOrNull()
-                            ?.toUpperCase()
-                            ?.toString()
-                        SortType.ALBUM -> holder?.itemView?.trackInfo?.text
-                            ?.toString()
-                            ?.removeLeadingArticles()
-                            ?.split(getString(R.string.track_info_separator))
-                            ?.getOrNull(1)
-                            ?.trim()
-                            ?.firstOrNull()
-                            ?.toUpperCase()
-                            ?.toString()
-                        SortType.TRACK -> holder?.itemView?.song?.text
-                            ?.toString()
-                            ?.removeLeadingArticles()
-                            ?.firstOrNull()
-                            ?.toUpperCase()
-                            ?.toString()
-                        else -> null
-                    }
+        if (sortType != SortType.RECENT) {
+            for (i in 0..resultsRecycler.childCount) {
+                val holder =
+                    resultsRecycler.findViewHolderForAdapterPosition(i) as? FavoriteTrackViewAdapter.ViewHolder
+                val key = when (sortType) {
+                    SortType.SHOW -> holder?.itemView?.showName?.text
+                        ?.toString()
+                        ?.removeLeadingArticles()
+                        ?.firstOrNull()
+                        ?.toUpperCase()
+                        ?.toString()
+                    SortType.ARTIST -> holder?.itemView?.trackInfo?.text
+                        ?.toString()
+                        ?.split(getString(R.string.track_info_separator))
+                        ?.firstOrNull()
+                        ?.trim()
+                        ?.removeLeadingArticles()
+                        ?.firstOrNull()
+                        ?.toUpperCase()
+                        ?.toString()
+                    SortType.ALBUM -> holder?.itemView?.trackInfo?.text
+                        ?.toString()
+                        ?.split(getString(R.string.track_info_separator))
+                        ?.getOrNull(1)
+                        ?.trim()
+                        ?.removeLeadingArticles()
+                        ?.firstOrNull()
+                        ?.toUpperCase()
+                        ?.toString()
+                    SortType.TRACK -> holder?.itemView?.song?.text
+                        ?.toString()
+                        ?.removeLeadingArticles()
+                        ?.firstOrNull()
+                        ?.toUpperCase()
+                        ?.toString()
+                    else -> null
+                }
 
-                    key?.let {
-                        if (!headers.contains(key)) {
-                            holder?.itemView?.sectionHeader?.text = key
-                            holder?.itemView?.sectionHeader?.visibility = View.VISIBLE
-                            headers.add(key)
-                        } else {
-                            holder?.itemView?.sectionHeader?.visibility = View.GONE
-                        }
+                key?.let {
+                    if (!headers.contains(key)) {
+                        holder?.itemView?.sectionHeader?.text = key
+                        holder?.itemView?.sectionHeader?.visibility = View.VISIBLE
+                        headers.add(key)
+                    } else {
+                        holder?.itemView?.sectionHeader?.visibility = View.GONE
                     }
                 }
             }
-        })
+        }
     }
 
     override fun clearSectionHeaders() {
@@ -240,6 +250,89 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
                 ThirdPartyService.YOUTUBE,
                 currentlyDisplayingResults.count { r -> !r?.track?.youTubeId.isNullOrEmpty() }
             )
+        }
+
+        val layoutToSortType = listOf(
+            Pair(sortRecent, SortType.RECENT),
+            Pair(sortShow, SortType.SHOW),
+            Pair(sortArtist, SortType.ARTIST),
+            Pair(sortAlbum, SortType.ALBUM),
+            Pair(sortTrack, SortType.TRACK)
+        )
+
+        dummy.setOnClickListener {
+            sortMenu.visibility = View.GONE
+            dummy.visibility = View.GONE
+        }
+
+        filter.setOnClickListener {
+            sortMenu.visibility = if (sortMenu.visibility == View.GONE)
+                View.VISIBLE else View.GONE
+            dummy.visibility = if (sortMenu.visibility == View.VISIBLE)
+                View.VISIBLE else View.GONE
+        }
+
+        layoutToSortType.forEach { pair ->
+            val layout = pair.first
+            val button = layout.getChildAt(1) as? ImageView
+
+            layout.setOnClickListener {
+                button?.visibility = View.VISIBLE
+
+                sortType = pair.second
+
+                if (button?.tag == SortDirection.ASC.type) {
+                    button.tag = SortDirection.DES.type
+                    button.setImageResource(R.drawable.ic_arrow_upward_white_24dp)
+                    sortDirection = SortDirection.DES
+
+                } else if (button?.tag == SortDirection.DES.type) {
+                    button.tag = SortDirection.ASC.type
+                    button.setImageResource(R.drawable.ic_arrow_downward_white_24dp)
+                    sortDirection = SortDirection.ASC
+                }
+
+                favoriteTrackViewAdapter?.updateData()
+
+                val otherPairs = layoutToSortType.filter { p -> p != pair }
+                otherPairs.forEach { p ->
+                    val otherButton = p.first.getChildAt(1)
+                    otherButton.visibility = View.INVISIBLE
+                }
+            }
+        }
+    }
+
+    override fun initializeSearchBar() {
+        searchBar?.run {
+            queryHint = resources.getString(R.string.filter_query_hint)
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    favoriteTrackViewAdapter?.filter?.filter(query)
+                    favoriteTrackViewAdapter?.query = query
+                    searchBar.clearFocus()
+                    return false
+                }
+
+                override fun onQueryTextChange(query: String): Boolean {
+                    favoriteTrackViewAdapter?.filter?.filter(query)
+                    favoriteTrackViewAdapter?.query = query
+                    return false
+                }
+            })
+
+            // Display all results upon closing filter
+            setOnCloseListener {
+                favoriteTrackViewAdapter?.let {
+                    it.results.clear()
+                    it.results.addAll(it.allFavorites)
+                    it.updateData()
+                    searchBar.clearFocus()
+                }
+
+                true
+            }
         }
     }
 

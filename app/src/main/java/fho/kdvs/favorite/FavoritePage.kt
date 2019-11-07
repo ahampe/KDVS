@@ -6,4 +6,5 @@ interface FavoritePage<T> {
     fun setSectionHeaders()
     fun clearSectionHeaders()
     fun initializeClickListeners()
+    fun initializeSearchBar()
 }

@@ -122,28 +122,6 @@ class SharedViewModel @Inject constructor(
 
     val isLiveNow: LiveData<Boolean?> = showRepository.isLiveNow
 
-    val favoriteSortDirection = MutableLiveData<SortDirection>()
-
-    val favoriteSortType = MutableLiveData<SortType>()
-
-    val favoriteSortDirectionAndType = MediatorLiveData<Pair<SortDirection, SortType>>()
-        .apply {
-            var dirEnt: SortDirection? = null
-            var typeEnt: SortType? = null
-
-            addSource(favoriteSortDirection) { dir ->
-                dirEnt = dir
-                val type = typeEnt ?: return@addSource
-                postValue(Pair(dir, type))
-            }
-
-            addSource(favoriteSortType) { type ->
-                typeEnt = type
-                val dir = dirEnt ?: return@addSource
-                postValue(Pair(dir, type))
-            }
-        }
-
     /** Use across various lifecycles of PlayerFragment to maintain list of scraped tracks for live broadcast. */
     val scrapedTracksForBroadcast = mutableListOf<TrackEntity>()
 

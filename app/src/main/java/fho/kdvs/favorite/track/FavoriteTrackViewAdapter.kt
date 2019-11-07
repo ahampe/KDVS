@@ -5,11 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
-import androidx.lifecycle.Observer
 import fho.kdvs.databinding.CellFavoriteTrackBinding
 import fho.kdvs.favorite.FavoriteFragment.SortDirection
 import fho.kdvs.favorite.FavoriteFragment.SortType
-import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.ShowBroadcastTrackFavoriteJoin
 import fho.kdvs.global.database.getTrackFavoriteJoins
 import fho.kdvs.global.extensions.removeLeadingArticles
@@ -22,7 +20,6 @@ import timber.log.Timber
 class FavoriteTrackViewAdapter(
     trackJoins: List<ShowBroadcastTrackFavoriteJoin>?,
     private val fragment: FavoriteTrackFragment,
-    private val sharedViewModel: SharedViewModel,
     onClick: (ClickData<FavoriteTrackJoin>) -> Unit
 ) : BindingRecyclerViewAdapter<FavoriteTrackJoin, FavoriteTrackViewAdapter.ViewHolder>(
     onClick,
@@ -112,53 +109,52 @@ class FavoriteTrackViewAdapter(
     }
 
     fun updateData() {
-        sharedViewModel.favoriteSortDirectionAndType.observe(
-            fragment,
-            Observer { (sortDirection, sortType) ->
-                val newResults = (when (sortDirection) {
-                    SortDirection.ASC -> when (sortType) {
-                        SortType.RECENT -> results.sortedBy { it.favorite?.favoriteTrackId }
-                        SortType.ALBUM -> results.sortedBy {
-                            it.track?.album?.formatName()
-                        }
-                        SortType.ARTIST -> results.sortedBy {
-                            it.track?.artist?.formatName()
-                        }
-                        SortType.TRACK -> results.sortedBy {
-                            it.track?.song?.formatName()
-                        }
-                        SortType.SHOW -> results.sortedBy {
-                            it.show?.name?.formatName()
-                        }
-                        else -> results
-                    }
-                    SortDirection.DES -> when (sortType) {
-                        SortType.RECENT -> results.sortedByDescending { it.favorite?.favoriteTrackId }
-                        SortType.ALBUM -> results.sortedByDescending {
-                            it.track?.album?.formatName()
-                        }
-                        SortType.ARTIST -> results.sortedByDescending {
-                            it.track?.artist?.formatName()
-                        }
-                        SortType.TRACK -> results.sortedByDescending {
-                            it.track?.song?.formatName()
-                        }
-                        SortType.SHOW -> results.sortedByDescending {
-                            it.show?.name?.formatName()
-                        }
-                        else -> results
-                    }
-                })
+        val sortDirection = fragment.sortDirection
+        val sortType = fragment.sortType
 
-                newResults.let {
-                    results.clear()
-                    results.addAll(it)
-
-                    updateFragmentResults()
-
-                    notifyDataSetChanged()
+        val newResults = (when (sortDirection) {
+            SortDirection.ASC -> when (sortType) {
+                SortType.RECENT -> results.sortedBy { it.favorite?.favoriteTrackId }
+                SortType.ALBUM -> results.sortedBy {
+                    it.track?.album?.formatName()
                 }
-            })
+                SortType.ARTIST -> results.sortedBy {
+                    it.track?.artist?.formatName()
+                }
+                SortType.TRACK -> results.sortedBy {
+                    it.track?.song?.formatName()
+                }
+                SortType.SHOW -> results.sortedBy {
+                    it.show?.name?.formatName()
+                }
+                else -> results
+            }
+            SortDirection.DES -> when (sortType) {
+                SortType.RECENT -> results.sortedByDescending { it.favorite?.favoriteTrackId }
+                SortType.ALBUM -> results.sortedByDescending {
+                    it.track?.album?.formatName()
+                }
+                SortType.ARTIST -> results.sortedByDescending {
+                    it.track?.artist?.formatName()
+                }
+                SortType.TRACK -> results.sortedByDescending {
+                    it.track?.song?.formatName()
+                }
+                SortType.SHOW -> results.sortedByDescending {
+                    it.show?.name?.formatName()
+                }
+                else -> results
+            }
+        })
+
+        newResults.let {
+            results.clear()
+            results.addAll(it)
+
+            updateFragmentResults()
+
+            notifyDataSetChanged()
+        }
     }
 
     private fun updateFragmentResults() {

@@ -6,7 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.widget.ImageView
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.R
 import fho.kdvs.dialog.BinaryChoiceDialogFragment
+import fho.kdvs.favorite.FavoriteFragment.SortDirection
 import fho.kdvs.favorite.FavoriteFragment.SortType
 import fho.kdvs.favorite.FavoritePage
 import fho.kdvs.global.BaseFragment
@@ -45,6 +47,9 @@ class FavoriteBroadcastFragment : BaseFragment(), FavoritePage<ShowBroadcastFavo
     val hashedResults = mutableMapOf<String, ArrayList<FavoriteBroadcastJoin>>()
     val currentlyDisplayingResults = mutableListOf<FavoriteBroadcastJoin?>()
 
+    var sortType = SortType.RECENT
+    var sortDirection = SortDirection.DES
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -75,7 +80,12 @@ class FavoriteBroadcastFragment : BaseFragment(), FavoritePage<ShowBroadcastFavo
         super.onViewCreated(view, savedInstanceState)
 
         initializeClickListeners()
-        initializeIcons()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        searchBar?.clearFocus()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -122,7 +132,7 @@ class FavoriteBroadcastFragment : BaseFragment(), FavoritePage<ShowBroadcastFavo
                 noResults.visibility = View.GONE
 
                 favoriteBroadcastViewAdapter =
-                    FavoriteBroadcastViewAdapter(joins.distinct(), this, sharedViewModel) {
+                    FavoriteBroadcastViewAdapter(joins.distinct(), this) {
                         Timber.d("clicked ${it.item}")
 
                         viewModel.onClickBroadcast(findNavController(), it.item.broadcast)
@@ -150,33 +160,31 @@ class FavoriteBroadcastFragment : BaseFragment(), FavoritePage<ShowBroadcastFavo
 
         clearSectionHeaders()
 
-        sharedViewModel.favoriteSortType.observe(this, Observer { sortType ->
-            if (sortType != SortType.RECENT) {
-                for (i in 0..resultsRecycler.childCount) {
-                    val holder =
-                        resultsRecycler.findViewHolderForAdapterPosition(i) as? FavoriteBroadcastViewAdapter.ViewHolder
-                    val key = when (sortType) {
-                        SortType.SHOW -> holder?.itemView?.showName?.text
-                            ?.toString()
-                            ?.removeLeadingArticles()
-                            ?.firstOrNull()
-                            ?.toUpperCase()
-                            ?.toString()
-                        else -> null
-                    }
+        if (sortType != SortType.RECENT) {
+            for (i in 0..resultsRecycler.childCount) {
+                val holder =
+                    resultsRecycler.findViewHolderForAdapterPosition(i) as? FavoriteBroadcastViewAdapter.ViewHolder
+                val key = when (sortType) {
+                    SortType.SHOW -> holder?.itemView?.showName?.text
+                        ?.toString()
+                        ?.removeLeadingArticles()
+                        ?.firstOrNull()
+                        ?.toUpperCase()
+                        ?.toString()
+                    else -> null
+                }
 
-                    key?.let {
-                        if (!headers.contains(key)) {
-                            holder?.itemView?.sectionHeader?.text = key
-                            holder?.itemView?.sectionHeader?.visibility = View.VISIBLE
-                            headers.add(key)
-                        } else {
-                            holder?.itemView?.sectionHeader?.visibility = View.GONE
-                        }
+                key?.let {
+                    if (!headers.contains(key)) {
+                        holder?.itemView?.sectionHeader?.text = key
+                        holder?.itemView?.sectionHeader?.visibility = View.VISIBLE
+                        headers.add(key)
+                    } else {
+                        holder?.itemView?.sectionHeader?.visibility = View.GONE
                     }
                 }
             }
-        })
+        }
     }
 
     override fun clearSectionHeaders() {
@@ -190,9 +198,87 @@ class FavoriteBroadcastFragment : BaseFragment(), FavoritePage<ShowBroadcastFavo
         downloadAllButton?.setOnClickListener {
             displayDialog()
         }
+
+        val layoutToSortType = listOf(
+            Pair(sortRecent, SortType.RECENT),
+            Pair(sortShow, SortType.SHOW),
+            Pair(sortDate, SortType.DATE)
+        )
+
+        dummy.setOnClickListener {
+            sortMenu.visibility = View.GONE
+            dummy.visibility = View.GONE
+        }
+
+        filter.setOnClickListener {
+            sortMenu.visibility = if (sortMenu.visibility == View.GONE)
+                View.VISIBLE else View.GONE
+            dummy.visibility = if (sortMenu.visibility == View.VISIBLE)
+                View.VISIBLE else View.GONE
+        }
+
+        layoutToSortType.forEach { pair ->
+            val layout = pair.first
+            val button = layout.getChildAt(1) as? ImageView
+
+            layout.setOnClickListener {
+                button?.visibility = View.VISIBLE
+
+                sortType = pair.second
+
+                if (button?.tag == SortDirection.ASC.type) {
+                    button.tag = SortDirection.DES.type
+                    button.setImageResource(R.drawable.ic_arrow_upward_white_24dp)
+                    sortDirection = SortDirection.DES
+
+                } else if (button?.tag == SortDirection.DES.type) {
+                    button.tag = SortDirection.ASC.type
+                    button.setImageResource(R.drawable.ic_arrow_downward_white_24dp)
+                    sortDirection = SortDirection.ASC
+                }
+
+                favoriteBroadcastViewAdapter?.updateData()
+
+                val otherPairs = layoutToSortType.filter { p -> p != pair }
+                otherPairs.forEach { p ->
+                    val otherButton = p.first.getChildAt(1)
+                    otherButton.visibility = View.INVISIBLE
+                }
+            }
+        }
     }
 
-    private fun initializeIcons() { // TODO
+    override fun initializeSearchBar() {
+        searchBar?.run {
+            queryHint = resources.getString(R.string.filter_query_hint)
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    favoriteBroadcastViewAdapter?.filter?.filter(query)
+                    favoriteBroadcastViewAdapter?.query = query
+                    searchBar.clearFocus()
+                    return false
+                }
+
+                override fun onQueryTextChange(query: String): Boolean {
+                    favoriteBroadcastViewAdapter?.filter?.filter(query)
+                    favoriteBroadcastViewAdapter?.query = query
+                    return false
+                }
+            })
+
+            // Display all results upon closing filter
+            setOnCloseListener {
+                favoriteBroadcastViewAdapter?.let {
+                    it.results.clear()
+                    it.results.addAll(it.allFavorites)
+                    it.updateData()
+                    searchBar.clearFocus()
+                }
+
+                true
+            }
+        }
     }
 
     private fun displayDialog() {

@@ -7,7 +7,6 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
 import fho.kdvs.R
-import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.ui.PlayerPaletteRequestListener
