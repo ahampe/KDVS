@@ -12,4 +12,5 @@ object RequestCodes {
     const val SPOTIFY_EXPORT_BROADCAST: Int = 38
     const val YOUTUBE_EXPORT_BROADCAST: Int = 39
     const val SPOTIFY_LOGIN: Int = 40
+    const val DOWNLOAD_ALL_FAVORITES_DIALOG: Int = 41
 }

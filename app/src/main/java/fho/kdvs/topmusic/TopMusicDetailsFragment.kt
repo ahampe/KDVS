@@ -140,8 +140,8 @@ class TopMusicDetailsFragment : DaggerFragment(), CoroutineScope {
             val item = topMusicItems.getOrNull(position)
             item?.let {topMusic ->
 
-                album.text = topMusic.album ?: ""
-                artist.text = topMusic.artist ?: ""
+                sortAlbum.text = topMusic.album ?: ""
+                sortArtist.text = topMusic.artist ?: ""
 
                 if (topMusic.year != null || topMusic.label != null) {
                     when {

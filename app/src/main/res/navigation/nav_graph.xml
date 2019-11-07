@@ -78,6 +78,9 @@
         <action
             android:id="@+id/action_favoriteFragment_to_favoriteTrackDetailsFragment"
             app:destination="@id/favoriteTrackDetailsFragment" />
+        <action
+            android:id="@+id/action_favoriteFragment_to_broadcastDetailsFragment"
+            app:destination="@id/broadcastDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/showDetailsFragment"

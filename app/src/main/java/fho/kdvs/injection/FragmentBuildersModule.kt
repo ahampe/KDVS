@@ -21,6 +21,8 @@ import dagger.android.ContributesAndroidInjector
 import fho.kdvs.broadcast.BroadcastDetailsFragment
 import fho.kdvs.dialog.BinaryChoiceDialogFragment
 import fho.kdvs.favorite.FavoriteFragment
+import fho.kdvs.favorite.broadcast.FavoriteBroadcastFragment
+import fho.kdvs.favorite.track.FavoriteTrackFragment
 import fho.kdvs.home.HomeFragment
 import fho.kdvs.player.PlayerFragment
 import fho.kdvs.schedule.ScheduleFragment
@@ -70,6 +72,12 @@ abstract class FragmentBuildersModule {
 
     @ContributesAndroidInjector
     abstract fun contributeFavoriteFragment(): FavoriteFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributeFavoriteBroadcastFragment(): FavoriteBroadcastFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributeFavoriteTrackFragment(): FavoriteTrackFragment
 
     @ContributesAndroidInjector
     abstract fun contributeBinaryChoiceDialogFragment(): BinaryChoiceDialogFragment

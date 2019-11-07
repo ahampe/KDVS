@@ -1,33 +1,39 @@
-package fho.kdvs.favorite
+package fho.kdvs.favorite.broadcast
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
-import fho.kdvs.databinding.CellFavoriteTrackBinding
-import fho.kdvs.global.database.*
+import fho.kdvs.databinding.CellFavoriteBroadcastBinding
+import fho.kdvs.favorite.FavoriteFragment.SortDirection
+import fho.kdvs.favorite.FavoriteFragment.SortType
+import fho.kdvs.global.database.ShowBroadcastFavoriteJoin
+import fho.kdvs.global.database.getBroadcastFavoriteJoins
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
+import fho.kdvs.global.util.TimeHelper
 import timber.log.Timber
 
-class FavoriteViewAdapter(
-    joins: List<ShowBroadcastTrackFavoriteJoin>?,
-    private val fragment: FavoriteFragment,
-    onClick: (ClickData<FavoriteJoin>) -> Unit
-) : BindingRecyclerViewAdapter<FavoriteJoin, FavoriteViewAdapter.ViewHolder>(onClick, FavoriteTrackDiffCallback()), Filterable {
 
+class FavoriteBroadcastViewAdapter(
+    broadcastJoins: List<ShowBroadcastFavoriteJoin>?,
+    private val fragment: FavoriteBroadcastFragment,
+    onClick: (ClickData<FavoriteBroadcastJoin>) -> Unit
+) : BindingRecyclerViewAdapter<FavoriteBroadcastJoin, FavoriteBroadcastViewAdapter.ViewHolder>(
+    onClick,
+    FavoriteBroadcastDiffCallback()
+), Filterable {
     var query: String = ""
+    val results = mutableListOf<FavoriteBroadcastJoin>()
+    var allFavorites = mutableListOf<FavoriteBroadcastJoin>()
 
-    val results = mutableListOf<FavoriteJoin>()
-    var allFavorites = mutableListOf<FavoriteJoin>()
-    
     init {
-        val favoriteJoins = joins.getFavoriteJoins()
+        val broadcastFavoriteJoins = broadcastJoins.getBroadcastFavoriteJoins()
 
-        favoriteJoins?.let {
+        broadcastFavoriteJoins?.let {
             results.addAll(it)
         }
 
@@ -40,7 +46,7 @@ class FavoriteViewAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = CellFavoriteTrackBinding.inflate(inflater, parent, false)
+        val binding = CellFavoriteBroadcastBinding.inflate(inflater, parent, false)
         return ViewHolder(binding, query)
     }
 
@@ -51,10 +57,10 @@ class FavoriteViewAdapter(
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(charSeq: CharSequence): FilterResults {
-                val filteredList = ArrayList<FavoriteJoin>()
+                val filteredList = ArrayList<FavoriteBroadcastJoin>()
                 val query = charSeq.toString().trim()
 
-                if (query.isNotEmpty()){
+                if (query.isNotEmpty()) {
                     if (!fragment.hashedResults[query].isNullOrEmpty()) {
                         filteredList.addAll(fragment.hashedResults[query]!!)
                         results.clear()
@@ -62,9 +68,6 @@ class FavoriteViewAdapter(
                     } else {
                         allFavorites.forEach { join ->
                             val fieldsToSearch = listOf(
-                                join.track?.song,
-                                join.track?.artist,
-                                join.track?.album,
                                 join.show?.name
                             )
 
@@ -72,7 +75,8 @@ class FavoriteViewAdapter(
                                 field?.let {
                                     if (!filteredList.contains(join) &&
                                         "^$query".toRegex()
-                                            .find(it.toLowerCase().removeLeadingArticles()) != null)
+                                            .find(it.toLowerCase().removeLeadingArticles()) != null
+                                    )
                                         filteredList.add(join)
                                 }
                             }
@@ -103,9 +107,33 @@ class FavoriteViewAdapter(
     }
 
     fun updateData() {
-        val newResults = sortFavorites(results)
+        val sortDirection = fragment.sortDirection
+        val sortType = fragment.sortType
 
-        newResults?.let {
+        val newResults = (when (sortDirection) {
+            SortDirection.ASC -> when (sortType) {
+                SortType.RECENT -> results.sortedBy { it.favorite?.favoriteBroadcastId }
+                SortType.SHOW -> results.sortedBy {
+                    it.show?.name?.formatName()
+                }
+                SortType.DATE -> results.sortedBy {
+                    it.broadcast?.date
+                }
+                else -> results
+            }
+            SortDirection.DES -> when (sortType) {
+                SortType.RECENT -> results.sortedByDescending { it.favorite?.favoriteBroadcastId }
+                SortType.SHOW -> results.sortedByDescending {
+                    it.show?.name?.formatName()
+                }
+                SortType.DATE -> results.sortedByDescending {
+                    it.broadcast?.date
+                }
+                else -> results
+            }
+        })
+
+        newResults.let {
             results.clear()
             results.addAll(it)
 
@@ -120,48 +148,20 @@ class FavoriteViewAdapter(
         fragment.currentlyDisplayingResults.addAll(results)
     }
 
-    private fun sortFavorites(list: List<FavoriteJoin>?): List<FavoriteJoin>? {
-        return (when (fragment.sortDirection) {
-            SortDirection.ASC -> when (fragment.sortType) {
-                SortType.RECENT -> list?.sortedBy{it.favorite?.favoriteId}
-                SortType.ALBUM  -> list?.sortedBy{it.track?.album?.toUpperCase().removeLeadingArticles()}
-                SortType.ARTIST -> list?.sortedBy{it.track?.artist?.toUpperCase().removeLeadingArticles()}
-                SortType.TRACK  -> list?.sortedBy{it.track?.song?.toUpperCase().removeLeadingArticles()}
-                SortType.SHOW   -> list?.sortedBy{it.show?.name?.toUpperCase().removeLeadingArticles()}
-            }
-            SortDirection.DES -> when (fragment.sortType) {
-                SortType.RECENT -> list?.sortedByDescending{it.favorite?.favoriteId}
-                SortType.ALBUM  -> list?.sortedByDescending{it.track?.album?.toUpperCase().removeLeadingArticles()}
-                SortType.ARTIST -> list?.sortedByDescending{it.track?.artist?.toUpperCase().removeLeadingArticles()}
-                SortType.TRACK  -> list?.sortedByDescending{it.track?.song?.toUpperCase().removeLeadingArticles()}
-                SortType.SHOW   -> list?.sortedByDescending{it.show?.name?.toUpperCase().removeLeadingArticles()}
-            }
-        })
-    }
-
-    enum class SortDirection(val type: String) {
-        ASC("asc"),
-        DES("des")
-    }
-
-    enum class SortType {
-        RECENT,
-        SHOW,
-        ARTIST,
-        ALBUM,
-        TRACK
-    }
+    private fun String?.formatName() = this?.toUpperCase().removeLeadingArticles()
 
     class ViewHolder(
-        private val binding: CellFavoriteTrackBinding,
+        private val binding: CellFavoriteBroadcastBinding,
         private val queryStr: String
-    ) : BindingViewHolder<FavoriteJoin>(binding.root) {
-        override fun bind(listener: View.OnClickListener, item: FavoriteJoin) {
+    ) : BindingViewHolder<FavoriteBroadcastJoin>(binding.root) {
+
+        override fun bind(listener: View.OnClickListener, item: FavoriteBroadcastJoin) {
             binding.apply {
                 clickListener = listener
-                track = item.track
+                broadcast = item.broadcast
                 show = item.show
                 query = queryStr
+                dateFormatter = TimeHelper.uiDateFormatter
             }
         }
     }

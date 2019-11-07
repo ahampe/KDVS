@@ -4,8 +4,8 @@
     <data>
 
         <variable
-            name="track"
-            type="fho.kdvs.global.database.TrackEntity" />
+            name="broadcast"
+            type="fho.kdvs.global.database.BroadcastEntity" />
 
         <variable
             name="show"
@@ -19,6 +19,10 @@
             name="clickListener"
             type="android.view.View.OnClickListener" />
 
+        <variable
+            name="dateFormatter"
+            type="org.threeten.bp.format.DateTimeFormatter" />
+
         <import type="fho.kdvs.global.util.TimeHelper" />
     </data>
 
@@ -26,7 +30,6 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:onClick="@{clickListener}"
         android:layout_marginTop="@dimen/timeslot_margin"
         android:layout_marginStart="@dimen/timeslot_margin"
         android:layout_marginEnd="@dimen/timeslot_margin"
@@ -47,13 +50,14 @@
             tools:text="D"/>
 
         <ImageView
-            android:id="@+id/trackImage"
+            android:id="@+id/broadcastImage"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
             android:contentDescription="@string/timeslot_desc"
-            glideHref="@{track.imageHref}"
+            glideHref="@{broadcast.imageHref}"
+            android:onClick="@{clickListener}"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/sectionHeader"
@@ -64,61 +68,63 @@
             tools:background="@drawable/show_placeholder"/>
 
         <TextView
-            android:id="@+id/song"
-            android:layout_width="0dp"
+            android:id="@+id/showName"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
             android:layout_marginStart="@dimen/timeslot_margin"
             android:layout_marginEnd="@dimen/timeslot_margin"
             android:maxLines="1"
             android:ellipsize="end"
-            android:text="@{track.song}"
+            android:text="@{show.name}"
+            android:onClick="@{clickListener}"
             style="@style/TextAppearance.MaterialComponents.Headline6"
-            app:layout_constraintStart_toEndOf="@id/trackImage"
+            app:layout_constraintStart_toEndOf="@id/broadcastImage"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/sectionHeader"
             app:layout_constrainedWidth="true"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="packed"
-            tools:text="Name of the Song"/>
+            tools:text="Testing Overflow With a Very Long Name"/>
 
         <TextView
-            android:id="@+id/trackInfo"
-            android:layout_width="0dp"
+            android:id="@+id/showHost"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
             android:layout_marginStart="@dimen/timeslot_margin"
             android:layout_marginEnd="@dimen/timeslot_margin"
-            android:ellipsize="end"
             android:maxLines="1"
-            trackInfo="@{track}"
-            style="@style/TextAppearance.MaterialComponents.Subtitle2"
-            app:layout_constraintStart_toEndOf="@id/trackImage"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/song"
-            app:layout_constrainedWidth="true"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            tools:text="Darkthrone"/>
-
-        <TextView
-            android:id="@+id/showName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorPrimary"
-            android:layout_marginStart="@dimen/timeslot_margin"
-            android:layout_marginEnd="@dimen/timeslot_margin"
             android:ellipsize="end"
             android:text="@{show.name}"
+            android:onClick="@{clickListener}"
             style="@style/TextAppearance.MaterialComponents.Subtitle2"
-            app:layout_constraintStart_toEndOf="@id/trackImage"
+            app:layout_constraintStart_toEndOf="@id/broadcastImage"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/trackInfo"
+            app:layout_constraintTop_toBottomOf="@id/showName"
             app:layout_constrainedWidth="true"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="packed"
-            tools:visibility="visible"
-            tools:text="Radio Fenriz"/>
+            tools:text="DJ Stingray"/>
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginEnd="@dimen/timeslot_margin"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:onClick="@{clickListener}"
+            dateFormatter="@{dateFormatter}"
+            localDate="@{broadcast.date}"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            app:layout_constraintStart_toStartOf="@id/showName"
+            app:layout_constraintTop_toBottomOf="@id/showHost"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            tools:text="January 3, 2019"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

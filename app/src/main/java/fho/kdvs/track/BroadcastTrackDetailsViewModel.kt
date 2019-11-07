@@ -1,16 +1,14 @@
 package fho.kdvs.track
 
 import android.app.Application
-import android.view.View
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.navigation.NavController
-import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
-import fho.kdvs.favorite.FavoriteRepository
+import fho.kdvs.favorite.track.FavoriteTrackRepository
 import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.FavoriteEntity
+import fho.kdvs.global.database.FavoriteTrackEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TrackEntity
 import javax.inject.Inject
@@ -18,18 +16,18 @@ import javax.inject.Inject
 class BroadcastTrackDetailsViewModel @Inject constructor(
     val trackRepository: TrackRepository,
     private val broadcastRepository: BroadcastRepository,
-    private val favoriteRepository: FavoriteRepository,
+    private val favoriteRepository: FavoriteTrackRepository,
     application: Application
 ) : AndroidViewModel(application) {
 
     private lateinit var liveTracks: LiveData<List<TrackEntity>>
-    private lateinit var liveFavorites: LiveData<List<FavoriteEntity>>
+    private lateinit var liveFavorites: LiveData<List<FavoriteTrackEntity>>
     private lateinit var liveBroadcast: LiveData<BroadcastEntity>
     private lateinit var liveShow: LiveData<ShowEntity>
 
     data class CombinedTrackData (
         val tracks: List<TrackEntity>,
-        val favorites: List<FavoriteEntity>,
+        val favorites: List<FavoriteTrackEntity>,
         val broadcast: BroadcastEntity,
         val show: ShowEntity
     )
@@ -47,7 +45,7 @@ class BroadcastTrackDetailsViewModel @Inject constructor(
         combinedLiveData = MediatorLiveData<CombinedTrackData>()
             .apply {
                 var tracks: List<TrackEntity>? = null
-                var favorites: List<FavoriteEntity>? = null
+                var favorites: List<FavoriteTrackEntity>? = null
                 var broadcast: BroadcastEntity? = null
                 var show: ShowEntity? = null
 

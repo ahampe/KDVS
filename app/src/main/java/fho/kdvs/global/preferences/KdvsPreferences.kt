@@ -105,7 +105,7 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         // Timestamp of most recent Spotify SSO
         SPOTIFY_LAST_LOGIN,
 
-        // Spotify uri for user's favorites playlist
+        // Spotify uri for user's trackFavorites playlist
         SPOTIFY_FAVORITES_PLAYLIST_URI
     }
 

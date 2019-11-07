@@ -1,11 +1,8 @@
 package fho.kdvs.broadcast
 
 import android.app.Activity
-import android.app.DownloadManager
-import android.content.Context.DOWNLOAD_SERVICE
 import android.content.Intent
 import android.os.Bundle
-import android.os.FileObserver
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,10 +19,8 @@ import fho.kdvs.databinding.FragmentBroadcastDetailsBinding
 import fho.kdvs.dialog.BinaryChoiceDialogFragment
 import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
-import fho.kdvs.global.MainActivity
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.collapseExpand
 import fho.kdvs.global.preferences.KdvsPreferences
@@ -38,7 +33,6 @@ import kotlinx.coroutines.launch
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
-import java.io.File
 import javax.inject.Inject
 
 const val DOWNLOAD_ICON = "download"
@@ -79,7 +73,11 @@ class BroadcastDetailsFragment : BaseFragment() {
             .get(SharedViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val binding = FragmentBroadcastDetailsBinding.inflate(inflater, container, false)
 
         binding.apply {
@@ -111,7 +109,11 @@ class BroadcastDetailsFragment : BaseFragment() {
 
         archivePlayButton.setOnClickListener {
             viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
-                sharedViewModel.preparePastBroadcastForPlaybackAndPlay(broadcast, show, requireActivity())
+                sharedViewModel.preparePastBroadcastForPlaybackAndPlay(
+                    broadcast,
+                    show,
+                    requireActivity()
+                )
             })
         }
 
@@ -121,12 +123,31 @@ class BroadcastDetailsFragment : BaseFragment() {
 
                 folder?.let {
                     if (icon.tag == DOWNLOAD_ICON) {
-                        if (downloadBroadcast(broadcast, show, folder))
+                        if (sharedViewModel.downloadBroadcast(
+                                requireActivity(),
+                                broadcast,
+                                show,
+                                folder
+                            )
+                        ) {
                             setDownloadingIcon()
+                            sharedViewModel.addBroadcastFavorite(broadcast)
+                        }
                     } else if (icon.tag == DELETE_ICON) {
                         displayDialog()
                     }
                 }
+
+                // Downloading a broadcast also adds it to favorites
+                if (broadcastFavoriteButton.tag == 0) {
+                    sharedViewModel.onClickBroadcastFavorite(broadcastFavoriteButton, broadcast)
+                }
+            })
+        }
+
+        broadcastFavoriteButton.setOnClickListener {
+            viewModel.broadcastLiveData.observe(this, Observer { broadcast ->
+                sharedViewModel.onClickBroadcastFavorite(it, broadcast)
             })
         }
 
@@ -150,9 +171,9 @@ class BroadcastDetailsFragment : BaseFragment() {
             RequestCodes.DOWNLOAD_DELETE_DIALOG -> {
                 if (resultCode == Activity.RESULT_OK) {
                     viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
-                        deleteBroadcast(broadcast, show)
+                        sharedViewModel.deleteBroadcast(broadcast, show)
                         flipIcon()
-                        Toast.makeText(requireContext(),  "Download deleted", Toast.LENGTH_SHORT)
+                        Toast.makeText(requireContext(), "Download deleted", Toast.LENGTH_SHORT)
                             .show()
                     })
                 }
@@ -185,7 +206,13 @@ class BroadcastDetailsFragment : BaseFragment() {
                 description_container?.visibility = View.GONE
 
             val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
-            observeDownloadFolder(title)
+
+            // Update UI reactively to match state of download
+            sharedViewModel.callOnFileEventForFilename(
+                title,
+                ::enableDeleteIcon,
+                ::enableDownloadIcon
+            )
 
             when {
                 sharedViewModel.isBroadcastDownloaded(broadcast, show) -> {
@@ -210,9 +237,10 @@ class BroadcastDetailsFragment : BaseFragment() {
             Timber.d("Got tracks: $tracks with liveFavorites")
 
             noTracksMessage.visibility = if (tracks.isEmpty()) View.VISIBLE
-                else View.GONE
+            else View.GONE
 
-            spotifyExportIconBroadcast.visibility = if (noTracksMessage.visibility == View.VISIBLE) View.GONE
+            spotifyExportIconBroadcast.visibility =
+                if (noTracksMessage.visibility == View.VISIBLE) View.GONE
                 else View.VISIBLE
 
             youtubeExportIconBroadcast.visibility = spotifyExportIconBroadcast.visibility
@@ -233,6 +261,19 @@ class BroadcastDetailsFragment : BaseFragment() {
                     RequestCodes.YOUTUBE_EXPORT_BROADCAST,
                     ThirdPartyService.YOUTUBE
                 )
+            }
+        })
+
+        viewModel.broadcastFavoriteLiveData.observe(fragment, Observer {
+            when (it != null) {
+                true -> {
+                    broadcastFavoriteButton.setImageResource(R.drawable.ic_favorite_white_24dp)
+                    broadcastFavoriteButton.tag = 1
+                }
+                false -> {
+                    broadcastFavoriteButton.setImageResource(R.drawable.ic_favorite_border_white_24dp)
+                    broadcastFavoriteButton.tag = 0
+                }
             }
         })
     }
@@ -282,82 +323,6 @@ class BroadcastDetailsFragment : BaseFragment() {
         })
     }
 
-    private fun downloadBroadcast(broadcast: BroadcastEntity, show: ShowEntity, folder: File): Boolean {
-        if (kdvsPreferences.offlineMode == true) {
-            sharedViewModel.makeOfflineModeToast(activity)
-            return false
-        }
-
-        val title = sharedViewModel.getBroadcastDownloadTitle(broadcast, show)
-        val filename = sharedViewModel.getDownloadingFilename(title)
-
-        (activity as? MainActivity)?.let { activity ->
-            if (activity.isStoragePermissionGranted()) {
-                val url = URLs.archiveForBroadcast(broadcast)
-
-                url?.let {
-                    if (!folder.exists())
-                        folder.mkdirs()
-
-                    try {
-                        val request = sharedViewModel.makeDownloadRequest(url, title, filename)
-
-                        val downloadManager = context?.getSystemService(DOWNLOAD_SERVICE)
-                                as DownloadManager
-
-                        downloadManager.enqueue(request)
-
-                        Toast.makeText(
-                            activity as? MainActivity, "Download started", Toast.LENGTH_SHORT
-                        ).show()
-
-                        return true
-                    } catch (e: Exception) {
-                        Timber.e("Error downloading broadcast: ${e.message}")
-
-                        Toast.makeText(
-                            activity as? MainActivity, "Error downloading broadcast", Toast.LENGTH_SHORT
-                        ).show()
-
-                        return false
-                    }
-                }
-            }
-        }
-
-        return false
-    }
-
-    /** Update UI reactively to match state of download. */
-    private fun observeDownloadFolder(title: String) {
-        val folder = sharedViewModel.getDownloadFolder()
-        val downloadingFilename = sharedViewModel.getDownloadingFilename(title)
-
-        val observer = object: FileObserver(folder?.path) {
-            override fun onEvent(event: Int, filename: String?) {
-                filename?.let {
-                    if (it == downloadingFilename) {
-                        when (event) {
-                            MOVED_FROM -> { // capture file rename upon completion
-                                enableDeleteIcon()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        observer.startWatching()
-    }
-
-    private fun deleteBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
-        val file = sharedViewModel.getDownloadFileForBroadcast(broadcast, show)
-
-        file?.let {
-            sharedViewModel.deleteFile(file)
-        }
-    }
-
     // TODO: The UI thread appears to get deadlocked sometimes after this?
     private fun setPlaybackViewsAndHideProgressBar(broadcast: BroadcastEntity) {
         doAsync {
@@ -400,7 +365,12 @@ class BroadcastDetailsFragment : BaseFragment() {
 
     private fun enableDeleteIcon() {
         downloadDeleteIcon?.let {
-            it.setImageDrawable(it.resources.getDrawable(R.drawable.ic_delete_forever_white_24dp, context?.theme))
+            it.setImageDrawable(
+                it.resources.getDrawable(
+                    R.drawable.ic_delete_forever_white_24dp,
+                    context?.theme
+                )
+            )
             it.tag = DELETE_ICON
             it.isEnabled = true
             it.alpha = 1f
@@ -409,7 +379,12 @@ class BroadcastDetailsFragment : BaseFragment() {
 
     private fun enableDownloadIcon() {
         downloadDeleteIcon?.let {
-            it.setImageDrawable(it.resources.getDrawable(R.drawable.ic_file_download_white_24dp, context?.theme))
+            it.setImageDrawable(
+                it.resources.getDrawable(
+                    R.drawable.ic_file_download_white_24dp,
+                    context?.theme
+                )
+            )
             it.tag = DOWNLOAD_ICON
             it.isEnabled = true
             it.alpha = 1f

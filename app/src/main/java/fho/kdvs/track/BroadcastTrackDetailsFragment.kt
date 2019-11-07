@@ -18,7 +18,7 @@ import fho.kdvs.databinding.FragmentTrackDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.FavoriteEntity
+import fho.kdvs.global.database.FavoriteTrackEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.ui.LoadScreen
@@ -36,7 +36,7 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
     private lateinit var fragmentTrackDetailsBinding: FragmentTrackDetailsBinding
 
     private lateinit var tracks: List<TrackEntity?>
-    private lateinit var favorites: List<FavoriteEntity>
+    private lateinit var favorites: List<FavoriteTrackEntity>
     private lateinit var show: ShowEntity
     private lateinit var broadcast: BroadcastEntity
 
@@ -219,7 +219,7 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
 
     private fun setFavorite() {
         if (::favorites.isInitialized && favorites.count { f -> f.trackId == track.trackId } > 0) {
-            sharedViewModel.onClickFavorite(favoriteIcon, track)
+            sharedViewModel.onClickTrackFavorite(favoriteIcon, track)
         } else {
             favoriteIcon.setImageResource(R.drawable.ic_favorite_border_white_24dp)
             favoriteIcon.tag = 0
