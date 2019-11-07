@@ -31,14 +31,5 @@
             app:layout_constraintStart_toEndOf="@id/searchBar"
             app:layout_constraintEnd_toEndOf="parent"/>
 
-        <ImageView
-            android:id="@+id/dummy"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:visibility="gone"
-            android:elevation="@dimen/spacing_small"
-            tools:visibility="visible"/>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </merge>

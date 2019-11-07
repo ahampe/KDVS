@@ -77,24 +77,12 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
         return inflater.inflate(R.layout.fragment_favorite_track, container, false)
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        favoriteTrackViewAdapter?.updateData()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         initializeClickListeners()
         initializeSearchBar()
         initializeIcons()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-
-        searchBar?.clearFocus()
     }
 
     /** Handle third-party getExportPlaylistUri request launched in [FavoriteTrackFragment]. */

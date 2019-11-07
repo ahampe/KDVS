@@ -116,7 +116,7 @@ class FavoriteBroadcastViewAdapter(
                 SortType.SHOW -> results.sortedBy {
                     it.show?.name?.formatName()
                 }
-                SortType.DATE -> results.sortedBy {
+                SortType.DATE -> results.sortedByDescending {
                     it.broadcast?.date
                 }
                 else -> results
@@ -126,7 +126,7 @@ class FavoriteBroadcastViewAdapter(
                 SortType.SHOW -> results.sortedByDescending {
                     it.show?.name?.formatName()
                 }
-                SortType.DATE -> results.sortedByDescending {
+                SortType.DATE -> results.sortedBy {
                     it.broadcast?.date
                 }
                 else -> results

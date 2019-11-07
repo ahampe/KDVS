@@ -25,6 +25,7 @@ import fho.kdvs.global.database.ShowBroadcastFavoriteJoin
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.RequestCodes
+import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.cell_favorite_broadcast.view.*
 import kotlinx.android.synthetic.main.favorite_page_sort_menu.*
 import kotlinx.android.synthetic.main.favorite_page_top_controls.*
@@ -72,22 +73,10 @@ class FavoriteBroadcastFragment : BaseFragment(), FavoritePage<ShowBroadcastFavo
         return inflater.inflate(R.layout.fragment_favorite_broadcast, container, false)
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        favoriteBroadcastViewAdapter?.updateData()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         initializeClickListeners()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-
-        searchBar?.clearFocus()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -173,6 +162,31 @@ class FavoriteBroadcastFragment : BaseFragment(), FavoritePage<ShowBroadcastFavo
                         ?.firstOrNull()
                         ?.toUpperCase()
                         ?.toString()
+                    SortType.DATE -> {
+                        val dateView = holder?.itemView?.date
+
+                        if (dateView != null) {
+                            val date = TimeHelper.makeLocalDateUI(dateView.text.toString())
+
+                            val now = TimeHelper.getNow()
+                            val oneDayAgo = now.minusDays(1L).toLocalDate()
+                            val oneWeekAgo = now.minusDays(7L).toLocalDate()
+                            val oneMonthAgo = now.minusDays(30L).toLocalDate()
+                            val threeMonthsAgo = now.minusMonths(3L).toLocalDate()
+                            val oneYearAgo = now.minusYears(1L).toLocalDate()
+
+                            when {
+                                date > oneDayAgo -> "Today"
+                                date > oneWeekAgo -> "Last 7 Days"
+                                date > oneMonthAgo -> "Last 30 Days"
+                                date > threeMonthsAgo -> "Last 3 Months"
+                                date > oneYearAgo -> "Last Year"
+                                else -> "Over a Year Ago"
+                            }
+                        } else {
+                            null
+                        }
+                    }
                     else -> null
                 }
 

@@ -316,6 +316,11 @@ object TimeHelper {
         return LocalDate.parse(ymd, dateFormatter)
     }
 
+    /** Creates a date given a string in [uiDateFormatter]'s format. */
+    fun makeLocalDateUI(ymd: String): LocalDate {
+        return LocalDate.parse(ymd, uiDateFormatter)
+    }
+
     fun makeLocalDate(y: String?, m: String?, d: String?): LocalDate {
         return makeLocalDate(
             "${y?.padStart(4, '0')}" +

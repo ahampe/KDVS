@@ -13,6 +13,16 @@
     <include
         layout="@layout/favorite_page_sort_menu" />
 
+
+    <ImageView
+        android:id="@+id/dummy"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:visibility="gone"
+        android:elevation="@dimen/spacing_small"
+        tools:visibility="visible"/>
+
     <Button
         android:id="@+id/downloadAllButton"
         android:layout_width="wrap_content"
@@ -26,8 +36,10 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/resultsRecycler"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="@dimen/spacing_medium"
+        android:paddingBottom="@dimen/spacing_large"
+        android:clipToPadding="false"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/downloadAllButton"
         app:layout_constraintStart_toStartOf="parent"
