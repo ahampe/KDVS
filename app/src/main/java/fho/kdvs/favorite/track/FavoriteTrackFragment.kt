@@ -18,6 +18,7 @@ import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.favorite.FavoriteFragment.SortDirection
 import fho.kdvs.favorite.FavoriteFragment.SortType
 import fho.kdvs.favorite.FavoritePage
+import fho.kdvs.favorite.FavoritePageHelper
 import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
@@ -33,6 +34,7 @@ import kotlinx.android.synthetic.main.favorite_page_top_controls.*
 import kotlinx.android.synthetic.main.fragment_favorite_track.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 
@@ -48,6 +50,7 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
 
     private lateinit var viewModel: FavoriteTrackViewModel
     private lateinit var sharedViewModel: SharedViewModel
+    private lateinit var favoritePageHelper: FavoritePageHelper<ShowBroadcastTrackFavoriteJoin>
 
     var favoriteTrackViewAdapter: FavoriteTrackViewAdapter? = null
 
@@ -142,6 +145,9 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
 
                         viewModel.onClickTrack(findNavController(), it.item.track, ids)
                     }
+
+                initializeHelper()
+                favoritePageHelper.initializeClickListeners()
 
                 resultsRecycler.run {
                     layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
@@ -241,58 +247,6 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
                 currentlyDisplayingResults.count { r -> !r?.track?.youTubeId.isNullOrEmpty() }
             )
         }
-
-        val layoutToSortType = listOf(
-            Pair(sortRecent, SortType.RECENT),
-            Pair(sortShow, SortType.SHOW),
-            Pair(sortArtist, SortType.ARTIST),
-            Pair(sortAlbum, SortType.ALBUM),
-            Pair(sortTrack, SortType.TRACK)
-        )
-
-        dummy.setOnClickListener {
-            sortMenu.visibility = View.GONE
-            dummy.visibility = View.GONE
-        }
-
-        filter.setOnClickListener {
-            sortMenu.visibility = if (sortMenu.visibility == View.GONE)
-                View.VISIBLE else View.GONE
-            dummy.visibility = if (sortMenu.visibility == View.VISIBLE)
-                View.VISIBLE else View.GONE
-        }
-
-        layoutToSortType.forEach { pair ->
-            val layout = pair.first
-            val button = layout.getChildAt(1) as? ImageView
-
-            layout.visibility = View.VISIBLE
-
-            layout.setOnClickListener {
-                button?.visibility = View.VISIBLE
-
-                sortType = pair.second
-
-                if (button?.tag == SortDirection.ASC.type) {
-                    button.tag = SortDirection.DES.type
-                    button.setImageResource(R.drawable.ic_arrow_upward_white_24dp)
-                    sortDirection = SortDirection.DES
-
-                } else if (button?.tag == SortDirection.DES.type) {
-                    button.tag = SortDirection.ASC.type
-                    button.setImageResource(R.drawable.ic_arrow_downward_white_24dp)
-                    sortDirection = SortDirection.ASC
-                }
-
-                favoriteTrackViewAdapter?.updateData()
-
-                val otherPairs = layoutToSortType.filter { p -> p != pair }
-                otherPairs.forEach { p ->
-                    val otherButton = p.first.getChildAt(1)
-                    otherButton.visibility = View.INVISIBLE
-                }
-            }
-        }
     }
 
     override fun initializeSearchBar() {
@@ -326,6 +280,15 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
                 true
             }
         }
+    }
+
+    private fun initializeHelper() {
+        favoritePageHelper = FavoritePageHelper<ShowBroadcastTrackFavoriteJoin> (
+            favoriteViewAdapter = favoriteTrackViewAdapter,
+            sortMenu = WeakReference(sortMenu),
+            dummy = WeakReference(dummy),
+            filter = WeakReference(filter)
+        )
     }
 
     private fun initializeIcons() {

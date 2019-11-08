@@ -8,6 +8,7 @@ import android.widget.Filterable
 import fho.kdvs.databinding.CellFavoriteTrackBinding
 import fho.kdvs.favorite.FavoriteFragment.SortDirection
 import fho.kdvs.favorite.FavoriteFragment.SortType
+import fho.kdvs.favorite.FavoriteViewAdapter
 import fho.kdvs.global.database.ShowBroadcastTrackFavoriteJoin
 import fho.kdvs.global.database.getTrackFavoriteJoins
 import fho.kdvs.global.extensions.removeLeadingArticles
@@ -24,7 +25,7 @@ class FavoriteTrackViewAdapter(
 ) : BindingRecyclerViewAdapter<FavoriteTrackJoin, FavoriteTrackViewAdapter.ViewHolder>(
     onClick,
     FavoriteTrackDiffCallback()
-), Filterable {
+), Filterable, FavoriteViewAdapter {
     var query: String = ""
     val results = mutableListOf<FavoriteTrackJoin>()
     var allFavorites = mutableListOf<FavoriteTrackJoin>()
@@ -108,7 +109,7 @@ class FavoriteTrackViewAdapter(
         }
     }
 
-    fun updateData() {
+    override fun updateData() {
         val sortDirection = fragment.sortDirection
         val sortType = fragment.sortType
 
