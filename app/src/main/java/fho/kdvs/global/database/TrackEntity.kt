@@ -76,7 +76,8 @@ data class TrackEntity(
     }
 
     companion object {
-        @JvmField val CREATOR = object : Parcelable.Creator<TrackEntity> {
+        @JvmField
+        val CREATOR = object : Parcelable.Creator<TrackEntity> {
             override fun createFromParcel(parcel: Parcel) = TrackEntity(parcel)
 
             override fun newArray(size: Int) = arrayOfNulls<TrackEntity>(size)

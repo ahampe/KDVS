@@ -91,7 +91,7 @@ class CustomAction @Inject constructor(
         val preferences = KdvsPreferences(application)
 
         if (preferences.offlineMode == true)
-           return
+            return
 
         val streamUrl = preferences.streamUrl ?: URLs.LIVE_OGG
         val isPrepared = playbackState?.isPrepared ?: false
@@ -101,8 +101,12 @@ class CustomAction @Inject constructor(
             if (isPrepared && streamUrl == nowPlaying?.id) {
                 playbackState?.let {
                     when {
-                        it.isPlaying -> { transportControls.pause() }
-                        it.isPlayEnabled -> { transportControls.play() }
+                        it.isPlaying -> {
+                            transportControls.pause()
+                        }
+                        it.isPlayEnabled -> {
+                            transportControls.play()
+                        }
                         else -> {
                             Timber.w("Playable item clicked but neither play nor pause are enabled! (mediaId=$streamUrl)")
                         }

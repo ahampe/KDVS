@@ -11,7 +11,10 @@ import fho.kdvs.global.util.ClickData
 import fho.kdvs.global.util.TimeHelper
 
 class ShowBroadcastsAdapter(onClick: (ClickData<BroadcastEntity>) -> Unit) :
-    BindingRecyclerViewAdapter<BroadcastEntity, ShowBroadcastsAdapter.ViewHolder>(onClick, BroadcastDiffCallback()) {
+    BindingRecyclerViewAdapter<BroadcastEntity, ShowBroadcastsAdapter.ViewHolder>(
+        onClick,
+        BroadcastDiffCallback()
+    ) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -19,7 +22,8 @@ class ShowBroadcastsAdapter(onClick: (ClickData<BroadcastEntity>) -> Unit) :
         return ViewHolder(binding)
     }
 
-    class ViewHolder(private val binding: CellBroadcastBinding) : BindingViewHolder<BroadcastEntity>(binding.root) {
+    class ViewHolder(private val binding: CellBroadcastBinding) :
+        BindingViewHolder<BroadcastEntity>(binding.root) {
         override fun bind(listener: View.OnClickListener, item: BroadcastEntity) {
             binding.apply {
                 clickListener = listener

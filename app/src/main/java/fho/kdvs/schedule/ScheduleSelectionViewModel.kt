@@ -27,11 +27,11 @@ class ScheduleSelectionViewModel @Inject constructor(
         navController.navigate(navAction)
     }
 
-    private fun fetchShows(){
+    private fun fetchShows() {
         showRepository.scrapeSchedule()
     }
 
-    suspend fun allOrderedShowsForTime(timeStart: OffsetDateTime): List<ShowEntity?>{
+    suspend fun allOrderedShowsForTime(timeStart: OffsetDateTime): List<ShowEntity?> {
         return showRepository.allShowsAtTimeOrderedRelativeToCurrentWeek(timeStart)
     }
 
@@ -40,7 +40,7 @@ class ScheduleSelectionViewModel @Inject constructor(
             .map { s -> s!!.id }
             .mapIndexed { index, i ->
                 Pair(i, shows
-                    .map{ s -> s!!.name }
+                    .map { s -> s!!.name }
                     .toList()
                     .getOrNull(index) ?: "")
             }

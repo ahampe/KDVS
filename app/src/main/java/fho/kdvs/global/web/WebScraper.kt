@@ -8,7 +8,6 @@ import fho.kdvs.global.enums.enumValueOrDefault
 import fho.kdvs.global.extensions.listOfNulls
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.global.util.URLs
 import fho.kdvs.global.util.URLs.SHOW_IMAGE_PLACEHOLDER
 import fho.kdvs.schedule.QuarterYear
 import fho.kdvs.topmusic.TopMusicType
@@ -144,9 +143,11 @@ class WebScraperManager @Inject constructor(
                         .map { Pair(it.groups[1]!!.value.toInt(), it.groups[2]!!.value) }
                         .unzip()
 
-                    val showTimeCaptures = parseTime(element.select(".time").first().parseHtml()?.trim())?.drop(1)
+                    val showTimeCaptures =
+                        parseTime(element.select(".time").first().parseHtml()?.trim())?.drop(1)
 
-                    val (startTime, startAmpm, endTime, endAmpm) = showTimeCaptures ?: listOfNulls(4)
+                    val (startTime, startAmpm, endTime, endAmpm) = showTimeCaptures
+                        ?: listOfNulls(4)
 
                     val timeStart = makeTime(
                         time = startTime,
@@ -200,7 +201,8 @@ class WebScraperManager @Inject constructor(
             if (hostNode?.nextElementSibling()?.tagName() == "h3") "" else (hostNode?.nextElementSibling()?.parseHtml())
 
         val genreHeaderNode = document.select("div.grid_6 h3:contains(Genre)")?.firstOrNull()
-        val genre = if (genreHeaderNode == null) "" else genreHeaderNode.nextElementSibling()?.parseHtml()
+        val genre =
+            if (genreHeaderNode == null) "" else genreHeaderNode.nextElementSibling()?.parseHtml()
 
         db.showDao().updateShowDetails(showId, host, genre, defaultDesc)
 
@@ -249,7 +251,7 @@ class WebScraperManager @Inject constructor(
             var desc = ""
             var elm = select("p.dj-name")?.firstOrNull()?.nextElementSibling()
             while (elm?.tagName() != "h3") {
-                elm?.parseHtml()?.let { desc += it + "\n"}
+                elm?.parseHtml()?.let { desc += it + "\n" }
                 elm = elm?.nextElementSibling()
             }
             desc = desc.trim()
@@ -311,14 +313,17 @@ class WebScraperManager @Inject constructor(
             }
         }
 
-        kdvsPreferences.setLastBroadcastScrape(broadcastId.toString(), TimeHelper.getNow().toEpochSecond())
+        kdvsPreferences.setLastBroadcastScrape(
+            broadcastId.toString(),
+            TimeHelper.getNow().toEpochSecond()
+        )
         return PlaylistScrapeData(tracksScraped)
     }
 
-    private fun scrapeTopMusic(document: Document, url: String?) : TopMusicScrapeData? {
+    private fun scrapeTopMusic(document: Document, url: String?): TopMusicScrapeData? {
         val type = if (url?.toLowerCase()?.contains("adds") == true)
-                TopMusicType.ADD
-            else TopMusicType.ALBUM
+            TopMusicType.ADD
+        else TopMusicType.ALBUM
 
         val topMusicItemsScraped = mutableListOf<TopMusicEntity>()
 
@@ -342,14 +347,16 @@ class WebScraperManager @Inject constructor(
                         val label = captures?.getOrNull(3)?.toString()
 
                         if (captures != null) {
-                            topMusicItemsScraped.add(TopMusicEntity(
-                                weekOf = date,
-                                type = type,
-                                position = index,
-                                artist = artist,
-                                album = album,
-                                label = label
-                            ))
+                            topMusicItemsScraped.add(
+                                TopMusicEntity(
+                                    weekOf = date,
+                                    type = type,
+                                    position = index,
+                                    artist = artist,
+                                    album = album,
+                                    label = label
+                                )
+                            )
                         }
                     }
                 }
@@ -361,14 +368,16 @@ class WebScraperManager @Inject constructor(
         }
 
         when (type) {
-            TopMusicType.ADD   -> kdvsPreferences.lastTopFiveAddsScrape = TimeHelper.getNow().toEpochSecond()
-            TopMusicType.ALBUM -> kdvsPreferences.lastTopThirtyAlbumsScrape = TimeHelper.getNow().toEpochSecond()
+            TopMusicType.ADD -> kdvsPreferences.lastTopFiveAddsScrape =
+                TimeHelper.getNow().toEpochSecond()
+            TopMusicType.ALBUM -> kdvsPreferences.lastTopThirtyAlbumsScrape =
+                TimeHelper.getNow().toEpochSecond()
         }
 
         return TopMusicScrapeData(topMusicItemsScraped)
     }
 
-    private fun scrapeStaff(document: Document) : StaffScrapeData? {
+    private fun scrapeStaff(document: Document): StaffScrapeData? {
         val staffScraped = mutableListOf<StaffEntity>()
 
         document.run {
@@ -377,7 +386,7 @@ class WebScraperManager @Inject constructor(
                 val positionCell = element.select("td")
                     .getOrNull(0)
                     ?.parseHtml()
-                    ?.replace("<br>","\n")
+                    ?.replace("<br>", "\n")
                     .processHtml()
                 val positionCaptures = """^(.+)\n(.+)\n(.+)$""".toRegex()
                     .find(positionCell ?: "")
@@ -396,13 +405,15 @@ class WebScraperManager @Inject constructor(
                     ?.replace("<br>", "\n")
                     ?.processHtml()
 
-                staffScraped.add(StaffEntity(
-                    name = name,
-                    position = position,
-                    email = email,
-                    duties = duties,
-                    officeHours = officeHours
-                ))
+                staffScraped.add(
+                    StaffEntity(
+                        name = name,
+                        position = position,
+                        email = email,
+                        duties = duties,
+                        officeHours = officeHours
+                    )
+                )
             }
 
             db.staffDao().deleteAll()
@@ -417,7 +428,7 @@ class WebScraperManager @Inject constructor(
         return StaffScrapeData(staffScraped)
     }
 
-    private fun scrapeNews(document: Document, url: String?) : NewsScrapeData? {
+    private fun scrapeNews(document: Document, url: String?): NewsScrapeData? {
         val articlesScraped = mutableListOf<NewsEntity>()
 
         lateinit var lastDateScraped: LocalDate
@@ -452,14 +463,16 @@ class WebScraperManager @Inject constructor(
                     .replace("<br>", "\n")
                     .processHtml()
 
-                articlesScraped.add(NewsEntity(
-                    title = title,
-                    author = author,
-                    body = body,
-                    date = date,
-                    articleHref = articleHref,
-                    imageHref = imageHref
-                ))
+                articlesScraped.add(
+                    NewsEntity(
+                        title = title,
+                        author = author,
+                        body = body,
+                        date = date,
+                        articleHref = articleHref,
+                        imageHref = imageHref
+                    )
+                )
             }
 
             articlesScraped.forEach { article ->
@@ -467,8 +480,11 @@ class WebScraperManager @Inject constructor(
             }
 
             // if the last article on the page is within the past 6 months, scrape the next page as well
-            if (LocalDateTime.now(Clock.systemUTC()).minusMonths(6) <= lastDateScraped.atTime(0, 0))
-            {
+            if (LocalDateTime.now(Clock.systemUTC()).minusMonths(6) <= lastDateScraped.atTime(
+                    0,
+                    0
+                )
+            ) {
                 val currentPage = "page/([0-9]+)".toRegex()
                     .find(url.toString())
                     ?.groupValues
@@ -487,7 +503,7 @@ class WebScraperManager @Inject constructor(
         return NewsScrapeData(articlesScraped)
     }
 
-    private fun scrapeFundraiser(document: Document) : FundraiserScrapeData? {
+    private fun scrapeFundraiser(document: Document): FundraiserScrapeData? {
         lateinit var fundraiser: FundraiserEntity
 
         document.run {
@@ -628,9 +644,11 @@ private fun String?.stripHtml(): String? {
 private fun String?.processHtml(): String? {
     if (this == null) return null
 
-    return Parser.unescapeEntities(this.stripHtml()
-        ?.trim()
-        ?.replace("""\s*\n\s*""".toRegex(),"\n"),
-        false)
+    return Parser.unescapeEntities(
+        this.stripHtml()
+            ?.trim()
+            ?.replace("""\s*\n\s*""".toRegex(), "\n"),
+        false
+    )
 }
 //endregion

@@ -16,7 +16,7 @@ class StaffScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        `when`(staffDao.insert(TestUtils.any())).thenAnswer{
+        `when`(staffDao.insert(TestUtils.any())).thenAnswer {
             val staffMember: StaffEntity = it.getArgument(0)
             scrapedStaff.add(staffMember)
         }
@@ -31,15 +31,20 @@ class StaffScraperTest : ScraperTest() {
 
         expectedStaff.forEach { staff ->
             assertTrue("Expected to find staff with name ${staff.name}",
-                scrapedStaff.map{s -> s.name}.contains(staff.name))
+                scrapedStaff.map { s -> s.name }.contains(staff.name)
+            )
             assertTrue("Expected to find staff with position ${staff.position}",
-                scrapedStaff.map{s -> s.position}.contains(staff.position))
+                scrapedStaff.map { s -> s.position }.contains(staff.position)
+            )
             assertTrue("Expected to find staff with officeHours ${staff.officeHours}",
-                scrapedStaff.map{s -> s.officeHours}.contains(staff.officeHours))
+                scrapedStaff.map { s -> s.officeHours }.contains(staff.officeHours)
+            )
             assertTrue("Expected to find staff with duties ${staff.duties}",
-                scrapedStaff.map{s -> s.duties}.contains(staff.duties))
+                scrapedStaff.map { s -> s.duties }.contains(staff.duties)
+            )
             assertTrue("Expected to find staff with email ${staff.email}",
-                scrapedStaff.map{s -> s.email}.contains(staff.email))
+                scrapedStaff.map { s -> s.email }.contains(staff.email)
+            )
         }
     }
 }

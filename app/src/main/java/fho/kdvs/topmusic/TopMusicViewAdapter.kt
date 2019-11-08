@@ -13,7 +13,10 @@ import fho.kdvs.home.TopMusicDiffCallback
 
 /** A [RecyclerView.Adapter] which cycles through [TopMusicEntity] items */
 class TopMusicViewAdapter(onClick: (ClickData<TopMusicEntity>) -> Unit) :
-    BindingRecyclerViewAdapter<TopMusicEntity, BindingViewHolder<TopMusicEntity>>(onClick, TopMusicDiffCallback()){
+    BindingRecyclerViewAdapter<TopMusicEntity, BindingViewHolder<TopMusicEntity>>(
+        onClick,
+        TopMusicDiffCallback()
+    ) {
 
     override fun getItemId(position: Int): Long {
         return position.toLong()
@@ -23,14 +26,17 @@ class TopMusicViewAdapter(onClick: (ClickData<TopMusicEntity>) -> Unit) :
         return position
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BindingViewHolder<TopMusicEntity> {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): BindingViewHolder<TopMusicEntity> {
         val inflater = LayoutInflater.from(parent.context)
         val binding = CellTopmusicDetailsBinding.inflate(inflater, parent, false)
         return TopMusicViewHolder(binding)
     }
 
     class TopMusicViewHolder(private val binding: CellTopmusicDetailsBinding) :
-        BindingViewHolder<TopMusicEntity>(binding.root){
+        BindingViewHolder<TopMusicEntity>(binding.root) {
         override fun bind(listener: View.OnClickListener, item: TopMusicEntity) {
             binding.apply {
                 topMusicData = item

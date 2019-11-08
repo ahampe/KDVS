@@ -44,7 +44,11 @@ class ShowDetailsFragment : DaggerFragment() {
         subscribeToViewModel()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         sharedViewModel = ViewModelProviders.of(requireActivity(), vmFactory)
             .get(SharedViewModel::class.java)
 
@@ -83,7 +87,7 @@ class ShowDetailsFragment : DaggerFragment() {
         })
 
         viewModel.subscription.observe(this, Observer {
-            when(it != null) {
+            when (it != null) {
                 true -> {
                     star.setImageResource(R.drawable.ic_star_white_24dp)
                     star.tag = 1

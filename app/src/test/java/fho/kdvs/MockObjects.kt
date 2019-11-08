@@ -250,10 +250,10 @@ object MockObjects {
                 position = "Co-Events Directors",
                 email = "events@kdvs.org",
                 duties = "KDVS Presents booking and cross-promotion",
-                officeHours = "(Grace):\n"+
-                        "By Appointment\n"+
-                    "(Desmond):\n"+
-                    "By Appointment"
+                officeHours = "(Grace):\n" +
+                        "By Appointment\n" +
+                        "(Desmond):\n" +
+                        "By Appointment"
             )
         )
     }

@@ -20,7 +20,14 @@ class ShowScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        `when`(showDao.updateShowDetails(TestUtils.any(), TestUtils.any(), TestUtils.any(), TestUtils.any())).thenAnswer {
+        `when`(
+            showDao.updateShowDetails(
+                TestUtils.any(),
+                TestUtils.any(),
+                TestUtils.any(),
+                TestUtils.any()
+            )
+        ).thenAnswer {
             val show = ShowEntity(
                 id = it.getArgument(0),
                 host = it.getArgument(1),
@@ -62,7 +69,11 @@ class ShowScraperTest : ScraperTest() {
             val expectedBroadcastsForShow = expectedBroadcasts.filter { it.showId == showId }
             val scrapedBroadcastsForShow = scrapedBroadcasts.filter { it.showId == showId }
 
-            assertEquals("Expected to find broadcastsLiveData", expectedBroadcastsForShow, scrapedBroadcastsForShow)
+            assertEquals(
+                "Expected to find broadcastsLiveData",
+                expectedBroadcastsForShow,
+                scrapedBroadcastsForShow
+            )
         }
     }
 }

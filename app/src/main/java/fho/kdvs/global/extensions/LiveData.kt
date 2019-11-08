@@ -49,15 +49,17 @@ private class LiveDataTimeoutHandler(
  * Queue a handler message for the timeout duration. If we observe a value, remove message. Otherwise,
  * handle message.
  */
-fun <T> LiveData<T>.callFunctionOnTimeout(timeout: Long, functionToCall: ()->Any): LiveData<T> {
+fun <T> LiveData<T>.callFunctionOnTimeout(timeout: Long, functionToCall: () -> Any): LiveData<T> {
     val result = MediatorLiveData<T>()
     val handler = LiveDataTimeoutHandler(functionToCall, this)
 
     handler.sendMessageDelayed(
         Message.obtain(handler, LiveDataTimeoutHandler.LIVE_DATA_TIMEOUT),
-        timeout)
+        timeout
+    )
 
-    result.addSource(this) {// TODO: this doesn't fire
+    result.addSource(this) {
+        // TODO: this doesn't fire
         handler.removeMessages(LiveDataTimeoutHandler.LIVE_DATA_TIMEOUT)
     }
 

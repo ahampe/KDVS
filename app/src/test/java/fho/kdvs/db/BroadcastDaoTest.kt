@@ -93,7 +93,8 @@ class BroadcastDaoTest : DatabaseTest() {
         insertTracks()
         val broadcast = DbTestUtils.createBroadcasts().first()
 
-        val broadcastsDb = db.broadcastDao().getBroadcastsByArtistAlbum("Dolly Parton", "Blue Smoke")
+        val broadcastsDb =
+            db.broadcastDao().getBroadcastsByArtistAlbum("Dolly Parton", "Blue Smoke")
         assertEquals(1, broadcastsDb.size)
         assert(broadcastsDb.contains(broadcast))
     }
@@ -151,7 +152,11 @@ class BroadcastDaoTest : DatabaseTest() {
         broadcast.description = "Updated description"
         broadcast.imageHref = "https://i.kym-cdn.com/photos/images/original/001/356/199/dd9.png"
 
-        db.broadcastDao().updateBroadcastDetails(broadcast.broadcastId, broadcast.description, broadcast.imageHref)
+        db.broadcastDao().updateBroadcastDetails(
+            broadcast.broadcastId,
+            broadcast.description,
+            broadcast.imageHref
+        )
         val updatedBroadcasts = db.broadcastDao().getAll()
         assertTrue("Could not find broadcast: $broadcast", updatedBroadcasts.contains(broadcast))
         assertEquals("Should have 1 broadcast", updatedBroadcasts.size, 1)

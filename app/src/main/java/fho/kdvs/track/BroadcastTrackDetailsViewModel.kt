@@ -25,7 +25,7 @@ class BroadcastTrackDetailsViewModel @Inject constructor(
     private lateinit var liveBroadcast: LiveData<BroadcastEntity>
     private lateinit var liveShow: LiveData<ShowEntity>
 
-    data class CombinedTrackData (
+    data class CombinedTrackData(
         val tracks: List<TrackEntity>,
         val favorites: List<FavoriteTrackEntity>,
         val broadcast: BroadcastEntity,
@@ -56,12 +56,14 @@ class BroadcastTrackDetailsViewModel @Inject constructor(
                     val broadcastEntity = broadcast ?: return@addSource
                     val showEntity = show ?: return@addSource
 
-                    postValue(CombinedTrackData(
-                        trackEntities,
-                        favoriteEntities,
-                        broadcastEntity,
-                        showEntity
-                    ))
+                    postValue(
+                        CombinedTrackData(
+                            trackEntities,
+                            favoriteEntities,
+                            broadcastEntity,
+                            showEntity
+                        )
+                    )
                 }
 
                 addSource(liveFavorites) { favoriteEntities ->
@@ -71,12 +73,14 @@ class BroadcastTrackDetailsViewModel @Inject constructor(
                     val broadcastEntity = broadcast ?: return@addSource
                     val showEntity = show ?: return@addSource
 
-                    postValue(CombinedTrackData(
-                        trackEntities,
-                        favoriteEntities,
-                        broadcastEntity,
-                        showEntity
-                    ))
+                    postValue(
+                        CombinedTrackData(
+                            trackEntities,
+                            favoriteEntities,
+                            broadcastEntity,
+                            showEntity
+                        )
+                    )
                 }
 
                 addSource(liveBroadcast) { broadcastEntity ->
@@ -86,12 +90,14 @@ class BroadcastTrackDetailsViewModel @Inject constructor(
                     val favoriteEntities = favorites ?: return@addSource
                     val showEntity = show ?: return@addSource
 
-                    postValue(CombinedTrackData(
-                        trackEntities,
-                        favoriteEntities,
-                        broadcastEntity,
-                        showEntity
-                    ))
+                    postValue(
+                        CombinedTrackData(
+                            trackEntities,
+                            favoriteEntities,
+                            broadcastEntity,
+                            showEntity
+                        )
+                    )
                 }
 
                 addSource(liveShow) { showEntity ->
@@ -101,12 +107,14 @@ class BroadcastTrackDetailsViewModel @Inject constructor(
                     val favoriteEntities = favorites ?: return@addSource
                     val broadcastEntity = broadcast ?: return@addSource
 
-                    postValue(CombinedTrackData(
-                        trackEntities,
-                        favoriteEntities,
-                        broadcastEntity,
-                        showEntity
-                    ))
+                    postValue(
+                        CombinedTrackData(
+                            trackEntities,
+                            favoriteEntities,
+                            broadcastEntity,
+                            showEntity
+                        )
+                    )
                 }
             }
     }

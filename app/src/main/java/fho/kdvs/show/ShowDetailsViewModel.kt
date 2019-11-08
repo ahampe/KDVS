@@ -33,7 +33,10 @@ class ShowDetailsViewModel @Inject constructor(
 
     fun onClickBroadcast(navController: NavController, broadcast: BroadcastEntity) {
         val navAction = ShowDetailsFragmentDirections
-            .actionShowDetailsFragmentToBroadcastDetailsFragment(broadcast.showId, broadcast.broadcastId)
+            .actionShowDetailsFragmentToBroadcastDetailsFragment(
+                broadcast.showId,
+                broadcast.broadcastId
+            )
         if (navController.currentDestination?.id == R.id.showDetailsFragment)
             navController.navigate(navAction)
     }

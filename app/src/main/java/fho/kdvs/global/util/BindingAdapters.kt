@@ -46,7 +46,7 @@ fun safeFormatDate(view: TextView, date: LocalDate?, dateFormatter: DateTimeForm
 }
 
 @BindingAdapter("desc")
-fun formatDescHtml(view: TextView, desc: String?){
+fun formatDescHtml(view: TextView, desc: String?) {
     val descWithBreaks = desc?.replace("\n", "<br/><br/>")
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
         view.text = Html.fromHtml(descWithBreaks ?: "", Html.FROM_HTML_MODE_LEGACY)
@@ -121,9 +121,9 @@ fun displaySpotifyIcon(view: ImageView, spotifyAlbumUri: String?) {
 
 @BindingAdapter("trackInfo")
 fun formatTrackInfo(view: TextView, track: TrackEntity?) {
-    if (!track?.artist.isNullOrBlank() && !track?.song.isNullOrBlank()){
+    if (!track?.artist.isNullOrBlank() && !track?.song.isNullOrBlank()) {
         var trackInfo = track?.artist
-        
+
         if (!track?.album.isNullOrBlank())
             trackInfo += view.resources.getString(R.string.track_info_middle, track?.album)
 
@@ -132,7 +132,7 @@ fun formatTrackInfo(view: TextView, track: TrackEntity?) {
 }
 
 @BindingAdapter("searchTimeStart", "searchTimeEnd")
-fun setShowTimes(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDateTime){
+fun setShowTimes(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDateTime) {
     view.text = view.context.resources.getString(
         R.string.showTimeLabel,
         TimeHelper.showTimeFormatter24.format(timeStart),

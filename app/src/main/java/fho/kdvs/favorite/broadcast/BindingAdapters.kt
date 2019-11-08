@@ -8,7 +8,7 @@ import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
 
 @BindingAdapter("sharedVm", "broadcast", "show")
-fun initDownloadObserver (
+fun initDownloadObserver(
     view: ImageView,
     sharedVm: SharedViewModel,
     broadcast: BroadcastEntity,

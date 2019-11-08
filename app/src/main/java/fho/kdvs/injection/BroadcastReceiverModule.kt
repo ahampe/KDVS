@@ -8,5 +8,5 @@ import fho.kdvs.services.AlarmReceiver
 @Module
 abstract class BroadcastReceiverModule {
     @ContributesAndroidInjector
-    abstract fun contributeAlarmReceiver() : AlarmReceiver
+    abstract fun contributeAlarmReceiver(): AlarmReceiver
 }

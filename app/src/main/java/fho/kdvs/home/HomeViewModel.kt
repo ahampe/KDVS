@@ -56,20 +56,22 @@ class HomeViewModel @Inject constructor(
 
         currentShows = showRepository.currentShowsLiveData
         newsArticles = newsRepository.getAllNewsPastDate(
-            TimeHelper.getNow().minusMonths(6).toLocalDate()) // TODO: Make this a preference?
+            TimeHelper.getNow().minusMonths(6).toLocalDate()
+        ) // TODO: Make this a preference?
         topMusicAdds = topMusicRepository.getMostRecentTopAdds()
         topMusicAlbums = topMusicRepository.getMostRecentTopAlbums()
         staff = staffRepository.getStaff()
         fundraiser = fundraiserRepository.getFundraiser()
 
-        val dataStreams = listOf(currentShows, newsArticles, topMusicAdds, topMusicAlbums, staff, fundraiser)
+        val dataStreams =
+            listOf(currentShows, newsArticles, topMusicAdds, topMusicAlbums, staff, fundraiser)
         combinedLiveData = MediatorLiveData<Boolean>()
             .apply {
                 dataStreams.forEach { liveData ->
                     addSource(liveData) {
-                        if (dataStreams.all { d -> d.value != null})
+                        if (dataStreams.all { d -> d.value != null })
                             postValue(true)
-                        else if (dataStreams.any { d -> !d.value.isNullOrEmptyGeneric()}) // Without extension, empty ArrayLists cause this expression to be true
+                        else if (dataStreams.any { d -> !d.value.isNullOrEmptyGeneric() }) // Without extension, empty ArrayLists cause this expression to be true
                             postValue(false)
                     }
                 }

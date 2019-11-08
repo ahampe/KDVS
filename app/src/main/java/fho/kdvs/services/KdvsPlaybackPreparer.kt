@@ -73,7 +73,9 @@ class KdvsPlaybackPreparer @Inject constructor(
         get() = parentJob + Dispatchers.IO
 
     private val dataSourceFactory = DefaultDataSourceFactory(
-        application, Util.getUserAgent(application, application.resources.getString(R.string.app_name)), null
+        application,
+        Util.getUserAgent(application, application.resources.getString(R.string.app_name)),
+        null
     )
 
     private val requestOptions = RequestOptions()
@@ -106,30 +108,31 @@ class KdvsPlaybackPreparer @Inject constructor(
      * Updates the metadata of the live stream from the current [show] and an optional current [broadcast].
      * This will track changes to the live status, but will not update the notification unless [isLiveNow] is true.
      */
-    fun changeLiveMetadata(show: ShowEntity, broadcast: BroadcastEntity?, isLiveNow: Boolean) = launch {
-        // TODO glide seems to crash here despite the applied request options for fallback / error
-        val art = try {
-            glide.asBitmap()
-                .load(broadcast?.imageHref ?: show.defaultImageHref)
-                .submit(NOTIFICATION_LARGE_ICON_SIZE, NOTIFICATION_LARGE_ICON_SIZE)
-                .get()
-        } catch (e: Exception) {
-            defaultArt
-        }
-
-        val newMetadata = MediaMetadataCompat.Builder()
-            .fromLive(broadcast, show, application)
-            .apply {
-                id = currentLiveStreamUrl.toString()
-                albumArt = art
+    fun changeLiveMetadata(show: ShowEntity, broadcast: BroadcastEntity?, isLiveNow: Boolean) =
+        launch {
+            // TODO glide seems to crash here despite the applied request options for fallback / error
+            val art = try {
+                glide.asBitmap()
+                    .load(broadcast?.imageHref ?: show.defaultImageHref)
+                    .submit(NOTIFICATION_LARGE_ICON_SIZE, NOTIFICATION_LARGE_ICON_SIZE)
+                    .get()
+            } catch (e: Exception) {
+                defaultArt
             }
-            .build()
 
-        liveMetaData = newMetadata
-        if (isLiveNow) {
-            _streamMetadataChangedLiveData.postValue(newMetadata)
+            val newMetadata = MediaMetadataCompat.Builder()
+                .fromLive(broadcast, show, application)
+                .apply {
+                    id = currentLiveStreamUrl.toString()
+                    albumArt = art
+                }
+                .build()
+
+            liveMetaData = newMetadata
+            if (isLiveNow) {
+                _streamMetadataChangedLiveData.postValue(newMetadata)
+            }
         }
-    }
 
     /**
      * KDVS supports preparing (and playing) from search, as well as media ID, so those

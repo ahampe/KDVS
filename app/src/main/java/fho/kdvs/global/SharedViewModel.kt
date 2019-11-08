@@ -30,8 +30,6 @@ import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.api.service.YouTubeService
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.dialog.BinaryChoiceDialogFragment
-import fho.kdvs.favorite.FavoriteFragment.SortDirection
-import fho.kdvs.favorite.FavoriteFragment.SortType
 import fho.kdvs.fundraiser.FundraiserRepository
 import fho.kdvs.global.database.*
 import fho.kdvs.global.enums.ThirdPartyService

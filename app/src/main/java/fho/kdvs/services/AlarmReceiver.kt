@@ -24,7 +24,7 @@ const val ALARM_NOTIFICATION: Int = 0xb340
  * Class to receive alarms created by [KdvsAlarmManager], for e.g. subscribed shows' live-broadcast notices.
  * Must re-register alarms on reboot.
  */
-class AlarmReceiver: DaggerBroadcastReceiver() {
+class AlarmReceiver : DaggerBroadcastReceiver() {
     @Inject
     lateinit var sharedViewModel: SharedViewModel
 
@@ -102,7 +102,8 @@ class AlarmReceiver: DaggerBroadcastReceiver() {
                 .setLights(Color.WHITE, 1000, 1000)
                 .build()
 
-            notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             if (shouldCreateAlarmChannel()) {
                 createAlarmChannel(context)

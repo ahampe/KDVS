@@ -99,8 +99,10 @@ open class HorizontalCarouselRecyclerView(
 
         when (view) {
             is Button -> {
-                val textColor = ArgbEvaluator().evaluate(saturationPercent, inactiveColor, activeColor) as Int
-                val bgColor = ArgbEvaluator().evaluate(saturationPercent, inactiveColor, accentColor) as Int
+                val textColor =
+                    ArgbEvaluator().evaluate(saturationPercent, inactiveColor, activeColor) as Int
+                val bgColor =
+                    ArgbEvaluator().evaluate(saturationPercent, inactiveColor, accentColor) as Int
                 view.setTextColor(textColor)
                 view.setBackgroundColor(bgColor)
             }
@@ -109,7 +111,8 @@ open class HorizontalCarouselRecyclerView(
                 view.imageAlpha = (255 * alphaPercent).toInt()
             }
             is TextView -> {
-                val textColor = ArgbEvaluator().evaluate(saturationPercent, inactiveColor, activeColor) as Int
+                val textColor =
+                    ArgbEvaluator().evaluate(saturationPercent, inactiveColor, activeColor) as Int
                 view.setTextColor(textColor)
             }
         }

@@ -3,7 +3,6 @@ package fho.kdvs.scraper
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.TopMusicEntity
-import fho.kdvs.global.util.URLs
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -19,7 +18,7 @@ class TopMusicScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        `when`(topMusicDao.insert(TestUtils.any())).thenAnswer{
+        `when`(topMusicDao.insert(TestUtils.any())).thenAnswer {
             val topMusic: TopMusicEntity = it.getArgument(0)
             if (topMusic.isNewAdd)
                 scrapedTopAdds.add(topMusic)
@@ -36,8 +35,10 @@ class TopMusicScraperTest : ScraperTest() {
         scraperManager.scrapeTopMusic(topAddsHtml)
 
         expectedTopAdds.forEach { add ->
-            assertTrue("Expected to find add ${add.artist} - ${add.album} at position ${add.position} for week of ${add.weekOf}",
-                scrapedTopAdds.contains(add))
+            assertTrue(
+                "Expected to find add ${add.artist} - ${add.album} at position ${add.position} for week of ${add.weekOf}",
+                scrapedTopAdds.contains(add)
+            )
         }
     }
 
@@ -49,8 +50,10 @@ class TopMusicScraperTest : ScraperTest() {
         scraperManager.scrapeTopMusic(topAlbumsHtml)
 
         expectedTopAlbums.forEach { add ->
-            assertTrue("Expected to find album ${add.artist} - ${add.album} at position ${add.position} for week of ${add.weekOf}",
-                scrapedTopAlbums.contains(add))
+            assertTrue(
+                "Expected to find album ${add.artist} - ${add.album} at position ${add.position} for week of ${add.weekOf}",
+                scrapedTopAlbums.contains(add)
+            )
         }
     }
 }

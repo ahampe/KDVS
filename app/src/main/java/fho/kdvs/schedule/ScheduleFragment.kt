@@ -62,7 +62,11 @@ class ScheduleFragment : DaggerFragment() {
             .get(SharedViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         subscribeToViewModel()
         return inflater.inflate(R.layout.fragment_schedule, container, false)
     }
@@ -77,7 +81,7 @@ class ScheduleFragment : DaggerFragment() {
             .also { weekRecyclerView.layoutManager = it }
 
         timeGridLayoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-            .also { timeRecyclerView.layoutManager = it}
+            .also { timeRecyclerView.layoutManager = it }
 
         // Scroll to today, only when the fragment is first created
         if (scrollingToToday) {
@@ -142,7 +146,8 @@ class ScheduleFragment : DaggerFragment() {
                     setDayAbbreviationsWithSelectedPos(1)
                 }
 
-                val firstCompletelyVisiblePos = weekLayoutManager?.findFirstCompletelyVisibleItemPosition()
+                val firstCompletelyVisiblePos =
+                    weekLayoutManager?.findFirstCompletelyVisibleItemPosition()
                 if (firstCompletelyVisiblePos == 0) {
                     weekLayoutManager?.scrollToPosition(7)
                     setDayAbbreviationsWithSelectedPos(7)
@@ -176,13 +181,21 @@ class ScheduleFragment : DaggerFragment() {
 
         abbreviationViews.forEachIndexed { i, v ->
             if (i == pos % 7)
-                v.setTextColor(ResourcesCompat.getColor(dayAbbreviations.resources,
-                    R.color.colorWhite,
-                    dayAbbreviations.context.theme))
+                v.setTextColor(
+                    ResourcesCompat.getColor(
+                        dayAbbreviations.resources,
+                        R.color.colorWhite,
+                        dayAbbreviations.context.theme
+                    )
+                )
             else
-                v.setTextColor(ResourcesCompat.getColor(dayAbbreviations.resources,
-                    R.color.colorPrimary,
-                    dayAbbreviations.context.theme))
+                v.setTextColor(
+                    ResourcesCompat.getColor(
+                        dayAbbreviations.resources,
+                        R.color.colorPrimary,
+                        dayAbbreviations.context.theme
+                    )
+                )
         }
     }
 
@@ -221,6 +234,7 @@ class ScheduleFragment : DaggerFragment() {
     /** This class will hold all the data that the [WeekViewAdapter] needs. */
     inner class DayInfo(day: Day, quarter: Quarter, year: Int) {
         val dayName = day.name
-        val timeSlotsLiveData: LiveData<List<TimeSlot>> = viewModel.getShowsForDay(day, quarter, year)
+        val timeSlotsLiveData: LiveData<List<TimeSlot>> =
+            viewModel.getShowsForDay(day, quarter, year)
     }
 }

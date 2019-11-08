@@ -48,12 +48,12 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
         arguments?.let { FavoriteTrackDetailsFragmentArgs.fromBundle(it) }?.track
             ?: throw IllegalArgumentException("Should have passed a track to FavoriteTrackDetailsFragment")
     }
-    
+
     private val resultIds: IntArray by lazy {
         arguments?.let { FavoriteTrackDetailsFragmentArgs.fromBundle(it) }?.ids
             ?: throw IllegalArgumentException("Should have passed an Int[] to FavoriteTrackDetailsFragment")
     }
-    
+
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
@@ -78,8 +78,13 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
         subscribeToViewModel()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        fragmentTrackDetailsBinding = FragmentTrackDetailsBinding.inflate(inflater, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        fragmentTrackDetailsBinding =
+            FragmentTrackDetailsBinding.inflate(inflater, container, false)
 
         fragmentTrackDetailsBinding.apply {
             sharedVm = sharedViewModel
@@ -191,7 +196,11 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
 
         song.text = track.song ?: ""
         artistAlbum.text = when {
-            track.album?.isNotBlank() == true -> resources.getString(R.string.artist_album, track.artist, track.album)
+            track.album?.isNotBlank() == true -> resources.getString(
+                R.string.artist_album,
+                track.artist,
+                track.album
+            )
             else -> track.artist
         }
 
@@ -204,8 +213,10 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
             when {
                 track.label == null -> albumInfo.text = track.year.toString()
                 track.year == null -> albumInfo.text = track.label
-                else -> albumInfo.text = albumInfo.resources.getString(R.string.album_info,
-                    track.year, track.label)
+                else -> albumInfo.text = albumInfo.resources.getString(
+                    R.string.album_info,
+                    track.year, track.label
+                )
             }
 
             albumInfo.visibility = View.VISIBLE

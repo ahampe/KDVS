@@ -10,7 +10,7 @@ import androidx.room.PrimaryKey
  * Contacts page may change on a quarterly basis.
  */
 @Entity(tableName = "staffData")
-data class StaffEntity (
+data class StaffEntity(
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
     @ColumnInfo(name = "name") var name: String? = null,
     @ColumnInfo(name = "position") var position: String? = null,
@@ -42,7 +42,8 @@ data class StaffEntity (
     }
 
     companion object {
-        @JvmField val CREATOR = object : Parcelable.Creator<StaffEntity> {
+        @JvmField
+        val CREATOR = object : Parcelable.Creator<StaffEntity> {
             override fun createFromParcel(parcel: Parcel) = StaffEntity(parcel)
 
             override fun newArray(size: Int) = arrayOfNulls<StaffEntity>(size)

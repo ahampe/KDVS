@@ -40,7 +40,8 @@ class TrackRepository @Inject constructor(
      * Runs a broadcast scrape without checking when it was last performed.
      * The only acceptable public usage of this method is when user explicitly refreshes.
      */
-    private fun forceScrapePlaylist(broadcastId: String): Job? = webScraperManager.scrape(URLs.broadcastDetails(broadcastId))
+    private fun forceScrapePlaylist(broadcastId: String): Job? =
+        webScraperManager.scrape(URLs.broadcastDetails(broadcastId))
 
     fun trackById(trackId: Int): LiveData<TrackEntity> = trackDao.trackById(trackId)
 
@@ -55,25 +56,25 @@ class TrackRepository @Inject constructor(
             .toLiveData()
 
     fun updateTrackAlbum(id: Int, title: String?) {
-        title?.let{
+        title?.let {
             trackDao.updateAlbum(id, title)
         }
     }
 
     fun updateTrackLabel(id: Int, label: String?) {
-        label?.let{
+        label?.let {
             trackDao.updateLabel(id, label)
         }
     }
 
     fun updateTrackYear(id: Int, year: Int?) {
-        year?.let{
+        year?.let {
             trackDao.updateYear(id, year)
         }
     }
 
     fun updateTrackImageHref(id: Int, imageHref: String?) {
-        imageHref?.let{
+        imageHref?.let {
             trackDao.updateImageHref(id, imageHref)
         }
     }

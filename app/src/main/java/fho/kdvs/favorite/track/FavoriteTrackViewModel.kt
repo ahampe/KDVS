@@ -2,12 +2,9 @@ package fho.kdvs.favorite.track
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MediatorLiveData
 import androidx.navigation.NavController
 import fho.kdvs.R
 import fho.kdvs.favorite.FavoriteFragmentDirections
-import fho.kdvs.global.database.ShowBroadcastFavoriteJoin
-import fho.kdvs.global.database.ShowBroadcastTrackFavoriteJoin
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.track.TrackRepository
 import javax.inject.Inject

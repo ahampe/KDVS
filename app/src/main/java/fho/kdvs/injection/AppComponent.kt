@@ -5,7 +5,6 @@ import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
 import fho.kdvs.api.injection.ApiModule
 import fho.kdvs.global.KdvsApp
-import fho.kdvs.global.SplashActivity
 import javax.inject.Singleton
 
 @Singleton

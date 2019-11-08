@@ -36,7 +36,7 @@ class BroadcastRepository @Inject constructor(
      * Nullable bool to update when pressing 'Play Live' button, because we won't necessarily have a
      * [liveBroadcastLiveData] for the live broadcast yet.
      */
-    var playingLiveBroadcast: Boolean?= null
+    var playingLiveBroadcast: Boolean? = null
 
     /** The broadcast currently being played by the user. This may or may not be [liveBroadcastLiveData]. */
     val nowPlayingBroadcastLiveData = object : MutableLiveData<BroadcastEntity>() {

@@ -6,6 +6,9 @@ class FavoriteBroadcastDiffCallback : DiffUtil.ItemCallback<FavoriteBroadcastJoi
     override fun areItemsTheSame(oldItem: FavoriteBroadcastJoin, newItem: FavoriteBroadcastJoin) =
         oldItem.favorite == newItem.favorite
 
-    override fun areContentsTheSame(oldItem: FavoriteBroadcastJoin, newItem: FavoriteBroadcastJoin) =
+    override fun areContentsTheSame(
+        oldItem: FavoriteBroadcastJoin,
+        newItem: FavoriteBroadcastJoin
+    ) =
         oldItem == newItem
 }

@@ -14,7 +14,8 @@ interface FavoriteBroadcastDao {
     fun getAll(): Flowable<List<FavoriteBroadcastEntity>>
 
     @Transaction
-    @Query("""SELECT id, name, host, genre, defaultDesc, defaultImageHref, timeStart, timeEnd, quarter, year from favoriteBroadcastData
+    @Query(
+        """SELECT id, name, host, genre, defaultDesc, defaultImageHref, timeStart, timeEnd, quarter, year from favoriteBroadcastData
         INNER JOIN broadcastData on broadcastData.broadcastId = broadcastData.broadcastId
         INNER JOIN showData on showData.id = broadcastData.showId"""
     )

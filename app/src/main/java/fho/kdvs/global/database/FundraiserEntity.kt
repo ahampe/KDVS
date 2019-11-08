@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 import org.threeten.bp.LocalDate
 
 @Entity(tableName = "fundraiserData")
-data class FundraiserEntity (
+data class FundraiserEntity(
     @PrimaryKey(autoGenerate = true) val fundraiserId: Int = 0,
     @ColumnInfo(name = "goal") var goal: Int? = null,
     @ColumnInfo(name = "current") var current: Int? = null,

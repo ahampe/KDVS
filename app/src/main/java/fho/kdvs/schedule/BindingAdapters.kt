@@ -30,7 +30,7 @@ fun showTimeRange(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDate
 
 @BindingAdapter("index")
 fun setShowSelectionHeader(view: TextView, index: Int) {
-    view.text = when(index){
+    view.text = when (index) {
         0 -> view.resources.getString(R.string.thisWeek)
         1 -> view.resources.getString(R.string.nextWeek)
         2 -> view.resources.getString(R.string.thenWeek)
@@ -44,7 +44,8 @@ fun setShowTimeAlternatingText(view: TextView, size: Int) {
         if (size == 2) view.text = view.resources.getString(R.string.alternating_every_other)
         else if (size > 2) view.text = view.resources.getString(
             R.string.alternating_num,
-            size)
+            size
+        )
     } else view.text = ""
 }
 
@@ -52,17 +53,22 @@ fun setShowTimeAlternatingText(view: TextView, size: Int) {
 fun makeShowNames(view: TextView, showNames: List<String>, numHalfHours: Int) {
     if (showNames.isEmpty()) return
 
-    val cardHeight = numHalfHours * view.context.resources.getDimension(R.dimen.timeslot_halfhour_height)
+    val cardHeight =
+        numHalfHours * view.context.resources.getDimension(R.dimen.timeslot_halfhour_height)
 
     // find max number of showName lines to fit on card without breaking margins
-    view.maxLines = max(1,
-        floor((cardHeight - (2 * view.resources.getDimension(R.dimen.timeslot_margin)))
-                / view.showName.height).toInt())
+    view.maxLines = max(
+        1,
+        floor(
+            (cardHeight - (2 * view.resources.getDimension(R.dimen.timeslot_margin)))
+                    / view.showName.height
+        ).toInt()
+    )
     view.text = if (showNames.size == 1) showNames.first() else showNames.joinToString(" &\n")
 }
 
 @BindingAdapter("timeslot", "timeslotHeight")
-fun setTimeSlotLayoutProperties(view: CardView, timeslot: TimeSlot, numHalfHours: Int){
+fun setTimeSlotLayoutProperties(view: CardView, timeslot: TimeSlot, numHalfHours: Int) {
     if (timeslot.ids.first() == DUMMY_ID) {
         view.visibility = View.INVISIBLE
         return
@@ -72,7 +78,7 @@ fun setTimeSlotLayoutProperties(view: CardView, timeslot: TimeSlot, numHalfHours
             view.context.resources.getDimensionPixelSize(R.dimen.timeslot_halfhour_height)
 
     val hourCardHeight = view.resources.getDimension(R.dimen.timeslot_image)
-        + (2 * view.resources.getDimension(R.dimen.timeslot_margin))
+    +(2 * view.resources.getDimension(R.dimen.timeslot_margin))
 
     // Hide image if it cannot fit on card (half-hour shows)
     if (view.layoutParams.height < hourCardHeight) {
@@ -83,7 +89,11 @@ fun setTimeSlotLayoutProperties(view: CardView, timeslot: TimeSlot, numHalfHours
 }
 
 @BindingAdapter("timeslotGlideHref", "selectedTheme")
-fun loadImageWithGlideAndSetVisualizations(view: ImageView, timeslot: TimeSlot?, selectedTheme: Int) {
+fun loadImageWithGlideAndSetVisualizations(
+    view: ImageView,
+    timeslot: TimeSlot?,
+    selectedTheme: Int
+) {
     val parent = view.parent as ConstraintLayout
 
     Glide.with(view)

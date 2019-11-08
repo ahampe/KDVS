@@ -1,4 +1,5 @@
 package fho.kdvs.global.util
+
 import android.content.Context
 import android.graphics.Color
 import androidx.core.content.res.ResourcesCompat
@@ -16,14 +17,15 @@ object ColorHelper {
     }
 
     fun getRandomMatColor(typeColor: Int, context: Context, seed: Long?): Int {
-        var returnColor = ResourcesCompat.getColor(context.resources, R.color.colorAccent, context.theme)
+        var returnColor =
+            ResourcesCompat.getColor(context.resources, R.color.colorAccent, context.theme)
         val arrayId = context.resources.getIdentifier(
             "mdcolor_$typeColor",
             "array",
             context.packageName
         )
 
-        if (arrayId != 0){
+        if (arrayId != 0) {
             val colors = context.resources.obtainTypedArray(arrayId)
             val random = Random(seed ?: (Math.random() * 100).toLong())
             val index = (random.nextDouble() * colors.length()).toInt()

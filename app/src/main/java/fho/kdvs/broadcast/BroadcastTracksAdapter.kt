@@ -15,14 +15,19 @@ import fho.kdvs.global.util.ClickData
 class BroadcastTracksAdapter(
     private val viewModel: BroadcastDetailsViewModel,
     private val sharedViewModel: SharedViewModel,
-    onClick: (ClickData<TrackEntity>) -> Unit) :
-    BindingRecyclerViewAdapter<TrackEntity, BindingViewHolder<TrackEntity>>(onClick, TrackDiffCallback()
-){
+    onClick: (ClickData<TrackEntity>) -> Unit
+) :
+    BindingRecyclerViewAdapter<TrackEntity, BindingViewHolder<TrackEntity>>(
+        onClick, TrackDiffCallback()
+    ) {
     override fun getItemViewType(position: Int): Int {
         return if (getItem(position).airbreak) VIEW_TYPE_AIRBREAK else VIEW_TYPE_TRACK
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BindingViewHolder<TrackEntity> {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): BindingViewHolder<TrackEntity> {
         val inflater = LayoutInflater.from(parent.context)
 
         return when (viewType) {
@@ -55,7 +60,8 @@ class BroadcastTracksAdapter(
         }
     }
 
-    class AirbreakViewHolder(binding: CellAirbreakBinding) : BindingViewHolder<TrackEntity>(binding.root) {
+    class AirbreakViewHolder(binding: CellAirbreakBinding) :
+        BindingViewHolder<TrackEntity>(binding.root) {
         override fun bind(listener: View.OnClickListener, item: TrackEntity) {}
     }
 

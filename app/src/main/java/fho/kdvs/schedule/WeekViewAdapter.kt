@@ -58,7 +58,8 @@ class WeekViewAdapter(
                 fragment.viewModel.onClickTimeSlot(fragment.findNavController(), clickData.item)
         }
 
-        val childLayoutManager = LinearLayoutManager(holder.recyclerView.context, RecyclerView.VERTICAL, false)
+        val childLayoutManager =
+            LinearLayoutManager(holder.recyclerView.context, RecyclerView.VERTICAL, false)
 
         // tag root constraint layout as the day name + position for debug purposes
         val parent = holder.recyclerView.parent as View
@@ -89,9 +90,11 @@ class WeekViewAdapter(
 
                     // For whatever reason, the scrollTo position appears to be based off hour-block height (likely
                     // because we don't have access to the non-default timeSlot height yet upon time of binding)
-                    val currentTimeSlot = timeslots.firstOrNull { t -> TimeHelper.isTimeSlotForCurrentShow(t) }
+                    val currentTimeSlot =
+                        timeslots.firstOrNull { t -> TimeHelper.isTimeSlotForCurrentShow(t) }
                     scrollY = (currentTimeSlot?.timeStart?.hour ?: 0) *
-                            (fragment.context?.resources?.getDimension(R.dimen.timeslot_hour_height) ?: 0f)
+                            (fragment.context?.resources?.getDimension(R.dimen.timeslot_hour_height)
+                                ?: 0f)
                 }
             }
         })
@@ -117,7 +120,7 @@ class WeekViewAdapter(
      * To correct for this we create a dummy timeslot in the position that the gap is in.
      * Otherwise, the gap will appear at the top of the day and make all of the day's timeslots offset.
      */
-    private fun correctTimeSlotListWhenGap(timeslots: List<TimeSlot>): List<TimeSlot>{
+    private fun correctTimeSlotListWhenGap(timeslots: List<TimeSlot>): List<TimeSlot> {
         val correctedList = mutableListOf<TimeSlot>()
         correctedList.addAll(timeslots)
 
@@ -125,10 +128,11 @@ class WeekViewAdapter(
         var dummy: TimeSlot? = null
 
         for (i in 0..timeslots.size) {
-            if ((i < timeslots.size - 1) && timeslots[i].timeEnd != timeslots[i+1].timeStart) {
-                val isFirstHalfOrEntireSegment = timeslots[i].timeEnd?.dayOfWeek == timeslots[i+1].timeStart?.dayOfWeek
+            if ((i < timeslots.size - 1) && timeslots[i].timeEnd != timeslots[i + 1].timeStart) {
+                val isFirstHalfOrEntireSegment =
+                    timeslots[i].timeEnd?.dayOfWeek == timeslots[i + 1].timeStart?.dayOfWeek
 
-                position = i+1
+                position = i + 1
 
                 dummy = TimeSlot(
                     timeslots[i].timeEnd,

@@ -16,7 +16,8 @@ object URLs {
 
     const val CONTACT = "https://kdvs.org/about/contact/"
 
-    const val SHOW_IMAGE_PLACEHOLDER = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg"
+    const val SHOW_IMAGE_PLACEHOLDER =
+        "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg"
 
     const val TOP_ADDS = "https://kdvs.org/programming/top-5-adds/"
 

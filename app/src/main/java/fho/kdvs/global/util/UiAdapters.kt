@@ -13,7 +13,7 @@ abstract class BindingViewHolder<T>(itemView: View) : RecyclerView.ViewHolder(it
 /** [ListAdapter] subclass for use with view binding.  */
 abstract class BindingRecyclerViewAdapter<T, VH : BindingViewHolder<T>>(
     onClick: (ClickData<T>) -> Unit,
-diffCallback: DiffUtil.ItemCallback<T>
+    diffCallback: DiffUtil.ItemCallback<T>
 ) : ListAdapter<T, VH>(diffCallback), ClickableRecyclerViewAdapter<T> {
     override val clickHandler: (ClickData<T>) -> Unit = onClick
 
