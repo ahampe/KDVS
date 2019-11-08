@@ -55,7 +55,7 @@
             android:layout_height="0dp"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
-            android:contentDescription="@string/timeslot_desc"
+            android:contentDescription="@string/broadcast_image"
             glideHref="@{broadcast.imageHref}"
             android:onClick="@{clickListener}"
             app:layout_constraintDimensionRatio="1:1"

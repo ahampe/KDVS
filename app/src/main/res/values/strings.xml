@@ -108,6 +108,7 @@
     <!-- Player -->
     <string name="viewPlaylist">View Playlist</string>
 
+    <string name="broadcast_image">Broadcast image</string>
     <string name="show_time_range">%1$s - %2$s</string>
     <string name="hosts">Hosts:</string>
     <string name="genre_template">Genre: %1$s</string>
