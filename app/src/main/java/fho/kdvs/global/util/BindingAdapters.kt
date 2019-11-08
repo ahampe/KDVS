@@ -9,6 +9,7 @@ import androidx.databinding.BindingAdapter
 import fho.kdvs.R
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.extensions.fromHtml
 import fho.kdvs.global.ui.PlayerPaletteRequestListener
 import fho.kdvs.topmusic.TopMusicType
 import org.threeten.bp.LocalDate
@@ -48,12 +49,7 @@ fun safeFormatDate(view: TextView, date: LocalDate?, dateFormatter: DateTimeForm
 @BindingAdapter("desc")
 fun formatDescHtml(view: TextView, desc: String?) {
     val descWithBreaks = desc?.replace("\n", "<br/><br/>")
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-        view.text = Html.fromHtml(descWithBreaks ?: "", Html.FROM_HTML_MODE_LEGACY)
-    } else {
-        @Suppress("DEPRECATION")
-        view.text = (Html.fromHtml(descWithBreaks ?: ""))
-    }
+    view.text = descWithBreaks.fromHtml()
 }
 
 @BindingAdapter("comment")
