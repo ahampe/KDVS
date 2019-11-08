@@ -61,8 +61,8 @@ class FavoriteTrackViewAdapter(
                 val query = charSeq.toString().trim()
 
                 if (query.isNotEmpty()) {
-                    if (!fragment.hashedResults[query].isNullOrEmpty()) {
-                        filteredList.addAll(fragment.hashedResults[query]!!)
+                    if (!fragment.favoritePageHelper.hashedResults[query].isNullOrEmpty()) {
+                        filteredList.addAll(fragment.favoritePageHelper.hashedResults[query]!!)
                         results.clear()
                         results.addAll(filteredList)
                     } else {
@@ -87,7 +87,7 @@ class FavoriteTrackViewAdapter(
 
                         results.clear()
                         results.addAll(filteredList)
-                        fragment.hashedResults[query] = filteredList
+                        fragment.favoritePageHelper.hashedResults[query] = filteredList
                     }
                 } else {
                     results.clear()
@@ -110,8 +110,8 @@ class FavoriteTrackViewAdapter(
     }
 
     override fun updateData() {
-        val sortDirection = fragment.sortDirection
-        val sortType = fragment.sortType
+        val sortDirection = fragment.favoritePageHelper.sortDirection
+        val sortType = fragment.favoritePageHelper.sortType
 
         val newResults = (when (sortDirection) {
             SortDirection.ASC -> when (sortType) {
@@ -159,8 +159,8 @@ class FavoriteTrackViewAdapter(
     }
 
     private fun updateFragmentResults() {
-        fragment.currentlyDisplayingResults.clear()
-        fragment.currentlyDisplayingResults.addAll(results)
+        fragment.favoritePageHelper.currentlyDisplayingResults.clear()
+        fragment.favoritePageHelper.currentlyDisplayingResults.addAll(results)
     }
 
     private fun String?.formatName() = this?.toUpperCase().removeLeadingArticles()

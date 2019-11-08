@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -15,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.R
 import fho.kdvs.api.service.SpotifyService
-import fho.kdvs.favorite.FavoriteFragment.SortDirection
 import fho.kdvs.favorite.FavoriteFragment.SortType
 import fho.kdvs.favorite.FavoritePage
 import fho.kdvs.favorite.FavoritePageHelper
@@ -50,15 +48,9 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
 
     private lateinit var viewModel: FavoriteTrackViewModel
     private lateinit var sharedViewModel: SharedViewModel
-    private lateinit var favoritePageHelper: FavoritePageHelper<ShowBroadcastTrackFavoriteJoin>
+    lateinit var favoritePageHelper: FavoritePageHelper<FavoriteTrackJoin>
 
     var favoriteTrackViewAdapter: FavoriteTrackViewAdapter? = null
-
-    val hashedResults = mutableMapOf<String, ArrayList<FavoriteTrackJoin>>()
-    val currentlyDisplayingResults = mutableListOf<FavoriteTrackJoin?>()
-
-    var sortType = SortType.RECENT
-    var sortDirection = SortDirection.DES
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -139,7 +131,7 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
                     FavoriteTrackViewAdapter(joins.distinct(), this) {
                         Timber.d("clicked ${it.item}")
 
-                        val ids = currentlyDisplayingResults
+                        val ids = favoritePageHelper.currentlyDisplayingResults
                             .mapNotNull { r -> r?.track?.trackId }
                             .toIntArray()
 
@@ -171,11 +163,11 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
 
         clearSectionHeaders()
 
-        if (sortType != SortType.RECENT) {
+        if (favoritePageHelper.sortType != SortType.RECENT) {
             for (i in 0..resultsRecycler.childCount) {
                 val holder =
                     resultsRecycler.findViewHolderForAdapterPosition(i) as? FavoriteTrackViewAdapter.ViewHolder
-                val key = when (sortType) {
+                val key = when (favoritePageHelper.sortType) {
                     SortType.SHOW -> holder?.itemView?.showName?.text
                         ?.toString()
                         ?.removeLeadingArticles()
@@ -235,7 +227,7 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
                 this,
                 RequestCodes.SPOTIFY_EXPORT_FAVORITES,
                 ThirdPartyService.SPOTIFY,
-                currentlyDisplayingResults.count { r -> !r?.track?.spotifyTrackUri.isNullOrEmpty() }
+                favoritePageHelper.currentlyDisplayingResults.count { r -> !r?.track?.spotifyTrackUri.isNullOrEmpty() }
             )
         }
 
@@ -244,7 +236,7 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
                 this,
                 RequestCodes.YOUTUBE_EXPORT_FAVORITES,
                 ThirdPartyService.YOUTUBE,
-                currentlyDisplayingResults.count { r -> !r?.track?.youTubeId.isNullOrEmpty() }
+                favoritePageHelper.currentlyDisplayingResults.count { r -> !r?.track?.youTubeId.isNullOrEmpty() }
             )
         }
     }
@@ -283,7 +275,7 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
     }
 
     private fun initializeHelper() {
-        favoritePageHelper = FavoritePageHelper<ShowBroadcastTrackFavoriteJoin> (
+        favoritePageHelper = FavoritePageHelper<FavoriteTrackJoin>(
             favoriteViewAdapter = favoriteTrackViewAdapter,
             sortMenu = WeakReference(sortMenu),
             dummy = WeakReference(dummy),
@@ -300,7 +292,7 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
     }
 
     private fun exportTracksToSpotify(token: String) {
-        val uris = currentlyDisplayingResults
+        val uris = favoritePageHelper.currentlyDisplayingResults
             .mapNotNull { r -> r?.track?.spotifyTrackUri }
 
         launch {
@@ -321,7 +313,7 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
     }
 
     private fun exportTracksToYouTube() {
-        val ids = currentlyDisplayingResults
+        val ids = favoritePageHelper.currentlyDisplayingResults
             .mapNotNull { r -> r?.track?.youTubeId }
 
         sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
