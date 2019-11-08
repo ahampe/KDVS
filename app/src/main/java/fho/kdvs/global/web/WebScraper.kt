@@ -5,6 +5,7 @@ import fho.kdvs.global.database.*
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.enums.enumValueOrDefault
+import fho.kdvs.global.extensions.fromHtml
 import fho.kdvs.global.extensions.listOfNulls
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
@@ -383,27 +384,22 @@ class WebScraperManager @Inject constructor(
         document.run {
             val staff = select("table.contact-table tbody tr")
             staff.forEach { element ->
-                val positionCell = element.select("td")
-                    .getOrNull(0)
-                    ?.parseHtml()
-                    ?.replace("<br>", "\n")
-                    .processHtml()
-                val positionCaptures = """^(.+)\n(.+)\n(.+)$""".toRegex()
-                    .find(positionCell ?: "")
-                    ?.groupValues
+                val leftContainer = element.select("td").firstOrNull()
+                val middleContainer = element.select("td").getOrNull(1)
+                val rightContainer = element.select("td").getOrNull(2)
 
-                val name = positionCaptures?.getOrNull(1).toString()
-                    .replace("&", "&\n")
-                    .processHtml()
-                val position = positionCaptures?.getOrNull(2).toString().processHtml()
-                val email = positionCaptures?.getOrNull(3).toString().processHtml()
-                val duties = element.select("td")
-                    .getOrNull(1)
-                    ?.parseHtml()
-                    ?.processHtml()
-                val officeHours = element.select("td").getOrNull(2)?.html()
-                    ?.replace("<br>", "\n")
-                    ?.processHtml()
+                val name = element.select("td strong")?.text().let {
+                    if (it.isNullOrEmpty())
+                        element.select("td b")?.text()
+                    else
+                        it
+                }?.replace("& ", "&\n")
+                val position = leftContainer?.ownText()
+                val email = leftContainer?.select("a")
+                    ?.map { it.ownText() }
+                    ?.reduce { acc, s -> acc + s }
+                val duties = middleContainer?.ownText()
+                val officeHours = rightContainer?.parseHtml()?.fromHtml()?.trim()
 
                 staffScraped.add(
                     StaffEntity(
