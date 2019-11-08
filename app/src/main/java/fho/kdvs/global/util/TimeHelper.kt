@@ -7,6 +7,7 @@ import fho.kdvs.schedule.TimeSlot
 import org.threeten.bp.*
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.temporal.ChronoUnit
+import timber.log.Timber
 import java.lang.Math.abs
 import java.util.*
 import kotlin.math.roundToInt
@@ -23,7 +24,7 @@ object TimeHelper {
 
     private val UTC_ID: ZoneId = ZoneId.of("UTC")
     private val UTC_OFFSET: ZoneOffset = ZoneOffset.UTC
-    private val PACIFIC_ID: ZoneId = ZoneId.of( "America/Los_Angeles" )
+    private val PACIFIC_ID: ZoneId = ZoneId.of("America/Los_Angeles")
 
     /**
      * Formatter that will be used for parsing broadcast datetimes.
@@ -68,7 +69,10 @@ object TimeHelper {
     fun makeWeekTime24h(time: String, day: Day): OffsetDateTime {
         val paddedTime = time.padStart(5, '0')
         val dayOfMonth = (day.ordinal + DAY_OFFSET + 1).toString().padStart(2, '0')
-        return LocalDateTime.parse("1970-01-${dayOfMonth}T$paddedTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+        return LocalDateTime.parse(
+            "1970-01-${dayOfMonth}T$paddedTime",
+            DateTimeFormatter.ISO_LOCAL_DATE_TIME
+        )
             .atOffset(UTC_OFFSET)
     }
 
@@ -86,11 +90,16 @@ object TimeHelper {
     /**
      * Converts time from one zone to another.
      */
-    private fun convertZoneTime(convertFrom: ZoneId, convertTo: ZoneId, time: OffsetDateTime): OffsetDateTime {
+    private fun convertZoneTime(
+        convertFrom: ZoneId,
+        convertTo: ZoneId,
+        time: OffsetDateTime
+    ): OffsetDateTime {
         val convertFromZoneOffset = convertFrom.rules.getOffset(LocalDateTime.now())
         val convertToZoneOffset = convertTo.rules.getOffset(LocalDateTime.now())
 
-        val secondsOffset = (convertToZoneOffset.totalSeconds - convertFromZoneOffset.totalSeconds).toLong()
+        val secondsOffset =
+            (convertToZoneOffset.totalSeconds - convertFromZoneOffset.totalSeconds).toLong()
 
         return time.plusSeconds(secondsOffset)
     }
@@ -116,7 +125,8 @@ object TimeHelper {
 
         when {
             now.dayOfWeek < adjustedEpochTime.dayOfWeek -> {
-                val nowPlusDays = now.plusDays((adjustedEpochTime.dayOfWeek.value - now.dayOfWeek.value).toLong())
+                val nowPlusDays =
+                    now.plusDays((adjustedEpochTime.dayOfWeek.value - now.dayOfWeek.value).toLong())
                 return OffsetDateTime.of(
                     nowPlusDays.year,
                     nowPlusDays.monthValue,
@@ -125,10 +135,12 @@ object TimeHelper {
                     adjustedEpochTime.minute,
                     adjustedEpochTime.second,
                     adjustedEpochTime.nano,
-                    offset)
+                    offset
+                )
             }
             now.dayOfWeek > adjustedEpochTime.dayOfWeek -> {
-                val nowPlusDays = now.plusDays(7 - (now.dayOfWeek.value - adjustedEpochTime.dayOfWeek.value).toLong())
+                val nowPlusDays =
+                    now.plusDays(7 - (now.dayOfWeek.value - adjustedEpochTime.dayOfWeek.value).toLong())
                 return OffsetDateTime.of(
                     nowPlusDays.year,
                     nowPlusDays.monthValue,
@@ -137,7 +149,8 @@ object TimeHelper {
                     adjustedEpochTime.minute,
                     adjustedEpochTime.second,
                     adjustedEpochTime.nano,
-                    offset)
+                    offset
+                )
             }
             now.dayOfWeek == adjustedEpochTime.dayOfWeek -> {
                 when {
@@ -150,7 +163,8 @@ object TimeHelper {
                             adjustedEpochTime.minute,
                             adjustedEpochTime.second,
                             adjustedEpochTime.nano,
-                            offset)
+                            offset
+                        )
                     }
                     now.toLocalTime() > adjustedEpochTime.toLocalTime() -> {
                         val nowPlusDays = now.plusDays(7)
@@ -162,7 +176,8 @@ object TimeHelper {
                             adjustedEpochTime.minute,
                             adjustedEpochTime.second,
                             adjustedEpochTime.nano,
-                            offset)
+                            offset
+                        )
                     }
                     now.toLocalTime() == adjustedEpochTime.toLocalTime() -> {
                         val nowPlusDays = now.plusDays(7)
@@ -174,7 +189,8 @@ object TimeHelper {
                             adjustedEpochTime.minute,
                             adjustedEpochTime.second,
                             adjustedEpochTime.nano,
-                            offset)
+                            offset
+                        )
                     }
                 }
             }
@@ -191,7 +207,7 @@ object TimeHelper {
         return makeWeekTime24h("$hour:$minute", day)
     }
 
-    fun getTimeDifferenceInMs(a: OffsetDateTime, b: OffsetDateTime) : Long {
+    fun getTimeDifferenceInMs(a: OffsetDateTime, b: OffsetDateTime): Long {
         return abs(ChronoUnit.SECONDS.between(b, a)) * 1000
     }
 
@@ -203,7 +219,11 @@ object TimeHelper {
      * Assumes b > a.
      */
     @JvmStatic
-    fun getTimeDifferenceInHalfHoursPerDay(a: OffsetDateTime, b: OffsetDateTime, timeslot: TimeSlot) : Int {
+    fun getTimeDifferenceInHalfHoursPerDay(
+        a: OffsetDateTime,
+        b: OffsetDateTime,
+        timeslot: TimeSlot
+    ): Int {
         val isFirstHalfOrEntireSegment = timeslot.isFirstHalfOrEntireSegment
 
         // Last show of week will have a timeEnd dayOfWeek < timeStart dayOfWeek, so we must make an exception for this
@@ -211,13 +231,15 @@ object TimeHelper {
 
         val midnight = if (isFirstHalfOrEntireSegment) {
             val nextDay = a.plusDays(1)
-            OffsetDateTime.of(nextDay.year, nextDay.monthValue, nextDay.dayOfMonth, 0, 0,0,
-                0, nextDay.offset)
+            OffsetDateTime.of(
+                nextDay.year, nextDay.monthValue, nextDay.dayOfMonth, 0, 0, 0,
+                0, nextDay.offset
+            )
         } else {
-            OffsetDateTime.of(b.year, b.monthValue, b.dayOfMonth, 0, 0,0, 0, b.offset)
+            OffsetDateTime.of(b.year, b.monthValue, b.dayOfMonth, 0, 0, 0, 0, b.offset)
         }
 
-        return if (isFirstHalfOrEntireSegment){
+        return if (isFirstHalfOrEntireSegment) {
             val min = if (b < midnight && !isEndOfWeek) b else midnight
             (abs(ChronoUnit.MINUTES.between(min, a)) / 30).toInt()
         } else {
@@ -280,7 +302,7 @@ object TimeHelper {
                 now.hour >= show.timeStart!!.hour &&
                 (now.hour < show.timeEnd!!.hour ||
                         (now.hour == show.timeEnd!!.hour && now.minute < show.timeEnd!!.minute) ||
-                            now.dayOfWeek != show.timeEnd!!.dayOfWeek)
+                        now.dayOfWeek != show.timeEnd!!.dayOfWeek)
     }
 
     /**
@@ -314,6 +336,16 @@ object TimeHelper {
     /** Creates a date given a string in [dateFormatter]'s format. */
     fun makeLocalDate(ymd: String): LocalDate {
         return LocalDate.parse(ymd, dateFormatter)
+    }
+
+    /** Creates a date given a string in [uiDateFormatter]'s format. */
+    fun makeLocalDateUI(ymd: String): LocalDate? {
+        return try {
+            LocalDate.parse(ymd, uiDateFormatter)
+        } catch (e: Exception) {
+            Timber.e("Error parsing date: $e")
+            null
+        }
     }
 
     fun makeLocalDate(y: String?, m: String?, d: String?): LocalDate {

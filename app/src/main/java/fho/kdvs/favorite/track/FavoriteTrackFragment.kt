@@ -28,6 +28,8 @@ import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.ExportManagerSpotify
 import fho.kdvs.global.util.RequestCodes
 import kotlinx.android.synthetic.main.cell_favorite_track.view.*
+import kotlinx.android.synthetic.main.favorite_page_sort_menu.*
+import kotlinx.android.synthetic.main.favorite_page_top_controls.*
 import kotlinx.android.synthetic.main.fragment_favorite_track.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -75,24 +77,12 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
         return inflater.inflate(R.layout.fragment_favorite_track, container, false)
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        favoriteTrackViewAdapter?.updateData()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         initializeClickListeners()
         initializeSearchBar()
         initializeIcons()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-
-        searchBar?.clearFocus()
     }
 
     /** Handle third-party getExportPlaylistUri request launched in [FavoriteTrackFragment]. */
@@ -275,6 +265,8 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
         layoutToSortType.forEach { pair ->
             val layout = pair.first
             val button = layout.getChildAt(1) as? ImageView
+
+            layout.visibility = View.VISIBLE
 
             layout.setOnClickListener {
                 button?.visibility = View.VISIBLE
