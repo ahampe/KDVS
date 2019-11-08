@@ -7,16 +7,12 @@ import android.widget.Button
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
-import android.view.animation.AnimationSet
-import android.view.animation.DecelerateInterpolator
 
 
 class CurrentShowsCarouselRecyclerView(
     context: Context,
     attrs: AttributeSet
-): HorizontalCarouselRecyclerView(context, attrs) {
+) : HorizontalCarouselRecyclerView(context, attrs) {
     private var button: Button? = null
     private val tag = "center"
 

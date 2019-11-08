@@ -16,6 +16,9 @@ class PairIntStringDiffCallback : DiffUtil.ItemCallback<Pair<Int, String>>() {
         oldItem.first == newItem.first
 
 
-    override fun areContentsTheSame(oldItem: Pair<Int, String>, newItem: Pair<Int, String>): Boolean =
+    override fun areContentsTheSame(
+        oldItem: Pair<Int, String>,
+        newItem: Pair<Int, String>
+    ): Boolean =
         oldItem == newItem
 }

@@ -73,8 +73,13 @@ class TopMusicDetailsFragment : DaggerFragment(), CoroutineScope {
         subscribeToViewModel()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        fragmentTopMusicDetailsBinding = FragmentTopmusicDetailsBinding.inflate(inflater, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        fragmentTopMusicDetailsBinding =
+            FragmentTopmusicDetailsBinding.inflate(inflater, container, false)
 
         fragmentTopMusicDetailsBinding.apply {
             topMusicData = topMusic
@@ -138,7 +143,7 @@ class TopMusicDetailsFragment : DaggerFragment(), CoroutineScope {
     private fun onItemChanged(position: Int) {
         if (::topMusicItems.isInitialized) {
             val item = topMusicItems.getOrNull(position)
-            item?.let {topMusic ->
+            item?.let { topMusic ->
 
                 album.text = topMusic.album ?: ""
                 artist.text = topMusic.artist ?: ""
@@ -147,8 +152,10 @@ class TopMusicDetailsFragment : DaggerFragment(), CoroutineScope {
                     when {
                         topMusic.label == null -> albumInfo.text = topMusic.year.toString()
                         topMusic.year == null -> albumInfo.text = topMusic.label
-                        else -> albumInfo.text = albumInfo.resources.getString(R.string.album_info,
-                            topMusic.year, topMusic.label)
+                        else -> albumInfo.text = albumInfo.resources.getString(
+                            R.string.album_info,
+                            topMusic.year, topMusic.label
+                        )
                     }
 
                     albumInfo.visibility = View.VISIBLE

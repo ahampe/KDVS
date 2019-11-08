@@ -37,7 +37,7 @@ fun loadCurrentShowImageWithGlideAndApplyGradient(view: ImageView, imageHref: St
 
 @BindingAdapter("glideHrefDefaultGone")
 fun loadImageWithGlideIfPresent(view: ImageView, imageHref: String?) {
-    if (!imageHref.isNullOrBlank()){
+    if (!imageHref.isNullOrBlank()) {
         Glide.with(view)
             .applyDefaultRequestOptions(
                 RequestOptions()

@@ -11,7 +11,10 @@ import fho.kdvs.schedule.QuarterYear
  * the website immediately, it can use one of these classes to access the data the scraper found.
  */
 sealed class ScrapeData
-data class ScheduleScrapeData(val quarterYear: QuarterYear, val shows: List<ShowEntity>) : ScrapeData()
+
+data class ScheduleScrapeData(val quarterYear: QuarterYear, val shows: List<ShowEntity>) :
+    ScrapeData()
+
 data class ShowScrapeData(val broadcasts: List<BroadcastEntity>) : ScrapeData()
 data class PlaylistScrapeData(val tracks: List<TrackEntity>) : ScrapeData()
 data class TopMusicScrapeData(val topMusicItems: List<TopMusicEntity>) : ScrapeData()

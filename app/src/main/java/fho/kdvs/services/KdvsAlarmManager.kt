@@ -30,7 +30,7 @@ class KdvsAlarmManager @Inject constructor(
     private var alarmMgr: AlarmManager? = null
     private lateinit var alarmIntent: PendingIntent
 
-    fun registerShowAlarmAsync(show: ShowEntity): Deferred<Boolean> = async{
+    fun registerShowAlarmAsync(show: ShowEntity): Deferred<Boolean> = async {
         val timeStart = show.timeStart
 
         timeStart?.let {
@@ -38,9 +38,9 @@ class KdvsAlarmManager @Inject constructor(
 
             val showsAtTime = showRepository.allShowsAtTimeOrderedRelativeToCurrentWeek(timeStart)
 
-            if (showsAtTime.isNotEmpty()){
+            if (showsAtTime.isNotEmpty()) {
                 val weekOffset = showsAtTime
-                    .indexOfFirst{ s -> s?.id == show.id }
+                    .indexOfFirst { s -> s?.id == show.id }
                     .toLong()
 
                 val adjustedTime = TimeHelper.makeRealWeekRelativeTimeFromEpochTime(timeStart)

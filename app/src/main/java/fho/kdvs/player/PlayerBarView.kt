@@ -11,7 +11,11 @@ import fho.kdvs.global.SharedViewModel
 import kotlinx.android.synthetic.main.view_player_bar.view.*
 import timber.log.Timber
 
-class PlayerBarView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+class PlayerBarView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) :
     LinearLayout(context, attrs, defStyleAttr) {
 
     lateinit var mNavController: NavController

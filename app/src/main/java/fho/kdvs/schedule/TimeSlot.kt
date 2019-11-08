@@ -48,7 +48,8 @@ data class TimeSlot(
     }
 
     companion object {
-        @JvmField val CREATOR = object : Parcelable.Creator<TimeSlot> {
+        @JvmField
+        val CREATOR = object : Parcelable.Creator<TimeSlot> {
             override fun createFromParcel(parcel: Parcel) = TimeSlot(parcel)
 
             override fun newArray(size: Int) = arrayOfNulls<TimeSlot>(size)

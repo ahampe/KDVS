@@ -1,6 +1,8 @@
 package fho.kdvs.favorite.broadcast
 
-import fho.kdvs.global.database.*
+import fho.kdvs.global.database.BroadcastEntity
+import fho.kdvs.global.database.FavoriteBroadcastEntity
+import fho.kdvs.global.database.ShowEntity
 
 /** Helper class to encapsulate a single favorited broadcast and its associated joins.*/
 class FavoriteBroadcastJoin(

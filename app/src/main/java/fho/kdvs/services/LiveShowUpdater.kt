@@ -150,7 +150,7 @@ class LiveShowUpdater @Inject constructor(
         return showDao.getShowsAtTime(time, quarter, year)
     }
 
-    private suspend fun getLatestBroadcastsForShowsAtTime(allShowsAtTime: List<ShowEntity>) : List<BroadcastEntity>{
+    private suspend fun getLatestBroadcastsForShowsAtTime(allShowsAtTime: List<ShowEntity>): List<BroadcastEntity> {
         // If there are more than two shows in this TimeSlot, we need to find which one is scheduled this week.
         // First we need to scrape each show for the most recent broadcast, and wait for each to complete
         val jobs = mutableListOf<Job>()
@@ -209,7 +209,7 @@ class LiveShowUpdater @Inject constructor(
      * Defaults to the order returned by database.
      * Note: a show having already aired this week (or currently airing) will still be first.
      * */
-    suspend fun orderShowsAtTimeRelativeToCurrentWeekAsync(timeStart: OffsetDateTime): List<ShowEntity>  {
+    suspend fun orderShowsAtTimeRelativeToCurrentWeekAsync(timeStart: OffsetDateTime): List<ShowEntity> {
         Timber.d("Ordering shows in timeslot at $timeStart")
 
         val showsAtTime = getAllShowsAtTime(timeStart)
@@ -217,7 +217,8 @@ class LiveShowUpdater @Inject constructor(
         val latestBroadcasts = getLatestBroadcastsForShowsAtTime(showsAtTime)
 
         if (latestBroadcasts.isNotEmpty() &&
-            latestBroadcasts.size >= (showsAtTime.size - 1)) {
+            latestBroadcasts.size >= (showsAtTime.size - 1)
+        ) {
 
             val orderedShows = mutableListOf<ShowEntity>()
 
@@ -241,7 +242,7 @@ class LiveShowUpdater @Inject constructor(
 
             // if scraped broadcasts do not include show S, assume S to be this week's show
             if (latestBroadcasts.size == (showsAtTime.size - 1)) {
-                orderedShows.add(0, showsAtTime.first { s -> !orderedShows.contains(s)})
+                orderedShows.add(0, showsAtTime.first { s -> !orderedShows.contains(s) })
             }
 
             return orderedShows

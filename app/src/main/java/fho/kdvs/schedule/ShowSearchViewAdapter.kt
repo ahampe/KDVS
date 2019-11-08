@@ -19,7 +19,10 @@ class ShowSearchViewAdapter(
     private val showsWithTimeSlotSize: List<Pair<ShowEntity, Int>>,
     private val fragment: ShowSearchFragment,
     onClick: (ClickData<ShowEntity>) -> Unit
-) : BindingRecyclerViewAdapter<ShowEntity, ShowSearchViewAdapter.ViewHolder>(onClick, ShowDiffCallback()), Filterable {
+) : BindingRecyclerViewAdapter<ShowEntity, ShowSearchViewAdapter.ViewHolder>(
+    onClick,
+    ShowDiffCallback()
+), Filterable {
 
     var query: String = ""
 
@@ -43,7 +46,7 @@ class ShowSearchViewAdapter(
         val binding = CellShowSearchResultBinding.inflate(inflater, parent, false)
         return ViewHolder(binding, showsWithTimeSlotSize, query)
     }
-    
+
     override fun getItemCount(): Int {
         return results.size
     }
@@ -55,7 +58,7 @@ class ShowSearchViewAdapter(
                 val filteredList = ArrayList<ShowEntity>()
                 val query = charSeq.toString().trim()
 
-                if (query.isNotEmpty()){
+                if (query.isNotEmpty()) {
                     if (fragment.hashedShows[query] != null) {
                         filteredList.addAll(fragment.hashedShows[query]!!)
                     } else {
@@ -63,7 +66,10 @@ class ShowSearchViewAdapter(
                             if ("^$query".toRegex() // with articles
                                     .find(it.name?.toLowerCase() ?: "") != null ||
                                 "^$query".toRegex() // without articles
-                                    .find(it.name?.toLowerCase()?.removeLeadingArticles() ?: "") != null)
+                                    .find(
+                                        it.name?.toLowerCase()?.removeLeadingArticles() ?: ""
+                                    ) != null
+                            )
                                 filteredList.add(it)
                         }
 
@@ -75,7 +81,7 @@ class ShowSearchViewAdapter(
                 } else {
                     results.clear()
 
-                    shows?.let{
+                    shows?.let {
                         results.addAll(it)
                     }
                 }
@@ -98,10 +104,12 @@ class ShowSearchViewAdapter(
     }
 
     fun submitResults() {
-        submitList(this@ShowSearchViewAdapter.results.sortedBy { s -> s.name
-            ?.toLowerCase()
-            ?.trim()
-            ?.removeLeadingArticles()})
+        submitList(this@ShowSearchViewAdapter.results.sortedBy { s ->
+            s.name
+                ?.toLowerCase()
+                ?.trim()
+                ?.removeLeadingArticles()
+        })
     }
 
     class ViewHolder(

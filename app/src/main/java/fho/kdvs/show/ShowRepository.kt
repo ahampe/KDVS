@@ -159,7 +159,7 @@ class ShowRepository @Inject constructor(
 
     fun getShows(): LiveData<List<ShowEntity>> =
         showDao.allShows()
-            .debounce (100L, TimeUnit.MILLISECONDS)
+            .debounce(100L, TimeUnit.MILLISECONDS)
             .toLiveData()
 
     /** Fetches a [LiveData] that will wrap the show matching the provided ID. */
@@ -189,10 +189,11 @@ class ShowRepository @Inject constructor(
                 showsList.groupBy { show -> Pair(show.timeStart, show.timeEnd) }
                     .map { map ->
                         val showGroup = map.value
-                        val isFirstHalfOrEntireSegment = ((showGroup.firstOrNull()?.timeStart?.dayOfWeek
-                                == showGroup.firstOrNull()?.timeEnd?.dayOfWeek)
-                                || (showGroup.firstOrNull()?.timeStart?.dayOfWeek.toString().capitalize()
-                                == day.toString().capitalize()))
+                        val isFirstHalfOrEntireSegment =
+                            ((showGroup.firstOrNull()?.timeStart?.dayOfWeek
+                                    == showGroup.firstOrNull()?.timeEnd?.dayOfWeek)
+                                    || (showGroup.firstOrNull()?.timeStart?.dayOfWeek.toString().capitalize()
+                                    == day.toString().capitalize()))
                         TimeSlot(showGroup, isFirstHalfOrEntireSegment)
                     }
             }

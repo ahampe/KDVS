@@ -63,7 +63,10 @@ class PlaylistScraperTest : ScraperTest() {
         val scrapedSongs = scrapedTracks.map { it.song }
 
         expectedTracks.forEach { track ->
-            assertTrue("Expected to find song name ${track.song}", scrapedSongs.contains(track.song))
+            assertTrue(
+                "Expected to find song name ${track.song}",
+                scrapedSongs.contains(track.song)
+            )
             assertTrue("Expected to find track $track", scrapedTracks.contains(track))
         }
     }

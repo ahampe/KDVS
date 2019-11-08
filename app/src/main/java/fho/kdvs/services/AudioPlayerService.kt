@@ -63,14 +63,18 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                 Timber.d("Player error: $error")
 
                 if (error?.cause is HttpDataSource.HttpDataSourceException) {
-                    Toast.makeText(applicationContext,
+                    Toast.makeText(
+                        applicationContext,
                         "Error connecting to KDVS stream. Please check your connection or try again later.",
-                        Toast.LENGTH_LONG)
+                        Toast.LENGTH_LONG
+                    )
                         .show()
                 } else {
-                    Toast.makeText(applicationContext,
+                    Toast.makeText(
+                        applicationContext,
                         "There was a playback error. Please try again.",
-                        Toast.LENGTH_LONG)
+                        Toast.LENGTH_LONG
+                    )
                         .show()
                 }
             }
@@ -103,7 +107,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
             this,
             NOW_PLAYING_CHANNEL,
             NOW_PLAYING_NOTIFICATION,
-            object: PlayerNotificationManager.MediaDescriptionAdapter {
+            object : PlayerNotificationManager.MediaDescriptionAdapter {
                 override fun createCurrentContentIntent(player: Player?): PendingIntent? {
                     return null
                 }
@@ -129,7 +133,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                     else null
                 }
             },
-            object: PlayerNotificationManager.CustomActionReceiver {
+            object : PlayerNotificationManager.CustomActionReceiver {
                 override fun createCustomActions(
                     context: Context?,
                     instanceId: Int
@@ -142,10 +146,11 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
 
                 override fun getCustomActions(player: Player?): MutableList<String> {
                     val playbackType = PlaybackTypeHelper.getPlaybackTypeFromTag(
-                        player?.currentTag.toString(), applicationContext)
+                        player?.currentTag.toString(), applicationContext
+                    )
 
                     return when (playbackType) {
-                        PlaybackType.LIVE    -> CustomActionNames.liveActionNames
+                        PlaybackType.LIVE -> CustomActionNames.liveActionNames
                         PlaybackType.ARCHIVE -> CustomActionNames.archiveActionNames
                         else -> mutableListOf()
                     }
@@ -157,14 +162,16 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
 
                     token?.let {
                         val controller = MediaControllerCompat(baseContext, token)
-                        val customAction = CustomAction(application,
+                        val customAction = CustomAction(
+                            application,
                             controller.transportControls,
                             mediaController.playbackState,
-                            mediaSessionConnection)
+                            mediaSessionConnection
+                        )
 
                         when (action) {
-                            CustomActionEnum.LIVE.name    -> customAction.live()
-                            CustomActionEnum.REPLAY.name  -> customAction.replay()
+                            CustomActionEnum.LIVE.name -> customAction.live()
+                            CustomActionEnum.REPLAY.name -> customAction.replay()
                             CustomActionEnum.FORWARD.name -> customAction.forward()
                             else -> null
                         }
@@ -173,7 +180,8 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
             }
         )
 
-        playerNotificationManager.setNotificationListener(object: PlayerNotificationManager.NotificationListener {
+        playerNotificationManager.setNotificationListener(object :
+            PlayerNotificationManager.NotificationListener {
             override fun onNotificationCancelled(notificationId: Int) {
                 stopSelf()
                 removeNowPlayingNotification()
@@ -289,7 +297,8 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
      * - Register/unregister a broadcast receiver for [AudioManager.ACTION_AUDIO_BECOMING_NOISY].
      * - Calls [Service.startForeground] and [Service.stopForeground].
      */
-    private inner class MediaControllerCallback(private val context: Context) : MediaControllerCompat.Callback() {
+    private inner class MediaControllerCallback(private val context: Context) :
+        MediaControllerCompat.Callback() {
         private val platformNotificationManager: NotificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -318,17 +327,19 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
             val updatedState = state.state
 
             val playbackType = PlaybackTypeHelper.getPlaybackTypeFromTag(
-                mediaController.metadata?.description?.title.toString(), applicationContext)
+                mediaController.metadata?.description?.title.toString(), applicationContext
+            )
 
             // Skip building a notification when state is "none".
             val notification = when {
                 updatedState != PlaybackStateCompat.STATE_NONE && playbackType != null -> {
-                    playbackNotificationBuilder = when(playbackType) {
+                    playbackNotificationBuilder = when (playbackType) {
                         PlaybackType.ARCHIVE -> ArchivePlaybackNotificationBuilder(baseContext)
-                        PlaybackType.LIVE    -> LivePlaybackNotificationBuilder(baseContext)
+                        PlaybackType.LIVE -> LivePlaybackNotificationBuilder(baseContext)
                     }
 
-                    builder = playbackNotificationBuilder.buildNotification(mediaSession.sessionToken)
+                    builder =
+                        playbackNotificationBuilder.buildNotification(mediaSession.sessionToken)
                     builder.build()
                 }
                 else -> null
@@ -346,10 +357,15 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                      */
                     notification?.let {
                         if (!isForegroundService) {
-                            startService(Intent(applicationContext, this@AudioPlayerService.javaClass))
+                            startService(
+                                Intent(
+                                    applicationContext,
+                                    this@AudioPlayerService.javaClass
+                                )
+                            )
                             startForeground(NOW_PLAYING_NOTIFICATION, it)
                             isForegroundService = true
-                        } else  {
+                        } else {
                             notificationManager.notify(NOW_PLAYING_NOTIFICATION, it)
                         }
                     }

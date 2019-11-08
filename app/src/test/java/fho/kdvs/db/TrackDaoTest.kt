@@ -107,7 +107,8 @@ class TrackDaoTest : DatabaseTest() {
         insertBroadcast()
         insert_multiple()
 
-        val tracks = DbTestUtils.createTracks().filter { it.artist == "Dolly Parton" && it.album == "Blue Smoke" }
+        val tracks = DbTestUtils.createTracks()
+            .filter { it.artist == "Dolly Parton" && it.album == "Blue Smoke" }
         val tracksDb = db.trackDao().getTracksByArtistAlbum("Dolly Parton", "Blue Smoke")
 
         assertEquals(tracks.size, tracksDb.size)

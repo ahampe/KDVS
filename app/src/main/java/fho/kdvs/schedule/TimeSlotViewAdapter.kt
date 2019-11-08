@@ -12,7 +12,10 @@ import fho.kdvs.global.util.ClickData
 class TimeSlotViewAdapter(
     private val selectedTheme: Int?,
     onClick: (ClickData<TimeSlot>) -> Unit
-) : BindingRecyclerViewAdapter<TimeSlot, TimeSlotViewAdapter.ViewHolder>(onClick, TimeSlotDiffCallback()) {
+) : BindingRecyclerViewAdapter<TimeSlot, TimeSlotViewAdapter.ViewHolder>(
+    onClick,
+    TimeSlotDiffCallback()
+) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)

@@ -35,10 +35,17 @@ class ScheduleScraperTest : ScraperTest() {
         val scrapedNames = scrapedShows.map { it.name }
 
         expectedShows.forEach { show ->
-            assertTrue("Expected to find show with name ${show.name}", scrapedNames.contains(show.name))
+            assertTrue(
+                "Expected to find show with name ${show.name}",
+                scrapedNames.contains(show.name)
+            )
             assertTrue("Expected to find show with details $show", scrapedShows.contains(show))
         }
 
-        assertEquals("Expected to find ${expectedShows.size} shows", expectedShows.size, scrapedShows.size)
+        assertEquals(
+            "Expected to find ${expectedShows.size} shows",
+            expectedShows.size,
+            scrapedShows.size
+        )
     }
 }

@@ -74,7 +74,11 @@ class HomeFragment : BaseFragment() {
             }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         fragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false)
         sharedViewModel = ViewModelProviders.of(requireActivity(), vmFactory)
             .get(SharedViewModel::class.java)
@@ -104,7 +108,7 @@ class HomeFragment : BaseFragment() {
             topAlbumsExportSpotify.visibility = View.VISIBLE
         }
 
-        settingsIcon.setOnClickListener { viewModel.onClickSettings(findNavController())}
+        settingsIcon.setOnClickListener { viewModel.onClickSettings(findNavController()) }
 
         currentShowsAdapter = CurrentShowsAdapter(viewModel) {
             Timber.d("Clicked ${it.item}")
@@ -117,12 +121,14 @@ class HomeFragment : BaseFragment() {
             this.initialize(adapter)
             this.setDefaultPos(1)
             this.setButton(playButton)
-            this.setViewsToChangeColor(listOf(
-                R.id.currentShowImage,
-                R.id.currentShowName,
-                R.id.currentShowTime,
-                R.id.currentShowHeader
-            ))
+            this.setViewsToChangeColor(
+                listOf(
+                    R.id.currentShowImage,
+                    R.id.currentShowName,
+                    R.id.currentShowTime,
+                    R.id.currentShowHeader
+                )
+            )
 
             onFlingListener = null
             clearOnScrollListeners()
@@ -212,14 +218,19 @@ class HomeFragment : BaseFragment() {
                         sharedViewModel.loginSpotify(requireActivity())
                         sharedViewModel.spotToken.observe(viewLifecycleOwner, Observer { token ->
                             token?.let {
-                                viewModel.topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
-                                    exportTopMusicToSpotify(adds, token)
-                                })
+                                viewModel.topMusicAdds.observe(
+                                    viewLifecycleOwner,
+                                    Observer { adds ->
+                                        exportTopMusicToSpotify(adds, token)
+                                    })
                             }
                         })
                     } else {
                         viewModel.topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
-                            exportTopMusicToSpotify(adds, kdvsPreferences.spotifyAuthToken as String)
+                            exportTopMusicToSpotify(
+                                adds,
+                                kdvsPreferences.spotifyAuthToken as String
+                            )
                         })
                     }
                 }
@@ -230,14 +241,19 @@ class HomeFragment : BaseFragment() {
                         sharedViewModel.loginSpotify(requireActivity())
                         sharedViewModel.spotToken.observe(viewLifecycleOwner, Observer { token ->
                             token?.let {
-                                viewModel.topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
-                                    exportTopMusicToSpotify(albums, token)
-                                })
+                                viewModel.topMusicAlbums.observe(
+                                    viewLifecycleOwner,
+                                    Observer { albums ->
+                                        exportTopMusicToSpotify(albums, token)
+                                    })
                             }
                         })
                     } else {
                         viewModel.topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
-                            exportTopMusicToSpotify(albums, kdvsPreferences.spotifyAuthToken as String)
+                            exportTopMusicToSpotify(
+                                albums,
+                                kdvsPreferences.spotifyAuthToken as String
+                            )
                         })
                     }
                 }
@@ -292,7 +308,7 @@ class HomeFragment : BaseFragment() {
             topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
                 Timber.d("Got adds: $adds")
 
-                val highestId = adds.maxBy { a -> a.topMusicId}?.topMusicId
+                val highestId = adds.maxBy { a -> a.topMusicId }?.topMusicId
 
                 if (highestId != kdvsPreferences.lastObservedTopAddsId) {
                     topAddsNotification.fade(true)
@@ -305,7 +321,10 @@ class HomeFragment : BaseFragment() {
                     false -> {
                         launch {
                             adds.forEach {
-                                sharedViewModel.fetchThirdPartyDataForTopMusic(it, topMusicRepository)
+                                sharedViewModel.fetchThirdPartyDataForTopMusic(
+                                    it,
+                                    topMusicRepository
+                                )
                                 // TODO this causes observer to fire each time a db entry is updated resulting in redundant cycles
                             }
                         }
@@ -341,7 +360,7 @@ class HomeFragment : BaseFragment() {
             topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
                 Timber.d("Got albums: $albums")
 
-                val highestId = albums.maxBy { a -> a.topMusicId}?.topMusicId
+                val highestId = albums.maxBy { a -> a.topMusicId }?.topMusicId
 
                 // Display info icon when there are unviewed top albums
                 if (highestId != kdvsPreferences.lastObservedTopAlbumsId) {
@@ -355,7 +374,10 @@ class HomeFragment : BaseFragment() {
                     false -> {
                         launch {
                             albums.forEach {
-                                sharedViewModel.fetchThirdPartyDataForTopMusic(it, topMusicRepository)
+                                sharedViewModel.fetchThirdPartyDataForTopMusic(
+                                    it,
+                                    topMusicRepository
+                                )
                                 // TODO this causes observer to fire each time a db entry is updated resulting in redundant cycles
                             }
                         }
@@ -528,7 +550,7 @@ class HomeFragment : BaseFragment() {
     }
 
     @SuppressWarnings
-    private fun setFundraiserView(fundraiser: FundraiserEntity){
+    private fun setFundraiserView(fundraiser: FundraiserEntity) {
         val startMonthStr = TimeHelper.monthIntToStr(fundraiser.dateStart?.monthValue)
             .toLowerCase(Locale.US)
             .capitalize()
@@ -578,7 +600,8 @@ class HomeFragment : BaseFragment() {
             goalStr
         )
 
-        val progress = ((fundraiser.current?.toFloat() ?: 0f) / (fundraiser.goal?.toFloat() ?: 1f)) * 100
+        val progress =
+            ((fundraiser.current?.toFloat() ?: 0f) / (fundraiser.goal?.toFloat() ?: 1f)) * 100
         fundraiserProgress.progress = if (progress > 100) 100 else progress.toInt()
     }
 
@@ -610,5 +633,5 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun getTopMusicSpotifyUris(topMusic: List<TopMusicEntity?>?): List<String>? =
-        topMusic?.mapNotNull { t -> t?.spotifyTrackUris?.split(",")}?.flatten()
+        topMusic?.mapNotNull { t -> t?.spotifyTrackUris?.split(",") }?.flatten()
 }

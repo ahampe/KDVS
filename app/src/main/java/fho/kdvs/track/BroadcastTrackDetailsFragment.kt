@@ -78,8 +78,13 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
         subscribeToViewModel()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        fragmentTrackDetailsBinding = FragmentTrackDetailsBinding.inflate(inflater, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        fragmentTrackDetailsBinding =
+            FragmentTrackDetailsBinding.inflate(inflater, container, false)
 
         fragmentTrackDetailsBinding.apply {
             sharedVm = sharedViewModel
@@ -183,7 +188,11 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
 
         song.text = track.song ?: ""
         artistAlbum.text = when {
-            track.album?.isNotBlank() == true -> resources.getString(R.string.artist_album, track.artist, track.album)
+            track.album?.isNotBlank() == true -> resources.getString(
+                R.string.artist_album,
+                track.artist,
+                track.album
+            )
             else -> track.artist
         }
 
@@ -196,8 +205,10 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
             when {
                 track.label == null -> albumInfo.text = track.year.toString()
                 track.year == null -> albumInfo.text = track.label
-                else -> albumInfo.text = albumInfo.resources.getString(R.string.album_info,
-                    track.year, track.label)
+                else -> albumInfo.text = albumInfo.resources.getString(
+                    R.string.album_info,
+                    track.year, track.label
+                )
             }
 
             albumInfo.visibility = View.VISIBLE

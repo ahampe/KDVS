@@ -28,7 +28,7 @@ class ShowSearchFragment : DaggerFragment() {
 
     private var showSearchViewAdapter: ShowSearchViewAdapter? = null
     var hashedShows = mutableMapOf<String, ArrayList<ShowEntity>>()
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -42,7 +42,11 @@ class ShowSearchFragment : DaggerFragment() {
         subscribeToViewModel()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_show_search, container, false)
     }
 
@@ -58,38 +62,41 @@ class ShowSearchFragment : DaggerFragment() {
         searchBar?.clearFocus()
     }
 
-    private fun subscribeToViewModel(){
+    private fun subscribeToViewModel() {
         val fragment = this
 
         vm.run {
             sharedVm.getCurrentQuarterYear().observe(fragment, Observer { currentQuarterYear ->
-                vm.getShowsForCurrentQuarterYear(currentQuarterYear).observe(fragment, Observer { shows ->
-                    // Pair each show with an int corresponding to number of shows in its timeslot
-                    val showsWithTimeSlotSize = shows.groupBy { s -> s.timeStart }
-                        .map { m ->
-                            val list = mutableListOf<Pair<ShowEntity, Int>>()
-                            m.value.forEach {
-                                list.add(Pair(it, m.value.size))
+                vm.getShowsForCurrentQuarterYear(currentQuarterYear)
+                    .observe(fragment, Observer { shows ->
+                        // Pair each show with an int corresponding to number of shows in its timeslot
+                        val showsWithTimeSlotSize = shows.groupBy { s -> s.timeStart }
+                            .map { m ->
+                                val list = mutableListOf<Pair<ShowEntity, Int>>()
+                                m.value.forEach {
+                                    list.add(Pair(it, m.value.size))
+                                }
+                                list
+                            }.flatten()
+
+                        showSearchViewAdapter =
+                            ShowSearchViewAdapter(showsWithTimeSlotSize, fragment) {
+                                Timber.d("clicked ${it.item}")
+                                vm.onClickShow(findNavController(), it.item)
                             }
-                            list
-                        }.flatten()
 
-                    showSearchViewAdapter = ShowSearchViewAdapter(showsWithTimeSlotSize, fragment) {
-                        Timber.d("clicked ${it.item}")
-                        vm.onClickShow(findNavController(), it.item)
-                    }
-
-                    resultsRecycler.run {
-                        layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-                        adapter = showSearchViewAdapter
-                    }
-                })
+                        resultsRecycler.run {
+                            layoutManager =
+                                LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+                            adapter = showSearchViewAdapter
+                        }
+                    })
             })
 
         }
     }
 
-    private fun initializeSearchBar(){
+    private fun initializeSearchBar() {
         searchBar?.run {
             queryHint = resources.getString(R.string.search_query_hint)
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {

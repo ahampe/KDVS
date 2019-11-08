@@ -8,7 +8,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 
 
-class BinaryChoiceDialogFragment: DialogFragment() {
+class BinaryChoiceDialogFragment : DialogFragment() {
     private val title: String by lazy {
         arguments?.let { BinaryChoiceDialogFragmentArgs.fromBundle(it) }?.title
             ?: throw IllegalArgumentException("Should have passed a title to BinaryChoiceDialogFragment")

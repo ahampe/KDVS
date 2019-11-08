@@ -50,7 +50,11 @@ class PlayerFragment : DaggerFragment() {
         subscribeToViewModel()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         sharedViewModel = ViewModelProviders.of(requireActivity(), vmFactory)
             .get(SharedViewModel::class.java)
 
@@ -109,7 +113,7 @@ class PlayerFragment : DaggerFragment() {
 
             viewModel.setSubscription(show.id)
             viewModel.subscription.observe(this, Observer {
-                when(it != null) {
+                when (it != null) {
                     true -> {
                         star.setImageResource(R.drawable.ic_star_white_24dp)
                         star.tag = 1
@@ -124,10 +128,25 @@ class PlayerFragment : DaggerFragment() {
             playerShowName.text = show.name
             showHost.text = show.host
 
-            liveOrBroadcastDate.setOnClickListener { viewModel.onClickShowInfo(findNavController(), show) }
-            playerShowName.setOnClickListener { viewModel.onClickShowInfo(findNavController(), show) }
+            liveOrBroadcastDate.setOnClickListener {
+                viewModel.onClickShowInfo(
+                    findNavController(),
+                    show
+                )
+            }
+            playerShowName.setOnClickListener {
+                viewModel.onClickShowInfo(
+                    findNavController(),
+                    show
+                )
+            }
             showHost.setOnClickListener { viewModel.onClickShowInfo(findNavController(), show) }
-            viewPlaylist.setOnClickListener { viewModel.onClickPlaylist(findNavController(), broadcast) }
+            viewPlaylist.setOnClickListener {
+                viewModel.onClickPlaylist(
+                    findNavController(),
+                    broadcast
+                )
+            }
             star.setOnClickListener { sharedViewModel.onClickSubscribe(star, show, context) }
             arrow.setOnClickListener { fragmentManager?.popBackStack() }
 
@@ -167,16 +186,19 @@ class PlayerFragment : DaggerFragment() {
     }
 
     private fun processTracks() {
-        viewModel.tracksLiveData?.let{ it.observe(this, Observer { tracks ->
-            if (sharedViewModel.scrapedTracksForBroadcast.containsAll(tracks) ||
-                sharedViewModel.scrapedTracksForBroadcast.count() == 0) {
-                info.visibility = View.INVISIBLE
-            } else {
-                sharedViewModel.scrapedTracksForBroadcast.clear()
-                sharedViewModel.scrapedTracksForBroadcast.addAll(tracks)
-                info.visibility = View.VISIBLE
-            }
-        })}
+        viewModel.tracksLiveData?.let {
+            it.observe(this, Observer { tracks ->
+                if (sharedViewModel.scrapedTracksForBroadcast.containsAll(tracks) ||
+                    sharedViewModel.scrapedTracksForBroadcast.count() == 0
+                ) {
+                    info.visibility = View.INVISIBLE
+                } else {
+                    sharedViewModel.scrapedTracksForBroadcast.clear()
+                    sharedViewModel.scrapedTracksForBroadcast.addAll(tracks)
+                    info.visibility = View.VISIBLE
+                }
+            })
+        }
     }
 
     private fun configureArchiveExoPlayer(broadcast: BroadcastEntity) {

@@ -47,9 +47,10 @@ class SettingsFragment : DaggerFragment() {
 
     private lateinit var viewModel: SharedViewModel
 
-    private val offlineSwitchChangeListener = CompoundButton.OnCheckedChangeListener { _, isChecked ->
-        offlineMode = isChecked
-    }
+    private val offlineSwitchChangeListener =
+        CompoundButton.OnCheckedChangeListener { _, isChecked ->
+            offlineMode = isChecked
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,7 +67,7 @@ class SettingsFragment : DaggerFragment() {
 
         // TODO: extend this to navbar press from settings frag
         requireActivity().onBackPressedDispatcher.addCallback(
-            object: OnBackPressedCallback(true) {
+            object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     if (isChanged()) {
                         displayDialog()
@@ -78,7 +79,11 @@ class SettingsFragment : DaggerFragment() {
         )
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val binding = FragmentSettingsBinding.inflate(inflater, container, false)
             .apply { vm = viewModel }
         binding.lifecycleOwner = this
@@ -98,8 +103,13 @@ class SettingsFragment : DaggerFragment() {
                 }
 
                 spinner.setSelection(position, false)
-                spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
-                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
                         streamUrl = when (position) {
                             0 -> URLs.LIVE_OGG
                             1 -> URLs.LIVE_AAC
@@ -108,7 +118,7 @@ class SettingsFragment : DaggerFragment() {
                         }
                     }
 
-                    override fun onNothingSelected(parent: AdapterView<*>?) { }
+                    override fun onNothingSelected(parent: AdapterView<*>?) {}
                 }
             }
 
@@ -122,8 +132,13 @@ class SettingsFragment : DaggerFragment() {
                 }
 
                 spinner.setSelection(position, false)
-                spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
-                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
                         alarmNoticeInterval = when (position) {
                             0 -> 0
                             1 -> 5
@@ -133,7 +148,7 @@ class SettingsFragment : DaggerFragment() {
                         }
                     }
 
-                    override fun onNothingSelected(parent: AdapterView<*>?) { }
+                    override fun onNothingSelected(parent: AdapterView<*>?) {}
                 }
             }
 
@@ -146,8 +161,13 @@ class SettingsFragment : DaggerFragment() {
                 }
 
                 spinner.setSelection(position, false)
-                spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
-                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
                         fundraiserWindow = when (position) {
                             0 -> 1
                             1 -> 2
@@ -156,7 +176,7 @@ class SettingsFragment : DaggerFragment() {
                         }
                     }
 
-                    override fun onNothingSelected(parent: AdapterView<*>?) { }
+                    override fun onNothingSelected(parent: AdapterView<*>?) {}
                 }
             }
 
@@ -169,8 +189,13 @@ class SettingsFragment : DaggerFragment() {
                 }
 
                 spinner.setSelection(position, false)
-                spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
                         scrapeFrequency = when (position) {
                             0 -> WebScraperManager.DEFAULT_SCRAPE_FREQ
                             1 -> WebScraperManager.DAILY_SCRAPE_FREQ
@@ -188,8 +213,13 @@ class SettingsFragment : DaggerFragment() {
                     .find { t -> t.value == kdvsPreferences.theme }?.value ?: DEFAULT_THEME_POS
 
                 spinner.setSelection(position, false)
-                spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
                         theme = KdvsPreferences.Theme.values()[position].value
                     }
 
@@ -208,9 +238,11 @@ class SettingsFragment : DaggerFragment() {
         refresh.setOnClickListener {
             viewModel.refreshData()
 
-            Toast.makeText(activity,
+            Toast.makeText(
+                activity,
                 "Information updated.",
-                Toast.LENGTH_SHORT)
+                Toast.LENGTH_SHORT
+            )
                 .show()
         }
 
@@ -256,7 +288,7 @@ class SettingsFragment : DaggerFragment() {
 
     private fun save() {
         // If flipped to offlineMode, stop current live playback
-        viewModel.isLiveNow.observe(this, Observer {live ->
+        viewModel.isLiveNow.observe(this, Observer { live ->
             if (live == true && offlineMode == true && kdvsPreferences.offlineMode != true)
                 viewModel.stopPlayback()
         })
@@ -277,11 +309,11 @@ class SettingsFragment : DaggerFragment() {
     }
 
     private fun isChanged() = streamUrl != kdvsPreferences.streamUrl ||
-        alarmNoticeInterval != kdvsPreferences.alarmNoticeInterval ||
-        fundraiserWindow != kdvsPreferences.fundraiserWindow ||
-        scrapeFrequency != kdvsPreferences.scrapeFrequency ||
-        theme != kdvsPreferences.theme ||
-        offlineMode != kdvsPreferences.offlineMode
+            alarmNoticeInterval != kdvsPreferences.alarmNoticeInterval ||
+            fundraiserWindow != kdvsPreferences.fundraiserWindow ||
+            scrapeFrequency != kdvsPreferences.scrapeFrequency ||
+            theme != kdvsPreferences.theme ||
+            offlineMode != kdvsPreferences.offlineMode
 
     private fun displayDialog() {
         val dialog = BinaryChoiceDialogFragment()

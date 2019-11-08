@@ -12,7 +12,7 @@ open class Join
  * and the broadcast's corresponding [ShowEntity].
  * */
 
-class ShowBroadcastFavoriteJoin: Join() {
+class ShowBroadcastFavoriteJoin : Join() {
     @Embedded
     var show: ShowEntity? = null
 
@@ -30,7 +30,7 @@ class BroadcastFavoriteJoin {
 
 fun ShowBroadcastFavoriteJoin.getBroadcasts(): List<BroadcastEntity?> {
     return this.broadcastFavorite
-        .map{ it.broadcast }
+        .map { it.broadcast }
         .toList()
         .distinct()
 }
@@ -52,7 +52,7 @@ fun List<ShowBroadcastFavoriteJoin>?.getBroadcastFavoriteJoins(): List<FavoriteB
         ?.flatMap { it.getBroadcasts() }
         ?.distinct()
     val favorites = this
-        ?.flatMap { it.getFavorites()}
+        ?.flatMap { it.getFavorites() }
         ?.distinct()
 
     favorites?.forEach { favorite ->
@@ -76,7 +76,7 @@ fun List<ShowBroadcastFavoriteJoin>?.getBroadcastFavoriteJoins(): List<FavoriteB
  * the [BroadcastEntity] on which the track aired, and the broadcast's corresponding [ShowEntity].
  * */
 
-class ShowBroadcastTrackFavoriteJoin: Join() {
+class ShowBroadcastTrackFavoriteJoin : Join() {
     @Embedded
     var show: ShowEntity? = null
 
@@ -88,7 +88,11 @@ class BroadcastTrackFavoriteJoin {
     @Embedded
     var broadcast: BroadcastEntity? = null
 
-    @Relation(parentColumn = "broadcastId", entityColumn = "broadcastId", entity = TrackEntity::class)
+    @Relation(
+        parentColumn = "broadcastId",
+        entityColumn = "broadcastId",
+        entity = TrackEntity::class
+    )
     var trackFavorite: List<TrackFavoriteJoin> = ArrayList()
 }
 
@@ -117,24 +121,26 @@ class BroadcastTrackJoin {
 }
 
 fun ShowBroadcastTrackFavoriteJoin.getBroadcasts(): List<BroadcastEntity?> {
-   return this.broadcastTrackFavorite
-       .map{ it.broadcast }
-       .toList()
-       .distinct()
+    return this.broadcastTrackFavorite
+        .map { it.broadcast }
+        .toList()
+        .distinct()
 }
 
 fun ShowBroadcastTrackFavoriteJoin.getTracks(): List<TrackEntity?> {
     return this.broadcastTrackFavorite
-        .flatMap { it.trackFavorite
-            .map { tf -> tf.track }
+        .flatMap {
+            it.trackFavorite
+                .map { tf -> tf.track }
         }.toList()
         .distinct()
 }
 
 fun ShowBroadcastTrackFavoriteJoin.getFavorites(): List<FavoriteTrackEntity?> {
     return this.broadcastTrackFavorite
-        .flatMap { it.trackFavorite
-            .flatMap { tf -> tf.favorite }
+        .flatMap {
+            it.trackFavorite
+                .flatMap { tf -> tf.favorite }
         }.toList()
         .distinct()
 }
@@ -161,12 +167,12 @@ fun List<ShowBroadcastTrackFavoriteJoin>?.getTrackFavoriteJoins(): List<Favorite
         ?.flatMap { it.getTracks() }
         ?.distinct()
     val favorites = this
-        ?.flatMap { it.getFavorites()}
+        ?.flatMap { it.getFavorites() }
         ?.distinct()
 
     favorites?.forEach { favorite ->
         val track = tracks
-            ?.firstOrNull{
+            ?.firstOrNull {
                 it?.trackId == favorite?.trackId
             }
         val broadcast = broadcasts

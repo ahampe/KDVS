@@ -58,23 +58,24 @@ class MainActivity : DaggerAppCompatActivity() {
         findNavController(R.id.nav_host_fragment)
     }
 
-    private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
-        when (item.itemId) {
-            R.id.navigation_home -> {
-                navController.navigate(R.id.homeFragment)
-                return@OnNavigationItemSelectedListener true
+    private val mOnNavigationItemSelectedListener =
+        BottomNavigationView.OnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_home -> {
+                    navController.navigate(R.id.homeFragment)
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.navigation_schedule_grid -> {
+                    navController.navigate(R.id.scheduleFragment)
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.navigation_favorites -> {
+                    navController.navigate(R.id.favoriteFragment)
+                    return@OnNavigationItemSelectedListener true
+                }
             }
-            R.id.navigation_schedule_grid -> {
-                navController.navigate(R.id.scheduleFragment)
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_favorites -> {
-                navController.navigate(R.id.favoriteFragment)
-                return@OnNavigationItemSelectedListener true
-            }
+            false
         }
-        false
-    }
 
     private val onDownloadComplete = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -129,7 +130,7 @@ class MainActivity : DaggerAppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        when(requestCode) {
+        when (requestCode) {
             RequestCodes.SPOTIFY_LOGIN -> {
                 val response = AuthenticationClient.getResponse(resultCode, data)
 
@@ -185,43 +186,51 @@ class MainActivity : DaggerAppCompatActivity() {
             initLastPlayedBroadcast(it)
         }
 
-        viewModel.nowPlayingStreamLiveData.observe(this, Observer { (nowPlayingShow, nowPlayingBroadcast) ->
-            val timeStart = nowPlayingShow.timeStart ?: return@Observer
-            val timeEnd = nowPlayingShow.timeEnd ?: return@Observer
+        viewModel.nowPlayingStreamLiveData.observe(
+            this,
+            Observer { (nowPlayingShow, nowPlayingBroadcast) ->
+                val timeStart = nowPlayingShow.timeStart ?: return@Observer
+                val timeEnd = nowPlayingShow.timeEnd ?: return@Observer
 
-            playerBarView.apply {
-                mNavController = navController
-                sharedViewModel = viewModel
-                mExoPlayer = exoPlayer
-                mActivity = this@MainActivity
+                playerBarView.apply {
+                    mNavController = navController
+                    sharedViewModel = viewModel
+                    mExoPlayer = exoPlayer
+                    mActivity = this@MainActivity
 
-                setCurrentShowName(nowPlayingShow.name)
-                initButtonClickListener()
+                    setCurrentShowName(nowPlayingShow.name)
+                    initButtonClickListener()
 
-                if (sharedViewModel.isShowBroadcastLiveNow(nowPlayingShow, nowPlayingBroadcast)) {
-                    val formatter = TimeHelper.showTimeFormatter
-                    val timeStr = formatter.format(nowPlayingShow.timeStart) +
-                            " - " +
-                            formatter.format(nowPlayingShow.timeEnd)
-                    setShowTimeOrBroadcastDate(timeStr)
+                    if (sharedViewModel.isShowBroadcastLiveNow(
+                            nowPlayingShow,
+                            nowPlayingBroadcast
+                        )
+                    ) {
+                        val formatter = TimeHelper.showTimeFormatter
+                        val timeStr = formatter.format(nowPlayingShow.timeStart) +
+                                " - " +
+                                formatter.format(nowPlayingShow.timeEnd)
+                        setShowTimeOrBroadcastDate(timeStr)
 
-                    initLiveProgressBar(barProgressBar, timeStart, timeEnd)
-                    initLiveShow()
+                        initLiveProgressBar(barProgressBar, timeStart, timeEnd)
+                        initLiveShow()
 
-                    kdvsPreferences.lastPlayedBroadcastId = null
-                } else {
-                    nowPlayingBroadcast?.let {
-                        setShowTimeOrBroadcastDate(TimeHelper.uiDateFormatter
-                            .format(nowPlayingBroadcast.date))
+                        kdvsPreferences.lastPlayedBroadcastId = null
+                    } else {
+                        nowPlayingBroadcast?.let {
+                            setShowTimeOrBroadcastDate(
+                                TimeHelper.uiDateFormatter
+                                    .format(nowPlayingBroadcast.date)
+                            )
 
-                        initArchiveProgressBar()
-                        initArchiveShow()
+                            initArchiveProgressBar()
+                            initArchiveShow()
 
-                        kdvsPreferences.lastPlayedBroadcastId = it.broadcastId
+                            kdvsPreferences.lastPlayedBroadcastId = it.broadcastId
+                        }
                     }
                 }
-            }
-        })
+            })
     }
 
     /**
@@ -231,18 +240,19 @@ class MainActivity : DaggerAppCompatActivity() {
     private fun initLastPlayedBroadcast(broadcastId: Int) {
         var hasCalled = false
 
-        viewModel.getBroadcastRepo().showBroadcastJoinById(broadcastId).observe(this, Observer { join ->
-            val broadcast = join.broadcast.singleOrNull { b -> b.broadcastId == broadcastId }
+        viewModel.getBroadcastRepo().showBroadcastJoinById(broadcastId)
+            .observe(this, Observer { join ->
+                val broadcast = join.broadcast.singleOrNull { b -> b.broadcastId == broadcastId }
 
-            broadcast?.let {
-                join.show?.let { show ->
-                    if (!hasCalled) {
-                        viewModel.preparePastBroadcastForPlayback(broadcast, show, this)
-                        hasCalled = true
+                broadcast?.let {
+                    join.show?.let { show ->
+                        if (!hasCalled) {
+                            viewModel.preparePastBroadcastForPlayback(broadcast, show, this)
+                            hasCalled = true
+                        }
                     }
                 }
-            }
-        })
+            })
     }
 
     /**
@@ -256,7 +266,7 @@ class MainActivity : DaggerAppCompatActivity() {
 
         pb.progress = currentProgress
 
-        val runnable = object: Runnable {
+        val runnable = object : Runnable {
             override fun run() {
                 handler.postDelayed(this, interval.toLong() * 1000)
                 pb.progress++
@@ -273,10 +283,11 @@ class MainActivity : DaggerAppCompatActivity() {
     private fun initArchiveProgressBar() {
         handler.removeCallbacksAndMessages(null)
 
-        val uiRunnable = object: Runnable {
+        val uiRunnable = object : Runnable {
             override fun run() {
                 if (exoPlayer.currentPosition > 0) {
-                    barProgressBar.progress = ((exoPlayer.currentPosition * 100) / exoPlayer.duration).toInt()
+                    barProgressBar.progress =
+                        ((exoPlayer.currentPosition * 100) / exoPlayer.duration).toInt()
                 } else {
                     kdvsPreferences.lastPlayedBroadcastPosition?.let {
                         barProgressBar.progress = it.toInt()
@@ -287,7 +298,7 @@ class MainActivity : DaggerAppCompatActivity() {
             }
         }
 
-        val preferenceRunnable = object: Runnable {
+        val preferenceRunnable = object : Runnable {
             override fun run() {
                 kdvsPreferences.lastPlayedBroadcastPosition = exoPlayer.currentPosition
                 handler.postDelayed(this, 1000)
@@ -301,20 +312,26 @@ class MainActivity : DaggerAppCompatActivity() {
 
     fun toggleBottomNavAndPlayerBar(visible: Boolean) {
         bottomNavigation.visibility = if (visible) View.VISIBLE else View.GONE
-        playerBarView.visibility    = if (visible) View.VISIBLE else View.GONE
+        playerBarView.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
     fun isStoragePermissionGranted(): Boolean {
         return when (Build.VERSION.SDK_INT >= 23) {
             true -> {
                 if (PermissionChecker
-                        .checkSelfPermission(applicationContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
-                            PERMISSION_GRANTED) {
+                        .checkSelfPermission(
+                            applicationContext,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        ) ==
+                    PERMISSION_GRANTED
+                ) {
                     true
                 } else {
-                    ActivityCompat.requestPermissions(this,
+                    ActivityCompat.requestPermissions(
+                        this,
                         arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                        1)
+                        1
+                    )
                     false
                 }
             }
@@ -323,5 +340,5 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     private fun isDownloadSuccessful(cursor: Cursor): Boolean = cursor.moveToFirst() &&
-        cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL
+            cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL
 }

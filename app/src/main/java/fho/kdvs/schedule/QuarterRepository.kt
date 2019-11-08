@@ -10,7 +10,10 @@ import javax.inject.Singleton
 
 /** Repository for managing all [QuarterYear]s since the app's initialization. */
 @Singleton
-class QuarterRepository @Inject constructor(showDao: ShowDao, private val preferences: KdvsPreferences) {
+class QuarterRepository @Inject constructor(
+    showDao: ShowDao,
+    private val preferences: KdvsPreferences
+) {
     /** [LiveData] that observes all [QuarterYear]s, with the most recent first. */
     val allQuarterYearsLiveData: LiveData<List<QuarterYear>> by lazy { allQuarterYears.toLiveData() }
 

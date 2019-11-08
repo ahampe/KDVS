@@ -3,10 +3,9 @@ package fho.kdvs.subscription
 import androidx.lifecycle.LiveData
 import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.ShowDao
+import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.SubscriptionDao
 import fho.kdvs.global.database.SubscriptionEntity
-import fho.kdvs.global.database.ShowEntity
-import io.reactivex.Flowable
 import javax.inject.Inject
 import javax.inject.Singleton
 

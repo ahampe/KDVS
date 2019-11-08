@@ -19,14 +19,15 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun provideExoPlayer(app: Application): ExoPlayer = ExoPlayerFactory.newSimpleInstance(app).apply {
-        setAudioAttributes(
-            AudioAttributes.Builder()
-                .setContentType(C.CONTENT_TYPE_MUSIC)
-                .setUsage(C.USAGE_MEDIA)
-                .build(), true
-        )
-    }
+    fun provideExoPlayer(app: Application): ExoPlayer =
+        ExoPlayerFactory.newSimpleInstance(app).apply {
+            setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(C.CONTENT_TYPE_MUSIC)
+                    .setUsage(C.USAGE_MEDIA)
+                    .build(), true
+            )
+        }
 
     @Singleton
     @Provides
@@ -56,7 +57,8 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun provideFavoriteBroadcastDao(db: KdvsDatabase): FavoriteBroadcastDao = db.favoriteBroadcastDao()
+    fun provideFavoriteBroadcastDao(db: KdvsDatabase): FavoriteBroadcastDao =
+        db.favoriteBroadcastDao()
 
     @Singleton
     @Provides

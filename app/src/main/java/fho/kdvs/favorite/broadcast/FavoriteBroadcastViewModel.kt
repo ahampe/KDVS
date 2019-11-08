@@ -7,7 +7,6 @@ import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.favorite.FavoriteFragmentDirections
 import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.ShowEntity
 import javax.inject.Inject
 
 class FavoriteBroadcastViewModel @Inject constructor(

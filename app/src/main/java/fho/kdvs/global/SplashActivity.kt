@@ -10,7 +10,9 @@ import fho.kdvs.R
 import fho.kdvs.global.extensions.callFunctionOnTimeout
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.home.HomeViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext

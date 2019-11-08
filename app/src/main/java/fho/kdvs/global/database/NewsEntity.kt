@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 import org.threeten.bp.LocalDate
 
 @Entity(tableName = "newsData")
-data class NewsEntity (
+data class NewsEntity(
     @PrimaryKey(autoGenerate = true) val newsId: Int = 0,
     @ColumnInfo(name = "title") var title: String? = null,
     @ColumnInfo(name = "author") var author: String? = null,

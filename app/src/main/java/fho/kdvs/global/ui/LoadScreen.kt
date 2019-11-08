@@ -31,7 +31,12 @@ object LoadScreen {
             visibility = View.VISIBLE
             elevation = 2f
 
-            setBackgroundColor(root.resources.getColor(R.color.colorPrimaryDark, root.context.theme))
+            setBackgroundColor(
+                root.resources.getColor(
+                    R.color.colorPrimaryDark,
+                    root.context.theme
+                )
+            )
         }
 
         progressBar.apply {
@@ -46,7 +51,7 @@ object LoadScreen {
         params.addRule(RelativeLayout.CENTER_IN_PARENT)
 
         layout.addView(progressBar, params)
-        
+
         root.addView(layout)
     }
 

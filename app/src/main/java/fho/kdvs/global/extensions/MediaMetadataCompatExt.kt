@@ -292,8 +292,8 @@ fun MediaMetadataCompat.Builder.from(
     val date = if (broadcast.date != null) TimeHelper.uiDateFormatter.format(broadcast.date) else ""
 
     val fullTitle = show.name +
-        context.getString(R.string.notification_title_separator) +
-        date
+            context.getString(R.string.notification_title_separator) +
+            date
 
     title = fullTitle
     artist = show.host
@@ -327,8 +327,8 @@ fun MediaMetadataCompat.Builder.fromLive(
     // Don't set the id; this should be the current live URL
 
     val fullTitle = show.name +
-        context.getString(R.string.notification_title_separator) +
-        context.resources.getString(R.string.live)
+            context.getString(R.string.notification_title_separator) +
+            context.resources.getString(R.string.live)
 
     title = fullTitle
     artist = show.host

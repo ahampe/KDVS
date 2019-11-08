@@ -30,7 +30,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -47,7 +46,7 @@ abstract class SelectionUiModule {
 }
 
 @Module
-abstract class ScheduleSelectionModule: ViewModel() {
+abstract class ScheduleSelectionModule : ViewModel() {
 
     @Binds
     @IntoMap
@@ -83,15 +82,24 @@ class ScheduleSelectionFragment : BottomSheetDialogFragment(), CoroutineScope {
         super.onCreateDialog(savedInstanceState)
 
         val root = LinearLayout(activity)
-        root.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-        root.setPadding(0,0,0,0)
+        root.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        root.setPadding(0, 0, 0, 0)
 
         val dialog = Dialog(requireContext())
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(root)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-        dialog.window?.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        dialog.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        dialog.window?.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
 
         return dialog
     }
@@ -108,7 +116,11 @@ class ScheduleSelectionFragment : BottomSheetDialogFragment(), CoroutineScope {
         setStyle(STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val binding = FragmentScheduleSelectionBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         return binding.root
@@ -128,7 +140,12 @@ class ScheduleSelectionFragment : BottomSheetDialogFragment(), CoroutineScope {
             adapter = showSelectionViewAdapter
 
             val dividerItemDecoration = DividerItemDecoration(context, LinearLayoutManager.VERTICAL)
-            dividerItemDecoration.setDrawable(resources.getDrawable(R.drawable.show_selection_divider, context.theme))
+            dividerItemDecoration.setDrawable(
+                resources.getDrawable(
+                    R.drawable.show_selection_divider,
+                    context.theme
+                )
+            )
             addItemDecoration(dividerItemDecoration)
         }
 

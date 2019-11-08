@@ -17,7 +17,7 @@ import androidx.room.*
             unique = true
         )]
 )
-data class FavoriteTrackEntity (
+data class FavoriteTrackEntity(
     @PrimaryKey(autoGenerate = true) val favoriteTrackId: Int = 0,
     @ColumnInfo(name = "trackId") val trackId: Int = 0
 )

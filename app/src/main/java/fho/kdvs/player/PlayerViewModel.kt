@@ -33,7 +33,7 @@ class PlayerViewModel @Inject constructor(
 
     lateinit var nowPlayingLiveData: MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>
     lateinit var subscription: LiveData<SubscriptionEntity>
-    var tracksLiveData: LiveData<List<TrackEntity>>?= null
+    var tracksLiveData: LiveData<List<TrackEntity>>? = null
 
     fun initialize() {
         nowPlayingLiveData = broadcastRepository.nowPlayingLiveData
@@ -46,7 +46,10 @@ class PlayerViewModel @Inject constructor(
     fun onClickPlaylist(navController: NavController, broadcast: BroadcastEntity?) {
         broadcast?.let {
             val navAction = PlayerFragmentDirections
-                .actionPlayerFragmentToBroadcastDetailsFragment(broadcast.showId, broadcast.broadcastId)
+                .actionPlayerFragmentToBroadcastDetailsFragment(
+                    broadcast.showId,
+                    broadcast.broadcastId
+                )
             if (navController.currentDestination?.id == R.id.playerFragment)
                 navController.navigate(navAction)
         }

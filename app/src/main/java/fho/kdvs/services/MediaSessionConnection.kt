@@ -100,7 +100,8 @@ class MediaSessionConnection(context: Context, serviceComponent: ComponentName) 
         }
     }
 
-    private inner class MediaControllerCallback(private val context: Context) : MediaControllerCompat.Callback() {
+    private inner class MediaControllerCallback(private val context: Context) :
+        MediaControllerCompat.Callback() {
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             playbackState.postValue(state ?: EMPTY_PLAYBACK_STATE)
@@ -108,7 +109,8 @@ class MediaSessionConnection(context: Context, serviceComponent: ComponentName) 
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             val md = metadata ?: NOTHING_PLAYING
-            val playbackType = PlaybackTypeHelper.getPlaybackTypeFromTag(md.description.title.toString(), context)
+            val playbackType =
+                PlaybackTypeHelper.getPlaybackTypeFromTag(md.description.title.toString(), context)
 
             isLiveNow.postValue(playbackType == PlaybackType.LIVE)
             nowPlaying.postValue(md)

@@ -16,31 +16,32 @@ import fho.kdvs.global.util.ColorHelper
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.schedule.TimeSlot
 import timber.log.Timber
-import javax.inject.Inject
 
-interface IPaletteRequestListener  {
+interface IPaletteRequestListener {
     fun getColorFromPalette(bitmap: Bitmap)
     fun setTargetView()
 }
 
 /** Abstract class for applying dynamic [Palette] coloration and gradient for different views. */
-abstract class PaletteRequestListener (
+abstract class PaletteRequestListener(
     private val viewToColor: View
 ) : RequestListener<Bitmap>, IPaletteRequestListener {
 
     protected var selectedColorLight: Int = viewToColor.resources.getColor(
         R.color.colorPrimary,
-        viewToColor.context.theme)
+        viewToColor.context.theme
+    )
     protected var selectedColorDark: Int = viewToColor.resources.getColor(
         R.color.colorPrimaryDark,
-        viewToColor.context.theme)
+        viewToColor.context.theme
+    )
 
     override fun onLoadFailed(
         e: GlideException?,
         model: Any,
         target: Target<Bitmap>,
         isFirstResource: Boolean
-    ) : Boolean {
+    ): Boolean {
         setTargetView()
         return false
     }
@@ -68,11 +69,12 @@ abstract class PaletteRequestListener (
 
     private fun setViewGradient() {
         val backgroundColors = intArrayOf(selectedColorLight, selectedColorDark)
-        viewToColor.background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, backgroundColors)
+        viewToColor.background =
+            GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, backgroundColors)
     }
 }
 
-class CurrentShowPaletteRequestListener (
+class CurrentShowPaletteRequestListener(
     viewToColor: View
 ) : PaletteRequestListener(viewToColor) {
 
@@ -81,7 +83,7 @@ class CurrentShowPaletteRequestListener (
     }
 }
 
-class PlayerPaletteRequestListener (
+class PlayerPaletteRequestListener(
     viewToColor: View
 ) : PaletteRequestListener(viewToColor) {
 
@@ -92,18 +94,18 @@ class PlayerPaletteRequestListener (
 }
 
 /**
- * Class for applying dynamic [Palette] coloration and alpha gradients to [TimeSlot]s. Placeholder [TimeSlot]s are 
- * assigned random color deterministically by their corresponding show names. [WaveView] animation applied to 
+ * Class for applying dynamic [Palette] coloration and alpha gradients to [TimeSlot]s. Placeholder [TimeSlot]s are
+ * assigned random color deterministically by their corresponding show names. [WaveView] animation applied to
  * current show [TimeSlot] on schedule.
  * */
 
-class TimeSlotPaletteRequestListener (
+class TimeSlotPaletteRequestListener(
     private val viewWithColor: View,
     private val viewToColor: View,
     private val timeslot: TimeSlot?,
     private val theme: Int
 ) : PaletteRequestListener(viewToColor) {
-    
+
     private var isPlaceholder = false
     private var selectedColor = 0
     private var seed = Long.MIN_VALUE
@@ -113,7 +115,7 @@ class TimeSlotPaletteRequestListener (
         model: Any,
         target: Target<Bitmap>,
         isFirstResource: Boolean
-    ) : Boolean {
+    ): Boolean {
 
         isPlaceholder = true
 
@@ -141,8 +143,9 @@ class TimeSlotPaletteRequestListener (
         return false
     }
 
-    private fun isPlaceholder(): Boolean{
-        return ((timeslot?.imageHref ?: "").contains(".*kdvs.org.*placeholder.*".toRegex())) // TODO: don't rely on static kdvs placeholder?
+    private fun isPlaceholder(): Boolean {
+        return ((timeslot?.imageHref
+            ?: "").contains(".*kdvs.org.*placeholder.*".toRegex())) // TODO: don't rely on static kdvs placeholder?
         // || resource == (viewWithColor.context.getDrawable(R.drawable.show_placeholder) as BitmapDrawable).bitmap // this produces glitches when shows aren't loaded in yet
     }
 
@@ -185,7 +188,8 @@ class TimeSlotPaletteRequestListener (
     /** Set transparent to opaque Left->Right gradient */
     private fun setViewTransparency() {
         val backgroundColors = intArrayOf(selectedColor, Color.TRANSPARENT)
-        viewWithColor.foreground = GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, backgroundColors)
+        viewWithColor.foreground =
+            GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, backgroundColors)
     }
 
     /** Sine wave animation overlay on current timeslot */
@@ -195,7 +199,7 @@ class TimeSlotPaletteRequestListener (
         val waveView = viewToColor.findViewById<WaveView>(R.id.waveView)
         if (TimeHelper.isTimeSlotForCurrentShow(timeslot)) {
             Timber.d("currentShow $timeslot.names.firstOrNull()")
-            if (waveView != null && waveView.visibility != View.VISIBLE){
+            if (waveView != null && waveView.visibility != View.VISIBLE) {
                 waveView.backgroundColor = selectedColor
                 waveView.waveColor = ColorHelper.getComplementaryColor(selectedColor)
                 waveView.visibility = View.VISIBLE

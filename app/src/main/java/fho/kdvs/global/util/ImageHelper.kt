@@ -21,7 +21,11 @@ object ImageHelper {
             .into(view)
     }
 
-    fun loadImageWithGlideAndApplyGradient(view: ImageView, listener: PaletteRequestListener, imageHref: String?) {
+    fun loadImageWithGlideAndApplyGradient(
+        view: ImageView,
+        listener: PaletteRequestListener,
+        imageHref: String?
+    ) {
         Glide.with(view)
             .asBitmap()
             .load(imageHref)

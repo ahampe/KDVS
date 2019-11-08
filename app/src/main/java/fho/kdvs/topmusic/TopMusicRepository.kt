@@ -23,7 +23,7 @@ class TopMusicRepository @Inject constructor(
 ) : BaseRepository() {
 
     /** Runs top music scrapes if they haven't been fetched in a week. */
-    fun scrapeTopMusic(){
+    fun scrapeTopMusic() {
         scrapeTopAdds()
         scrapeTopAlbums()
     }
@@ -71,7 +71,10 @@ class TopMusicRepository @Inject constructor(
     fun getMostRecentTopAlbums(): LiveData<List<TopMusicEntity>> =
         topMusicDao.getMostRecentTopMusicForType(TopMusicType.ALBUM, TopMusicType.ALBUM.limit)
 
-    fun getTopAddsForWeekOf(weekOf: LocalDate?, type: TopMusicType): LiveData<List<TopMusicEntity>> =
+    fun getTopAddsForWeekOf(
+        weekOf: LocalDate?,
+        type: TopMusicType
+    ): LiveData<List<TopMusicEntity>> =
         topMusicDao.getTopMusicForWeekOfType(weekOf, type)
 
     fun getTopAdds(): LiveData<List<TopMusicEntity>> =
@@ -81,25 +84,25 @@ class TopMusicRepository @Inject constructor(
         topMusicDao.getAllOfType(TopMusicType.ALBUM)
 
     fun updateTopMusicAlbum(id: Int, title: String?) {
-        title?.let{
+        title?.let {
             topMusicDao.updateTopMusicAlbum(id, title)
         }
     }
 
     fun updateTopMusicLabel(id: Int, label: String?) {
-        label?.let{
+        label?.let {
             topMusicDao.updateTopMusicLabel(id, label)
         }
     }
 
     fun updateTopMusicYear(id: Int, year: Int?) {
-        year?.let{
+        year?.let {
             topMusicDao.updateTopMusicYear(id, year)
         }
     }
 
     fun updateTopMusicImageHref(id: Int, imageHref: String?) {
-        imageHref?.let{
+        imageHref?.let {
             topMusicDao.updateTopMusicImageHref(id, imageHref)
         }
     }

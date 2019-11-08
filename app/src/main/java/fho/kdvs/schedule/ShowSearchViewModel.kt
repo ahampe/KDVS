@@ -15,9 +15,9 @@ class ShowSearchViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
 
-    fun getShowsForCurrentQuarterYear(currentQuarterYear: QuarterYear) : LiveData<List<ShowEntity>> =
+    fun getShowsForCurrentQuarterYear(currentQuarterYear: QuarterYear): LiveData<List<ShowEntity>> =
         showRepository.showsForQuarterYear(currentQuarterYear)
-            .debounce ( 100L, TimeUnit.MILLISECONDS )
+            .debounce(100L, TimeUnit.MILLISECONDS)
             .toLiveData()
 
     fun onClickShow(navController: NavController, show: ShowEntity) {

@@ -40,8 +40,8 @@ fun String?.removeLeadingArticles() = """^(?:(the|THE|The|a|A|an|AN|An) +)""".to
 
 inline val String?.withoutTrailingExtension: String
     get() = (this ?: "").split(".".toRegex()).let {
-                it.slice(0 until it.size-1).joinToString()
-            }
+        it.slice(0 until it.size - 1).joinToString()
+    }
 
 /**
  * Helper extension to URL encode a [String]. Returns an empty string when called on null.

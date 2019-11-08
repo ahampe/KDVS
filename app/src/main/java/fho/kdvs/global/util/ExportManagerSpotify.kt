@@ -14,7 +14,7 @@ class ExportManagerSpotify @Inject constructor(
     val userToken: String,
     val playlistTitle: String,
     val storedPlaylistUri: String? = null
-): ExportManager {
+) : ExportManager {
 
     private var playlist: SpotifyPlaylist? = null
 
@@ -26,7 +26,7 @@ class ExportManagerSpotify @Inject constructor(
         } else {
             spotifyService.getSpotifyPlaylistFromTitleAsync(playlistTitle, userToken)
                 .await() ?: spotifyService.createPlaylistAsync(playlistTitle, userToken)
-                    .await()
+                .await()
         }
 
         return if (exportTracksToSpotifyPlaylistAsync().await() == true) {
@@ -66,8 +66,10 @@ class ExportManagerSpotify @Inject constructor(
                     val success = mutableListOf<Boolean>()
 
                     uris.chunked(100).forEach { tracks ->
-                        success.add(spotifyService.addTracksToPlaylistAsync(tracks, id, userToken)
-                            .await())
+                        success.add(
+                            spotifyService.addTracksToPlaylistAsync(tracks, id, userToken)
+                                .await()
+                        )
                     }
 
                     return@async success.all { s -> s }

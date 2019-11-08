@@ -16,7 +16,7 @@ class NewsScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        `when`(newsDao.insert(TestUtils.any())).thenAnswer{
+        `when`(newsDao.insert(TestUtils.any())).thenAnswer {
             val article: NewsEntity = it.getArgument(0)
             scrapedArticles.add(article)
         }
@@ -30,8 +30,10 @@ class NewsScraperTest : ScraperTest() {
         scraperManager.scrapeNews(html)
 
         expectedArticles.forEach { article ->
-            assertTrue("Expected to find article ${article.title}",
-                scrapedArticles.contains(article))
+            assertTrue(
+                "Expected to find article ${article.title}",
+                scrapedArticles.contains(article)
+            )
         }
     }
 }

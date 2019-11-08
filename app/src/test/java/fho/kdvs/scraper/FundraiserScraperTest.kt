@@ -17,7 +17,7 @@ class FundraiserScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        `when`(fundraiserDao.insert(TestUtils.any())).thenAnswer{
+        `when`(fundraiserDao.insert(TestUtils.any())).thenAnswer {
             val fundraiser: FundraiserEntity = it.getArgument(0)
             scrapedFundraiser.add(fundraiser)
         }
@@ -30,7 +30,9 @@ class FundraiserScraperTest : ScraperTest() {
         val fundraiserHtml = TestUtils.loadFromResource("Fundraiser.html")
         scraperManager.scrapeFundraiser(fundraiserHtml)
 
-        assertEquals("Expected to find fundraiser starting on ${expectedFundraiser.dateStart}",
-            expectedFundraiser, scrapedFundraiser.first())
+        assertEquals(
+            "Expected to find fundraiser starting on ${expectedFundraiser.dateStart}",
+            expectedFundraiser, scrapedFundraiser.first()
+        )
     }
 }

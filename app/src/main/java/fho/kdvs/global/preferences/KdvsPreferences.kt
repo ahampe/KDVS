@@ -169,7 +169,7 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         return pref
     }
 
-    fun setLastBroadcastScrape(broadcastId: String, value : Long) {
+    fun setLastBroadcastScrape(broadcastId: String, value: Long) {
         @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         var pref by LongPreference(Key.LAST_BROADCAST_SCRAPE, broadcastId)
         // lint complains about this, but it is not aware that the setter delegate has an important side effect
@@ -233,12 +233,14 @@ open class KdvsPreferences @Inject constructor(application: Application) {
     fun clearAll() = preferences.edit().clear().apply()
 
     // region property delegates
-    inner class StringPreference(key: Key, suffix: String = "") : QuickPreference<String>(key, suffix) {
+    inner class StringPreference(key: Key, suffix: String = "") :
+        QuickPreference<String>(key, suffix) {
         override fun getValue(thisRef: Any?, property: KProperty<*>): String? =
             preferences.getString(key.name + suffix, null)
     }
 
-    inner class BooleanPreference(key: Key, suffix: String = "") : QuickPreference<Boolean>(key, suffix) {
+    inner class BooleanPreference(key: Key, suffix: String = "") :
+        QuickPreference<Boolean>(key, suffix) {
         override fun getValue(thisRef: Any?, property: KProperty<*>): Boolean? =
             preferences.optBoolean(key.name + suffix)
     }

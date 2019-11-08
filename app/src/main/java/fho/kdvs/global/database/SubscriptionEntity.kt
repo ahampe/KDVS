@@ -15,7 +15,7 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )]
 )
-data class SubscriptionEntity (
+data class SubscriptionEntity(
     @PrimaryKey(autoGenerate = true) val subscriptionId: Int = 0,
     @ColumnInfo(name = "showId", index = true) val showId: Int = 0
 )
