@@ -77,6 +77,7 @@ class FavoriteBroadcastFragment : BaseFragment(), FavoritePage<ShowBroadcastFavo
         super.onViewCreated(view, savedInstanceState)
 
         initializeClickListeners()
+        initializeSearchBar()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
