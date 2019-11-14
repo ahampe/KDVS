@@ -38,9 +38,6 @@ const val NOW_PLAYING_NOTIFICATION: Int = 0xb339
 abstract class PlaybackNotificationBuilder(private val context: Context) {
     lateinit var builder: NotificationCompat.Builder
 
-    private val platformNotificationManager: NotificationManager =
-        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
     val playAction = NotificationCompat.Action(
         R.drawable.exo_controls_play,
         context.getString(R.string.notification_play),

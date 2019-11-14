@@ -119,32 +119,18 @@ class CustomAction @Inject constructor(
     }
 
     fun replay() {
-        val preferences = KdvsPreferences(application)
-
-        if (preferences.offlineMode == true)
-            return
-
         playbackState?.let {
-            if (it.isPlaying) {
-                val currentPos = it.bufferedPosition
-                val newPos = max(0, currentPos - 30000)
-                transportControls?.seekTo(newPos)
-            }
+            val currentPos = it.position
+            val newPos = max(0, currentPos - 30000)
+            transportControls?.seekTo(newPos)
         }
     }
 
     fun forward() {
-        val preferences = KdvsPreferences(application)
-
-        if (preferences.offlineMode == true)
-            return
-
         playbackState?.let {
-            if (it.isPlaying) {
-                val currentPos = it.position
-                val newPos = currentPos + 30000
-                transportControls?.seekTo(newPos) // TODO: test if this works when exceeding duration
-            }
+            val currentPos = it.position
+            val newPos = currentPos + 30000
+            transportControls?.seekTo(newPos)
         }
     }
 }
