@@ -136,20 +136,3 @@ class ArchivePlaybackNotificationBuilder(val context: Context) :
         builder.addAction(customActions.forwardAction)
     }
 }
-
-class DefaultPlaybackNotificationBuilder(val context: Context) :
-    PlaybackNotificationBuilder(context) {
-    override fun setBuilder(
-        sessionToken: MediaSessionCompat.Token,
-        controller: MediaControllerCompat
-    ) {
-        val playbackState = controller.playbackState
-        builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
-
-        if (playbackState.isPlaying) {
-            builder.addAction(pauseAction)
-        } else if (playbackState.isPlayEnabled) {
-            builder.addAction(playAction)
-        }
-    }
-}

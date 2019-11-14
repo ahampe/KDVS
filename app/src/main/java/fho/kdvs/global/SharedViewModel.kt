@@ -253,18 +253,7 @@ class SharedViewModel @Inject constructor(
                 try {
                     mediaSessionConnection.transportControls?.prepareFromUri(
                         Uri.fromFile(file),
-                        Bundle().apply {
-                            putInt("SHOW_ID", show.id)
-
-                            kdvsPreferences.lastPlayedBroadcastId?.let {
-                                putLong(
-                                    "POSITION",
-                                    kdvsPreferences.lastPlayedBroadcastPosition ?: 0L
-                                )
-                            }
-
-                            putString("TYPE", PlaybackType.ARCHIVE.type)
-                        }
+                        makeMediaSessionExtras(show)
                     )
                 } catch (e: Exception) {
                     Timber.e("Error with URI playback: $e")
@@ -287,18 +276,7 @@ class SharedViewModel @Inject constructor(
                 try {
                     mediaSessionConnection.transportControls?.prepareFromMediaId(
                         broadcast.broadcastId.toString(),
-                        Bundle().apply {
-                            putInt("SHOW_ID", show.id)
-
-                            kdvsPreferences.lastPlayedBroadcastId?.let {
-                                putLong(
-                                    "POSITION",
-                                    kdvsPreferences.lastPlayedBroadcastPosition ?: 0L
-                                )
-                            }
-
-                            putString("TYPE", PlaybackType.ARCHIVE.type)
-                        }
+                        makeMediaSessionExtras(show)
                     )
                 } catch (e: Exception) {
                     Timber.e("Error with stream playback: $e")
@@ -312,6 +290,19 @@ class SharedViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun makeMediaSessionExtras(show: ShowEntity) = Bundle().apply {
+        putInt("SHOW_ID", show.id)
+
+        kdvsPreferences.lastPlayedBroadcastId?.let {
+            putLong(
+                "POSITION",
+                kdvsPreferences.lastPlayedBroadcastPosition ?: 0L
+            )
+        }
+
+        putString("TYPE", PlaybackType.ARCHIVE.type)
     }
 
     private fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
