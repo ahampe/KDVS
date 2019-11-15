@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.upstream.HttpDataSource
 import dagger.android.AndroidInjection
 import fho.kdvs.R
+import fho.kdvs.services.notification.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -354,11 +355,12 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                     state
                 ) && playbackType != null
             ) {
-                playbackNotificationBuilder = PlaybackNotificationBuilder(
-                    context,
-                    mediaSession.sessionToken,
-                    playbackType
-                )
+                playbackNotificationBuilder =
+                    PlaybackNotificationBuilder(
+                        context,
+                        mediaSession.sessionToken,
+                        playbackType
+                    )
 
                 playbackNotificationBuilder.build()
             } else null

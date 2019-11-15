@@ -1,4 +1,4 @@
-package fho.kdvs.services
+package fho.kdvs.services.notification
 
 import android.app.Application
 import android.app.PendingIntent
@@ -14,6 +14,7 @@ import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.URLs
+import fho.kdvs.services.MediaSessionConnection
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.max

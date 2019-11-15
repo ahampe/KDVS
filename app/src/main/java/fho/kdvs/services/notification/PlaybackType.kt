@@ -1,4 +1,4 @@
-package fho.kdvs.services
+package fho.kdvs.services.notification
 
 import android.content.Context
 import fho.kdvs.R
