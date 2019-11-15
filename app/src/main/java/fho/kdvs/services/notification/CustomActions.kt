@@ -1,4 +1,4 @@
-package fho.kdvs.services
+package fho.kdvs.services.notification
 
 import android.app.Application
 import android.app.PendingIntent
@@ -8,13 +8,11 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationCompat
 import fho.kdvs.R
-import fho.kdvs.global.extensions.id
-import fho.kdvs.global.extensions.isPlayEnabled
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.URLs
-import timber.log.Timber
+import fho.kdvs.services.MediaSessionConnection
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -83,8 +81,7 @@ class CustomActionDefinitions(val context: Context) {
 class CustomAction @Inject constructor(
     private val application: Application,
     private val transportControls: MediaControllerCompat.TransportControls?,
-    private val playbackState: PlaybackStateCompat?,
-    private val mediaSessionConnection: MediaSessionConnection
+    private val playbackState: PlaybackStateCompat?
 ) {
 
     fun live() {
@@ -95,56 +92,32 @@ class CustomAction @Inject constructor(
 
         val streamUrl = preferences.streamUrl ?: URLs.LIVE_OGG
         val isPrepared = playbackState?.isPrepared ?: false
-        val nowPlaying = mediaSessionConnection.nowPlaying.value
 
         transportControls?.let {
-            if (isPrepared && streamUrl == nowPlaying?.id) {
+            if (isPrepared) {
                 playbackState?.let {
-                    when {
-                        it.isPlaying -> {
-                            transportControls.pause()
-                        }
-                        it.isPlayEnabled -> {
-                            transportControls.play()
-                        }
-                        else -> {
-                            Timber.w("Playable item clicked but neither play nor pause are enabled! (mediaId=$streamUrl)")
-                        }
-                    }
+                    if (it.isPlaying)
+                        transportControls.stop()
                 }
-            } else {
-                transportControls.playFromMediaId(streamUrl, null)
             }
+
+            transportControls.playFromMediaId(streamUrl, null)
         }
     }
 
     fun replay() {
-        val preferences = KdvsPreferences(application)
-
-        if (preferences.offlineMode == true)
-            return
-
         playbackState?.let {
-            if (it.isPlaying) {
-                val currentPos = it.bufferedPosition
-                val newPos = max(0, currentPos - 30000)
-                transportControls?.seekTo(newPos)
-            }
+            val currentPos = it.position
+            val newPos = max(0, currentPos - 30000)
+            transportControls?.seekTo(newPos)
         }
     }
 
     fun forward() {
-        val preferences = KdvsPreferences(application)
-
-        if (preferences.offlineMode == true)
-            return
-
         playbackState?.let {
-            if (it.isPlaying) {
-                val currentPos = it.position
-                val newPos = currentPos + 30000
-                transportControls?.seekTo(newPos) // TODO: test if this works when exceeding duration
-            }
+            val currentPos = it.position
+            val newPos = currentPos + 30000
+            transportControls?.seekTo(newPos)
         }
     }
 }

@@ -26,6 +26,8 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.media.MediaBrowserServiceCompat
 import fho.kdvs.services.MediaSessionConnection.MediaBrowserConnectionCallback
+import fho.kdvs.services.notification.PlaybackType
+import fho.kdvs.services.notification.PlaybackTypeHelper
 
 /**
  * Class that manages a connection to a [MediaBrowserServiceCompat] instance.

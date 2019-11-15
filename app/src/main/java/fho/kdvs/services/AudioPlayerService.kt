@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.media.AudioManager
+import android.media.session.PlaybackState
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
@@ -31,6 +32,7 @@ import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.upstream.HttpDataSource
 import dagger.android.AndroidInjection
 import fho.kdvs.R
+import fho.kdvs.services.notification.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -115,7 +117,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                 override fun getCurrentContentText(player: Player?): String? {
                     return if (::mediaController.isInitialized)
                         mediaController.metadata?.description?.subtitle.toString()
-                    else null
+                    else ""
                 }
 
                 override fun getCurrentContentTitle(player: Player?): String {
@@ -165,12 +167,14 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                         val customAction = CustomAction(
                             application,
                             controller.transportControls,
-                            mediaController.playbackState,
-                            mediaSessionConnection
+                            mediaController.playbackState
                         )
 
                         when (action) {
-                            CustomActionEnum.LIVE.name -> customAction.live()
+                            CustomActionEnum.LIVE.name -> {
+                                notificationManager.cancelAll()
+                                customAction.live()
+                            }
                             CustomActionEnum.REPLAY.name -> customAction.replay()
                             CustomActionEnum.FORWARD.name -> customAction.forward()
                             else -> null
@@ -302,8 +306,11 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
         private val platformNotificationManager: NotificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+        /**
+         * This is called when initializing a live stream or archive playback.
+         */
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-            mediaController.playbackState?.let { updateNotification(it) }
+            mediaController.playbackState?.let { initNotification(it) }
         }
 
         /**
@@ -314,7 +321,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
             state?.let { updateNotification(it) }
         }
 
-        private fun updateNotification(state: PlaybackStateCompat) {
+        private fun initNotification(state: PlaybackStateCompat) {
             if (shouldCreateNowPlayingChannel()) {
                 createNowPlayingChannel()
             }
@@ -324,28 +331,41 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                 return
             }
 
-            val updatedState = state.state
+            val playbackType = getPlaybackType()
 
-            val playbackType = PlaybackTypeHelper.getPlaybackTypeFromTag(
-                mediaController.metadata?.description?.title.toString(), applicationContext
-            )
+            val notification = buildNotification(state, playbackType)
 
-            // Skip building a notification when state is "none".
-            val notification = when {
-                updatedState != PlaybackStateCompat.STATE_NONE && playbackType != null -> {
-                    playbackNotificationBuilder = when (playbackType) {
-                        PlaybackType.ARCHIVE -> ArchivePlaybackNotificationBuilder(baseContext)
-                        PlaybackType.LIVE -> LivePlaybackNotificationBuilder(baseContext)
-                    }
+            notify(state, notification)
+        }
 
-                    builder =
-                        playbackNotificationBuilder.buildNotification(mediaSession.sessionToken)
-                    builder.build()
-                }
-                else -> null
+        private fun updateNotification(state: PlaybackStateCompat) {
+            if (::playbackNotificationBuilder.isInitialized) {
+                val notification = playbackNotificationBuilder.togglePlay()
+
+                notify(state, notification)
             }
+        }
 
-            when (updatedState) {
+        private fun buildNotification(
+            state: PlaybackStateCompat,
+            playbackType: PlaybackType?
+        ): Notification? =
+            if (isNotificationBuildRequired(
+                    state
+                ) && playbackType != null
+            ) {
+                playbackNotificationBuilder =
+                    PlaybackNotificationBuilder(
+                        context,
+                        mediaSession.sessionToken,
+                        playbackType
+                    )
+
+                playbackNotificationBuilder.build()
+            } else null
+
+        private fun notify(state: PlaybackStateCompat, notification: Notification?) {
+            when (state.state) {
                 PlaybackStateCompat.STATE_BUFFERING,
                 PlaybackStateCompat.STATE_PLAYING -> {
                     becomingNoisyReceiver.register()
@@ -370,6 +390,11 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                         }
                     }
                 }
+                PlaybackStateCompat.STATE_PAUSED -> {
+                    notification?.let {
+                        notificationManager.notify(NOW_PLAYING_NOTIFICATION, it)
+                    }
+                }
                 else -> {
                     becomingNoisyReceiver.unregister()
 
@@ -378,7 +403,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                         isForegroundService = false
 
                         // If playback has ended, also stop the service.
-                        if (updatedState == PlaybackStateCompat.STATE_NONE) {
+                        if (state.state == PlaybackStateCompat.STATE_NONE) {
                             stopSelf()
                         }
 
@@ -391,6 +416,15 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                 }
             }
         }
+
+        private fun isNotificationBuildRequired(
+            state: PlaybackStateCompat
+        ) =
+            (state.state != PlaybackState.STATE_NONE && state.state != PlaybackState.STATE_BUFFERING)
+
+        private fun getPlaybackType() = PlaybackTypeHelper.getPlaybackTypeFromTag(
+            mediaController.metadata?.description?.title.toString(), applicationContext
+        )
 
         fun shouldCreateNowPlayingChannel() =
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !nowPlayingChannelExists()

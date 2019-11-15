@@ -217,7 +217,7 @@ class MainActivity : DaggerAppCompatActivity() {
 
                         kdvsPreferences.lastPlayedBroadcastId = null
                     } else {
-                        nowPlayingBroadcast?.let {
+                        nowPlayingBroadcast.let {
                             setShowTimeOrBroadcastDate(
                                 TimeHelper.uiDateFormatter
                                     .format(nowPlayingBroadcast.date)

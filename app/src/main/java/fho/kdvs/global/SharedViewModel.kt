@@ -15,10 +15,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
 import androidx.navigation.NavController
 import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
@@ -48,6 +45,8 @@ import fho.kdvs.news.NewsRepository
 import fho.kdvs.schedule.QuarterRepository
 import fho.kdvs.schedule.QuarterYear
 import fho.kdvs.services.*
+import fho.kdvs.services.notification.CustomAction
+import fho.kdvs.services.notification.PlaybackType
 import fho.kdvs.show.ShowRepository
 import fho.kdvs.staff.StaffRepository
 import fho.kdvs.subscription.SubscriptionRepository
@@ -71,7 +70,6 @@ const val DOWNLOAD_CHILD = "KDVS"
 /** An [AndroidViewModel] scoped to the main activity.
  * Use this for data that will be consumed in many places. */
 class SharedViewModel @Inject constructor(
-    // TODO: This class is a bit too monolithic -- split up into different repo subclasses?
     application: Application,
     private val showRepository: ShowRepository,
     private val broadcastRepository: BroadcastRepository,
@@ -96,7 +94,7 @@ class SharedViewModel @Inject constructor(
     val liveStreamLiveData: MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>
         get() = showRepository.liveStreamLiveData
 
-    val nowPlayingStreamLiveData: MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>
+    val nowPlayingStreamLiveData: MediatorLiveData<Pair<ShowEntity, BroadcastEntity>>
         get() = showRepository.nowPlayingStreamLiveData
 
     val nowPlayingShow: LiveData<ShowEntity>
@@ -201,14 +199,37 @@ class SharedViewModel @Inject constructor(
         navController.navigate(R.id.playerFragment)
     }
 
-    fun playOrPausePlayback(activity: FragmentActivity?) {
+    fun playOrPausePlayback(activity: FragmentActivity) {
         if (kdvsPreferences.offlineMode == true) {
             makeOfflineModeToast(activity)
             return
         }
 
-        if (mediaSessionConnection.playbackState.value?.isPrepared == false)
-            prepareLivePlayback()
+        var hasFired = false
+
+        if (mediaSessionConnection.playbackState.value?.isPrepared == false) {
+            nowPlayingStreamLiveData.observe(
+                activity,
+                Observer { (nowPlayingShow, nowPlayingBroadcast) ->
+                    if (hasFired) return@Observer
+
+                    hasFired = true
+
+                    if (isShowBroadcastLiveNow(
+                            nowPlayingShow,
+                            nowPlayingBroadcast
+                        )
+                    ) {
+                        goLive()
+                    } else {
+                        preparePastBroadcastForPlaybackAndPlay(
+                            nowPlayingBroadcast,
+                            nowPlayingShow,
+                            activity
+                        )
+                    }
+                })
+        }
 
         val transportControls = mediaSessionConnection.transportControls ?: return
         mediaSessionConnection.playbackState.value?.let { playbackState ->
@@ -229,7 +250,7 @@ class SharedViewModel @Inject constructor(
         broadcastRepository.playingLiveBroadcast = true
         broadcastRepository.nowPlayingShowLiveData.postValue(showRepository.liveShowLiveData.value)
         broadcastRepository.nowPlayingBroadcastLiveData.postValue(broadcastRepository.liveBroadcastLiveData.value)
-        prepareLivePlayback()
+        goLive()
     }
 
     fun preparePastBroadcastForPlaybackAndPlay(
@@ -253,18 +274,7 @@ class SharedViewModel @Inject constructor(
                 try {
                     mediaSessionConnection.transportControls?.prepareFromUri(
                         Uri.fromFile(file),
-                        Bundle().apply {
-                            putInt("SHOW_ID", show.id)
-
-                            kdvsPreferences.lastPlayedBroadcastId?.let {
-                                putLong(
-                                    "POSITION",
-                                    kdvsPreferences.lastPlayedBroadcastPosition ?: 0L
-                                )
-                            }
-
-                            putString("TYPE", PlaybackType.ARCHIVE.type)
-                        }
+                        makeMediaSessionExtras(show)
                     )
                 } catch (e: Exception) {
                     Timber.e("Error with URI playback: $e")
@@ -287,18 +297,7 @@ class SharedViewModel @Inject constructor(
                 try {
                     mediaSessionConnection.transportControls?.prepareFromMediaId(
                         broadcast.broadcastId.toString(),
-                        Bundle().apply {
-                            putInt("SHOW_ID", show.id)
-
-                            kdvsPreferences.lastPlayedBroadcastId?.let {
-                                putLong(
-                                    "POSITION",
-                                    kdvsPreferences.lastPlayedBroadcastPosition ?: 0L
-                                )
-                            }
-
-                            putString("TYPE", PlaybackType.ARCHIVE.type)
-                        }
+                        makeMediaSessionExtras(show)
                     )
                 } catch (e: Exception) {
                     Timber.e("Error with stream playback: $e")
@@ -312,6 +311,19 @@ class SharedViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun makeMediaSessionExtras(show: ShowEntity) = Bundle().apply {
+        putInt("SHOW_ID", show.id)
+
+        kdvsPreferences.lastPlayedBroadcastId?.let {
+            putLong(
+                "POSITION",
+                kdvsPreferences.lastPlayedBroadcastPosition ?: 0L
+            )
+        }
+
+        putString("TYPE", PlaybackType.ARCHIVE.type)
     }
 
     private fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
@@ -331,12 +343,11 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun prepareLivePlayback() {
+    fun goLive() {
         val customAction = CustomAction(
             getApplication(),
             mediaSessionConnection.transportControls,
-            mediaSessionConnection.playbackState.value,
-            mediaSessionConnection
+            mediaSessionConnection.playbackState.value
         )
 
         customAction.live()
@@ -346,8 +357,7 @@ class SharedViewModel @Inject constructor(
         val customAction = CustomAction(
             getApplication(),
             mediaSessionConnection.transportControls,
-            mediaSessionConnection.playbackState.value,
-            mediaSessionConnection
+            mediaSessionConnection.playbackState.value
         )
 
         customAction.replay()
@@ -357,8 +367,7 @@ class SharedViewModel @Inject constructor(
         val customAction = CustomAction(
             getApplication(),
             mediaSessionConnection.transportControls,
-            mediaSessionConnection.playbackState.value,
-            mediaSessionConnection
+            mediaSessionConnection.playbackState.value
         )
 
         customAction.forward()
