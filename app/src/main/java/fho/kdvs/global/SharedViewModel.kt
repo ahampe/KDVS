@@ -347,8 +347,7 @@ class SharedViewModel @Inject constructor(
         val customAction = CustomAction(
             getApplication(),
             mediaSessionConnection.transportControls,
-            mediaSessionConnection.playbackState.value,
-            mediaSessionConnection
+            mediaSessionConnection.playbackState.value
         )
 
         customAction.live()
@@ -358,8 +357,7 @@ class SharedViewModel @Inject constructor(
         val customAction = CustomAction(
             getApplication(),
             mediaSessionConnection.transportControls,
-            mediaSessionConnection.playbackState.value,
-            mediaSessionConnection
+            mediaSessionConnection.playbackState.value
         )
 
         customAction.replay()
@@ -369,8 +367,7 @@ class SharedViewModel @Inject constructor(
         val customAction = CustomAction(
             getApplication(),
             mediaSessionConnection.transportControls,
-            mediaSessionConnection.playbackState.value,
-            mediaSessionConnection
+            mediaSessionConnection.playbackState.value
         )
 
         customAction.forward()

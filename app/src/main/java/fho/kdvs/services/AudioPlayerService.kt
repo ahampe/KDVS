@@ -167,8 +167,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                         val customAction = CustomAction(
                             application,
                             controller.transportControls,
-                            mediaController.playbackState,
-                            mediaSessionConnection
+                            mediaController.playbackState
                         )
 
                         when (action) {
