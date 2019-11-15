@@ -220,7 +220,7 @@ class PlayerFragment : DaggerFragment() {
             sharedViewModel.jumpBack30Seconds()
         }
         archiveControls.exo_play_pause_archive.setOnClickListener {
-            sharedViewModel.playOrPausePlayback(activity)
+            sharedViewModel.playOrPausePlayback(requireActivity())
         }
         archiveControls.exo_forward30.setOnClickListener {
             sharedViewModel.jumpForward30Seconds()
@@ -258,10 +258,10 @@ class PlayerFragment : DaggerFragment() {
             sharedViewModel.stopPlayback()
         }
         liveControls.exo_play_pause_live.setOnClickListener {
-            sharedViewModel.playOrPausePlayback(activity)
+            sharedViewModel.playOrPausePlayback(requireActivity())
         }
         liveControls.exo_live.setOnClickListener {
-            sharedViewModel.prepareLivePlayback()
+            sharedViewModel.goLive()
         }
 
         archiveControls.visibility = View.GONE

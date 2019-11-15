@@ -112,14 +112,15 @@ class ShowRepository @Inject constructor(
     }
 
     /** A [MediatorLiveData] which merges the currently playing show and currently playing broadcast. */
-    val nowPlayingStreamLiveData = MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>()
+    val nowPlayingStreamLiveData = MediatorLiveData<Pair<ShowEntity, BroadcastEntity>>()
         .apply {
             var broadcast: BroadcastEntity? = null
             var show: ShowEntity? = null
 
             addSource(broadcastRepository.nowPlayingShowLiveData) { showEntity ->
                 show = showEntity
-                postValue(Pair(showEntity, broadcast))
+                val broadcastEntity = broadcast ?: return@addSource
+                postValue(Pair(showEntity, broadcastEntity))
             }
 
             addSource(broadcastRepository.nowPlayingBroadcastLiveData) { broadcastEntity ->

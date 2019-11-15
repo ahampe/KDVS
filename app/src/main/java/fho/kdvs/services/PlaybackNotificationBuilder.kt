@@ -15,37 +15,12 @@ import fho.kdvs.global.extensions.isPlaying
 const val NOW_PLAYING_CHANNEL: String = "fho.kdvs.NOW_PLAYING"
 const val NOW_PLAYING_NOTIFICATION: Int = 0xb339
 
-interface CustomNotificationBuilder {
-    val context: Context
-    val playPause: NotificationCompat.Action
-
-    fun makeCustomBuilder(
-        baseBuilder: NotificationCompat.Builder
-    ): NotificationCompat.Builder
-
-    fun togglePlay() {
-        if (playPause.title == context.getString(R.string.notification_play)) {
-            playPause.icon = R.drawable.exo_controls_pause
-            playPause.title = context.getString(R.string.notification_pause)
-            playPause.actionIntent =
-                MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PAUSE)
-        } else {
-            playPause.icon = R.drawable.exo_controls_play
-            playPause.title = context.getString(R.string.notification_play)
-            playPause.actionIntent =
-                MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PLAY)
-        }
-    }
-}
-
 class PlaybackNotificationBuilder(
     private val context: Context,
-    sessionToken: MediaSessionCompat.Token,
+    private val sessionToken: MediaSessionCompat.Token,
     playbackType: PlaybackType
 ) {
     lateinit var builder: NotificationCompat.Builder
-
-    private val base = makeBaseNotificationBuilder(sessionToken)
 
     private val controller = MediaControllerCompat(context, sessionToken)
 
@@ -56,7 +31,7 @@ class PlaybackNotificationBuilder(
 
     fun build(): Notification {
         return customNotification.makeCustomBuilder(
-            base
+            makeBaseNotificationBuilder(sessionToken)
         ).build()
     }
 
@@ -85,7 +60,31 @@ class PlaybackNotificationBuilder(
             .setSmallIcon(R.drawable.ic_kdvs_head_black)
             .setStyle(mediaStyle)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setWhen(0)
             .setShowWhen(false)
+    }
+}
+
+interface CustomNotificationBuilder {
+    val context: Context
+    val playPause: NotificationCompat.Action
+
+    fun makeCustomBuilder(
+        baseBuilder: NotificationCompat.Builder
+    ): NotificationCompat.Builder
+
+    fun togglePlay() {
+        if (playPause.title == context.getString(R.string.notification_play)) {
+            playPause.icon = R.drawable.exo_controls_pause
+            playPause.title = context.getString(R.string.notification_pause)
+            playPause.actionIntent =
+                MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PAUSE)
+        } else {
+            playPause.icon = R.drawable.exo_controls_play
+            playPause.title = context.getString(R.string.notification_play)
+            playPause.actionIntent =
+                MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PLAY)
+        }
     }
 }
 
@@ -131,10 +130,10 @@ private class ArchiveNotificationBuilder(
         val customActionDefinitions = CustomActionDefinitions(context)
 
         return baseBuilder
-            .addAction(customActionDefinitions.replayAction)
             .addAction(playPause)
-            .addAction(NotificationHelper.getStopAction(context))
+            .addAction(customActionDefinitions.replayAction)
             .addAction(customActionDefinitions.forwardAction)
+            .addAction(NotificationHelper.getStopAction(context))
     }
 }
 

@@ -116,7 +116,7 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                 override fun getCurrentContentText(player: Player?): String? {
                     return if (::mediaController.isInitialized)
                         mediaController.metadata?.description?.subtitle.toString()
-                    else null
+                    else ""
                 }
 
                 override fun getCurrentContentTitle(player: Player?): String {
@@ -171,7 +171,10 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                         )
 
                         when (action) {
-                            CustomActionEnum.LIVE.name -> customAction.live()
+                            CustomActionEnum.LIVE.name -> {
+                                notificationManager.cancelAll()
+                                customAction.live()
+                            }
                             CustomActionEnum.REPLAY.name -> customAction.replay()
                             CustomActionEnum.FORWARD.name -> customAction.forward()
                             else -> null
@@ -331,6 +334,36 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
             val playbackType = getPlaybackType()
 
             val notification = buildNotification(state, playbackType)
+
+            notify(state, notification)
+        }
+
+        private fun updateNotification(state: PlaybackStateCompat) {
+            if (::playbackNotificationBuilder.isInitialized) {
+                val notification = playbackNotificationBuilder.togglePlay()
+
+                notify(state, notification)
+            }
+        }
+
+        private fun buildNotification(
+            state: PlaybackStateCompat,
+            playbackType: PlaybackType?
+        ): Notification? =
+            if (isNotificationBuildRequired(
+                    state
+                ) && playbackType != null
+            ) {
+                playbackNotificationBuilder = PlaybackNotificationBuilder(
+                    context,
+                    mediaSession.sessionToken,
+                    playbackType
+                )
+
+                playbackNotificationBuilder.build()
+            } else null
+
+        private fun notify(state: PlaybackStateCompat, notification: Notification?) {
             when (state.state) {
                 PlaybackStateCompat.STATE_BUFFERING,
                 PlaybackStateCompat.STATE_PLAYING -> {
@@ -356,6 +389,11 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
                         }
                     }
                 }
+                PlaybackStateCompat.STATE_PAUSED -> {
+                    notification?.let {
+                        notificationManager.notify(NOW_PLAYING_NOTIFICATION, it)
+                    }
+                }
                 else -> {
                     becomingNoisyReceiver.unregister()
 
@@ -378,37 +416,10 @@ class AudioPlayerService : MediaBrowserServiceCompat() {
             }
         }
 
-        private fun updateNotification(state: PlaybackStateCompat) {
-            if (::playbackNotificationBuilder.isInitialized) {
-                notificationManager.notify(
-                    NOW_PLAYING_NOTIFICATION,
-                    playbackNotificationBuilder.togglePlay()
-                )
-            }
-        }
-
-        private fun buildNotification(
-            state: PlaybackStateCompat,
-            playbackType: PlaybackType?
-        ): Notification? =
-            if (isNotificationBuildRequired(
-                    state
-                ) && playbackType != null
-            ) {
-                playbackNotificationBuilder = PlaybackNotificationBuilder(
-                    context,
-                    mediaSession.sessionToken,
-                    playbackType
-                )
-
-                playbackNotificationBuilder.build()
-            } else null
-
-        /** We're only concerned with playback state changes on play / pause. */
         private fun isNotificationBuildRequired(
             state: PlaybackStateCompat
         ) =
-            (state.state == PlaybackState.STATE_PAUSED || state.state == PlaybackState.STATE_PLAYING)
+            (state.state != PlaybackState.STATE_NONE && state.state != PlaybackState.STATE_BUFFERING)
 
         private fun getPlaybackType() = PlaybackTypeHelper.getPlaybackTypeFromTag(
             mediaController.metadata?.description?.title.toString(), applicationContext
