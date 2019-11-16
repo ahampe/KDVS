@@ -46,7 +46,7 @@ class HomeViewModel @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = parentJob + Dispatchers.IO
 
-    /** Emits true if all home data streams emitted value; false if at least one such data stream does. */
+    /** Emits true if all home data streams emitted value; false if at least one such data stream hasn't. */
     fun fetchHomeData(): LiveData<Boolean> {
         fetchShows()
         fetchNewsArticles()

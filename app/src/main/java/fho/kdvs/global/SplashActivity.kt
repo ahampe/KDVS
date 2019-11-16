@@ -2,13 +2,15 @@ package fho.kdvs.global
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
-import fho.kdvs.global.extensions.callFunctionOnTimeout
 import fho.kdvs.global.preferences.KdvsPreferences
+import fho.kdvs.global.util.URLs
+import fho.kdvs.global.web.WebHelper
 import fho.kdvs.home.HomeViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +19,8 @@ import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
+
+const val SPLASH_TIMEOUT = 5000L
 
 class SplashActivity : DaggerAppCompatActivity(), CoroutineScope {
     @Inject
@@ -31,7 +35,10 @@ class SplashActivity : DaggerAppCompatActivity(), CoroutineScope {
 
     private lateinit var homeViewModel: HomeViewModel
 
-    /** Fetch essential data with timeout during splash to minimize UI pop-in. */
+    /**
+     * Fetch essential data with timeout during splash to minimize UI pop-in.
+     * Timeout with connection error toast.
+     * */
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme_launcher)
         super.onCreate(savedInstanceState)
@@ -39,27 +46,30 @@ class SplashActivity : DaggerAppCompatActivity(), CoroutineScope {
         homeViewModel = ViewModelProviders.of(this, viewModelFactory)
             .get(HomeViewModel::class.java)
 
-        var finished = false
+        try {
+            if (WebHelper.canConnectToServer(applicationContext, URLs.HOME)) {
+                homeViewModel.fetchHomeData()
+                    .observe(this, Observer { isDataScraped ->
+                        if (isDataScraped) {
+                            startMainActivity()
+                        }
+                    })
+            } else {
+                Toast.makeText(applicationContext, "Error connecting to KDVS", Toast.LENGTH_SHORT)
+                    .show()
 
-        val callOnTimeout = {
-            Toast.makeText(
-                applicationContext,
-                "Error retrieving station info. Please check your connection.",
-                Toast.LENGTH_LONG
-            ).show()
+                startMainActivity()
+            }
+        } catch (e: Exception) {
+            Timber.e("Uncaught $e")
 
             startMainActivity()
         }
 
-        homeViewModel.fetchHomeData()
-            .callFunctionOnTimeout(10000, callOnTimeout)
-            .observe(this, Observer {
-                if (!finished) {
-                    startMainActivity()
-
-                    finished = true
-                }
-            })
+        Handler().postDelayed({
+            Timber.d("Splash timed out")
+            startMainActivity()
+        }, SPLASH_TIMEOUT)
     }
 
     private fun startMainActivity() {
@@ -70,4 +80,6 @@ class SplashActivity : DaggerAppCompatActivity(), CoroutineScope {
 
         Timber.d("Starting main activity")
     }
+
+
 }

@@ -29,6 +29,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
 
+
 /** This class will handle the scraping for each web page and will insert items into the database one by one. */
 @Singleton
 class WebScraperManager @Inject constructor(
@@ -85,8 +86,8 @@ class WebScraperManager @Inject constructor(
                 else -> throw Exception("Invalid url: $url")
             }
         }
-    } catch (e: Throwable) {
-        Timber.d("Error while trying to connect: $e") // TODO reflect error in UI
+    } catch (e: Exception) {
+        Timber.e("Error while trying to connect: $e") // TODO reflect error in UI
         null
     } finally {
         urlMap.remove(url)
@@ -611,7 +612,9 @@ class WebScraperManager @Inject constructor(
     }
 }
 
+
 //region Helper Methods
+
 private fun parseDate(dateString: String?): List<String>? {
     return "([0-9]+)/([0-9]+)/([0-9]+)".toRegex()
         .find(dateString.orEmpty())
