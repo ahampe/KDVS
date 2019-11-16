@@ -34,7 +34,8 @@ import kotlin.coroutines.CoroutineContext
 @Singleton
 class WebScraperManager @Inject constructor(
     private val db: KdvsDatabase,
-    private val kdvsPreferences: KdvsPreferences
+    private val kdvsPreferences: KdvsPreferences,
+    private val connectionManager: ConnectionManager
 ) : CoroutineScope {
 
     private val job = Job()
@@ -70,6 +71,9 @@ class WebScraperManager @Inject constructor(
     private fun scrapeBlocking(url: String): ScrapeData? = try {
         if (kdvsPreferences.offlineMode == true) {
             Timber.d("Offline mode blocked scrape")
+            null
+        } else if (!connectionManager.canConnectToServer(url)) {
+            Timber.d("Cannot connect to server: $url")
             null
         } else {
             Timber.d("Scraping: $url")

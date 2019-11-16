@@ -10,7 +10,7 @@ import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.URLs
-import fho.kdvs.global.web.WebHelper
+import fho.kdvs.global.web.ConnectionManager
 import fho.kdvs.home.HomeViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +29,9 @@ class SplashActivity : DaggerAppCompatActivity(), CoroutineScope {
     @Inject
     lateinit var kdvsPreferences: KdvsPreferences
 
+    @Inject
+    lateinit var connectionManager: ConnectionManager
+
     internal val job = Job()
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.IO
@@ -46,25 +49,12 @@ class SplashActivity : DaggerAppCompatActivity(), CoroutineScope {
         homeViewModel = ViewModelProviders.of(this, viewModelFactory)
             .get(HomeViewModel::class.java)
 
-        try {
-            if (WebHelper.canConnectToServer(applicationContext, URLs.HOME)) {
-                homeViewModel.fetchHomeData()
-                    .observe(this, Observer { isDataScraped ->
-                        if (isDataScraped) {
-                            startMainActivity()
-                        }
-                    })
-            } else {
-                Toast.makeText(applicationContext, "Error connecting to KDVS", Toast.LENGTH_SHORT)
-                    .show()
-
-                startMainActivity()
-            }
-        } catch (e: Exception) {
-            Timber.e("Uncaught $e")
-
-            startMainActivity()
-        }
+        homeViewModel.fetchHomeData()
+            .observe(this, Observer { isDataScraped ->
+                if (isDataScraped) {
+                    startMainActivity()
+                }
+            })
 
         Handler().postDelayed({
             Timber.d("Splash timed out")
