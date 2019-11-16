@@ -16,6 +16,7 @@
 
 package fho.kdvs.services
 
+import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.support.v4.media.MediaBrowserCompat
@@ -25,6 +26,8 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.media.MediaBrowserServiceCompat
+import fho.kdvs.global.util.URLs
+import fho.kdvs.global.web.ConnectionManager
 import fho.kdvs.services.MediaSessionConnection.MediaBrowserConnectionCallback
 import fho.kdvs.services.notification.PlaybackType
 import fho.kdvs.services.notification.PlaybackTypeHelper
@@ -47,8 +50,10 @@ import fho.kdvs.services.notification.PlaybackTypeHelper
  *  parameters, rather than private properties. They're only required to build the
  *  [MediaBrowserConnectionCallback] and [MediaBrowserCompat] objects.
  */
-class MediaSessionConnection(context: Context, serviceComponent: ComponentName) {
-    val isConnected = MutableLiveData<Boolean>()
+class MediaSessionConnection(app: Application, serviceComponent: ComponentName) {
+    private val connectionManager = ConnectionManager(app)
+
+    val mIsConnected = MutableLiveData<Boolean>()
         .apply { postValue(false) }
 
     val playbackState = MutableLiveData<PlaybackStateCompat>()
@@ -62,13 +67,19 @@ class MediaSessionConnection(context: Context, serviceComponent: ComponentName) 
     val transportControls: MediaControllerCompat.TransportControls?
         get() = mediaController?.transportControls
 
-    private val mediaBrowserConnectionCallback = MediaBrowserConnectionCallback(context)
+    private val mediaBrowserConnectionCallback =
+        MediaBrowserConnectionCallback(app.applicationContext)
 
     private val mediaBrowser = MediaBrowserCompat(
-        context,
+        app.applicationContext,
         serviceComponent,
         mediaBrowserConnectionCallback, null
-    ).apply { connect() }
+    ).apply {
+        if (connectionManager.canConnectToServer(URLs.LIVE_OGG))
+            connect()
+        else
+            mIsConnected.postValue(false)
+    }
 
     private var mediaController: MediaControllerCompat? = null
 
@@ -84,21 +95,21 @@ class MediaSessionConnection(context: Context, serviceComponent: ComponentName) 
                 registerCallback(MediaControllerCallback(context))
             }
 
-            isConnected.postValue(true)
+            mIsConnected.postValue(true)
         }
 
         /**
          * Invoked when the client is disconnected from the media browser.
          */
         override fun onConnectionSuspended() {
-            isConnected.postValue(false)
+            mIsConnected.postValue(false)
         }
 
         /**
          * Invoked when the connection to the media browser failed.
          */
         override fun onConnectionFailed() {
-            isConnected.postValue(false)
+            mIsConnected.postValue(false)
         }
     }
 

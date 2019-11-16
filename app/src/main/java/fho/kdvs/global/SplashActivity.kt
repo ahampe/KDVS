@@ -3,13 +3,11 @@ package fho.kdvs.global
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import dagger.android.support.DaggerAppCompatActivity
 import fho.kdvs.R
 import fho.kdvs.global.preferences.KdvsPreferences
-import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.ConnectionManager
 import fho.kdvs.home.HomeViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -70,6 +68,4 @@ class SplashActivity : DaggerAppCompatActivity(), CoroutineScope {
 
         Timber.d("Starting main activity")
     }
-
-
 }
