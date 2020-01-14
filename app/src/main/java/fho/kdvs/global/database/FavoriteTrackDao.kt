@@ -18,7 +18,8 @@ interface FavoriteTrackDao {
         """SELECT id, name, host, genre, defaultDesc, defaultImageHref, timeStart, timeEnd, quarter, trackData.year from favoriteTrackData
         INNER JOIN trackData on favoriteTrackData.trackId = trackData.trackId
         INNER JOIN broadcastData on broadcastData.broadcastId = trackData.broadcastId
-        INNER JOIN showData on showData.id = broadcastData.showId"""
+        INNER JOIN showData on showData.id = broadcastData.showId
+        INNER JOIN timeslotData on timeslotData.showId = showData.id"""
     )
     fun allShowBroadcastTrackFavoriteJoins(): Flowable<List<ShowBroadcastTrackFavoriteJoin>>
 

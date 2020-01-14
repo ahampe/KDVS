@@ -29,6 +29,7 @@ import java.io.File
 abstract class KdvsDatabase : RoomDatabase() {
 
     abstract fun showDao(): ShowDao
+    abstract fun timeslotDao(): TimeslotDao
     abstract fun broadcastDao(): BroadcastDao
     abstract fun favoriteBroadcastDao(): FavoriteBroadcastDao
     abstract fun favoriteTrackDao(): FavoriteTrackDao

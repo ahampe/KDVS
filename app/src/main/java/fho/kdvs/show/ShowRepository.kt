@@ -187,14 +187,13 @@ class ShowRepository @Inject constructor(
         return showDao.allShowsInTimeRange(timeStart, timeEnd, quarter, year)
             .observeOn(Schedulers.io())
             .map { showsList ->
-                showsList.groupBy { show -> Pair(show.timeStart, show.timeEnd) }
+                showsList.groupBy { show -> Pair(show.timeslots.first().timeStart, show.timeslots.first().timeEnd) }
                     .map { map ->
                         val showGroup = map.value
-                        val isFirstHalfOrEntireSegment =
-                            ((showGroup.firstOrNull()?.timeStart?.dayOfWeek
-                                    == showGroup.firstOrNull()?.timeEnd?.dayOfWeek)
-                                    || (showGroup.firstOrNull()?.timeStart?.dayOfWeek.toString().capitalize()
-                                    == day.toString().capitalize()))
+                        val isFirstHalfOrEntireSegment = ((showGroup.firstOrNull()?.timeStart?.dayOfWeek
+                                == showGroup.firstOrNull()?.timeEnd?.dayOfWeek)
+                                || (showGroup.firstOrNull()?.timeStart?.dayOfWeek.toString().capitalize()
+                                == day.toString().capitalize()))
                         TimeSlot(showGroup, isFirstHalfOrEntireSegment)
                     }
             }

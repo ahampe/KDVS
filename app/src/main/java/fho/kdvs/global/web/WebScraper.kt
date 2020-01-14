@@ -193,28 +193,8 @@ class WebScraperManager @Inject constructor(
 
         showsScraped.forEach { show ->
             db.showDao().updateOrInsert(show)
+            db.timeslotDao().insert(timeslot)
         }
-
-        multipleOccurrenceShows
-            .groupBy { s -> s.name }
-            .toList()
-            .forEach {
-                val entries = it.second
-
-                val timeStarts = entries
-                    .map { e -> e.timeStart?.firstOrNull() }
-                    .toList()
-
-                val timeEnds = entries
-                    .map { e -> e.timeEnd?.firstOrNull() }
-                    .toList()
-
-                val show = entries
-                    .first()
-                    .copy(timeStart = timeStarts, timeEnd = timeEnds)
-
-                db.showDao().updateOrInsert(show)
-            }
 
         kdvsPreferences.lastScheduleScrape = TimeHelper.getNow().toEpochSecond()
         return ScheduleScrapeData(QuarterYear(quarter, year), showsScraped)

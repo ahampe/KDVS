@@ -112,6 +112,20 @@ class ShowBroadcastJoin {
     var broadcast: List<BroadcastEntity> = ArrayList()
 }
 
+class ShowTimeslotJoin {
+    @Embedded
+    var show: ShowEntity? = null
+
+    @Relation(parentColumn = "id", entityColumn = "showId")
+    var timeslots: List<TimeslotEntity> = ArrayList()
+
+    override fun equals(other: Any?): Boolean {
+        val otherJoin = other as? ShowTimeslotJoin
+        return this.show == otherJoin?.show
+            && this.timeslots == otherJoin?.timeslots
+    }
+}
+
 class BroadcastTrackJoin {
     @Embedded
     var broadcast: BroadcastEntity? = null

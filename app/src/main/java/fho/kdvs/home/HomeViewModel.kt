@@ -34,7 +34,7 @@ class HomeViewModel @Inject constructor(
 
     // The news page will be updated with news articles at indeterminate (probably infrequent) intervals
     // but other pages will be weekly / quarterly, in monolithic updates
-    lateinit var currentShows: MediatorLiveData<List<ShowEntity>>
+    lateinit var currentShows: MediatorLiveData<List<ShowTimeslotJoin>>
     lateinit var newsArticles: LiveData<List<NewsEntity>>
     lateinit var topMusicAdds: LiveData<List<TopMusicEntity>>
     lateinit var topMusicAlbums: LiveData<List<TopMusicEntity>>

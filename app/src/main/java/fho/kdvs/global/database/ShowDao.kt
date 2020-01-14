@@ -62,6 +62,7 @@ abstract class ShowDao {
 
     @Query(
         """SELECT * from showData
+        INNER JOIN timeslotData on timeslotData.showId = showData.id
         WHERE (timeStart < :time AND timeEnd > :time OR
         timeEnd < timeStart AND (timeEnd > :time OR timeStart < :time))
         AND quarter = :quarter AND year = :year"""
@@ -74,6 +75,7 @@ abstract class ShowDao {
 
     @Query(
         """SELECT * from showData
+            INNER JOIN timeslotData on timeslotData.showId = showData.id
             WHERE (timeEnd > :timeStart AND timeStart < :timeEnd OR
             timeEnd < timeStart AND (timeEnd > :timeStart OR timeStart < :timeEnd))
             AND quarter = :quarter AND year = :year
@@ -84,10 +86,11 @@ abstract class ShowDao {
         timeEnd: OffsetDateTime,
         quarter: Quarter,
         year: Int
-    ): Flowable<List<ShowEntity>>
+    ): Flowable<List<ShowTimeslotJoin>>
 
     @Query(
         """SELECT * from showData
+            INNER JOIN timeslotData on timeslotData.showId = showData.id
             WHERE (timeEnd > :timeStart AND timeStart < :timeEnd OR
             timeEnd < timeStart AND (timeEnd > :timeStart OR timeStart < :timeEnd))
             AND quarter = :quarter AND year = :year
@@ -102,6 +105,7 @@ abstract class ShowDao {
 
     @Query(
         """SELECT * from showData
+        INNER JOIN timeslotData on timeslotData.showId = showData.id
         WHERE (timeStart <= :time AND timeEnd > :time OR
         timeEnd < timeStart AND (timeEnd > :time OR timeStart < :time))
         AND quarter = :quarter AND year = :year"""
@@ -145,21 +149,6 @@ abstract class ShowDao {
     @Query("DELETE from showData")
     abstract fun deleteAll()
 
-    /** Updates a show from information only visible on the schedule grid. */
-    @Query(
-        """UPDATE showData
-            SET name = :name, timeStart = :timeStart, timeEnd = :timeEnd, quarter = :quarter, year = :year
-            WHERE id = :id"""
-    )
-    abstract fun updateShowInfo(
-        id: Int,
-        name: String?,
-        timeStart: OffsetDateTime?,
-        timeEnd: OffsetDateTime?,
-        quarter: Quarter?,
-        year: Int?
-    )
-
     /** Updates a show from information pulled from its details page. */
     @Query("UPDATE showData SET host = :host, genre = :genre, defaultDesc = :defaultDesc WHERE id = :id")
     abstract fun updateShowDetails(id: Int, host: String?, genre: String?, defaultDesc: String?)
@@ -169,15 +158,6 @@ abstract class ShowDao {
 
     fun updateOrInsert(show: ShowEntity) {
         if (getShowById(show.id) != null) {
-            updateShowInfo(
-                show.id,
-                show.name,
-                show.timeStart,
-                show.timeEnd,
-                show.quarter,
-                show.year
-            )
-
             // we don't want to override any existing image hrefs if we didn't find one this time
             show.defaultImageHref?.let { updateShowDefaultImageHref(show.id, it) }
         } else {
