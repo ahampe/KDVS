@@ -13,7 +13,7 @@ import fho.kdvs.R
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
-import fho.kdvs.schedule.TimeSlot.Companion.DUMMY_ID
+import fho.kdvs.schedule.ScheduleTimeslot.Companion.DUMMY_ID
 import kotlinx.android.synthetic.main.cell_day_column.view.*
 import kotlinx.android.synthetic.main.fragment_schedule.view.*
 import timber.log.Timber
@@ -120,12 +120,12 @@ class WeekViewAdapter(
      * To correct for this we create a dummy timeslot in the position that the gap is in.
      * Otherwise, the gap will appear at the top of the day and make all of the day's timeslots offset.
      */
-    private fun correctTimeSlotListWhenGap(timeslots: List<TimeSlot>): List<TimeSlot> {
-        val correctedList = mutableListOf<TimeSlot>()
+    private fun correctTimeSlotListWhenGap(timeslots: List<ScheduleTimeslot>): List<ScheduleTimeslot> {
+        val correctedList = mutableListOf<ScheduleTimeslot>()
         correctedList.addAll(timeslots)
 
         var position: Int? = null
-        var dummy: TimeSlot? = null
+        var dummy: ScheduleTimeslot? = null
 
         for (i in 0..timeslots.size) {
             if ((i < timeslots.size - 1) && timeslots[i].timeEnd != timeslots[i + 1].timeStart) {
@@ -134,7 +134,7 @@ class WeekViewAdapter(
 
                 position = i + 1
 
-                dummy = TimeSlot(
+                dummy = ScheduleTimeslot(
                     timeslots[i].timeEnd,
                     timeslots[i].timeStart,
                     isFirstHalfOrEntireSegment,

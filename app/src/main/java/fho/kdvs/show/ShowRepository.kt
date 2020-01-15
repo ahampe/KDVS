@@ -5,9 +5,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.BaseRepository
-import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.ShowDao
-import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.*
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.extensions.toLiveData
@@ -16,7 +14,7 @@ import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.web.WebScraperManager
 import fho.kdvs.schedule.QuarterYear
-import fho.kdvs.schedule.TimeSlot
+import fho.kdvs.schedule.ScheduleTimeslot
 import fho.kdvs.services.KdvsPlaybackPreparer
 import fho.kdvs.services.LiveShowUpdater
 import io.reactivex.Flowable
@@ -44,25 +42,25 @@ class ShowRepository @Inject constructor(
      * [MutableLiveData] listening for the live show (not necessarily the currently playing show).
      * Whenever the value is set, a request to scrape its details is sent to [BroadcastRepository].
      */
-    val liveShowLiveData = object : MutableLiveData<ShowEntity>() {
-        override fun setValue(value: ShowEntity?) {
+    val liveShowLiveData = object : MutableLiveData<ShowTimeslotEntity>() {
+        override fun setValue(value: ShowTimeslotEntity?) {
             value?.let { broadcastRepository.scrapeShow(it.id.toString()) }
             super.setValue(value)
         }
     }
 
     /** [MutableLiveData] listening for the show immediately preceding the current one. */
-    val previousShowLiveData = MutableLiveData<ShowEntity>()
+    val previousShowLiveData = MutableLiveData<ShowTimeslotEntity>()
 
     /** [MutableLiveData] listening for the show immediately following the current one. */
-    val nextShowLiveData = MutableLiveData<ShowEntity>()
+    val nextShowLiveData = MutableLiveData<ShowTimeslotEntity>()
 
     /** A [MediatorLiveData] which merges the previous show, live show, and next show. */
-    val currentShowsLiveData = MediatorLiveData<List<ShowEntity>>()
+    val currentShowsLiveData = MediatorLiveData<List<ShowTimeslotEntity>>()
         .apply {
-            var previous: ShowEntity? = null
-            var current: ShowEntity? = null
-            var next: ShowEntity? = null
+            var previous: ShowTimeslotEntity? = null
+            var current: ShowTimeslotEntity? = null
+            var next: ShowTimeslotEntity? = null
 
             addSource(previousShowLiveData) { prevShow ->
                 previous = prevShow
@@ -87,10 +85,10 @@ class ShowRepository @Inject constructor(
         }
 
     /** A [MediatorLiveData] which merges the live show and live broadcast. */
-    val liveStreamLiveData = MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>()
+    val liveStreamLiveData = MediatorLiveData<Pair<ShowTimeslotEntity, BroadcastEntity?>>()
         .apply {
             var broadcast: BroadcastEntity? = null
-            var show: ShowEntity? = null
+            var show: ShowTimeslotEntity? = null
 
             addSource(liveShowLiveData) { showEntity ->
                 show = showEntity
@@ -112,10 +110,10 @@ class ShowRepository @Inject constructor(
     }
 
     /** A [MediatorLiveData] which merges the currently playing show and currently playing broadcast. */
-    val nowPlayingStreamLiveData = MediatorLiveData<Pair<ShowEntity, BroadcastEntity>>()
+    val nowPlayingStreamLiveData = MediatorLiveData<Pair<ShowTimeslotEntity, BroadcastEntity>>()
         .apply {
             var broadcast: BroadcastEntity? = null
-            var show: ShowEntity? = null
+            var show: ShowTimeslotEntity? = null
 
             addSource(broadcastRepository.nowPlayingShowLiveData) { showEntity ->
                 show = showEntity
@@ -173,33 +171,33 @@ class ShowRepository @Inject constructor(
             .observeOn(Schedulers.io())
     }
 
-    fun getShowsByQuarterYear(quarterYear: QuarterYear): List<ShowEntity> {
+    fun getShowsByQuarterYear(quarterYear: QuarterYear): List<ShowTimeslotEntity> {
         val (quarter, year) = quarterYear
         return showDao.getShowsByQuarterYear(quarter, year)
     }
 
     /**
      * Given the day of week, quarter, and year, finds all shows that begin or end on that day,
-     * and transforms them into [TimeSlot]s.
+     * and transforms them into [ScheduleTimeslot]s.
      */
-    fun getShowTimeSlotsForDay(day: Day, quarter: Quarter, year: Int): Flowable<List<TimeSlot>> {
+    fun getShowTimeSlotsForDay(day: Day, quarter: Quarter, year: Int): Flowable<List<ScheduleTimeslot>> {
         val (timeStart, timeEnd) = TimeHelper.makeDayRange(day)
-        return showDao.allShowsInTimeRange(timeStart, timeEnd, quarter, year)
+        return showDao.allShowTimeslotsInTimeRange(timeStart, timeEnd, quarter, year)
             .observeOn(Schedulers.io())
             .map { showsList ->
-                showsList.groupBy { show -> Pair(show.timeslots.first().timeStart, show.timeslots.first().timeEnd) }
+                showsList.groupBy { show -> Pair(show.timeStart, show.timeEnd) }
                     .map { map ->
                         val showGroup = map.value
                         val isFirstHalfOrEntireSegment = ((showGroup.firstOrNull()?.timeStart?.dayOfWeek
                                 == showGroup.firstOrNull()?.timeEnd?.dayOfWeek)
                                 || (showGroup.firstOrNull()?.timeStart?.dayOfWeek.toString().capitalize()
                                 == day.toString().capitalize()))
-                        TimeSlot(showGroup, isFirstHalfOrEntireSegment)
+                        ScheduleTimeslot(showGroup, isFirstHalfOrEntireSegment)
                     }
             }
     }
 
-    suspend fun allShowsAtTimeOrderedRelativeToCurrentWeek(timeStart: OffsetDateTime): List<ShowEntity?> {
+    suspend fun allShowsAtTimeOrderedRelativeToCurrentWeek(timeStart: OffsetDateTime): List<ShowTimeslotEntity?> {
         val liveShowUpdater = LiveShowUpdater(this, broadcastRepository, showDao)
         return liveShowUpdater.orderShowsAtTimeRelativeToCurrentWeekAsync(timeStart)
     }

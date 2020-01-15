@@ -91,19 +91,19 @@ class SharedViewModel @Inject constructor(
     private val musicBrainzService: MusicBrainzService
 ) : BaseViewModel(application) {
 
-    val liveStreamLiveData: MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>
+    val liveStreamLiveData: MediatorLiveData<Pair<ShowTimeslotEntity, BroadcastEntity?>>
         get() = showRepository.liveStreamLiveData
 
-    val nowPlayingStreamLiveData: MediatorLiveData<Pair<ShowEntity, BroadcastEntity>>
+    val nowPlayingStreamLiveData: MediatorLiveData<Pair<ShowTimeslotEntity, BroadcastEntity>>
         get() = showRepository.nowPlayingStreamLiveData
 
-    val nowPlayingShow: LiveData<ShowEntity>
+    val nowPlayingShow: LiveData<ShowTimeslotEntity>
         get() = broadcastRepository.nowPlayingShowLiveData
 
-    val liveShow: LiveData<ShowEntity>
+    val liveShow: LiveData<ShowTimeslotEntity>
         get() = showRepository.liveShowLiveData
 
-    val nextLiveShow: LiveData<ShowEntity>
+    val nextLiveShow: LiveData<ShowTimeslotEntity>
         get() = showRepository.nextShowLiveData
 
     val nowPlayingBroadcast: LiveData<BroadcastEntity>
@@ -183,7 +183,7 @@ class SharedViewModel @Inject constructor(
         Toast.makeText(context, "The new quarter has begun!", Toast.LENGTH_SHORT)
             .show()
 
-    private fun getCurrentQuarterShows(): List<ShowEntity>? {
+    private fun getCurrentQuarterShows(): List<ShowTimeslotEntity>? {
         currentQuarterYearLiveData.value?.let {
             return showRepository.getShowsByQuarterYear(it)
         }
@@ -255,7 +255,7 @@ class SharedViewModel @Inject constructor(
 
     fun preparePastBroadcastForPlaybackAndPlay(
         broadcast: BroadcastEntity,
-        show: ShowEntity,
+        show: ShowTimeslotEntity,
         activity: FragmentActivity
     ) {
         preparePastBroadcastForPlayback(broadcast, show, activity)
@@ -264,7 +264,7 @@ class SharedViewModel @Inject constructor(
 
     fun preparePastBroadcastForPlayback(
         broadcast: BroadcastEntity,
-        show: ShowEntity,
+        show: ShowTimeslotEntity,
         activity: FragmentActivity
     ) {
         val file = getDestinationFileForBroadcast(broadcast, show)
@@ -313,7 +313,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    private fun makeMediaSessionExtras(show: ShowEntity) = Bundle().apply {
+    private fun makeMediaSessionExtras(show: ShowTimeslotEntity) = Bundle().apply {
         putInt("SHOW_ID", show.id)
 
         kdvsPreferences.lastPlayedBroadcastId?.let {
@@ -326,7 +326,7 @@ class SharedViewModel @Inject constructor(
         putString("TYPE", PlaybackType.ARCHIVE.type)
     }
 
-    private fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
+    private fun playPastBroadcast(broadcast: BroadcastEntity, show: ShowTimeslotEntity) {
         mediaSessionConnection.transportControls?.play()
 
         mediaSessionConnection.isLiveNow.postValue(false)
@@ -373,7 +373,7 @@ class SharedViewModel @Inject constructor(
         customAction.forward()
     }
 
-    fun isShowBroadcastLiveNow(show: ShowEntity, broadcast: BroadcastEntity?): Boolean {
+    fun isShowBroadcastLiveNow(show: ShowTimeslotEntity, broadcast: BroadcastEntity?): Boolean {
         return isLiveNow.value == null ||
                 broadcast == null ||
                 TimeHelper.isShowBroadcastLive(show, broadcast)
@@ -595,7 +595,7 @@ class SharedViewModel @Inject constructor(
     fun downloadBroadcast(
         activity: FragmentActivity,
         broadcast: BroadcastEntity?,
-        show: ShowEntity?,
+        show: Show?,
         folder: File?
     ): Boolean {
         if (kdvsPreferences.offlineMode == true) {
@@ -660,14 +660,14 @@ class SharedViewModel @Inject constructor(
         return false
     }
 
-    fun deleteBroadcast(broadcast: BroadcastEntity, show: ShowEntity) {
+    fun deleteBroadcast(broadcast: BroadcastEntity, show: Show) {
         getDownloadFileForBroadcast(broadcast, show)?.let {
             deleteFile(it)
         }
     }
 
     /** Must escape reserved system chars when writing a file. */
-    fun getBroadcastDownloadTitle(broadcast: BroadcastEntity, show: ShowEntity): String {
+    fun getBroadcastDownloadTitle(broadcast: BroadcastEntity, show: Show): String {
         val reservedChars = """[?:"*|/\\<>]""".toRegex()
 
         val escapedName = show.name?.replace(reservedChars, "_")
@@ -675,10 +675,10 @@ class SharedViewModel @Inject constructor(
         return "$escapedName (${TimeHelper.dateFormatter.format(broadcast.date)})"
     }
 
-    fun getBroadcastDownloadUiTitle(broadcast: BroadcastEntity, show: ShowEntity): String =
+    fun getBroadcastDownloadUiTitle(broadcast: BroadcastEntity, show: Show): String =
         "${show.name} (${TimeHelper.uiDateFormatter.format(broadcast.date)})"
 
-    private fun getDownloadFileForBroadcast(broadcast: BroadcastEntity, show: ShowEntity): File? =
+    private fun getDownloadFileForBroadcast(broadcast: BroadcastEntity, show: Show): File? =
         getFileInDownloadFolder(getDownloadedFilename(getBroadcastDownloadTitle(broadcast, show)))
 
     private fun getFileInDownloadFolder(filename: String): File {
@@ -735,7 +735,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun isBroadcastDownloaded(broadcast: BroadcastEntity, show: ShowEntity): Boolean {
+    fun isBroadcastDownloaded(broadcast: BroadcastEntity, show: Show): Boolean {
         val folder = getDownloadFolder()
         val title = getBroadcastDownloadTitle(broadcast, show)
         val files = folder?.listFiles()
@@ -747,7 +747,7 @@ class SharedViewModel @Inject constructor(
         return false
     }
 
-    fun isBroadcastDownloading(broadcast: BroadcastEntity, show: ShowEntity): Boolean {
+    fun isBroadcastDownloading(broadcast: BroadcastEntity, show: Show): Boolean {
         val folder = getDownloadFolder()
         val title = getBroadcastDownloadTitle(broadcast, show)
         val files = folder?.listFiles()
@@ -761,7 +761,7 @@ class SharedViewModel @Inject constructor(
 
     private fun getDestinationFileForBroadcast(
         broadcast: BroadcastEntity,
-        show: ShowEntity
+        show: ShowTimeslotEntity
     ): File? {
         val filename = getBroadcastDownloadTitle(broadcast, show) + BROADCAST_EXT
         return getFileInDownloadFolder(filename)
@@ -971,7 +971,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun onClickSubscribe(imageView: ImageView, show: ShowEntity, context: Context?) {
+    fun onClickSubscribe(imageView: ImageView, show: ShowTimeslotEntity, context: Context?) {
         if (imageView.tag == 0) {
             subscribeToShowAndMakeToast(show, context)
 
@@ -1123,7 +1123,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    private fun updateRecurringSubscription(show: ShowEntity) {
+    private fun updateRecurringSubscription(show: ShowTimeslotEntity) {
         cancelSubscription(show)
 
         val currentShows = getCurrentQuarterShows()
@@ -1135,7 +1135,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    private fun subscribeToShowWithoutToast(show: ShowEntity) {
+    private fun subscribeToShowWithoutToast(show: ShowTimeslotEntity) {
         launch {
             val success = subscribeToShow(show)
 
@@ -1145,7 +1145,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    private fun subscribeToShowAndMakeToast(show: ShowEntity, context: Context?) {
+    private fun subscribeToShowAndMakeToast(show: ShowTimeslotEntity, context: Context?) {
         launch {
             val success = subscribeToShow(show)
 
@@ -1159,12 +1159,12 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    private suspend fun subscribeToShow(show: ShowEntity): Boolean {
+    private suspend fun subscribeToShow(show: ShowTimeslotEntity): Boolean {
         val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
         return alarmMgr.registerShowAlarmAsync(show).await()
     }
 
-    private fun cancelSubscription(show: ShowEntity) {
+    private fun cancelSubscription(show: Show) {
         launch { subscriptionDao.deleteByShowId(show.id) }
         launch {
             val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
@@ -1172,7 +1172,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    private fun getSubscribedShows(): List<ShowEntity> {
+    private fun getSubscribedShows(): List<ShowTimeslotEntity> {
         return subscriptionRepository.subscribedShows()
     }
 
@@ -1180,7 +1180,7 @@ class SharedViewModel @Inject constructor(
      * Takes in list of shows and returns those from list that are present in current quarter,
      * based on show name.
      */
-    private fun getRecurringShows(shows: List<ShowEntity>): List<ShowEntity>? {
+    private fun getRecurringShows(shows: List<ShowTimeslotEntity>): List<ShowTimeslotEntity>? {
         val currentShows = getCurrentQuarterShows()
 
         currentShows?.let {

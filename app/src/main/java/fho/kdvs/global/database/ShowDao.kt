@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
+import androidx.room.Transaction
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.schedule.QuarterYear
 import io.reactivex.Flowable
@@ -32,6 +33,9 @@ abstract class ShowDao {
     @Query("SELECT * from showData WHERE id = :id LIMIT 1")
     abstract fun getShowById(id: Int): ShowEntity?
 
+    @Query("SELECT * from showData WHERE id = :id LIMIT 1")
+    abstract fun getShowTimeslotById(id: Int): ShowTimeslotEntity?
+
     @Query("SELECT * from showData WHERE genre = :genre")
     abstract fun getShowsByGenre(genre: String): List<ShowEntity>
 
@@ -58,10 +62,11 @@ abstract class ShowDao {
     abstract fun getShowsByQuarterYear(
         quarter: Quarter,
         year: Int
-    ): List<ShowEntity>
+    ): List<ShowTimeslotEntity>
 
+    @Transaction
     @Query(
-        """SELECT * from showData
+        """SELECT showData.* from showData
         INNER JOIN timeslotData on timeslotData.showId = showData.id
         WHERE (timeStart < :time AND timeEnd > :time OR
         timeEnd < timeStart AND (timeEnd > :time OR timeStart < :time))
@@ -71,25 +76,42 @@ abstract class ShowDao {
         time: OffsetDateTime,
         quarter: Quarter,
         year: Int
-    ): Flowable<List<ShowEntity>>
+    ): Flowable<List<ShowTimeslotJoin>>
 
     @Query(
-        """SELECT * from showData
+        """SELECT showData.* from showData
             INNER JOIN timeslotData on timeslotData.showId = showData.id
             WHERE (timeEnd > :timeStart AND timeStart < :timeEnd OR
             timeEnd < timeStart AND (timeEnd > :timeStart OR timeStart < :timeEnd))
             AND quarter = :quarter AND year = :year
             ORDER BY timeStart, quarter, year"""
     )
-    abstract fun allShowsInTimeRange(
+    abstract fun allShowTimeslotsInTimeRange(
+        timeStart: OffsetDateTime,
+        timeEnd: OffsetDateTime,
+        quarter: Quarter,
+        year: Int
+    ): Flowable<List<ShowTimeslotEntity>>
+
+    @Transaction
+    @Query(
+        """SELECT showData.* from showData
+            INNER JOIN timeslotData on timeslotData.showId = showData.id
+            WHERE (timeEnd > :timeStart AND timeStart < :timeEnd OR
+            timeEnd < timeStart AND (timeEnd > :timeStart OR timeStart < :timeEnd))
+            AND quarter = :quarter AND year = :year
+            ORDER BY timeStart, quarter, year"""
+    )
+    abstract fun allShowTimeslotJoinsInTimeRange(
         timeStart: OffsetDateTime,
         timeEnd: OffsetDateTime,
         quarter: Quarter,
         year: Int
     ): Flowable<List<ShowTimeslotJoin>>
 
+    @Transaction
     @Query(
-        """SELECT * from showData
+        """SELECT showData.* from showData
             INNER JOIN timeslotData on timeslotData.showId = showData.id
             WHERE (timeEnd > :timeStart AND timeStart < :timeEnd OR
             timeEnd < timeStart AND (timeEnd > :timeStart OR timeStart < :timeEnd))
@@ -101,16 +123,26 @@ abstract class ShowDao {
         timeEnd: OffsetDateTime,
         quarter: Quarter,
         year: Int
-    ): List<ShowEntity>
+    ): List<ShowTimeslotJoin>
 
     @Query(
-        """SELECT * from showData
+        """SELECT showData.* from showData
         INNER JOIN timeslotData on timeslotData.showId = showData.id
         WHERE (timeStart <= :time AND timeEnd > :time OR
         timeEnd < timeStart AND (timeEnd > :time OR timeStart < :time))
         AND quarter = :quarter AND year = :year"""
     )
-    abstract fun getShowsAtTime(time: OffsetDateTime, quarter: Quarter, year: Int): List<ShowEntity>
+    abstract fun getShowsAtTime(time: OffsetDateTime, quarter: Quarter, year: Int): List<ShowTimeslotEntity>
+
+    @Transaction
+    @Query(
+        """SELECT showData.* from showData
+        INNER JOIN timeslotData on timeslotData.showId = showData.id
+        WHERE (timeStart <= :time AND timeEnd > :time OR
+        timeEnd < timeStart AND (timeEnd > :time OR timeStart < :time))
+        AND quarter = :quarter AND year = :year"""
+    )
+    abstract fun getShowTimeslotJoinsAtTime(time: OffsetDateTime, quarter: Quarter, year: Int): List<ShowTimeslotJoin>
 
     @Query(
         """SELECT DISTINCT s.* from showData s

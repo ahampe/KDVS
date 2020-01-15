@@ -121,9 +121,6 @@ class ShowSearchViewAdapter(
             binding.apply {
                 clickListener = listener
                 show = item
-                timeSlotSize = showsWithTimeSlotSize
-                    .firstOrNull { s -> s.first == item }
-                    ?.second
                 query = queryStr
             }
         }

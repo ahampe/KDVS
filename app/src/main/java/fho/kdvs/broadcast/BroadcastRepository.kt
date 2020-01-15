@@ -5,10 +5,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import fho.kdvs.global.BaseRepository
-import fho.kdvs.global.database.BroadcastDao
-import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.ShowBroadcastJoin
-import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.*
 import fho.kdvs.global.extensions.toLiveData
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
@@ -52,18 +49,18 @@ class BroadcastRepository @Inject constructor(
      * [MutableLiveData] listening for the currently playing show.
      * Whenever the value is set, the show's details are scraped.
      */
-    val nowPlayingShowLiveData = object : MutableLiveData<ShowEntity>() {
-        override fun setValue(value: ShowEntity?) {
+    val nowPlayingShowLiveData = object : MutableLiveData<ShowTimeslotEntity>() {
+        override fun setValue(value: ShowTimeslotEntity?) {
             value?.let { scrapeShow(it.id.toString()) }
             super.setValue(value)
         }
     }
 
     /** A [MediatorLiveData] which merges the currently playing show and currently playing broadcast. */
-    val nowPlayingLiveData = MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>()
+    val nowPlayingLiveData = MediatorLiveData<Pair<ShowTimeslotEntity, BroadcastEntity?>>()
         .apply {
             var broadcast: BroadcastEntity? = null
-            var show: ShowEntity? = null
+            var show: ShowTimeslotEntity? = null
 
             addSource(nowPlayingShowLiveData) { showEntity ->
                 show = showEntity

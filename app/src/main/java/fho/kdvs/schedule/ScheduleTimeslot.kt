@@ -2,12 +2,12 @@ package fho.kdvs.schedule
 
 import android.os.Parcel
 import android.os.Parcelable
-import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.ShowTimeslotEntity
 import org.threeten.bp.OffsetDateTime
 
 /** Shows on the KDVS programming grid may share a single span of time each week and alternate.
  * This construct is built for holding information about individual TimeSlots, which may contain one or more shows. */
-data class TimeSlot(
+data class ScheduleTimeslot(
     val timeStart: OffsetDateTime?,
     val timeEnd: OffsetDateTime?,
     val isFirstHalfOrEntireSegment: Boolean,
@@ -16,7 +16,7 @@ data class TimeSlot(
     val names: List<String?>
 ) : Parcelable {
 
-    constructor(shows: List<ShowEntity>, _isFirstHalfOrEntireSegment: Boolean) : this(
+    constructor(shows: List<ShowTimeslotEntity>, _isFirstHalfOrEntireSegment: Boolean) : this(
         timeStart = shows.first().timeStart,
         timeEnd = shows.first().timeEnd,
         isFirstHalfOrEntireSegment = _isFirstHalfOrEntireSegment,
@@ -49,10 +49,10 @@ data class TimeSlot(
 
     companion object {
         @JvmField
-        val CREATOR = object : Parcelable.Creator<TimeSlot> {
-            override fun createFromParcel(parcel: Parcel) = TimeSlot(parcel)
+        val CREATOR = object : Parcelable.Creator<ScheduleTimeslot> {
+            override fun createFromParcel(parcel: Parcel) = ScheduleTimeslot(parcel)
 
-            override fun newArray(size: Int) = arrayOfNulls<TimeSlot>(size)
+            override fun newArray(size: Int) = arrayOfNulls<ScheduleTimeslot>(size)
         }
 
         const val DUMMY_ID = -10

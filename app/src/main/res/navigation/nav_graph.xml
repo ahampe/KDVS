@@ -58,7 +58,7 @@
         android:label="ScheduleSelectionFragment">
         <argument
             android:name="timeslot"
-            app:argType="fho.kdvs.schedule.TimeSlot" />
+            app:argType="fho.kdvs.schedule.ScheduleTimeslot" />
         <action
             android:id="@+id/action_scheduleSelectionFragment_to_showDetailsFragment"
             app:destination="@id/showDetailsFragment" />

@@ -8,7 +8,7 @@
 
         <variable
             name="currentShow"
-            type="fho.kdvs.global.database.ShowTimeslotJoin" />
+            type="fho.kdvs.global.database.ShowTimeslotEntity" />
 
         <variable
             name="clickListener"

@@ -14,7 +14,7 @@ import fho.kdvs.R
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.ColorHelper
 import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.schedule.TimeSlot
+import fho.kdvs.schedule.ScheduleTimeslot
 import timber.log.Timber
 
 interface IPaletteRequestListener {
@@ -94,15 +94,15 @@ class PlayerPaletteRequestListener(
 }
 
 /**
- * Class for applying dynamic [Palette] coloration and alpha gradients to [TimeSlot]s. Placeholder [TimeSlot]s are
+ * Class for applying dynamic [Palette] coloration and alpha gradients to [ScheduleTimeslot]s. Placeholder [ScheduleTimeslot]s are
  * assigned random color deterministically by their corresponding show names. [WaveView] animation applied to
- * current show [TimeSlot] on schedule.
+ * current show [ScheduleTimeslot] on schedule.
  * */
 
 class TimeSlotPaletteRequestListener(
     private val viewWithColor: View,
     private val viewToColor: View,
-    private val timeslot: TimeSlot?,
+    private val timeslot: ScheduleTimeslot?,
     private val theme: Int
 ) : PaletteRequestListener(viewToColor) {
 

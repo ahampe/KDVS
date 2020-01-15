@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
 import fho.kdvs.R
+import fho.kdvs.global.database.TimeslotEntity
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.extensions.fromHtml
@@ -15,6 +16,7 @@ import fho.kdvs.topmusic.TopMusicType
 import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
 import org.threeten.bp.format.DateTimeFormatter
+import java.util.*
 
 // Binding adapters designed for reuse
 
@@ -133,5 +135,18 @@ fun setShowTimes(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDateT
         R.string.showTimeLabel,
         TimeHelper.showTimeFormatter24.format(timeStart),
         TimeHelper.showTimeFormatter24.format(timeEnd)
+    )
+}
+
+@BindingAdapter("searchShowTimeslots")
+fun setShowTimesForMultipleTimeslots(view: TextView, timeslots: List<TimeslotEntity>) {
+    val days = timeslots.map{ t -> TimeHelper.dayOfWeekFormatter.format(t.timeStart) }
+
+    // TODO: this logic assumes that multiple timeslots will always be at same HH:MM, which may not always be the case
+    view.text  = view.context.resources.getString(
+        R.string.showDayTimeLabel,
+        days.joinToString(" / "),
+        TimeHelper.showTimeFormatter24.format(timeslots.first().timeStart),
+        TimeHelper.showTimeFormatter24.format(timeslots.first().timeEnd)
     )
 }

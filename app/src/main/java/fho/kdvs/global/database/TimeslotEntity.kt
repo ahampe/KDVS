@@ -20,7 +20,6 @@ import org.threeten.bp.OffsetDateTime
 data class TimeslotEntity(
     @PrimaryKey(autoGenerate = false) val timeslotId: Int,
     @ColumnInfo(name = "showId", index = true) val showId: Int = 0,
-    @ColumnInfo(name = "defaultImageHref") var defaultImageHref: String? = null,
     @ColumnInfo(name = "timeStart") var timeStart: OffsetDateTime? = null,
     @ColumnInfo(name = "timeEnd") var timeEnd: OffsetDateTime? = null
 )

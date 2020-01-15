@@ -15,7 +15,7 @@ interface FavoriteTrackDao {
 
     @Transaction
     @Query(
-        """SELECT id, name, host, genre, defaultDesc, defaultImageHref, timeStart, timeEnd, quarter, trackData.year from favoriteTrackData
+        """SELECT showData.* from favoriteTrackData
         INNER JOIN trackData on favoriteTrackData.trackId = trackData.trackId
         INNER JOIN broadcastData on broadcastData.broadcastId = trackData.broadcastId
         INNER JOIN showData on showData.id = broadcastData.showId

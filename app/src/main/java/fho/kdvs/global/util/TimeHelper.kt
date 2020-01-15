@@ -1,9 +1,10 @@
 package fho.kdvs.global.util
 
 import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.ShowTimeslotEntity
+import fho.kdvs.global.database.ShowTimeslotJoin
 import fho.kdvs.global.enums.Day
-import fho.kdvs.schedule.TimeSlot
+import fho.kdvs.schedule.ScheduleTimeslot
 import org.threeten.bp.*
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.temporal.ChronoUnit
@@ -43,6 +44,11 @@ object TimeHelper {
     /** A 24-hour time formatter, used for displaying show times (which are in UTC) in the UI. */
     val showTimeFormatter24: DateTimeFormatter = DateTimeFormatter
         .ofPattern("hh:mm", Locale.US)
+        .withZone(UTC_ID)
+
+    /** Get day of week abbreviation for time. */
+    val dayOfWeekFormatter: DateTimeFormatter = DateTimeFormatter
+        .ofPattern("E", Locale.US)
         .withZone(UTC_ID)
 
     // region Week Times (for Show entities)
@@ -222,7 +228,7 @@ object TimeHelper {
     fun getTimeDifferenceInHalfHoursPerDay(
         a: OffsetDateTime,
         b: OffsetDateTime,
-        timeslot: TimeSlot
+        timeslot: ScheduleTimeslot
     ): Int {
         val isFirstHalfOrEntireSegment = timeslot.isFirstHalfOrEntireSegment
 
@@ -286,14 +292,14 @@ object TimeHelper {
 
     /** Returns true if current time falls within timeslot's time range. */
     @JvmStatic
-    fun isTimeSlotForCurrentShow(timeslot: TimeSlot): Boolean {
+    fun isTimeSlotForCurrentShow(timeslot: ScheduleTimeslot): Boolean {
         val scheduleTime = makeEpochRelativeTime(getNow())
         return (scheduleTime >= timeslot.timeStart) && (scheduleTime < timeslot.timeEnd)
     }
 
     /** Returns true if broadcast is currently live on-air. */
     @JvmStatic
-    fun isShowBroadcastLive(show: ShowEntity, broadcast: BroadcastEntity): Boolean {
+    fun isShowBroadcastLive(show: ShowTimeslotEntity, broadcast: BroadcastEntity): Boolean {
         val now = getNow()
         return broadcast.date!!.year == now.year &&
                 broadcast.date!!.dayOfYear == now.dayOfYear &&

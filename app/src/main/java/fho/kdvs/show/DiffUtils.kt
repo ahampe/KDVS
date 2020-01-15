@@ -3,7 +3,7 @@ package fho.kdvs.show
 import androidx.recyclerview.widget.DiffUtil
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.global.database.ShowTimeslotJoin
+import fho.kdvs.global.database.ShowTimeslotEntity
 
 class BroadcastDiffCallback : DiffUtil.ItemCallback<BroadcastEntity>() {
     override fun areItemsTheSame(oldItem: BroadcastEntity, newItem: BroadcastEntity) =
@@ -21,10 +21,10 @@ class ShowDiffCallback : DiffUtil.ItemCallback<ShowEntity>() {
         oldItem == newItem
 }
 
-class ShowTimeslotDiffCallback : DiffUtil.ItemCallback<ShowTimeslotJoin>() {
-    override fun areItemsTheSame(oldItem: ShowTimeslotJoin, newItem: ShowTimeslotJoin) =
-        oldItem.timeslots == newItem.timeslots
+class ShowTimeslotDiffCallback : DiffUtil.ItemCallback<ShowTimeslotEntity>() {
+    override fun areItemsTheSame(oldItem: ShowTimeslotEntity, newItem: ShowTimeslotEntity) =
+        oldItem.id == newItem.id
 
-    override fun areContentsTheSame(oldItem: ShowTimeslotJoin, newItem: ShowTimeslotJoin) =
+    override fun areContentsTheSame(oldItem: ShowTimeslotEntity, newItem: ShowTimeslotEntity) =
         oldItem == newItem
 }

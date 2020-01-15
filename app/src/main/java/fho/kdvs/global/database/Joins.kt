@@ -116,7 +116,7 @@ class ShowTimeslotJoin {
     @Embedded
     var show: ShowEntity? = null
 
-    @Relation(parentColumn = "id", entityColumn = "showId")
+    @Relation(parentColumn = "id", entityColumn = "showId", entity = TimeslotEntity::class)
     var timeslots: List<TimeslotEntity> = ArrayList()
 
     override fun equals(other: Any?): Boolean {

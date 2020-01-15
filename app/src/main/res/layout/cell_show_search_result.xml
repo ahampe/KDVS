@@ -8,10 +8,6 @@
             type="fho.kdvs.global.database.ShowEntity" />
 
         <variable
-            name="timeSlotSize"
-            type="Integer" />
-
-        <variable
             name="query"
             type="String" />
 
@@ -68,46 +64,6 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="packed"
             tools:text="The Name of the Show"/>
-
-        <TextView
-            android:id="@+id/showTime"
-            searchTimeStart="@{show.timeStart}"
-            searchTimeEnd="@{show.timeEnd}"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorPrimary"
-            android:layout_marginStart="@dimen/timeslot_margin"
-            android:layout_marginEnd="@dimen/timeslot_margin"
-            android:ellipsize="end"
-            style="@style/TextAppearance.MaterialComponents.Subtitle2"
-            app:layout_constraintStart_toEndOf="@id/timeSlotImage"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/showName"
-            app:layout_constrainedWidth="true"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            tools:text="Tues, 17:00 - 18:00"/>
-
-        <TextView
-            android:id="@+id/showTimeAlternatingText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorPrimary"
-            android:layout_marginStart="@dimen/timeslot_margin"
-            android:layout_marginEnd="@dimen/timeslot_margin"
-            android:ellipsize="end"
-            android:textSize="12sp"
-            timeSlotSize="@{timeSlotSize}"
-            android:text=""
-            style="@style/TextAppearance.MaterialComponents.Subtitle2"
-            app:layout_constraintStart_toEndOf="@id/timeSlotImage"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/showTime"
-            app:layout_constrainedWidth="true"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            tools:visibility="visible"
-            tools:text="Every other week"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

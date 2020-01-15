@@ -5,7 +5,10 @@ import android.app.Application
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import fho.kdvs.global.database.Show
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.ShowTimeslotEntity
+import fho.kdvs.global.database.ShowTimeslotJoin
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.services.LiveShowUpdater.Companion.WEEK_IN_MILLIS
@@ -30,10 +33,10 @@ class KdvsAlarmManager @Inject constructor(
     private var alarmMgr: AlarmManager? = null
     private lateinit var alarmIntent: PendingIntent
 
-    fun registerShowAlarmAsync(show: ShowEntity): Deferred<Boolean> = async {
+    fun registerShowAlarmAsync(show: ShowTimeslotJoin): Deferred<Boolean> = async {
         val timeStart = show.timeStart
 
-        timeStart?.firstOrNull()?.let {
+        timeStart?.let {
             initShowAlarm(show)
 
             val showsAtTime = showRepository.allShowsAtTimeOrderedRelativeToCurrentWeek(timeStart)
@@ -68,12 +71,12 @@ class KdvsAlarmManager @Inject constructor(
         return@async false
     }
 
-    fun cancelShowAlarm(show: ShowEntity) {
+    fun cancelShowAlarm(show: Show) {
         initShowAlarm(show)
         alarmMgr?.cancel(alarmIntent)
     }
 
-    private fun initShowAlarm(show: ShowEntity) {
+    private fun initShowAlarm(show: Show) {
         if (alarmMgr == null)
             alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 

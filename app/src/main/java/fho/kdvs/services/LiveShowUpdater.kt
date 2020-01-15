@@ -5,6 +5,7 @@ import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowDao
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.ShowTimeslotEntity
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.show.ShowRepository
 import kotlinx.coroutines.*
@@ -123,13 +124,13 @@ class LiveShowUpdater @Inject constructor(
         // TODO: if user was last playing an archive stream, load that stream and its progress instead
 
         // to get the next show, we need the database and
-        val addedTime = currentShow.timeEnd?.firstOrNull()?.plusMinutes(1L) ?: return@async false
+        val addedTime = currentShow.timeEnd?.plusMinutes(1L) ?: return@async false
         // addedTime will most likely be within the epoch week, but it isn't guaranteed:
         val nextShowTime = TimeHelper.makeEpochRelativeTime(addedTime)
 
         val nextShow = getShowAtTime(nextShowTime) ?: return@async false
 
-        val subtractedTime = currentShow.timeStart?.firstOrNull()?.minusMinutes(1L) ?: return@async false
+        val subtractedTime = currentShow.timeStart?.minusMinutes(1L) ?: return@async false
         val previousShowTime = TimeHelper.makeEpochRelativeTime(subtractedTime)
 
         val previousShow = getShowAtTime(previousShowTime) ?: return@async false
@@ -140,7 +141,7 @@ class LiveShowUpdater @Inject constructor(
         return@async true
     }
 
-    private suspend fun getAllShowsAtTime(time: OffsetDateTime): List<ShowEntity> {
+    private suspend fun getAllShowsAtTime(time: OffsetDateTime): List<ShowTimeslotEntity> {
         // ensure that the quarter and year we're using are up to date, as well as the shows
         showRepository.scrapeSchedule().join()
         val quarterYear = showDao.getCurrentQuarterYear()
@@ -150,7 +151,7 @@ class LiveShowUpdater @Inject constructor(
         return showDao.getShowsAtTime(time, quarter, year)
     }
 
-    private suspend fun getLatestBroadcastsForShowsAtTime(allShowsAtTime: List<ShowEntity>): List<BroadcastEntity> {
+    private suspend fun getLatestBroadcastsForShowsAtTime(allShowsAtTime: List<ShowTimeslotEntity>): List<BroadcastEntity> {
         // If there are more than two shows in this TimeSlot, we need to find which one is scheduled this week.
         // First we need to scrape each show for the most recent broadcast, and wait for each to complete
         val jobs = mutableListOf<Job>()
@@ -166,7 +167,7 @@ class LiveShowUpdater @Inject constructor(
     }
 
     /** A suspending function that will attempt to find a [ShowEntity] at the given [time]. */
-    private suspend fun getShowAtTime(time: OffsetDateTime): ShowEntity? {
+    private suspend fun getShowAtTime(time: OffsetDateTime): ShowTimeslotEntity? {
         val allShowsAtTime = getAllShowsAtTime(time)
 
         if (allShowsAtTime.isEmpty()) return null
@@ -209,7 +210,7 @@ class LiveShowUpdater @Inject constructor(
      * Defaults to the order returned by database.
      * Note: a show having already aired this week (or currently airing) will still be first.
      * */
-    suspend fun orderShowsAtTimeRelativeToCurrentWeekAsync(timeStart: OffsetDateTime): List<ShowEntity> {
+    suspend fun orderShowsAtTimeRelativeToCurrentWeekAsync(timeStart: OffsetDateTime): List<ShowTimeslotEntity> {
         Timber.d("Ordering shows in timeslot at $timeStart")
 
         val showsAtTime = getAllShowsAtTime(timeStart)
@@ -220,7 +221,7 @@ class LiveShowUpdater @Inject constructor(
             latestBroadcasts.size >= (showsAtTime.size - 1)
         ) {
 
-            val orderedShows = mutableListOf<ShowEntity>()
+            val orderedShows = mutableListOf<ShowTimeslotEntity>()
 
             showsAtTime.forEachIndexed { i, _ ->
                 val now = LocalDate.now()

@@ -15,12 +15,12 @@ interface FavoriteBroadcastDao {
 
     @Transaction
     @Query(
-        """SELECT id, name, host, genre, defaultDesc, defaultImageHref, timeStart, timeEnd, quarter, year from favoriteBroadcastData
+        """SELECT showData.* from favoriteBroadcastData
         INNER JOIN broadcastData on broadcastData.broadcastId = broadcastData.broadcastId
         INNER JOIN showData on showData.id = broadcastData.showId
         INNER JOIN timeslotData on timeslotData.showId = showData.id"""
     )
-    fun allTimeslotShowBroadcastFavoriteJoins(): Flowable<List<TimeslotShowBroadcastFavoriteJoin>>
+    fun allTimeslotShowBroadcastFavoriteJoins(): Flowable<List<ShowBroadcastFavoriteJoin>>
 
     @Query("SELECT * from favoriteBroadcastData where broadcastId = :broadcastId LIMIT 1")
     fun getByBroadcastId(broadcastId: Int?): LiveData<FavoriteBroadcastEntity>
