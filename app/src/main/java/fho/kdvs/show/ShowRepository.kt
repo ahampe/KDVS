@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.*
+import fho.kdvs.global.database.joins.ShowTimeslotsJoin
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.extensions.toLiveData

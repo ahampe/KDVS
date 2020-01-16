@@ -7,7 +7,7 @@ import android.content.Context
 import android.content.Intent
 import fho.kdvs.global.database.Show
 import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.global.database.ShowTimeslotsJoin
+import fho.kdvs.global.database.joins.ShowTimeslotsJoin
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.services.LiveShowUpdater.Companion.WEEK_IN_MILLIS

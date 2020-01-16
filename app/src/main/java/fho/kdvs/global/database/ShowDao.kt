@@ -3,6 +3,7 @@ package fho.kdvs.global.database
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
+import fho.kdvs.global.database.joins.ShowTimeslotsJoin
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.schedule.QuarterYear
 import io.reactivex.Flowable

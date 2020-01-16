@@ -29,6 +29,7 @@ import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.dialog.BinaryChoiceDialogFragment
 import fho.kdvs.fundraiser.FundraiserRepository
 import fho.kdvs.global.database.*
+import fho.kdvs.global.database.joins.ShowTimeslotsJoin
 import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared

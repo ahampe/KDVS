@@ -3,6 +3,7 @@ package fho.kdvs.subscription
 import androidx.lifecycle.LiveData
 import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.*
+import fho.kdvs.global.database.joins.ShowTimeslotsJoin
 import javax.inject.Inject
 import javax.inject.Singleton
 

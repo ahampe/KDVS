@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.*
+import fho.kdvs.global.database.joins.ShowTimeslotBroadcastJoin
 import fho.kdvs.global.extensions.toLiveData
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper

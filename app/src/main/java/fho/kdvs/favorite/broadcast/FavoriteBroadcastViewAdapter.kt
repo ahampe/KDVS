@@ -8,8 +8,8 @@ import android.widget.Filterable
 import fho.kdvs.databinding.CellFavoriteBroadcastBinding
 import fho.kdvs.favorite.FavoriteFragment.SortDirection
 import fho.kdvs.favorite.FavoriteFragment.SortType
-import fho.kdvs.global.database.ShowBroadcastFavoriteJoin
-import fho.kdvs.global.database.getBroadcastFavoriteJoins
+import fho.kdvs.global.database.joins.ShowBroadcastFavoriteJoin
+import fho.kdvs.global.database.joins.getBroadcastFavoriteJoins
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder

@@ -21,7 +21,7 @@ import fho.kdvs.favorite.FavoritePage
 import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
-import fho.kdvs.global.database.ShowBroadcastFavoriteJoin
+import fho.kdvs.global.database.joins.ShowBroadcastFavoriteJoin
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.RequestCodes
