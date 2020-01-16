@@ -148,7 +148,7 @@ class LiveShowUpdater @Inject constructor(
             ?: return mutableListOf()
         val (quarter, year) = quarterYear
 
-        return showDao.getShowsAtTime(time, quarter, year)
+        return showDao.getShowTimeslotsAtTime(time, quarter, year)
     }
 
     private suspend fun getLatestBroadcastsForShowsAtTime(allShowsAtTime: List<ShowTimeslotEntity>): List<BroadcastEntity> {

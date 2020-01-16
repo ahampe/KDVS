@@ -2,7 +2,6 @@ package fho.kdvs.global.util
 
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowTimeslotEntity
-import fho.kdvs.global.database.ShowTimeslotJoin
 import fho.kdvs.global.enums.Day
 import fho.kdvs.schedule.ScheduleTimeslot
 import org.threeten.bp.*

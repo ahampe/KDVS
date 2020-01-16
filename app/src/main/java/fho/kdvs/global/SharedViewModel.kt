@@ -123,28 +123,25 @@ class SharedViewModel @Inject constructor(
 
     fun updateLiveShows() = liveShowUpdater.beginUpdating()
 
-    /** Signals the [Show Repository] to scrape the schedule grid. */
-    fun fetchShows() = showRepository.scrapeSchedule()
-
-    /** Forces the [Show Repository] to scrape the schedule grid. */
-    private fun forceFetchShows() = showRepository.forceScrapeSchedule()
-
-    /** Forces the [News Repository] to scrape the news page(s). */
-    private fun forceFetchNewsArticles() = newsRepository.forceScrapeNews()
-
-    /** Forces the [TopMusic Repository] to scrape the top music pages. */
-    private fun forceFetchTopMusicItems() = topMusicRepository.forceScrapeTopMusic()
-
-    /** Forces the [Staff Repository] to scrape the staff page. */
-    private fun forceFetchStaff() = staffRepository.forceScrapeStaff()
-
-    /** Forces the [Fundraiser Repository] to scrape the fundraiser page. */
-    private fun forceFetchFundraiser() = fundraiserRepository.forceScrapeFundraiser()
-
     fun getBroadcastRepo() = broadcastRepository
 
     fun getCurrentQuarterYear(): LiveData<QuarterYear> =
         showRepository.getCurrentQuarterYear()
+
+    // region show
+
+    /**
+     * Returns a [LiveData] wrapping a list of [TimeslotEntity] objects associated with a given
+     * [Show]'s ID.
+     */
+    fun getTimeslots(show: Show) = showRepository.timeslotsById(show.id)
+
+    /**
+     * Returns a [LiveData] wrapping the [ShowTimeslotsJoin] associated with a given [Show]'s ID.
+     */
+    fun getShowTimeslotsJoin(show: Show) = showRepository.showTimeslotsJoinById(show.id)
+
+    // endregion
 
     // region quarter
 
@@ -183,9 +180,17 @@ class SharedViewModel @Inject constructor(
         Toast.makeText(context, "The new quarter has begun!", Toast.LENGTH_SHORT)
             .show()
 
-    private fun getCurrentQuarterShows(): List<ShowTimeslotEntity>? {
+    private fun getCurrentQuarterShowTimeslots(): List<ShowTimeslotEntity>? {
         currentQuarterYearLiveData.value?.let {
             return showRepository.getShowsByQuarterYear(it)
+        }
+
+        return null
+    }
+
+    private fun getCurrentQuarterShowTimeslotsJoins(): List<ShowTimeslotsJoin>? {
+        currentQuarterYearLiveData.value?.let {
+            return showRepository.getShowTimeslotsJoinsByQuarterYear(it)
         }
 
         return null
@@ -775,6 +780,24 @@ class SharedViewModel @Inject constructor(
 
     // region fetch
 
+    /** Signals the [ShowRepository] to scrape the schedule grid. */
+    fun fetchShows() = showRepository.scrapeSchedule()
+
+    /** Forces the [ShowRepository] to scrape the schedule grid. */
+    private fun forceFetchShows() = showRepository.forceScrapeSchedule()
+
+    /** Forces the [NewsRepository] to scrape the news page(s). */
+    private fun forceFetchNewsArticles() = newsRepository.forceScrapeNews()
+
+    /** Forces the [TopMusicRepository] to scrape the top music pages. */
+    private fun forceFetchTopMusicItems() = topMusicRepository.forceScrapeTopMusic()
+
+    /** Forces the [StaffRepository] to scrape the staff page. */
+    private fun forceFetchStaff() = staffRepository.forceScrapeStaff()
+
+    /** Forces the [FundraiserRepository] to scrape the fundraiser page. */
+    private fun forceFetchFundraiser() = fundraiserRepository.forceScrapeFundraiser()
+
     // TODO: multiple attempts?
     fun fetchThirdPartyDataForTopMusic(
         topMusic: TopMusicEntity,
@@ -971,19 +994,21 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun onClickSubscribe(imageView: ImageView, show: ShowTimeslotEntity, context: Context?) {
-        if (imageView.tag == 0) {
-            subscribeToShowAndMakeToast(show, context)
+    fun onClickSubscribe(imageView: ImageView, showWithTimeslots: ShowTimeslotsJoin, context: Context?) {
+        showWithTimeslots.show?.let { show ->
+            if (imageView.tag == 0) {
+                subscribeToShowAndMakeToast(showWithTimeslots, context)
 
-            imageView.setImageResource(R.drawable.ic_star_border_white_24dp)
-            imageView.tag = 1
-        } else if (imageView.tag == 1) {
-            cancelSubscription(show)
-            Toast.makeText(context, "Unsubscribed from ${show.name}", Toast.LENGTH_SHORT)
-                .show()
+                imageView.setImageResource(R.drawable.ic_star_border_white_24dp)
+                imageView.tag = 1
+            } else if (imageView.tag == 1) {
+                cancelSubscription(show)
+                Toast.makeText(context, "Unsubscribed from ${show.name}", Toast.LENGTH_SHORT)
+                    .show()
 
-            imageView.setImageResource(R.drawable.ic_star_white_24dp)
-            imageView.tag = 0
+                imageView.setImageResource(R.drawable.ic_star_white_24dp)
+                imageView.tag = 0
+            }
         }
     }
 
@@ -1060,11 +1085,13 @@ class SharedViewModel @Inject constructor(
         val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
 
         launch {
-            val subscribedShows = getSubscribedShows()
+            val subscribedShows = getSubscribedShowsWithTimeslots()
 
             subscribedShows.forEach {
-                alarmMgr.cancelShowAlarm(it)
-                alarmMgr.registerShowAlarmAsync(it)
+                it.show?.let { show ->
+                    alarmMgr.cancelShowAlarm(show)
+                    alarmMgr.registerShowAlarmsAsync(it)
+                }
             }
 
             Timber.d("Alarms reregistered")
@@ -1082,16 +1109,18 @@ class SharedViewModel @Inject constructor(
         val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
 
         launch {
-            val subscribedShows = getSubscribedShows()
+            val subscribedShows = getSubscribedShowsWithTimeslots()
 
             subscribedShows.forEach {
-                alarmMgr.cancelShowAlarm(it)
+                it.show?.let { show ->
+                    alarmMgr.cancelShowAlarm(show)
+                }
             }
 
             kdvsPreferences.alarmNoticeInterval = newWindow
 
             subscribedShows.forEach {
-                alarmMgr.registerShowAlarmAsync(it)
+                alarmMgr.registerShowAlarmsAsync(it)
             }
 
             Timber.d("Alarms reregistered")
@@ -1102,19 +1131,27 @@ class SharedViewModel @Inject constructor(
 
     // region subscription
     /**
-     * After a quarter change, subscribed recurring shows will have new database objects, and possibly new timeslots,
-     * so we must cancel existing ones and insert new ones based on matching show names in the current quarter.
-     * Nonrecurring shows will simply have their subscriptions cancelled.
+     * After a quarter change, subscribed recurring [ShowEntity]s will have new database objects,
+     * and possibly new associated [TimeslotEntity]s, so we must cancel existing ones and insert
+     * new ones based on matching show names in the current quarter.
+     *
+     * Nonrecurring [ShowEntity]s will simply have their subscriptions cancelled.
      */
-    private fun processSubscriptionsOnQuarterChange() { // TODO: test
+    private fun processSubscriptionsOnQuarterChange() { // TODO: test more thoroughly
         launch {
-            val subscribedShows = getSubscribedShows()
+            val subscribedShowsWithTimeslots = getSubscribedShowsWithTimeslots()
+
+            val subscribedShows = subscribedShowsWithTimeslots.mapNotNull { s -> s.show }
             val recurringSubscribedShows = getRecurringShows(subscribedShows)
             val nonRecurringSubscribedShows = subscribedShows
                 .filterNot { s -> recurringSubscribedShows?.contains(s) == true }
 
             recurringSubscribedShows?.forEach {
-                updateRecurringSubscription(it)
+                subscribedShowsWithTimeslots
+                    .firstOrNull { s -> s.show?.id == it.id }
+                    ?.let {
+                        updateRecurringSubscription(it)
+                    }
             }
 
             nonRecurringSubscribedShows.forEach {
@@ -1123,45 +1160,51 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    private fun updateRecurringSubscription(show: ShowTimeslotEntity) {
-        cancelSubscription(show)
+    private fun updateRecurringSubscription(showWithTimeslots: ShowTimeslotsJoin) {
+        showWithTimeslots.show?.let { show ->
+            cancelSubscription(show)
 
-        val currentShows = getCurrentQuarterShows()
-        val matchingShow = currentShows
-            ?.firstOrNull { s -> s.name == show.name }
+            val currentShows = getCurrentQuarterShowTimeslotsJoins()
+            val matchingShow = currentShows
+                ?.firstOrNull { s -> s.show?.name == show.name }
 
-        matchingShow?.let {
-            subscribeToShowWithoutToast(it)
-        }
-    }
-
-    private fun subscribeToShowWithoutToast(show: ShowTimeslotEntity) {
-        launch {
-            val success = subscribeToShow(show)
-
-            if (success) {
-                launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
+            matchingShow?.let {
+                subscribeToShowWithoutToast(showWithTimeslots)
             }
         }
     }
 
-    private fun subscribeToShowAndMakeToast(show: ShowTimeslotEntity, context: Context?) {
+    private fun subscribeToShowWithoutToast(showWithTimeslots: ShowTimeslotsJoin) {
         launch {
-            val success = subscribeToShow(show)
+            showWithTimeslots.show?.let { show ->
+                val success = subscribeToShow(showWithTimeslots)
 
-            if (success) {
-                launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
-                context?.runOnUiThread {
-                    Toast.makeText(context, "Subscribed to ${show.name}", Toast.LENGTH_SHORT)
-                        .show()
+                if (success) {
+                    launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
                 }
             }
         }
     }
 
-    private suspend fun subscribeToShow(show: ShowTimeslotEntity): Boolean {
+    private fun subscribeToShowAndMakeToast(showWithTimeslots: ShowTimeslotsJoin, context: Context?) {
+        launch {
+            showWithTimeslots.show?.let { show ->
+                val success = subscribeToShow(showWithTimeslots)
+
+                if (success) {
+                    launch { subscriptionDao.insert(SubscriptionEntity(0, show.id)) }
+                    context?.runOnUiThread {
+                        Toast.makeText(context, "Subscribed to ${show.name}", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun subscribeToShow(showWithTimeslots: ShowTimeslotsJoin): Boolean {
         val alarmMgr = KdvsAlarmManager(getApplication(), showRepository)
-        return alarmMgr.registerShowAlarmAsync(show).await()
+        return alarmMgr.registerShowAlarmsAsync(showWithTimeslots).await()
     }
 
     private fun cancelSubscription(show: Show) {
@@ -1172,16 +1215,16 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    private fun getSubscribedShows(): List<ShowTimeslotEntity> {
+    private fun getSubscribedShowsWithTimeslots(): List<ShowTimeslotsJoin> {
         return subscriptionRepository.subscribedShows()
     }
 
     /**
-     * Takes in list of shows and returns those from list that are present in current quarter,
+     * Takes in list of [Show]s and returns those from list that are present in current quarter,
      * based on show name.
      */
-    private fun getRecurringShows(shows: List<ShowTimeslotEntity>): List<ShowTimeslotEntity>? {
-        val currentShows = getCurrentQuarterShows()
+    private fun getRecurringShows(shows: List<Show>): List<Show>? {
+        val currentShows = getCurrentQuarterShowTimeslots()
 
         currentShows?.let {
             return shows

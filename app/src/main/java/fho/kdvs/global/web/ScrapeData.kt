@@ -12,9 +12,10 @@ import fho.kdvs.schedule.QuarterYear
  */
 sealed class ScrapeData
 
-data class ScheduleScrapeData(val quarterYear: QuarterYear, val shows: List<ShowEntity>) :
-    ScrapeData()
-
+data class ScheduleScrapeData(
+    val quarterYear: QuarterYear,
+    val shows: List<ShowEntity>,
+    val timeslots: List<TimeslotEntity>) : ScrapeData()
 data class ShowScrapeData(val broadcasts: List<BroadcastEntity>) : ScrapeData()
 data class PlaylistScrapeData(val tracks: List<TrackEntity>) : ScrapeData()
 data class TopMusicScrapeData(val topMusicItems: List<TopMusicEntity>) : ScrapeData()

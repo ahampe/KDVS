@@ -1,11 +1,8 @@
 package fho.kdvs.global.database
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
+import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
-import androidx.room.Query
-import androidx.room.Transaction
 import io.reactivex.Flowable
 import org.threeten.bp.LocalDate
 
@@ -37,13 +34,15 @@ abstract class BroadcastDao {
     )
     abstract fun getShowByBroadcastId(broadcastId: Int): ShowEntity?
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Transaction
     @Query(
-        """SELECT showData.* from broadcastData
+        """SELECT * from broadcastData
+            INNER JOIN timeslotData ON timeslotData.showId = showData.id
             JOIN showData ON broadcastData.showId = showData.id
             WHERE broadcastId = :broadcastId"""
     )
-    abstract fun showBroadcastJoinByBroadcastId(broadcastId: Int): LiveData<ShowBroadcastJoin>
+    abstract fun showTimeslotBroadcastJoinByBroadcastId(broadcastId: Int): LiveData<ShowTimeslotBroadcastJoin>
 
     @Query("SELECT * from broadcastData WHERE broadcastId = :broadcastId LIMIT 1")
     abstract fun broadcastById(broadcastId: Int): LiveData<BroadcastEntity>

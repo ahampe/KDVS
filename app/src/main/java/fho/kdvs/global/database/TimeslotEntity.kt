@@ -18,7 +18,7 @@ import org.threeten.bp.OffsetDateTime
         )]
 )
 data class TimeslotEntity(
-    @PrimaryKey(autoGenerate = false) val timeslotId: Int,
+    @PrimaryKey(autoGenerate = true) val timeslotId: Int = 0,
     @ColumnInfo(name = "showId", index = true) val showId: Int = 0,
     @ColumnInfo(name = "timeStart") var timeStart: OffsetDateTime? = null,
     @ColumnInfo(name = "timeEnd") var timeEnd: OffsetDateTime? = null

@@ -44,7 +44,7 @@ class ShowDaoTest : DatabaseTest() {
         val show = DbTestUtils.createShows().first()
         showDao.insert(show)
 
-        val showsDb = showDao.getAll()
+        val showsDb = showDao.getAllShowTimeslots()
         assertTrue(showsDb.contains(show))
         assertEquals(1, showsDb.size)
     }
@@ -56,7 +56,7 @@ class ShowDaoTest : DatabaseTest() {
             showDao.insert(it)
         }
 
-        val showsDb = showDao.getAll()
+        val showsDb = showDao.getAllShowTimeslots()
         assertEquals(shows.size, showsDb.size)
         shows.forEach {
             assertTrue(showsDb.contains(it))
@@ -73,7 +73,7 @@ class ShowDaoTest : DatabaseTest() {
         val timeStart = TimeHelper.makeWeekTime24h("00:00", Day.SUNDAY)
         val timeEnd = TimeHelper.makeWeekTime24h("03:00", Day.SUNDAY)
 
-        val showsDb = showDao.getShowsInTimeRange(timeStart, timeEnd, Quarter.SPRING, 1943)
+        val showsDb = showDao.getShowTimeslotsInTimeRange(timeStart, timeEnd, Quarter.SPRING, 1943)
 
         assertEquals(shows.size, showsDb.size)
         shows.forEach {
@@ -89,7 +89,7 @@ class ShowDaoTest : DatabaseTest() {
         }
 
         showDao.deleteShow(shows.first().id)
-        val showsDb = showDao.getAll()
+        val showsDb = showDao.getAllShowTimeslots()
         assertEquals("delete show failed", 0, showsDb.filter { it.id == shows.first().id }.size)
         assertEquals("delete show failed", shows.size - 1, showsDb.size)
     }
@@ -102,9 +102,9 @@ class ShowDaoTest : DatabaseTest() {
 
         insert_basic()
 
-        var showDb = showDao.getAll().first()
+        var showDb = showDao.getAllShowTimeslots().first()
         showDao.updateShowDetails(showDb.id, host, genre, defaultDesc)
-        showDb = showDao.getAll().first()
+        showDb = showDao.getAllShowTimeslots().first()
 
         assertEquals("host not updated", host, showDb.host)
         assertEquals("genre not updated", genre, showDb.genre)
@@ -117,16 +117,16 @@ class ShowDaoTest : DatabaseTest() {
 
         insert_basic()
 
-        var showDb = showDao.getAll().first()
+        var showDb = showDao.getAllShowTimeslots().first()
         showDao.updateShowDefaultImageHref(showDb.id, imageHref)
-        showDb = showDao.getAll().first()
+        showDb = showDao.getAllShowTimeslots().first()
 
         assertEquals("image not updated", imageHref, showDb.defaultImageHref)
     }
 
     @Test
     fun observable_insert() {
-        compositeDisposable += observeShows(showDao.allShows())
+        compositeDisposable += observeShows(showDao.allShowTimeslots())
 
         val show = DbTestUtils.createShows().first()
         showDao.insert(show)

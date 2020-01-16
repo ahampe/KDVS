@@ -10,8 +10,9 @@ import fho.kdvs.global.enums.Quarter
  * the basis of its name, that may occur in multiple [TimeslotEntity]'s a week in the case of
  * syndicated programs (e.g. Democracy Now) or once every n weeks in a given [TimeslotEntity] in
  * the case of alternating programs.
+ *
+ * Time information for a [ShowEntity] is contained in its associated [TimeslotEntity]s.
  */
-
 @Entity(tableName = "showData")
 data class ShowEntity(
     @PrimaryKey(autoGenerate = false) override val id: Int,

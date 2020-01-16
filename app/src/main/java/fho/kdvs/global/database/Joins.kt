@@ -8,11 +8,31 @@ import fho.kdvs.favorite.track.FavoriteTrackJoin
 open class Join
 
 /**
+ * Captures the one-to-many relation between [ShowEntity]s and their associated [TimeslotEntity]s.
+ * Use in cases in which one needs to refer to all timeslots of a show.
+ * (e.g. 'Democracy Now on Monday-Friday 3PM')
+ *
+ * [ShowTimeslotEntity] captures a specific show and timeslot relation.
+ * */
+class ShowTimeslotsJoin: Join() {
+    @Embedded
+    var show: ShowEntity? = null
+
+    @Relation(parentColumn = "id", entityColumn = "showId", entity = TimeslotEntity::class)
+    var timeslots: List<TimeslotEntity> = ArrayList()
+
+    override fun equals(other: Any?): Boolean {
+        val otherJoin = other as? ShowTimeslotsJoin
+        return this.show == otherJoin?.show
+                && this.timeslots == otherJoin?.timeslots
+    }
+}
+
+/**
  * Classes to encapsulate the joins between [FavoriteBroadcastEntity], its [BroadcastEntity],
  * and the broadcast's corresponding [ShowEntity].
  * */
-
-class ShowBroadcastFavoriteJoin : Join() {
+class ShowBroadcastFavoriteJoin: Join() {
     @Embedded
     var show: ShowEntity? = null
 
@@ -20,7 +40,7 @@ class ShowBroadcastFavoriteJoin : Join() {
     var broadcastFavorite: List<BroadcastFavoriteJoin> = ArrayList()
 }
 
-class BroadcastFavoriteJoin {
+class BroadcastFavoriteJoin: Join() {
     @Embedded
     var broadcast: BroadcastEntity? = null
 
@@ -28,6 +48,9 @@ class BroadcastFavoriteJoin {
     var favorite: List<FavoriteBroadcastEntity> = ArrayList()
 }
 
+/**
+ * Helper functions to return specific data types from [ShowBroadcastFavoriteJoin].
+ * */
 fun ShowBroadcastFavoriteJoin.getBroadcasts(): List<BroadcastEntity?> {
     return this.broadcastFavorite
         .map { it.broadcast }
@@ -75,7 +98,6 @@ fun List<ShowBroadcastFavoriteJoin>?.getBroadcastFavoriteJoins(): List<FavoriteB
  * Classes to encapsulate the joins between [FavoriteTrackEntity], its associated [TrackEntity],
  * the [BroadcastEntity] on which the track aired, and the broadcast's corresponding [ShowEntity].
  * */
-
 class ShowBroadcastTrackFavoriteJoin : Join() {
     @Embedded
     var show: ShowEntity? = null
@@ -112,18 +134,12 @@ class ShowBroadcastJoin {
     var broadcast: List<BroadcastEntity> = ArrayList()
 }
 
-class ShowTimeslotJoin {
+class ShowTimeslotBroadcastJoin {
     @Embedded
-    var show: ShowEntity? = null
+    var show: ShowTimeslotEntity? = null
 
-    @Relation(parentColumn = "id", entityColumn = "showId", entity = TimeslotEntity::class)
-    var timeslots: List<TimeslotEntity> = ArrayList()
-
-    override fun equals(other: Any?): Boolean {
-        val otherJoin = other as? ShowTimeslotJoin
-        return this.show == otherJoin?.show
-            && this.timeslots == otherJoin?.timeslots
-    }
+    @Relation(parentColumn = "id", entityColumn = "showId")
+    var broadcast: List<BroadcastEntity> = ArrayList()
 }
 
 class BroadcastTrackJoin {
@@ -159,6 +175,9 @@ fun ShowBroadcastTrackFavoriteJoin.getFavorites(): List<FavoriteTrackEntity?> {
         .distinct()
 }
 
+/**
+ * Helper functions to return specific data types from [ShowBroadcastTrackFavoriteJoin].
+ * */
 fun List<ShowBroadcastTrackFavoriteJoin>?.getBroadcasts(): List<BroadcastEntity?>? =
     this?.flatMap { f -> f.getBroadcasts() }
 

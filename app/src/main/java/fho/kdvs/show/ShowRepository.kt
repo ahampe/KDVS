@@ -156,24 +156,41 @@ class ShowRepository @Inject constructor(
 
     fun getCurrentQuarterYear(): LiveData<QuarterYear> = showDao.currentQuarterYear()
 
-    fun getShows(): LiveData<List<ShowEntity>> =
-        showDao.allShows()
+    fun getShowTimeslots(): LiveData<List<ShowTimeslotEntity>> =
+        showDao.allShowTimeslots()
             .debounce(100L, TimeUnit.MILLISECONDS)
             .toLiveData()
 
-    /** Fetches a [LiveData] that will wrap the show matching the provided ID. */
-    fun showById(showId: Int): LiveData<ShowEntity> =
-        showDao.showById(showId)
+    fun getShowTimeslotsJoins(): LiveData<List<ShowTimeslotsJoin>> =
+        showDao.allShowTimeslotsJoins()
+            .debounce(100L, TimeUnit.MILLISECONDS)
+            .toLiveData()
 
-    fun showsForQuarterYear(quarterYear: QuarterYear): Flowable<List<ShowEntity>> {
+    /** Fetches a [LiveData] that will wrap the [ShowTimeslotEntity] matching the provided ID. */
+    fun showTimeslotById(showId: Int): LiveData<ShowTimeslotEntity> =
+        showDao.showTimeslotById(showId)
+
+    /** Fetches a [LiveData] that will wrap the [ShowTimeslotsJoin] matching the provided ID. */
+    fun showTimeslotsJoinById(showId: Int): LiveData<ShowTimeslotsJoin> =
+        showDao.showTimeslotsJoinById(showId)
+
+    fun timeslotsById(showId: Int): LiveData<List<TimeslotEntity>> =
+        showDao.timeslotsById(showId)
+
+    fun showsForQuarterYear(quarterYear: QuarterYear): Flowable<List<ShowTimeslotEntity>> {
         val (quarter, year) = quarterYear
-        return showDao.allShowsByQuarterYear(quarter, year)
+        return showDao.allShowTimeslotsByQuarterYear(quarter, year)
             .observeOn(Schedulers.io())
     }
 
     fun getShowsByQuarterYear(quarterYear: QuarterYear): List<ShowTimeslotEntity> {
         val (quarter, year) = quarterYear
-        return showDao.getShowsByQuarterYear(quarter, year)
+        return showDao.getShowTimeslotsByQuarterYear(quarter, year)
+    }
+
+    fun getShowTimeslotsJoinsByQuarterYear(quarterYear: QuarterYear): List<ShowTimeslotsJoin> {
+        val (quarter, year) = quarterYear
+        return showDao.getShowTimeslotJoinsByQuarterYear(quarter, year)
     }
 
     /**

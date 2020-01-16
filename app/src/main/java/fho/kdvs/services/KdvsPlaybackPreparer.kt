@@ -201,7 +201,7 @@ class KdvsPlaybackPreparer @Inject constructor(
 
     /** Prepares playback for a past broadcast. */
     private fun prepareBroadcast(broadcastId: Int, showId: Int, position: Long) = launch {
-        val show = showDao.getShowById(showId) ?: return@launch
+        val show = showDao.getShowTimeslotById(showId) ?: return@launch
         val broadcast = broadcastDao.getBroadcastById(broadcastId) ?: return@launch
 
         // TODO glide seems to crash here despite the applied request options for fallback / error

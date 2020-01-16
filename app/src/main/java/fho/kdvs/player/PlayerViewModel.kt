@@ -7,10 +7,8 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.navigation.NavController
 import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
-import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.global.database.SubscriptionEntity
-import fho.kdvs.global.database.TrackEntity
+import fho.kdvs.global.database.*
+import fho.kdvs.show.ShowRepository
 import fho.kdvs.subscription.SubscriptionRepository
 import fho.kdvs.track.TrackRepository
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +29,7 @@ class PlayerViewModel @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.IO
 
-    lateinit var nowPlayingLiveData: MediatorLiveData<Pair<ShowEntity, BroadcastEntity?>>
+    lateinit var nowPlayingLiveData: MediatorLiveData<Pair<ShowTimeslotEntity, BroadcastEntity?>>
     lateinit var subscription: LiveData<SubscriptionEntity>
     var tracksLiveData: LiveData<List<TrackEntity>>? = null
 
@@ -55,7 +53,7 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
-    fun onClickShowInfo(navController: NavController, show: ShowEntity) {
+    fun onClickShowInfo(navController: NavController, show: ShowTimeslotEntity) {
         val navAction = PlayerFragmentDirections
             .actionPlayerFragmentToShowDetailsFragment(show.id)
         if (navController.currentDestination?.id == R.id.playerFragment)

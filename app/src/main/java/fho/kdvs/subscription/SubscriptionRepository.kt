@@ -26,17 +26,16 @@ class SubscriptionRepository @Inject constructor(
         return subscriptions
     }
 
-    fun subscribedShows(): List<ShowTimeslotEntity> {
-        val shows = mutableListOf<ShowTimeslotEntity>()
+    fun subscribedShows(): List<ShowTimeslotsJoin> {
+        val showsWithTimeslots = mutableListOf<ShowTimeslotsJoin>()
         val subscriptions = subscriptionDao.getAll()
 
         subscriptions.forEach {
-            val show = showDao.getShowTimeslotById(it.showId)
-            show?.let { s ->
-                shows.add(s)
+            showDao.getShowTimeslotJoinsById(it.showId)?.let { s ->
+                showsWithTimeslots.add(s)
             }
         }
 
-        return shows
+        return showsWithTimeslots
     }
 }

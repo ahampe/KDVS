@@ -240,7 +240,7 @@ class MainActivity : DaggerAppCompatActivity() {
     private fun initLastPlayedBroadcast(broadcastId: Int) {
         var hasCalled = false
 
-        viewModel.getBroadcastRepo().showBroadcastJoinById(broadcastId)
+        viewModel.getBroadcastRepo().showTimeslotBroadcastJoinById(broadcastId)
             .observe(this, Observer { join ->
                 val broadcast = join.broadcast.singleOrNull { b -> b.broadcastId == broadcastId }
 

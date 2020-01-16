@@ -128,8 +128,8 @@ class BroadcastRepository @Inject constructor(
     fun broadcastById(broadcastId: Int): LiveData<BroadcastEntity> =
         broadcastDao.broadcastById(broadcastId)
 
-    fun showBroadcastJoinById(broadcastId: Int): LiveData<ShowBroadcastJoin> =
-        broadcastDao.showBroadcastJoinByBroadcastId(broadcastId)
+    fun showTimeslotBroadcastJoinById(broadcastId: Int): LiveData<ShowTimeslotBroadcastJoin> =
+        broadcastDao.showTimeslotBroadcastJoinByBroadcastId(broadcastId)
 
     fun getBroadcastById(broadcastId: Int): BroadcastEntity? =
         broadcastDao.getBroadcastById(broadcastId)

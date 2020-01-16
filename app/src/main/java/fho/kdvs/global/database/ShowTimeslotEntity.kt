@@ -3,7 +3,13 @@ package fho.kdvs.global.database
 import fho.kdvs.global.enums.Quarter
 import org.threeten.bp.OffsetDateTime
 
-/** POJO for [ShowEntity] and [TimeslotEntity] join return type. */
+/**
+ * POJO for [ShowEntity] and [TimeslotEntity] one-to-one relation.
+ * Use in cases in which one needs to refer to a specific [TimeslotEntity] for a [ShowEntity].
+ * (e.g. 'Democracy Now on Tuesday 3PM')
+ *
+ * [ShowTimeslotsJoin] captures the one-to-many relation.
+ * */
 data class ShowTimeslotEntity (
     override val id: Int,
     override var name: String? = null,
