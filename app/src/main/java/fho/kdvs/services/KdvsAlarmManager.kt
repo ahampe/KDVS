@@ -54,21 +54,23 @@ class KdvsAlarmManager @Inject constructor(
                         ?.plusWeeks(weekOffset)
                         ?.minusMinutes(kdvsPreferences.alarmNoticeInterval ?: 0)
 
-                    alarmTime?.let {
+                    if (alarmTime == null) {
+                        return@async false
+                    } else {
                         cancelShowAlarm(show) // prevent multiple registrations
 
                         // Use setRepeating() for custom interval
                         alarmMgr?.setRepeating(
                             AlarmManager.RTC_WAKEUP,
-                            it.toInstant().toEpochMilli(),
+                            alarmTime.toInstant().toEpochMilli(),
                             WEEK_IN_MILLIS * showsAtTime.size,
                             alarmIntent
                         )
-
-                        return@async true
                     }
                 }
             }
+
+            return@async true
         }
 
         return@async false

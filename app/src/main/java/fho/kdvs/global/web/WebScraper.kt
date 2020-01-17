@@ -183,7 +183,7 @@ class WebScraperManager @Inject constructor(
             }
         }
 
-        showsScraped.forEach {
+        showsScraped.distinctBy { s -> s.id }.forEach {
             db.showDao().updateOrInsert(it)
         }
 
