@@ -106,12 +106,12 @@ class ShowDaoTest : DatabaseTest() {
         val shows = showsWithTimeslots.map { s -> s.first }
         val timeslots = showsWithTimeslots.flatMap { s -> s.second }
 
-        showsWithTimeslots.forEach { (show, timeslots) ->
-            showDao.insert(show)
+        shows.forEach {
+            showDao.insert(it)
+        }
 
-            timeslots.forEach {
-                timeslotDao.insert(it)
-            }
+        timeslots.forEach {
+            timeslotDao.insert(it)
         }
 
         val showsDb = showDao.getAllShows()

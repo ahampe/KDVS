@@ -22,6 +22,7 @@ object DbTestUtils {
                 year = 1943
             ),
             TimeslotEntity(
+                timeslotId=1,
                 showId= 1888,
                 timeStart = TimeHelper.makeWeekTime24h("01:00", Day.SUNDAY),
                 timeEnd = TimeHelper.makeWeekTime24h("02:00", Day.SUNDAY)
@@ -35,11 +36,11 @@ object DbTestUtils {
                 genre = "Rabelaisian",
                 defaultDesc = "The Absolute Madman",
                 defaultImageHref = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Laurence_Sterne_by_Sir_Joshua_Reynolds.jpg/800px-Laurence_Sterne_by_Sir_Joshua_Reynolds.jpg",
-
                 quarter = Quarter.SPRING,
                 year = 1943
             ),
             TimeslotEntity(
+                timeslotId=2,
                 showId= 1889,
                 timeStart = TimeHelper.makeWeekTime24h("22:00", Day.SATURDAY),
                 timeEnd = TimeHelper.makeWeekTime24h("01:00", Day.SUNDAY)
@@ -61,11 +62,13 @@ object DbTestUtils {
             ),
             listOf(
                 TimeslotEntity(
+                    timeslotId=1,
                     showId= 1888,
                     timeStart = TimeHelper.makeWeekTime24h("01:00", Day.SUNDAY),
                     timeEnd = TimeHelper.makeWeekTime24h("02:00", Day.SUNDAY)
                 ),
                 TimeslotEntity(
+                    timeslotId=2,
                     showId= 1888,
                     timeStart = TimeHelper.makeWeekTime24h("01:00", Day.MONDAY),
                     timeEnd = TimeHelper.makeWeekTime24h("02:00", Day.MONDAY)
@@ -85,11 +88,13 @@ object DbTestUtils {
             ),
             listOf(
                 TimeslotEntity(
+                    timeslotId=3,
                     showId= 1889,
                     timeStart = TimeHelper.makeWeekTime24h("22:00", Day.SATURDAY),
                     timeEnd = TimeHelper.makeWeekTime24h("01:00", Day.SUNDAY)
                 ),
                 TimeslotEntity(
+                    timeslotId=4,
                     showId= 1889,
                     timeStart = TimeHelper.makeWeekTime24h("20:00", Day.MONDAY),
                     timeEnd = TimeHelper.makeWeekTime24h("22:00", Day.MONDAY)
