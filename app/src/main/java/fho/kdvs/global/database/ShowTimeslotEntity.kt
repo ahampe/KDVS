@@ -22,3 +22,16 @@ data class ShowTimeslotEntity (
     var timeStart: OffsetDateTime? = null,
     var timeEnd: OffsetDateTime? = null
 ): Show()
+
+fun makeShowTimeslot(show: ShowEntity, timeslot: TimeslotEntity) = ShowTimeslotEntity(
+    id = show.id,
+    name = show.name,
+    host = show.host,
+    genre = show.genre,
+    defaultDesc = show.defaultDesc,
+    defaultImageHref = show.defaultImageHref,
+    quarter = show.quarter,
+    year = show.year,
+    timeStart = timeslot.timeStart,
+    timeEnd = timeslot.timeEnd
+)

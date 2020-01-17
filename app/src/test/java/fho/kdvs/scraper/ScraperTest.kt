@@ -13,6 +13,7 @@ open class ScraperTest {
     private lateinit var db: KdvsDatabase
     private lateinit var preferences: KdvsPreferences
     internal lateinit var showDao: ShowDao
+    internal lateinit var timeslotDao: TimeslotDao
     internal lateinit var broadcastDao: BroadcastDao
     internal lateinit var trackDao: TrackDao
     internal lateinit var newsDao: NewsDao
@@ -25,6 +26,7 @@ open class ScraperTest {
         db = mock(KdvsDatabase::class.java)
         preferences = mock(KdvsPreferences::class.java)
         showDao = mock(ShowDao::class.java)
+        timeslotDao = mock(TimeslotDao::class.java)
         broadcastDao = mock(BroadcastDao::class.java)
         trackDao = mock(TrackDao::class.java)
         newsDao = mock(NewsDao::class.java)
@@ -33,6 +35,7 @@ open class ScraperTest {
         fundraiserDao = mock(FundraiserDao::class.java)
 
         `when`(db.showDao()).thenReturn(showDao)
+        `when`(db.timeslotDao()).thenReturn(timeslotDao)
         `when`(db.broadcastDao()).thenReturn(broadcastDao)
         `when`(db.trackDao()).thenReturn(trackDao)
         `when`(db.newsDao()).thenReturn(newsDao)

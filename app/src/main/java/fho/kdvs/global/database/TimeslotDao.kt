@@ -10,6 +10,9 @@ abstract class TimeslotDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insert(timeslotEntity: TimeslotEntity)
 
+    @Query("SELECT * from timeslotData")
+    abstract fun getAllTimeslots(): List<TimeslotEntity>
+
     @Query("DELETE from timeslotData")
     abstract fun deleteAll()
 }

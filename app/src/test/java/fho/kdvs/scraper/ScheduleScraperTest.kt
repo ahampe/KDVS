@@ -26,7 +26,7 @@ class ScheduleScraperTest : ScraperTest() {
 
     @Test
     fun scrapeSchedule_fromFile() {
-        expectedShows = MockObjects.scheduleShows
+        expectedShows = MockObjects.scheduleShowsWithTimeslots.map { s -> s.first}
 
         val html = TestUtils.loadFromResource("schedule-grid.html")
 

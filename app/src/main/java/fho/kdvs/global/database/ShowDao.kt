@@ -47,6 +47,9 @@ abstract class ShowDao {
 
     //endregion
 
+    @Query("SELECT * from showData")
+    abstract fun getAllShows(): List<ShowEntity>
+
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("SELECT * from showData INNER JOIN timeslotData on timeslotData.showId = showData.id")
     abstract fun getAllShowTimeslots(): List<ShowTimeslotEntity>

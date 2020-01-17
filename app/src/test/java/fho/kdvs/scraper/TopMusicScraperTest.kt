@@ -3,6 +3,7 @@ package fho.kdvs.scraper
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.TopMusicEntity
+import fho.kdvs.topmusic.TopMusicType
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -20,10 +21,15 @@ class TopMusicScraperTest : ScraperTest() {
 
         `when`(topMusicDao.insert(TestUtils.any())).thenAnswer {
             val topMusic: TopMusicEntity = it.getArgument(0)
-            if (topMusic.isNewAdd)
-                scrapedTopAdds.add(topMusic)
-            else
-                scrapedTopAlbums.add(topMusic)
+            when (topMusic.type) {
+                TopMusicType.ADD -> {
+                    scrapedTopAdds.add(topMusic)
+                }
+                TopMusicType.ALBUM -> {
+                    scrapedTopAlbums.add(topMusic)
+                }
+                else -> {}
+            }
         }
     }
 
