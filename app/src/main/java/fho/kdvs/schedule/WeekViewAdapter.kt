@@ -12,8 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.R
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.global.util.URLs
-import fho.kdvs.schedule.ScheduleTimeslot.Companion.DUMMY_ID
 import kotlinx.android.synthetic.main.cell_day_column.view.*
 import kotlinx.android.synthetic.main.fragment_schedule.view.*
 import timber.log.Timber
@@ -49,7 +47,7 @@ class WeekViewAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val day = days[position % 7]
 
-        val childAdapter = TimeSlotViewAdapter(kdvsPreferences.theme) { clickData ->
+        val childAdapter = TimeslotViewAdapter(kdvsPreferences.theme) { clickData ->
             // Here is where we navigate to the ShowDetailsFragment or display show selection view
             Timber.d("clicked ${clickData.item.names.joinToString()}")
             if (clickData.item.ids.count() > 1)
@@ -70,18 +68,10 @@ class WeekViewAdapter(
             adapter = childAdapter
             layoutManager = childLayoutManager
             setItemViewCacheSize(20)
-
-            // TODO: timeslot dividers?
-//            if (recyclerView.itemDecorationCount == 0){
-//                val dividerItemDecoration = DividerItemDecoration(context.getDrawable(R.drawable.timeslot_divider)!!)
-//                addItemDecoration(dividerItemDecoration)
-//            }
         }
 
         day.timeSlotsLiveData.observe(fragment, Observer { timeslots ->
-            val correctedTimeSlots = correctTimeSlotListWhenGap(timeslots)
-
-            childAdapter.onShowsChanged(correctedTimeSlots)
+            childAdapter.onShowsChanged(timeslots)
 
             // Scroll to current show, only when the fragment is first created
             if (scrollingToCurrentShow) {
@@ -113,43 +103,6 @@ class WeekViewAdapter(
                 }
             }
         }
-    }
-
-    /**
-     * As of Aug. 17 2019, there is a gap in the KDVS schedule grid as per the website... Friday 3:30-4:30PM
-     * To correct for this we create a dummy timeslot in the position that the gap is in.
-     * Otherwise, the gap will appear at the top of the day and make all of the day's timeslots offset.
-     */
-    private fun correctTimeSlotListWhenGap(timeslots: List<ScheduleTimeslot>): List<ScheduleTimeslot> {
-        val correctedList = mutableListOf<ScheduleTimeslot>()
-        correctedList.addAll(timeslots)
-
-        var position: Int? = null
-        var dummy: ScheduleTimeslot? = null
-
-        for (i in 0..timeslots.size) {
-            if ((i < timeslots.size - 1) && timeslots[i].timeEnd != timeslots[i + 1].timeStart) {
-                val isFirstHalfOrEntireSegment =
-                    timeslots[i].timeEnd?.dayOfWeek == timeslots[i + 1].timeStart?.dayOfWeek
-
-                position = i + 1
-
-                dummy = ScheduleTimeslot(
-                    timeslots[i].timeEnd,
-                    timeslots[i].timeStart,
-                    isFirstHalfOrEntireSegment,
-                    URLs.SHOW_IMAGE_PLACEHOLDER,
-                    mutableListOf(DUMMY_ID),
-                    mutableListOf("N/A")
-                )
-            }
-        }
-
-        dummy?.let {
-            correctedList.add(position ?: 0, it)
-        }
-
-        return correctedList
     }
 
     private fun initNestedScrollView(parent: View) {
