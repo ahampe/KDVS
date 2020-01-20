@@ -218,6 +218,6 @@ class ShowRepository @Inject constructor(
 
     suspend fun allShowsAtTimeOrderedRelativeToCurrentWeek(timeStart: OffsetDateTime): List<ShowTimeslotEntity?> {
         val liveShowUpdater = LiveShowUpdater(this, broadcastRepository, showDao)
-        return liveShowUpdater.orderShowsAtTimeRelativeToCurrentWeekAsync(timeStart)
+        return liveShowUpdater.orderShowTimeslotsAtTimeRelativeToCurrentWeekAsync(timeStart)
     }
 }
