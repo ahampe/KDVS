@@ -178,9 +178,15 @@ class ShowRepository @Inject constructor(
     fun timeslotsById(showId: Int): LiveData<List<TimeslotEntity>> =
         showDao.timeslotsById(showId)
 
-    fun showsForQuarterYear(quarterYear: QuarterYear): Flowable<List<ShowTimeslotEntity>> {
+    fun showTimeslotsByQuarterYear(quarterYear: QuarterYear): Flowable<List<ShowTimeslotEntity>> {
         val (quarter, year) = quarterYear
         return showDao.allShowTimeslotsByQuarterYear(quarter, year)
+            .observeOn(Schedulers.io())
+    }
+
+    fun showTimeslotsJoinsByQuarterYear(quarterYear: QuarterYear): Flowable<List<ShowTimeslotsJoin>> {
+        val (quarter, year) = quarterYear
+        return showDao.allShowTimeslotJoinsByQuarterYear(quarter, year)
             .observeOn(Schedulers.io())
     }
 

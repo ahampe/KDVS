@@ -38,7 +38,7 @@ fun setShowSelectionHeader(view: TextView, index: Int) {
     }
 }
 
-@BindingAdapter("timeSlotSize")
+@BindingAdapter("numShows")
 fun setShowTimeAlternatingText(view: TextView, size: Int) {
     if (size > 1) {
         if (size == 2) view.text = view.resources.getString(R.string.alternating_every_other)

@@ -84,8 +84,8 @@
         <TextView
             android:id="@+id/currentShowTime"
             style="@style/TextAppearance.MaterialComponents.Subtitle2"
-            searchTimeEnd="@{currentShow.timeEnd}"
-            searchTimeStart="@{currentShow.timeStart}"
+            currentShowTimeEnd="@{currentShow.timeEnd}"
+            currentShowTimeStart="@{currentShow.timeStart}"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"

@@ -1,9 +1,6 @@
 package fho.kdvs.global.database
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
+import androidx.room.*
 import org.threeten.bp.OffsetDateTime
 
 
@@ -15,7 +12,8 @@ import org.threeten.bp.OffsetDateTime
             parentColumns = ["id"],
             childColumns = ["showId"],
             onDelete = ForeignKey.CASCADE
-        )]
+        )],
+    indices = [Index(value = arrayOf("showId", "timeStart"), unique = true)]
 )
 data class TimeslotEntity(
     @PrimaryKey(autoGenerate = true) val timeslotId: Int = 0,

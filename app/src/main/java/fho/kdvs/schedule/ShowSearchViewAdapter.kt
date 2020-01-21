@@ -6,36 +6,32 @@ import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
 import fho.kdvs.databinding.CellShowSearchResultBinding
-import fho.kdvs.global.database.ShowTimeslotEntity
+import fho.kdvs.global.database.joins.ShowTimeslotsJoin
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
-import fho.kdvs.show.ShowTimeslotDiffCallback
+import fho.kdvs.show.ShowTimeslotsJoinDiffCallback
 import timber.log.Timber
 
-/** Adapter for a show search view.*/
-class ShowSearchViewAdapter(
-    private val showTimeslotsWithSize: List<Pair<ShowTimeslotEntity, Int>>,
-    private val fragment: ShowSearchFragment,
-    onClick: (ClickData<ShowTimeslotEntity>) -> Unit
-) : BindingRecyclerViewAdapter<ShowTimeslotEntity, ShowSearchViewAdapter.ViewHolder>(
-    onClick,
-    ShowTimeslotDiffCallback()
-), Filterable {
 
+class ShowSearchViewAdapter (
+    joins: List<ShowTimeslotsJoin>,
+    private val fragment: ShowSearchFragment,
+    onClick: (ClickData<ShowTimeslotsJoin>) -> Unit
+) : BindingRecyclerViewAdapter<ShowTimeslotsJoin, ShowSearchViewAdapter.ViewHolder>(
+    onClick,
+    ShowTimeslotsJoinDiffCallback()
+), Filterable {
     var query: String = ""
 
-    var shows: List<ShowTimeslotEntity>? = null
-    val results = mutableListOf<ShowTimeslotEntity>()
+    var showTimeslotsJoins: List<ShowTimeslotsJoin>? = null
+    val results = mutableListOf<ShowTimeslotsJoin>()
 
     init {
-        shows = showTimeslotsWithSize
-            .map { s -> s.first }
-            .toList()
-            .distinct()
+        showTimeslotsJoins = joins.distinct()
 
-        shows?.let {
+        showTimeslotsJoins?.let {
             results.addAll(it)
             submitResults()
         }
@@ -55,19 +51,19 @@ class ShowSearchViewAdapter(
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(charSeq: CharSequence): FilterResults {
-                val filteredList = ArrayList<ShowTimeslotEntity>()
+                val filteredList = ArrayList<ShowTimeslotsJoin>()
                 val query = charSeq.toString().trim()
 
                 if (query.isNotEmpty()) {
-                    if (fragment.hashedShows[query] != null) {
-                        filteredList.addAll(fragment.hashedShows[query]!!)
+                    if (fragment.hashedShowTimeslotsJoins[query] != null) {
+                        filteredList.addAll(fragment.hashedShowTimeslotsJoins[query]!!)
                     } else {
-                        shows?.forEach {
+                        showTimeslotsJoins?.forEach {
                             if ("^$query".toRegex() // with articles
-                                    .find(it.name?.toLowerCase() ?: "") != null ||
+                                    .find(it.show?.name?.toLowerCase() ?: "") != null ||
                                 "^$query".toRegex() // without articles
                                     .find(
-                                        it.name?.toLowerCase()?.removeLeadingArticles() ?: ""
+                                        it.show?.name?.toLowerCase()?.removeLeadingArticles() ?: ""
                                     ) != null
                             )
                                 filteredList.add(it)
@@ -76,12 +72,12 @@ class ShowSearchViewAdapter(
                         results.clear()
                         results.addAll(filteredList)
 
-                        fragment.hashedShows[query] = filteredList
+                        fragment.hashedShowTimeslotsJoins[query] = filteredList
                     }
                 } else {
                     results.clear()
 
-                    shows?.let {
+                    showTimeslotsJoins?.let {
                         results.addAll(it)
                     }
                 }
@@ -104,8 +100,8 @@ class ShowSearchViewAdapter(
     }
 
     fun submitResults() {
-        submitList(this@ShowSearchViewAdapter.results.sortedBy { s ->
-            s.name
+        submitList(this@ShowSearchViewAdapter.results.sortedBy { r ->
+            r.show?.name
                 ?.toLowerCase()
                 ?.trim()
                 ?.removeLeadingArticles()
@@ -115,11 +111,11 @@ class ShowSearchViewAdapter(
     class ViewHolder(
         private val binding: CellShowSearchResultBinding,
         private val queryStr: String
-    ) : BindingViewHolder<ShowTimeslotEntity>(binding.root) {
-        override fun bind(listener: View.OnClickListener, item: ShowTimeslotEntity) {
+    ) : BindingViewHolder<ShowTimeslotsJoin>(binding.root) {
+        override fun bind(listener: View.OnClickListener, item: ShowTimeslotsJoin) {
             binding.apply {
                 clickListener = listener
-                showTimeslot = item
+                show = item.show
                 query = queryStr
             }
         }

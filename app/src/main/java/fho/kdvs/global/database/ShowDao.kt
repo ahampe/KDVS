@@ -86,8 +86,9 @@ abstract class ShowDao {
     @Query("SELECT DISTINCT host from showData ORDER BY host")
     abstract fun getDistinctHosts(): List<String>
 
+    @Transaction
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-    @Query("""SELECT * from showData 
+    @Query("""SELECT DISTINCT * from showData 
         INNER JOIN timeslotData on timeslotData.showId = showData.id 
         WHERE quarter = :quarter AND year = :year""")
     abstract fun allShowTimeslotsByQuarterYear(
@@ -95,8 +96,19 @@ abstract class ShowDao {
         year: Int
     ): Flowable<List<ShowTimeslotEntity>>
 
+    @Transaction
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-    @Query("""SELECT * from showData 
+    @Query("""SELECT DISTINCT * from showData 
+        INNER JOIN timeslotData on timeslotData.showId = showData.id 
+        WHERE quarter = :quarter AND year = :year""")
+    abstract fun allShowTimeslotJoinsByQuarterYear(
+        quarter: Quarter,
+        year: Int
+    ): Flowable<List<ShowTimeslotsJoin>>
+
+    @Transaction
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query("""SELECT DISTINCT * from showData 
         INNER JOIN timeslotData on timeslotData.showId = showData.id 
         WHERE quarter = :quarter AND year = :year""")
     abstract fun getShowTimeslotsByQuarterYear(
@@ -106,7 +118,7 @@ abstract class ShowDao {
 
     @Transaction
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-    @Query("""SELECT * from showData 
+    @Query("""SELECT DISTINCT * from showData 
         INNER JOIN timeslotData on timeslotData.showId = showData.id 
         WHERE quarter = :quarter AND year = :year""")
     abstract fun getShowTimeslotJoinsByQuarterYear(
@@ -117,7 +129,7 @@ abstract class ShowDao {
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Transaction
     @Query(
-        """SELECT * from showData
+        """SELECT DISTINCT * from showData
         INNER JOIN timeslotData on timeslotData.showId = showData.id
         WHERE (timeStart < :time AND timeEnd > :time OR
         timeEnd < timeStart AND (timeEnd > :time OR timeStart < :time))
@@ -132,7 +144,7 @@ abstract class ShowDao {
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
-        """SELECT * from showData
+        """SELECT DISTINCT * from showData
             INNER JOIN timeslotData on timeslotData.showId = showData.id
             WHERE (timeEnd > :timeStart AND timeStart < :timeEnd OR
             timeEnd < timeStart AND (timeEnd > :timeStart OR timeStart < :timeEnd))
@@ -149,7 +161,7 @@ abstract class ShowDao {
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Transaction
     @Query(
-        """SELECT * from showData
+        """SELECT DISTINCT * from showData
             INNER JOIN timeslotData on timeslotData.showId = showData.id
             WHERE (timeEnd > :timeStart AND timeStart < :timeEnd OR
             timeEnd < timeStart AND (timeEnd > :timeStart OR timeStart < :timeEnd))
@@ -166,7 +178,7 @@ abstract class ShowDao {
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Transaction
     @Query(
-        """SELECT * from showData
+        """SELECT DISTINCT * from showData
             INNER JOIN timeslotData on timeslotData.showId = showData.id
             WHERE (timeEnd > :timeStart AND timeStart < :timeEnd OR
             timeEnd < timeStart AND (timeEnd > :timeStart OR timeStart < :timeEnd))
@@ -182,7 +194,7 @@ abstract class ShowDao {
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
-        """SELECT * from showData
+        """SELECT DISTINCT * from showData
         INNER JOIN timeslotData on timeslotData.showId = showData.id
         WHERE (timeStart <= :time AND timeEnd > :time OR
         timeEnd < timeStart AND (timeEnd > :time OR timeStart < :time))
@@ -193,7 +205,7 @@ abstract class ShowDao {
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Transaction
     @Query(
-        """SELECT * from showData
+        """SELECT DISTINCT * from showData
         INNER JOIN timeslotData on timeslotData.showId = showData.id
         WHERE (timeStart <= :time AND timeEnd > :time OR
         timeEnd < timeStart AND (timeEnd > :time OR timeStart < :time))
@@ -257,13 +269,16 @@ abstract class ShowDao {
     @Query("UPDATE showData SET defaultImageHref = :defaultImageHref WHERE id = :id")
     abstract fun updateShowDefaultImageHref(id: Int, defaultImageHref: String?)
 
-    // TODO change logic for multi-timeslots
-    fun updateOrInsert(show: ShowEntity) {
-        if (getShowTimeslotById(show.id) != null) {
-            // we don't want to override any existing image hrefs if we didn't find one this time
-            show.defaultImageHref?.let { updateShowDefaultImageHref(show.id, it) }
+    fun updateOrInsert(showNew: ShowEntity) {
+        val existingShowTimeslot = getShowTimeslotById(showNew.id)
+
+        if (existingShowTimeslot != null) {
+            showNew.defaultImageHref?.let {
+                if (it != existingShowTimeslot.defaultImageHref)
+                    updateShowDefaultImageHref(showNew.id, it)
+            }
         } else {
-            insert(show)
+            insert(showNew)
         }
     }
 }
