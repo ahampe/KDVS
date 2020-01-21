@@ -1,5 +1,8 @@
 package fho.kdvs.scraper
 
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doAnswer
+import com.nhaarman.mockitokotlin2.whenever
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.BroadcastEntity
@@ -7,7 +10,6 @@ import fho.kdvs.global.database.ShowEntity
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.`when`
 
 class ShowScraperTest : ScraperTest() {
     private lateinit var scrapedShow: ShowEntity
@@ -20,26 +22,25 @@ class ShowScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        `when`(
-            showDao.updateShowDetails(
-                TestUtils.any(),
-                TestUtils.any(),
-                TestUtils.any(),
-                TestUtils.any()
-            )
-        ).thenAnswer {
+        whenever(
+            showDao.updateShowDetails(any(), any(), any(), any())
+        ).doAnswer {
             val show = ShowEntity(
-                id = it.getArgument(0),
-                host = it.getArgument(1),
-                genre = it.getArgument(2),
-                defaultDesc = it.getArgument(3)
+                id = it.arguments[0] as Int,
+                host = it.arguments[1] as String?,
+                genre = it.arguments[2] as String?,
+                defaultDesc = it.arguments[3] as String?
             )
-            Any().also { scrapedShow = show } // thenAnswer hack
+
+            scrapedShow = show
+
+            null
         }
 
-        `when`(broadcastDao.insert(TestUtils.any())).thenAnswer {
-            val broadcast: BroadcastEntity = it.getArgument(0)
+        whenever(broadcastDao.insert(any())).doAnswer {
+            val broadcast = it.arguments[0] as BroadcastEntity
             scrapedBroadcasts.add(broadcast)
+            null
         }
     }
 

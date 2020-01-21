@@ -1,5 +1,8 @@
 package fho.kdvs.scraper
 
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doAnswer
+import com.nhaarman.mockitokotlin2.whenever
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.ShowEntity
@@ -7,7 +10,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.`when`
 
 class ScheduleScraperTest : ScraperTest() {
     private val scrapedShows = mutableListOf<ShowEntity>()
@@ -18,15 +20,16 @@ class ScheduleScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        `when`(showDao.insert(TestUtils.any())).thenAnswer {
-            val show: ShowEntity = it.getArgument(0)
+        whenever(showDao.insert(any())).doAnswer {
+            val show = it.arguments[0] as ShowEntity
             scrapedShows.add(show)
+            null
         }
     }
 
     @Test
     fun scrapeSchedule_fromFile() {
-        expectedShows = MockObjects.scheduleShowsWithTimeslots.map { s -> s.first}
+        expectedShows = MockObjects.scheduleShowsWithTimeslots.map { s -> s.first }
 
         val html = TestUtils.loadFromResource("schedule-grid.html")
 

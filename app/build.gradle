@@ -63,7 +63,7 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:3.2.0"
 
     // Mockito
-    testImplementation "org.mockito:mockito-core:$mockito_verison"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockito_kotlin_version"
 
     // Robolectric
     testImplementation "org.robolectric:robolectric:4.1"

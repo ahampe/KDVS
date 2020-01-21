@@ -1,5 +1,8 @@
 package fho.kdvs.scraper
 
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doAnswer
+import com.nhaarman.mockitokotlin2.whenever
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.TopMusicEntity
@@ -7,7 +10,6 @@ import fho.kdvs.topmusic.TopMusicType
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.`when`
 
 class TopMusicScraperTest : ScraperTest() {
     private val scrapedTopAdds = mutableListOf<TopMusicEntity>()
@@ -19,8 +21,8 @@ class TopMusicScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        `when`(topMusicDao.insert(TestUtils.any())).thenAnswer {
-            val topMusic: TopMusicEntity = it.getArgument(0)
+        whenever(topMusicDao.insert(any())).doAnswer {
+            val topMusic = it.arguments[0] as TopMusicEntity
             when (topMusic.type) {
                 TopMusicType.ADD -> {
                     scrapedTopAdds.add(topMusic)
@@ -28,8 +30,10 @@ class TopMusicScraperTest : ScraperTest() {
                 TopMusicType.ALBUM -> {
                     scrapedTopAlbums.add(topMusic)
                 }
-                else -> {}
+                else -> {
+                }
             }
+            null
         }
     }
 

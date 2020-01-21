@@ -1,20 +1,21 @@
 package fho.kdvs.scraper
 
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import fho.kdvs.extensions.initThreeTen
 import fho.kdvs.global.database.*
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.web.WebScraperManager
 import org.junit.Before
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
 
 open class ScraperTest {
     internal lateinit var scraperManager: WebScraperManager
 
     private lateinit var db: KdvsDatabase
     private lateinit var preferences: KdvsPreferences
+    private lateinit var timeslotDao: TimeslotDao
     internal lateinit var showDao: ShowDao
-    internal lateinit var timeslotDao: TimeslotDao
     internal lateinit var broadcastDao: BroadcastDao
     internal lateinit var trackDao: TrackDao
     internal lateinit var newsDao: NewsDao
@@ -26,25 +27,25 @@ open class ScraperTest {
     open fun setup() {
         initThreeTen()
 
-        db = mock(KdvsDatabase::class.java)
-        preferences = mock(KdvsPreferences::class.java)
-        showDao = mock(ShowDao::class.java)
-        timeslotDao = mock(TimeslotDao::class.java)
-        broadcastDao = mock(BroadcastDao::class.java)
-        trackDao = mock(TrackDao::class.java)
-        newsDao = mock(NewsDao::class.java)
-        staffDao = mock(StaffDao::class.java)
-        topMusicDao = mock(TopMusicDao::class.java)
-        fundraiserDao = mock(FundraiserDao::class.java)
+        db = mock()
+        preferences = mock()
+        showDao = mock()
+        timeslotDao = mock()
+        broadcastDao = mock()
+        trackDao = mock()
+        newsDao = mock()
+        staffDao = mock()
+        topMusicDao = mock()
+        fundraiserDao = mock()
 
-        `when`(db.showDao()).thenReturn(showDao)
-        `when`(db.timeslotDao()).thenReturn(timeslotDao)
-        `when`(db.broadcastDao()).thenReturn(broadcastDao)
-        `when`(db.trackDao()).thenReturn(trackDao)
-        `when`(db.newsDao()).thenReturn(newsDao)
-        `when`(db.staffDao()).thenReturn(staffDao)
-        `when`(db.topMusicDao()).thenReturn(topMusicDao)
-        `when`(db.fundraiserDao()).thenReturn(fundraiserDao)
+        whenever(db.showDao()).doReturn(showDao)
+        whenever(db.timeslotDao()).doReturn(timeslotDao)
+        whenever(db.broadcastDao()).doReturn(broadcastDao)
+        whenever(db.trackDao()).doReturn(trackDao)
+        whenever(db.newsDao()).doReturn(newsDao)
+        whenever(db.staffDao()).doReturn(staffDao)
+        whenever(db.topMusicDao()).doReturn(topMusicDao)
+        whenever(db.fundraiserDao()).doReturn(fundraiserDao)
 
         scraperManager = WebScraperManager(db, preferences)
     }

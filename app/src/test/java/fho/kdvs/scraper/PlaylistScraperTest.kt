@@ -1,5 +1,8 @@
 package fho.kdvs.scraper
 
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doAnswer
+import com.nhaarman.mockitokotlin2.whenever
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.BroadcastEntity
@@ -9,7 +12,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.`when`
 
 class PlaylistScraperTest : ScraperTest() {
     private val scrapedTracks = mutableListOf<TrackEntity>()
@@ -22,19 +24,21 @@ class PlaylistScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        `when`(
-            broadcastDao.updateBroadcastDetails(
-                TestUtils.any(), TestUtils.any(), TestUtils.any()
-            )
-        ).thenAnswer {
-            scrapedBroadcast.description = it.getArgument(1)
-            scrapedBroadcast.imageHref = it.getArgument(2)
-            assertEquals(scrapedBroadcast.broadcastId, it.getArgument(0))
+        whenever(
+            broadcastDao.updateBroadcastDetails(any(), any(), any())
+        ).doAnswer {
+            scrapedBroadcast.description = it.arguments[1] as? String
+            scrapedBroadcast.imageHref = it.arguments[2] as? String
+
+            assertEquals(scrapedBroadcast.broadcastId, it.arguments[0])
+
+            null
         }
 
-        `when`(trackDao.insert(TestUtils.any())).thenAnswer {
-            val track: TrackEntity = it.getArgument(0)
+        whenever(trackDao.insert(any())).doAnswer {
+            val track = it.arguments[0] as TrackEntity
             scrapedTracks.add(track)
+            null
         }
     }
 

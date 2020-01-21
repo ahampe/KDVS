@@ -1,12 +1,14 @@
 package fho.kdvs.scraper
 
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doAnswer
+import com.nhaarman.mockitokotlin2.whenever
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.StaffEntity
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.`when`
 
 class StaffScraperTest : ScraperTest() {
     private val scrapedStaff = mutableListOf<StaffEntity>()
@@ -16,9 +18,10 @@ class StaffScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        `when`(staffDao.insert(TestUtils.any())).thenAnswer {
-            val staffMember: StaffEntity = it.getArgument(0)
+        whenever(staffDao.insert(any())).doAnswer {
+            val staffMember = it.arguments[0] as StaffEntity
             scrapedStaff.add(staffMember)
+            null
         }
     }
 
