@@ -1,5 +1,6 @@
 package fho.kdvs.scraper
 
+import fho.kdvs.extensions.initThreeTen
 import fho.kdvs.global.database.*
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.web.WebScraperManager
@@ -23,6 +24,8 @@ open class ScraperTest {
 
     @Before
     open fun setup() {
+        initThreeTen()
+
         db = mock(KdvsDatabase::class.java)
         preferences = mock(KdvsPreferences::class.java)
         showDao = mock(ShowDao::class.java)

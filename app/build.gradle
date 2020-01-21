@@ -36,6 +36,9 @@ android {
         exclude 'META-INF/license.txt'
         exclude 'META-INF/notice.txt'
     }
+    sourceSets {
+        test.resources.srcDirs += 'src/test/java/fho/kdvs/resources'
+    }
 }
 
 dependencies {
@@ -117,7 +120,7 @@ dependencies {
     implementation "android.arch.lifecycle:reactivestreams:1.1.1"
 
     // JSR-310 Android backport
-    implementation "com.jakewharton.threetenabp:threetenabp:1.1.1"
+    implementation "com.jakewharton.threetenabp:threetenabp:1.2.2"
     testImplementation ('org.threeten:threetenbp:1.3.2'){
         exclude group:'com.jakewharton.threetenabp', module:'threetenabp'
     }
