@@ -111,45 +111,45 @@ open class KdvsPreferences @Inject constructor(application: Application) {
 
     val preferences: SharedPreferences = application.getSharedPreferences(FILE_NAME, MODE_PRIVATE)
 
-    var streamUrl: String? by StringPreference(Key.STREAM_URL)
+    open var streamUrl: String? by StringPreference(Key.STREAM_URL)
 
-    var fundraiserWindow: Int? by IntPreference(Key.FUNDRAISER_WINDOW)
+    open var fundraiserWindow: Int? by IntPreference(Key.FUNDRAISER_WINDOW)
 
-    var lastScheduleScrape: Long? by LongPreference(Key.LAST_SCHEDULE_SCRAPE)
+    open var lastScheduleScrape: Long? by LongPreference(Key.LAST_SCHEDULE_SCRAPE)
 
-    var lastNewsScrape: Long? by LongPreference(Key.LAST_NEWS_SCRAPE)
+    open var lastNewsScrape: Long? by LongPreference(Key.LAST_NEWS_SCRAPE)
 
-    var lastStaffScrape: Long? by LongPreference(Key.LAST_STAFF_SCRAPE)
+    open var lastStaffScrape: Long? by LongPreference(Key.LAST_STAFF_SCRAPE)
 
-    var lastTopFiveAddsScrape: Long? by LongPreference(Key.LAST_TOP_FIVE_ADDS_SCRAPE)
+    open var lastTopFiveAddsScrape: Long? by LongPreference(Key.LAST_TOP_FIVE_ADDS_SCRAPE)
 
-    var lastTopThirtyAlbumsScrape: Long? by LongPreference(Key.LAST_TOP_THIRTY_ALBUMS_SCRAPE)
+    open var lastTopThirtyAlbumsScrape: Long? by LongPreference(Key.LAST_TOP_THIRTY_ALBUMS_SCRAPE)
 
-    var lastFundraiserScraper: Long? by LongPreference(Key.LAST_FUNDRAISER_SCRAPE)
+    open var lastFundraiserScraper: Long? by LongPreference(Key.LAST_FUNDRAISER_SCRAPE)
 
-    var lastObservedFundraiserAmount: Int? by IntPreference(Key.LAST_OBSERVED_FUNDRAISER_AMOUNT)
+    open var lastObservedFundraiserAmount: Int? by IntPreference(Key.LAST_OBSERVED_FUNDRAISER_AMOUNT)
 
-    var lastObservedNewsId: Int? by IntPreference(Key.LAST_OBSERVED_NEWS_ID)
+    open var lastObservedNewsId: Int? by IntPreference(Key.LAST_OBSERVED_NEWS_ID)
 
-    var lastObservedTopAddsId: Int? by IntPreference(Key.LAST_OBSERVED_TOP_ADDS_ID)
+    open var lastObservedTopAddsId: Int? by IntPreference(Key.LAST_OBSERVED_TOP_ADDS_ID)
 
-    var lastObservedTopAlbumsId: Int? by IntPreference(Key.LAST_OBSERVED_TOP_ALBUMS_ID)
+    open var lastObservedTopAlbumsId: Int? by IntPreference(Key.LAST_OBSERVED_TOP_ALBUMS_ID)
 
-    var alarmNoticeInterval: Long? by LongPreference(Key.ALARM_NOTICE_INTERVAL)
+    open var alarmNoticeInterval: Long? by LongPreference(Key.ALARM_NOTICE_INTERVAL)
 
-    var offlineMode: Boolean? by BooleanPreference(Key.DATA_SAVER_MODE)
+    open var offlineMode: Boolean? by BooleanPreference(Key.DATA_SAVER_MODE)
 
-    var theme: Int? by IntPreference(Key.THEME)
+    open var theme: Int? by IntPreference(Key.THEME)
 
-    var lastPlayedBroadcastId: Int? by IntPreference(Key.LAST_PLAYED_BROADCAST_ID)
+    open var lastPlayedBroadcastId: Int? by IntPreference(Key.LAST_PLAYED_BROADCAST_ID)
 
-    var lastPlayedBroadcastPosition: Long? by LongPreference(Key.LAST_PLAYED_BROADCAST_POSITION)
+    open var lastPlayedBroadcastPosition: Long? by LongPreference(Key.LAST_PLAYED_BROADCAST_POSITION)
 
-    var spotifyAuthToken: String? by StringPreference(Key.SPOTIFY_AUTH_TOKEN)
+    open var spotifyAuthToken: String? by StringPreference(Key.SPOTIFY_AUTH_TOKEN)
 
-    var spotifyLastLogin: Long? by LongPreference(Key.SPOTIFY_LAST_LOGIN)
+    open var spotifyLastLogin: Long? by LongPreference(Key.SPOTIFY_LAST_LOGIN)
 
-    var spotifyFavoritesPlaylistUri: String? by StringPreference(Key.SPOTIFY_FAVORITES_PLAYLIST_URI)
+    open var spotifyFavoritesPlaylistUri: String? by StringPreference(Key.SPOTIFY_FAVORITES_PLAYLIST_URI)
 
     fun getLastShowScrape(showId: String): Long? {
         val pref by LongPreference(Key.LAST_SHOW_SCRAPE, showId)

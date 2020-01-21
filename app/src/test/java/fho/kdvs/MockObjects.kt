@@ -361,7 +361,7 @@ object MockObjects {
             body = "UCD was ranked #1 on Forbe’s list as the most highly valued degree for women in Science, Technology, Engineering, and Mathematics (STEM). Our spring reporter, Myah Daniels, discusses the UC Davis grant program ADVANCE, which encourages women to establish careers in science and engineering; and interviews students in the program. (Image: ucdavis.edu)",
             date = TimeHelper.makeLocalDate("2016-09-11"),
             articleHref = "https://kdvs.org/uc-davis-makes-forbes-list-for-number-of-women-in-stem/",
-            imageHref = "https://kdvs.org/wp-content/uploads/2016/09/rose-hong-truong-uc-davis-best-women-stem.jpg"
+            imageHref = "./Category Archive for _News_ _ KDVS_files/rose-hong-truong-uc-davis-best-women-stem-300x300.jpg"
         )
     )
 
