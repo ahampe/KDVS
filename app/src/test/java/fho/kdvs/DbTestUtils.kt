@@ -2,36 +2,104 @@ package fho.kdvs
 
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.TimeslotEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.util.TimeHelper
 
 object DbTestUtils {
-    fun createShows() = listOf(
-        ShowEntity(
-            id = 1888,
-            name = "Pick a Bale of Cotton",
-            host = "Leadbelly",
-            genre = "Blues",
-            defaultDesc = "Goodnight Irene",
-            defaultImageHref = "http://www.leadbelly.com/cotton.jpg",
-            timeStart = TimeHelper.makeWeekTime24h("01:00", Day.SUNDAY),
-            timeEnd = TimeHelper.makeWeekTime24h("02:00", Day.SUNDAY),
-            quarter = Quarter.SPRING,
-            year = 1943
+    fun createShowsWithOneTimeslot() = listOf(
+        Pair(
+            ShowEntity(
+                id = 1888,
+                name = "Pick a Bale of Cotton",
+                host = "Leadbelly",
+                genre = "Blues",
+                defaultDesc = "Goodnight Irene",
+                defaultImageHref = "http://www.leadbelly.com/cotton.jpg",
+                quarter = Quarter.SPRING,
+                year = 1943
+            ),
+            TimeslotEntity(
+                timeslotId=1,
+                showId= 1888,
+                timeStart = TimeHelper.makeWeekTime24h("01:00", Day.SUNDAY),
+                timeEnd = TimeHelper.makeWeekTime24h("02:00", Day.SUNDAY)
+            )
         ),
-        ShowEntity(
-            id = 1889,
-            name = "Tristram Shandy",
-            host = "Laurence Sterne",
-            genre = "Rabelaisian",
-            defaultDesc = "The Absolute Madman",
-            defaultImageHref = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Laurence_Sterne_by_Sir_Joshua_Reynolds.jpg/800px-Laurence_Sterne_by_Sir_Joshua_Reynolds.jpg",
-            timeStart = TimeHelper.makeWeekTime24h("22:00", Day.SATURDAY),
-            timeEnd = TimeHelper.makeWeekTime24h("01:00", Day.SUNDAY),
-            quarter = Quarter.SPRING,
-            year = 1943
+        Pair(
+            ShowEntity(
+                id = 1889,
+                name = "Tristram Shandy",
+                host = "Laurence Sterne",
+                genre = "Rabelaisian",
+                defaultDesc = "The Absolute Madman",
+                defaultImageHref = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Laurence_Sterne_by_Sir_Joshua_Reynolds.jpg/800px-Laurence_Sterne_by_Sir_Joshua_Reynolds.jpg",
+                quarter = Quarter.SPRING,
+                year = 1943
+            ),
+            TimeslotEntity(
+                timeslotId=2,
+                showId= 1889,
+                timeStart = TimeHelper.makeWeekTime24h("22:00", Day.SATURDAY),
+                timeEnd = TimeHelper.makeWeekTime24h("01:00", Day.SUNDAY)
+            )
+        )
+    )
+
+    fun createShowsWithMultipleTimeslots() = listOf(
+        Pair(
+            ShowEntity(
+                id = 1888,
+                name = "Pick a Bale of Cotton",
+                host = "Leadbelly",
+                genre = "Blues",
+                defaultDesc = "Goodnight Irene",
+                defaultImageHref = "http://www.leadbelly.com/cotton.jpg",
+                quarter = Quarter.SPRING,
+                year = 1943
+            ),
+            listOf(
+                TimeslotEntity(
+                    timeslotId=1,
+                    showId= 1888,
+                    timeStart = TimeHelper.makeWeekTime24h("01:00", Day.SUNDAY),
+                    timeEnd = TimeHelper.makeWeekTime24h("02:00", Day.SUNDAY)
+                ),
+                TimeslotEntity(
+                    timeslotId=2,
+                    showId= 1888,
+                    timeStart = TimeHelper.makeWeekTime24h("01:00", Day.MONDAY),
+                    timeEnd = TimeHelper.makeWeekTime24h("02:00", Day.MONDAY)
+                )
+            )
+        ),
+        Pair(
+            ShowEntity(
+                id = 1889,
+                name = "Tristram Shandy",
+                host = "Laurence Sterne",
+                genre = "Rabelaisian",
+                defaultDesc = "The Absolute Madman",
+                defaultImageHref = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Laurence_Sterne_by_Sir_Joshua_Reynolds.jpg/800px-Laurence_Sterne_by_Sir_Joshua_Reynolds.jpg",
+                quarter = Quarter.SPRING,
+                year = 1943
+            ),
+            listOf(
+                TimeslotEntity(
+                    timeslotId=3,
+                    showId= 1889,
+                    timeStart = TimeHelper.makeWeekTime24h("22:00", Day.SATURDAY),
+                    timeEnd = TimeHelper.makeWeekTime24h("01:00", Day.SUNDAY)
+                ),
+                TimeslotEntity(
+                    timeslotId=4,
+                    showId= 1889,
+                    timeStart = TimeHelper.makeWeekTime24h("20:00", Day.MONDAY),
+                    timeEnd = TimeHelper.makeWeekTime24h("22:00", Day.MONDAY)
+                )
+            )
         )
     )
 

@@ -8,6 +8,7 @@ import fho.kdvs.R
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.ShowTimeslotEntity
 import fho.kdvs.global.database.SubscriptionEntity
 import fho.kdvs.subscription.SubscriptionRepository
 import javax.inject.Inject
@@ -19,14 +20,14 @@ class ShowDetailsViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
 
-    lateinit var show: LiveData<ShowEntity>
+    lateinit var show: LiveData<ShowTimeslotEntity>
     lateinit var subscription: LiveData<SubscriptionEntity>
     lateinit var broadcastsLiveData: LiveData<List<BroadcastEntity>>
 
     /** Because this ViewModel depends on the show ID, it must be provided here before using. */
     fun initialize(showId: Int) {
         fetchBroadcasts(showId)
-        show = showRepository.showById(showId)
+        show = showRepository.showTimeslotById(showId)
         subscription = subscriptionRepository.subscriptionByShowId(showId)
         broadcastsLiveData = broadcastRepository.broadcastsForShow(showId)
     }

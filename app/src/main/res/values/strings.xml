@@ -100,6 +100,7 @@
 
     <string name="hourLabel">%1$02d:00\u0020</string>
     <string name="searchTimeLabel">%1$s, %2$s - %3$s</string>
+    <string name="showDayTimeLabel">%1$s, %2$s - %3$s</string>
     <string name="showTimeLabel">%1$s - %2$s</string>
     <string name="thisWeek">This week:</string>
     <string name="nextWeek">Next week:</string>

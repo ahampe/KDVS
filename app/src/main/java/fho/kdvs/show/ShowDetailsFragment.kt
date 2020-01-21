@@ -83,7 +83,9 @@ class ShowDetailsFragment : DaggerFragment() {
         })
 
         viewModel.show.observe(this, Observer { show ->
-            star.setOnClickListener { sharedViewModel.onClickSubscribe(star, show, context) }
+            sharedViewModel.getShowTimeslotsJoin(show).observe(this, Observer { join ->
+                star.setOnClickListener { sharedViewModel.onClickSubscribe(star, join, context) }
+            })
         })
 
         viewModel.subscription.observe(this, Observer {

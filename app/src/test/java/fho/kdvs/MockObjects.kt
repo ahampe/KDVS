@@ -4,126 +4,201 @@ import fho.kdvs.global.database.*
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.util.TimeHelper
+import fho.kdvs.topmusic.TopMusicType
 
 object MockObjects {
-    val scheduleShows: List<ShowEntity> by lazy {
+    val scheduleShowsWithTimeslots: List<Pair<ShowEntity, List<TimeslotEntity>>> by lazy {
         listOf(
-            ShowEntity(
-                id = 5235,
-                name = "Neonate--New Life",
-                defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TimeHelper.makeWeekTime24h("00:00", Day.SUNDAY),
-                timeEnd = TimeHelper.makeWeekTime24h("02:00", Day.SUNDAY),
-                quarter = Quarter.WINTER,
-                year = 2019
+            Pair(
+                ShowEntity(
+                    id = 5235,
+                    name = "Neonate--New Life",
+                    defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
+                    quarter = Quarter.WINTER,
+                    year = 2019
+                ),
+                listOf(TimeslotEntity(
+                    showId= 5235,
+                    timeStart = TimeHelper.makeWeekTime24h("00:00", Day.SUNDAY),
+                    timeEnd = TimeHelper.makeWeekTime24h("02:00", Day.SUNDAY)
+                ))
             ),
-            ShowEntity(
-                id = 5238,
-                name = "Island Radio Cafe",
-                defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TimeHelper.makeWeekTime24h("10:00", Day.SUNDAY),
-                timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.SUNDAY),
-                quarter = Quarter.WINTER,
-                year = 2019
+            Pair(
+                ShowEntity(
+                    id = 5238,
+                    name = "Island Radio Cafe",
+                    defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
+                    quarter = Quarter.WINTER,
+                    year = 2019
+                ),
+                listOf(TimeslotEntity(
+                    showId= 5238,
+                    timeStart = TimeHelper.makeWeekTime24h("10:00", Day.SUNDAY),
+                    timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.SUNDAY)
+                ))
             ),
-            ShowEntity(
-                id = 5240,
-                name = "Crossing Continents",
-                defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TimeHelper.makeWeekTime24h("10:00", Day.SUNDAY),
-                timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.SUNDAY),
-                quarter = Quarter.WINTER,
-                year = 2019
+            Pair(
+                ShowEntity(
+                    id = 5240,
+                    name = "Crossing Continents",
+                    defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
+                    quarter = Quarter.WINTER,
+                    year = 2019
+                ),
+                listOf(TimeslotEntity(
+                    showId= 5240,
+                    timeStart = TimeHelper.makeWeekTime24h("10:00", Day.SUNDAY),
+                    timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.SUNDAY)
+                ))
             ),
-            ShowEntity(
-                id = 5239,
-                name = "Cross-cultural Currents",
-                defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TimeHelper.makeWeekTime24h("10:00", Day.SUNDAY),
-                timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.SUNDAY),
-                quarter = Quarter.WINTER,
-                year = 2019
+            Pair(
+                ShowEntity(
+                    id = 5239,
+                    name = "Cross-cultural Currents",
+                    defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
+                    quarter = Quarter.WINTER,
+                    year = 2019
+                ),
+                listOf(TimeslotEntity(
+                    showId= 5239,
+                    timeStart = TimeHelper.makeWeekTime24h("10:00", Day.SUNDAY),
+                    timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.SUNDAY)
+                ))
             ),
-            ShowEntity(
-                id = 5280,
-                name = "The Suicide Watch",
-                defaultImageHref = "https://goo.gl/images/nkV7oU",
-                timeStart = TimeHelper.makeWeekTime24h("22:00", Day.MONDAY),
-                timeEnd = TimeHelper.makeWeekTime24h("01:00", Day.TUESDAY),
-                quarter = Quarter.WINTER,
-                year = 2019
+            Pair(
+                ShowEntity(
+                    id = 5280,
+                    name = "The Suicide Watch",
+                    defaultImageHref = "https://goo.gl/images/nkV7oU",
+                    quarter = Quarter.WINTER,
+                    year = 2019
+                ),
+                listOf(TimeslotEntity(
+                    showId= 5280,
+                    timeStart = TimeHelper.makeWeekTime24h("22:00", Day.MONDAY),
+                    timeEnd = TimeHelper.makeWeekTime24h("01:00", Day.TUESDAY)
+                ))
             ),
-            ShowEntity(
-                id = 5289,
-                name = "Club 903",
-                defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TimeHelper.makeWeekTime24h("14:30", Day.TUESDAY),
-                timeEnd = TimeHelper.makeWeekTime24h("16:30", Day.TUESDAY),
-                quarter = Quarter.WINTER,
-                year = 2019
+            Pair(
+                ShowEntity(
+                    id = 5289,
+                    name = "Club 903",
+                    defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
+
+                    quarter = Quarter.WINTER,
+                    year = 2019
+                ),
+                listOf(TimeslotEntity(
+                    showId= 5289,
+                    timeStart = TimeHelper.makeWeekTime24h("14:30", Day.TUESDAY),
+                    timeEnd = TimeHelper.makeWeekTime24h("16:30", Day.TUESDAY)
+                    ))
             ),
-            ShowEntity(
-                id = 5257,
-                name = "la buena onda",
-                defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TimeHelper.makeWeekTime24h("10:30", Day.WEDNESDAY),
-                timeEnd = TimeHelper.makeWeekTime24h("12:00", Day.WEDNESDAY),
-                quarter = Quarter.WINTER,
-                year = 2019
+            Pair(
+                ShowEntity(
+                    id = 5257,
+                    name = "la buena onda",
+                    defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
+                    quarter = Quarter.WINTER,
+                    year = 2019
+                ),
+                listOf(TimeslotEntity(
+                    showId= 5257,
+                    timeStart = TimeHelper.makeWeekTime24h("10:30", Day.WEDNESDAY),
+                    timeEnd = TimeHelper.makeWeekTime24h("12:00", Day.WEDNESDAY)
+                ))
             ),
-            ShowEntity(
-                id = 5370,
-                name = "field trip",
-                defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TimeHelper.makeWeekTime24h("10:30", Day.WEDNESDAY),
-                timeEnd = TimeHelper.makeWeekTime24h("12:00", Day.WEDNESDAY),
-                quarter = Quarter.WINTER,
-                year = 2019
+            Pair(
+                ShowEntity(
+                    id = 5370,
+                    name = "field trip",
+                    defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
+                    quarter = Quarter.WINTER,
+                    year = 2019
+                ),
+                listOf(TimeslotEntity(
+                    showId= 5370,
+                    timeStart = TimeHelper.makeWeekTime24h("10:30", Day.WEDNESDAY),
+                    timeEnd = TimeHelper.makeWeekTime24h("12:00", Day.WEDNESDAY)
+                ))
             ),
-            ShowEntity(
-                id = 5320,
-                name = "How You Jewin'?",
-                defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TimeHelper.makeWeekTime24h("09:00", Day.THURSDAY),
-                timeEnd = TimeHelper.makeWeekTime24h("09:30", Day.THURSDAY),
-                quarter = Quarter.WINTER,
-                year = 2019
+            Pair(
+                ShowEntity(
+                    id = 5320,
+                    name = "How You Jewin'?",
+                    defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
+                    quarter = Quarter.WINTER,
+                    year = 2019
+                ),
+                listOf(TimeslotEntity(
+                    showId= 5320,
+                    timeStart = TimeHelper.makeWeekTime24h("09:00", Day.THURSDAY),
+                    timeEnd = TimeHelper.makeWeekTime24h("09:30", Day.THURSDAY)
+                ))
             ),
-            ShowEntity(
-                id = 5331,
-                name = "Democracy Now!",
-                defaultImageHref = "https://library.kdvs.org/media/show/images/unnamed.png",
-                timeStart = TimeHelper.makeWeekTime24h("12:00", Day.THURSDAY),
-                timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.THURSDAY),
-                quarter = Quarter.WINTER,
-                year = 2019
+            Pair(
+                ShowEntity(
+                    id = 5331,
+                    name = "Democracy Now!",
+                    defaultImageHref = "https://library.kdvs.org/media/show/images/unnamed.png",
+                    quarter = Quarter.WINTER,
+                    year = 2019
+                ),
+                listOf(
+                    TimeslotEntity(
+                        showId= 5320,
+                        timeStart = TimeHelper.makeWeekTime24h("12:00", Day.MONDAY),
+                        timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.MONDAY)
+                    ),
+                    TimeslotEntity(
+                        showId= 5320,
+                        timeStart = TimeHelper.makeWeekTime24h("12:00", Day.TUESDAY),
+                        timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.TUESDAY)
+                    ),
+                    TimeslotEntity(
+                        showId= 5320,
+                        timeStart = TimeHelper.makeWeekTime24h("12:00", Day.WEDNESDAY),
+                        timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.WEDNESDAY)
+                    ),
+                    TimeslotEntity(
+                        showId= 5320,
+                        timeStart = TimeHelper.makeWeekTime24h("12:00", Day.THURSDAY),
+                        timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.THURSDAY)
+                    ),
+                    TimeslotEntity(
+                        showId= 5320,
+                        timeStart = TimeHelper.makeWeekTime24h("12:00", Day.FRIDAY),
+                        timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.FRIDAY)
+                    )
+                )
             ),
-            ShowEntity(
-                id = 5333,
-                name = "Democracy Now!",
-                defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TimeHelper.makeWeekTime24h("12:00", Day.FRIDAY),
-                timeEnd = TimeHelper.makeWeekTime24h("13:00", Day.FRIDAY),
-                quarter = Quarter.WINTER,
-                year = 2019
+            Pair(
+                ShowEntity(
+                    id = 5355,
+                    name = "1000 Points of Fright",
+                    defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
+                    quarter = Quarter.WINTER,
+                    year = 2019
+                ),
+                listOf(TimeslotEntity(
+                    showId= 5355,
+                    timeStart = TimeHelper.makeWeekTime24h("20:00", Day.FRIDAY),
+                    timeEnd = TimeHelper.makeWeekTime24h("22:00", Day.FRIDAY)
+                ))
             ),
-            ShowEntity(
-                id = 5355,
-                name = "1000 Points of Fright",
-                defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TimeHelper.makeWeekTime24h("20:00", Day.FRIDAY),
-                timeEnd = TimeHelper.makeWeekTime24h("22:00", Day.FRIDAY),
-                quarter = Quarter.WINTER,
-                year = 2019
-            ),
-            ShowEntity(
-                id = 5364,
-                name = "UnAbbreviated Country",
-                defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
-                timeStart = TimeHelper.makeWeekTime24h("16:00", Day.SATURDAY),
-                timeEnd = TimeHelper.makeWeekTime24h("18:00", Day.SATURDAY),
-                quarter = Quarter.WINTER,
-                year = 2019
+            Pair(
+                ShowEntity(
+                    id = 5364,
+                    name = "UnAbbreviated Country",
+                    defaultImageHref = "https://library.kdvs.org/static/core/images/kdvs-image-placeholder.jpg",
+                    quarter = Quarter.WINTER,
+                    year = 2019
+                ),
+                listOf(TimeslotEntity(
+                    showId= 5320,
+                    timeStart = TimeHelper.makeWeekTime24h("16:00", Day.SATURDAY),
+                    timeEnd = TimeHelper.makeWeekTime24h("18:00", Day.SATURDAY)
+                ))
             )
         )
     }
@@ -340,54 +415,74 @@ object MockObjects {
     val topAdds = listOf(
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-03-25"),
+            type=TopMusicType.ADD,
             position = 1,
             artist = "Cavemen",
             album = "Lowlife EP",
+            year=2000,
             label = "Slovenly",
-            isNewAdd = true
+            imageHref= null,
+            spotifyAlbumUri = null,
+            spotifyTrackUris = null
+
         ),
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-03-25"),
+            type=TopMusicType.ADD,
             position = 3,
             artist = "Is In Unsamble",
             album = "Is The Belly/In The Belly",
             label = "Gilgongo",
-            isNewAdd = true
+            imageHref= null,
+            spotifyAlbumUri = null,
+            spotifyTrackUris = null
         ),
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-02-25"),
+            type=TopMusicType.ADD,
             position = 1,
             artist = "The Grundybergs",
             album = "Playing Baseball With Walt Whitman",
             label = "Self-Released",
-            isNewAdd = true
+            imageHref= null,
+            spotifyAlbumUri = null,
+            spotifyTrackUris = null
         )
     )
 
     val topAlbums = listOf(
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-04-01"),
+            type=TopMusicType.ALBUM,
             position = 19,
             artist = "Ibibio Sound Machine",
             album = "Doko Mien",
             label = "Merge",
-            isNewAdd = false
+            imageHref= null,
+            spotifyAlbumUri = null,
+            spotifyTrackUris = null
         ),
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-03-25"),
+            type=TopMusicType.ALBUM,
             position = 8,
             artist = "Fruit Bats & Vetiver",
             album = "In Real Life (Live at Spacebomb Studios)",
             label = "Spacebomb",
-            isNewAdd = false
+            imageHref= null,
+            spotifyAlbumUri = null,
+            spotifyTrackUris = null
         ),
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-03-04"),
+            type=TopMusicType.ALBUM,
             position = 8,
             artist = "The Real Kids",
             album = "The Kids 1974 Demos - The Real Kids 1977/1978 demos/live",
             label = "Crypt",
-            isNewAdd = false
+            imageHref= null,
+            spotifyAlbumUri = null,
+            spotifyTrackUris = null
         )
     )
 

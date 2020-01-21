@@ -16,7 +16,8 @@ import java.io.File
 @Database(
     entities = [ShowEntity::class, BroadcastEntity::class, FavoriteBroadcastEntity::class,
         FavoriteTrackEntity::class, TrackEntity::class, StaffEntity::class, NewsEntity::class,
-        TopMusicEntity::class, FundraiserEntity::class, SubscriptionEntity::class],
+        TopMusicEntity::class, FundraiserEntity::class, SubscriptionEntity::class,
+        TimeslotEntity::class],
     version = 1,
     exportSchema = false
 )
@@ -29,6 +30,7 @@ import java.io.File
 abstract class KdvsDatabase : RoomDatabase() {
 
     abstract fun showDao(): ShowDao
+    abstract fun timeslotDao(): TimeslotDao
     abstract fun broadcastDao(): BroadcastDao
     abstract fun favoriteBroadcastDao(): FavoriteBroadcastDao
     abstract fun favoriteTrackDao(): FavoriteTrackDao
@@ -47,7 +49,7 @@ abstract class KdvsDatabase : RoomDatabase() {
          * In a production setting, we would need to actually write the migrations and not use `fallbackToDestructiveMigration()`
          */
         fun buildDevelopmentDatabase(application: Application) =
-            Room.databaseBuilder(application, KdvsDatabase::class.java, KdvsDatabase.FILE_NAME)
+            Room.databaseBuilder(application, KdvsDatabase::class.java, FILE_NAME)
                 .fallbackToDestructiveMigration()
                 .build()
 

@@ -28,7 +28,9 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 import fho.kdvs.R
 import fho.kdvs.global.database.BroadcastEntity
+import fho.kdvs.global.database.Show
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.ShowTimeslotEntity
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 
@@ -284,7 +286,7 @@ fun List<MediaMetadataCompat>.toMediaSource(
 
 fun MediaMetadataCompat.Builder.from(
     broadcast: BroadcastEntity,
-    show: ShowEntity,
+    show: Show,
     context: Context
 ): MediaMetadataCompat.Builder {
     id = broadcast.broadcastId.toString()
@@ -321,7 +323,7 @@ fun MediaMetadataCompat.Builder.from(
 
 fun MediaMetadataCompat.Builder.fromLive(
     broadcast: BroadcastEntity?,
-    show: ShowEntity,
+    show: ShowTimeslotEntity,
     context: Context
 ): MediaMetadataCompat.Builder {
     // Don't set the id; this should be the current live URL

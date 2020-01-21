@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.FavoriteBroadcastDao
 import fho.kdvs.global.database.FavoriteBroadcastEntity
-import fho.kdvs.global.database.ShowBroadcastFavoriteJoin
+import fho.kdvs.global.database.joins.ShowBroadcastFavoriteJoin
 import fho.kdvs.global.extensions.toLiveData
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -15,7 +15,7 @@ class FavoriteBroadcastRepository @Inject constructor(
     private val favoriteBroadcastDao: FavoriteBroadcastDao
 ) : BaseRepository() {
     fun allShowBroadcastFavoriteJoins(): LiveData<List<ShowBroadcastFavoriteJoin>> {
-        return favoriteBroadcastDao.allShowBroadcastFavoriteJoins()
+        return favoriteBroadcastDao.allTimeslotShowBroadcastFavoriteJoins()
             .debounce(100L, TimeUnit.MILLISECONDS)
             .toLiveData()
     }

@@ -25,17 +25,17 @@ class ScheduleViewModel @Inject constructor(
     /** Signals the [ShowRepository] to scrape the schedule grid. */
     fun fetchShows() = showRepository.scrapeSchedule()
 
-    fun getShowsForDay(day: Day, quarter: Quarter, year: Int): LiveData<List<TimeSlot>> =
+    fun getShowsForDay(day: Day, quarter: Quarter, year: Int): LiveData<List<ScheduleTimeslot>> =
         showRepository.getShowTimeSlotsForDay(day, quarter, year)
             .debounce(100L, TimeUnit.MILLISECONDS)
             .toLiveData()
 
     /**
-     * Called when a [TimeSlot] is clicked.
+     * Called when a [ScheduleTimeslot] is clicked.
      * If the TimeSlot consists of multiple shows, navigates to [ScheduleSelectionFragment].
      * Otherwise, if single show, navigates to [ShowDetailsFragment][fho.kdvs.show.ShowDetailsFragment].
      * */
-    fun onClickTimeSlot(navController: NavController, timeslot: TimeSlot) {
+    fun onClickTimeSlot(navController: NavController, timeslot: ScheduleTimeslot) {
         val navAction = ScheduleFragmentDirections
             .actionScheduleFragmentToShowDetailsFragment(timeslot.ids.first())
         if (navController.currentDestination?.id == R.id.scheduleFragment)

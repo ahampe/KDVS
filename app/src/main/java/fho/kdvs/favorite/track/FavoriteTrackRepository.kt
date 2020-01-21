@@ -3,6 +3,8 @@ package fho.kdvs.favorite.track
 import androidx.lifecycle.LiveData
 import fho.kdvs.global.BaseRepository
 import fho.kdvs.global.database.*
+import fho.kdvs.global.database.joins.ShowBroadcastFavoriteJoin
+import fho.kdvs.global.database.joins.ShowBroadcastTrackFavoriteJoin
 import fho.kdvs.global.extensions.toLiveData
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -14,7 +16,7 @@ class FavoriteTrackRepository @Inject constructor(
     private val favoriteTrackDao: FavoriteTrackDao
 ) : BaseRepository() {
     fun allShowBroadcastFavoriteJoins(): LiveData<List<ShowBroadcastFavoriteJoin>> {
-        return favoriteBroadcastDao.allShowBroadcastFavoriteJoins()
+        return favoriteBroadcastDao.allTimeslotShowBroadcastFavoriteJoins()
             .debounce(100L, TimeUnit.MILLISECONDS)
             .toLiveData()
     }

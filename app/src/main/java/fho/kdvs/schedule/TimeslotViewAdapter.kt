@@ -8,11 +8,11 @@ import fho.kdvs.global.util.BindingRecyclerViewAdapter
 import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.ClickData
 
-/** Adapter for a single timeslot card. */
-class TimeSlotViewAdapter(
+/** Adapter for a single timeslot card on the [ScheduleFragment]. */
+class TimeslotViewAdapter(
     private val selectedTheme: Int?,
-    onClick: (ClickData<TimeSlot>) -> Unit
-) : BindingRecyclerViewAdapter<TimeSlot, TimeSlotViewAdapter.ViewHolder>(
+    onClick: (ClickData<ScheduleTimeslot>) -> Unit
+) : BindingRecyclerViewAdapter<ScheduleTimeslot, TimeslotViewAdapter.ViewHolder>(
     onClick,
     TimeSlotDiffCallback()
 ) {
@@ -26,8 +26,8 @@ class TimeSlotViewAdapter(
     class ViewHolder(
         private val binding: CellTimeslotBinding,
         private val selectedTheme: Int?
-    ) : BindingViewHolder<TimeSlot>(binding.root) {
-        override fun bind(listener: View.OnClickListener, item: TimeSlot) {
+    ) : BindingViewHolder<ScheduleTimeslot>(binding.root) {
+        override fun bind(listener: View.OnClickListener, item: ScheduleTimeslot) {
             binding.apply {
                 clickListener = listener
                 timeslot = item
@@ -36,7 +36,7 @@ class TimeSlotViewAdapter(
         }
     }
 
-    fun onShowsChanged(shows: List<TimeSlot>) {
+    fun onShowsChanged(shows: List<ScheduleTimeslot>) {
         submitList(shows)
     }
 }

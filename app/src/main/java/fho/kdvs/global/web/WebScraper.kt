@@ -12,6 +12,7 @@ import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs.SHOW_IMAGE_PLACEHOLDER
 import fho.kdvs.schedule.QuarterYear
 import fho.kdvs.topmusic.TopMusicType
+import kotlinx.android.synthetic.main.exo_playback_control_view.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -108,6 +109,7 @@ class WebScraperManager @Inject constructor(
         var day = Day.SUNDAY.name
 
         val showsScraped = mutableListOf<ShowEntity>()
+        val timeslotsScraped = mutableListOf<TimeslotEntity>()
 
         val scheduleChildren = document.select("div.schedule-list > *")
 
@@ -128,14 +130,6 @@ class WebScraperManager @Inject constructor(
                         imageHref = SHOW_IMAGE_PLACEHOLDER
                     else
                         imageHrefs.add(imageHref)
-
-/*
-                    // TODO: find better solution for this? without this, glide listener isn't applied to these timeslots
-                    // Certain hrefs, namely those hosted on fbcdn (Facebook) are not actually direct images,
-                    // which produces an error with android.okhttp getInputStream. Manually override with placeholder
-                    if (!HttpHelper.isConnectionAvailable(imageHref))
-                        imageHref = SHOW_IMAGE_PLACEHOLDER
-*/
 
                     // Assumes that a time-slot can have arbitrarily many alternating shows
                     val (ids, names) = "<a href=\"https://kdvs.org/past-playlists/([0-9]+)\">(.*)</a>".toRegex()
@@ -168,28 +162,37 @@ class WebScraperManager @Inject constructor(
                     }
 
                     for ((name, id) in names.zip(ids)) {
-                        val showEntity = ShowEntity(
+                        val show = ShowEntity (
                             id = id,
                             name = name.trim(),
                             defaultImageHref = imageHref,
-                            timeStart = timeStart,
-                            timeEnd = timeEnd,
                             quarter = quarter,
                             year = year
                         )
 
-                        showsScraped.add(showEntity)
+                        val timeslot = TimeslotEntity (
+                            showId = id,
+                            timeStart = timeStart,
+                            timeEnd = timeEnd
+                        )
+
+                        showsScraped.add(show)
+                        timeslotsScraped.add(timeslot)
                     }
                 }
             }
         }
 
-        showsScraped.forEach { show ->
-            db.showDao().updateOrInsert(show)
+        showsScraped.distinctBy { s -> s.id }.forEach {
+            db.showDao().updateOrInsert(it)
+        }
+
+        timeslotsScraped.forEach {
+            db.timeslotDao().insert(it)
         }
 
         kdvsPreferences.lastScheduleScrape = TimeHelper.getNow().toEpochSecond()
-        return ScheduleScrapeData(QuarterYear(quarter, year), showsScraped)
+        return ScheduleScrapeData(QuarterYear(quarter, year), showsScraped, timeslotsScraped)
     }
 
     private fun scrapeShow(document: Document, url: String?): ShowScrapeData? {
@@ -271,7 +274,7 @@ class WebScraperManager @Inject constructor(
             if (showId != null && imageHref != null &&
                 broadcastId == db.broadcastDao().getLatestBroadcastForShow(showId)?.broadcastId
             ) {
-                val showHref = db.showDao().getShowById(showId)?.defaultImageHref
+                val showHref = db.showDao().getShowTimeslotById(showId)?.defaultImageHref
                 if (showHref.isNullOrEmpty()) {
                     db.showDao().updateShowDefaultImageHref(showId, imageHref)
                 }

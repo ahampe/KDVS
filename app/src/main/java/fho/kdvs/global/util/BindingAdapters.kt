@@ -7,14 +7,17 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
 import fho.kdvs.R
+import fho.kdvs.global.database.TimeslotEntity
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.extensions.fromHtml
 import fho.kdvs.global.ui.PlayerPaletteRequestListener
 import fho.kdvs.topmusic.TopMusicType
+import org.threeten.bp.DayOfWeek
 import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
 import org.threeten.bp.format.DateTimeFormatter
+import java.util.*
 
 // Binding adapters designed for reuse
 
@@ -127,8 +130,8 @@ fun formatTrackInfo(view: TextView, track: TrackEntity?) {
     }
 }
 
-@BindingAdapter("searchTimeStart", "searchTimeEnd")
-fun setShowTimes(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDateTime) {
+@BindingAdapter("currentShowTimeStart", "currentShowTimeEnd")
+fun setCurrentShowTimes(view: TextView, timeStart: OffsetDateTime, timeEnd: OffsetDateTime) {
     view.text = view.context.resources.getString(
         R.string.showTimeLabel,
         TimeHelper.showTimeFormatter24.format(timeStart),

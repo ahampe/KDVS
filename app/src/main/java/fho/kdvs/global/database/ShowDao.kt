@@ -1,10 +1,9 @@
 package fho.kdvs.global.database
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
+import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
-import androidx.room.Query
+import fho.kdvs.global.database.joins.ShowTimeslotsJoin
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.schedule.QuarterYear
 import io.reactivex.Flowable
@@ -12,14 +11,36 @@ import org.threeten.bp.OffsetDateTime
 
 @Dao
 abstract class ShowDao {
-    @Query("SELECT * from showData")
-    abstract fun allShows(): Flowable<List<ShowEntity>>
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query("SELECT * from showData INNER JOIN timeslotData on timeslotData.showId = showData.id")
+    abstract fun allShowTimeslots(): Flowable<List<ShowTimeslotEntity>>
+
+    @Transaction
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query("SELECT * from showData INNER JOIN timeslotData on timeslotData.showId = showData.id")
+    abstract fun allShowTimeslotsJoins(): Flowable<List<ShowTimeslotsJoin>>
 
     @Query("SELECT DISTINCT quarter, year from showData ORDER BY year DESC, quarter DESC")
     abstract fun allDistinctQuarterYears(): Flowable<List<QuarterYear>>
 
-    @Query("SELECT * from showData WHERE id = :id LIMIT 1")
-    abstract fun showById(id: Int): LiveData<ShowEntity>
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query("""SELECT * from showData
+            INNER JOIN timeslotData on timeslotData.showId = showData.id 
+            WHERE id = :id LIMIT 1""")
+    abstract fun showTimeslotById(id: Int): LiveData<ShowTimeslotEntity>
+
+    @Transaction
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query("""SELECT * from showData
+            INNER JOIN timeslotData on timeslotData.showId = showData.id 
+            WHERE id = :id LIMIT 1""")
+    abstract fun showTimeslotsJoinById(id: Int): LiveData<ShowTimeslotsJoin>
+
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query("""SELECT timeslotData.* from showData
+            INNER JOIN timeslotData on timeslotData.showId = showData.id 
+            WHERE showId = :showId""")
+    abstract fun timeslotsById(showId: Int): LiveData<List<TimeslotEntity>>
 
     @Query("SELECT DISTINCT quarter, year from showData ORDER BY year DESC, quarter DESC LIMIT 1")
     abstract fun currentQuarterYear(): LiveData<QuarterYear>
@@ -27,13 +48,31 @@ abstract class ShowDao {
     //endregion
 
     @Query("SELECT * from showData")
-    abstract fun getAll(): List<ShowEntity>
+    abstract fun getAllShows(): List<ShowEntity>
 
-    @Query("SELECT * from showData WHERE id = :id LIMIT 1")
-    abstract fun getShowById(id: Int): ShowEntity?
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query("SELECT * from showData INNER JOIN timeslotData on timeslotData.showId = showData.id")
+    abstract fun getAllShowTimeslots(): List<ShowTimeslotEntity>
 
-    @Query("SELECT * from showData WHERE genre = :genre")
-    abstract fun getShowsByGenre(genre: String): List<ShowEntity>
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Transaction
+    @Query("""SELECT * from showData 
+        INNER JOIN timeslotData on timeslotData.showId = showData.id 
+        WHERE id = :id LIMIT 1""")
+    abstract fun getShowTimeslotById(id: Int): ShowTimeslotEntity?
+
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Transaction
+    @Query("""SELECT * from showData 
+        INNER JOIN timeslotData on timeslotData.showId = showData.id 
+        WHERE id = :id LIMIT 1""")
+    abstract fun getShowTimeslotJoinsById(id: Int): ShowTimeslotsJoin?
+
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query("""SELECT * from showData 
+        INNER JOIN timeslotData on timeslotData.showId = showData.id
+        WHERE genre = :genre""")
+    abstract fun getShowTimeslotsByGenre(genre: String): List<ShowTimeslotEntity>
 
     @Query("SELECT genre from showData ORDER BY genre")
     abstract fun getGenres(): List<String>
@@ -47,94 +86,172 @@ abstract class ShowDao {
     @Query("SELECT DISTINCT host from showData ORDER BY host")
     abstract fun getDistinctHosts(): List<String>
 
-
-    @Query("SELECT * from showData WHERE quarter = :quarter AND year = :year")
-    abstract fun allShowsByQuarterYear(
+    @Transaction
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query("""SELECT DISTINCT * from showData 
+        INNER JOIN timeslotData on timeslotData.showId = showData.id 
+        WHERE quarter = :quarter AND year = :year""")
+    abstract fun allShowTimeslotsByQuarterYear(
         quarter: Quarter,
         year: Int
-    ): Flowable<List<ShowEntity>>
+    ): Flowable<List<ShowTimeslotEntity>>
 
-    @Query("SELECT * from showData WHERE quarter = :quarter AND year = :year")
-    abstract fun getShowsByQuarterYear(
+    @Transaction
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query("""SELECT DISTINCT * from showData 
+        INNER JOIN timeslotData on timeslotData.showId = showData.id 
+        WHERE quarter = :quarter AND year = :year""")
+    abstract fun allShowTimeslotJoinsByQuarterYear(
         quarter: Quarter,
         year: Int
-    ): List<ShowEntity>
+    ): Flowable<List<ShowTimeslotsJoin>>
 
+    @Transaction
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query("""SELECT DISTINCT * from showData 
+        INNER JOIN timeslotData on timeslotData.showId = showData.id 
+        WHERE quarter = :quarter AND year = :year""")
+    abstract fun getShowTimeslotsByQuarterYear(
+        quarter: Quarter,
+        year: Int
+    ): List<ShowTimeslotEntity>
+
+    @Transaction
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query("""SELECT DISTINCT * from showData 
+        INNER JOIN timeslotData on timeslotData.showId = showData.id 
+        WHERE quarter = :quarter AND year = :year""")
+    abstract fun getShowTimeslotJoinsByQuarterYear(
+        quarter: Quarter,
+        year: Int
+    ): List<ShowTimeslotsJoin>
+
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Transaction
     @Query(
-        """SELECT * from showData
+        """SELECT DISTINCT * from showData
+        INNER JOIN timeslotData on timeslotData.showId = showData.id
         WHERE (timeStart < :time AND timeEnd > :time OR
         timeEnd < timeStart AND (timeEnd > :time OR timeStart < :time))
-        AND quarter = :quarter AND year = :year"""
+        AND quarter = :quarter AND year = :year
+        ORDER BY timeStart, quarter, year"""
     )
-    abstract fun allShowsAtTime(
+    abstract fun allShowTimeslotsAtTime(
         time: OffsetDateTime,
         quarter: Quarter,
         year: Int
-    ): Flowable<List<ShowEntity>>
+    ): Flowable<List<ShowTimeslotEntity>>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
-        """SELECT * from showData
+        """SELECT DISTINCT * from showData
+            INNER JOIN timeslotData on timeslotData.showId = showData.id
             WHERE (timeEnd > :timeStart AND timeStart < :timeEnd OR
             timeEnd < timeStart AND (timeEnd > :timeStart OR timeStart < :timeEnd))
             AND quarter = :quarter AND year = :year
             ORDER BY timeStart, quarter, year"""
     )
-    abstract fun allShowsInTimeRange(
+    abstract fun allShowTimeslotsInTimeRange(
         timeStart: OffsetDateTime,
         timeEnd: OffsetDateTime,
         quarter: Quarter,
         year: Int
-    ): Flowable<List<ShowEntity>>
+    ): Flowable<List<ShowTimeslotEntity>>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Transaction
     @Query(
-        """SELECT * from showData
+        """SELECT DISTINCT * from showData
+            INNER JOIN timeslotData on timeslotData.showId = showData.id
             WHERE (timeEnd > :timeStart AND timeStart < :timeEnd OR
             timeEnd < timeStart AND (timeEnd > :timeStart OR timeStart < :timeEnd))
             AND quarter = :quarter AND year = :year
             ORDER BY timeStart, quarter, year"""
     )
-    abstract fun getShowsInTimeRange(
+    abstract fun allShowTimeslotJoinsInTimeRange(
         timeStart: OffsetDateTime,
         timeEnd: OffsetDateTime,
         quarter: Quarter,
         year: Int
-    ): List<ShowEntity>
+    ): Flowable<List<ShowTimeslotsJoin>>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Transaction
     @Query(
-        """SELECT * from showData
+        """SELECT DISTINCT * from showData
+            INNER JOIN timeslotData on timeslotData.showId = showData.id
+            WHERE (timeEnd > :timeStart AND timeStart < :timeEnd OR
+            timeEnd < timeStart AND (timeEnd > :timeStart OR timeStart < :timeEnd))
+            AND quarter = :quarter AND year = :year
+            ORDER BY timeStart, quarter, year"""
+    )
+    abstract fun getShowTimeslotsInTimeRange(
+        timeStart: OffsetDateTime,
+        timeEnd: OffsetDateTime,
+        quarter: Quarter,
+        year: Int
+    ): List<ShowTimeslotEntity>
+
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query(
+        """SELECT DISTINCT * from showData
+        INNER JOIN timeslotData on timeslotData.showId = showData.id
         WHERE (timeStart <= :time AND timeEnd > :time OR
         timeEnd < timeStart AND (timeEnd > :time OR timeStart < :time))
         AND quarter = :quarter AND year = :year"""
     )
-    abstract fun getShowsAtTime(time: OffsetDateTime, quarter: Quarter, year: Int): List<ShowEntity>
+    abstract fun getShowTimeslotsAtTime(time: OffsetDateTime, quarter: Quarter, year: Int): List<ShowTimeslotEntity>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Transaction
     @Query(
-        """SELECT DISTINCT s.* from showData s
-            inner join broadcastData b on b.showId = s.id inner join trackData t on t.broadcastId = b.broadcastId
+        """SELECT DISTINCT * from showData
+        INNER JOIN timeslotData on timeslotData.showId = showData.id
+        WHERE (timeStart <= :time AND timeEnd > :time OR
+        timeEnd < timeStart AND (timeEnd > :time OR timeStart < :time))
+        AND quarter = :quarter AND year = :year"""
+    )
+    abstract fun getShowTimeslotJoinsAtTime(time: OffsetDateTime, quarter: Quarter, year: Int): List<ShowTimeslotsJoin>
+
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query(
+        """SELECT DISTINCT s.*, ti.* from showData s
+            INNER JOIN timeslotData ti on ti.showId = s.id
+            inner join broadcastData b on b.showId = s.id 
+            inner join trackData t on t.broadcastId = b.broadcastId
             WHERE t.artist = :artist"""
     )
-    abstract fun getShowsByArtist(artist: String?): List<ShowEntity>
+    abstract fun getShowTimeslotsByArtist(artist: String?): List<ShowTimeslotEntity>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
-        """SELECT DISTINCT s.* from showData s
-            inner join broadcastData b on b.showId = s.id inner join trackData t on t.broadcastId = b.broadcastId
+        """SELECT DISTINCT s.*, ti.* from showData s
+            INNER JOIN timeslotData ti on ti.showId = s.id
+            inner join broadcastData b on b.showId = s.id 
+            inner join trackData t on t.broadcastId = b.broadcastId
             WHERE t.album = :album"""
     )
-    abstract fun getShowsByAlbum(album: String?): List<ShowEntity>
+    abstract fun getShowTimeslotsByAlbum(album: String?): List<ShowTimeslotEntity>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
-        """SELECT DISTINCT s.* from showData s
-            inner join broadcastData b on b.showId = s.id inner join trackData t on t.broadcastId = b.broadcastId
+        """SELECT DISTINCT s.*, ti.* from showData s
+            INNER JOIN timeslotData ti on ti.showId = s.id
+            inner join broadcastData b on b.showId = s.id 
+            inner join trackData t on t.broadcastId = b.broadcastId
             WHERE t.artist = :artist AND t.album = :album"""
     )
-    abstract fun getShowsByArtistAlbum(artist: String?, album: String?): List<ShowEntity>
+    abstract fun getShowTimeslotsByArtistAlbum(artist: String?, album: String?): List<ShowTimeslotEntity>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
-        """SELECT DISTINCT s.* from showData s
-            inner join broadcastData b on b.showId = s.id inner join trackData t on t.broadcastId = b.broadcastId
+        """SELECT DISTINCT s.*, ti.* from showData s
+            INNER JOIN timeslotData ti on ti.showId = s.id
+            inner join broadcastData b on b.showId = s.id 
+            inner join trackData t on t.broadcastId = b.broadcastId
             WHERE t.label = :label"""
     )
-    abstract fun getShowsByLabel(label: String?): List<ShowEntity>
+    abstract fun getShowTimeslotsByLabel(label: String?): List<ShowTimeslotEntity>
 
     @Insert(onConflict = REPLACE)
     abstract fun insert(showEntity: ShowEntity)
@@ -145,21 +262,6 @@ abstract class ShowDao {
     @Query("DELETE from showData")
     abstract fun deleteAll()
 
-    /** Updates a show from information only visible on the schedule grid. */
-    @Query(
-        """UPDATE showData
-            SET name = :name, timeStart = :timeStart, timeEnd = :timeEnd, quarter = :quarter, year = :year
-            WHERE id = :id"""
-    )
-    abstract fun updateShowInfo(
-        id: Int,
-        name: String?,
-        timeStart: OffsetDateTime?,
-        timeEnd: OffsetDateTime?,
-        quarter: Quarter?,
-        year: Int?
-    )
-
     /** Updates a show from information pulled from its details page. */
     @Query("UPDATE showData SET host = :host, genre = :genre, defaultDesc = :defaultDesc WHERE id = :id")
     abstract fun updateShowDetails(id: Int, host: String?, genre: String?, defaultDesc: String?)
@@ -167,21 +269,16 @@ abstract class ShowDao {
     @Query("UPDATE showData SET defaultImageHref = :defaultImageHref WHERE id = :id")
     abstract fun updateShowDefaultImageHref(id: Int, defaultImageHref: String?)
 
-    fun updateOrInsert(show: ShowEntity) {
-        if (getShowById(show.id) != null) {
-            updateShowInfo(
-                show.id,
-                show.name,
-                show.timeStart,
-                show.timeEnd,
-                show.quarter,
-                show.year
-            )
+    fun updateOrInsert(showNew: ShowEntity) {
+        val existingShowTimeslot = getShowTimeslotById(showNew.id)
 
-            // we don't want to override any existing image hrefs if we didn't find one this time
-            show.defaultImageHref?.let { updateShowDefaultImageHref(show.id, it) }
+        if (existingShowTimeslot != null) {
+            showNew.defaultImageHref?.let {
+                if (it != existingShowTimeslot.defaultImageHref)
+                    updateShowDefaultImageHref(showNew.id, it)
+            }
         } else {
-            insert(show)
+            insert(showNew)
         }
     }
 }

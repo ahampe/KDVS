@@ -68,7 +68,7 @@ class ScheduleSelectionFragment : BottomSheetDialogFragment(), CoroutineScope {
         get() = job + Dispatchers.IO
 
     // Retrieves the timeslot from the arguments bundle. Throws an exception if it doesn't exist.
-    private val timeslot: TimeSlot by lazy {
+    private val timeslot: ScheduleTimeslot by lazy {
         arguments?.let { ScheduleSelectionFragmentArgs.fromBundle(it) }?.timeslot
             ?: throw IllegalArgumentException("Should have passed a TimeSlot to ScheduleSelectionFragment")
     }

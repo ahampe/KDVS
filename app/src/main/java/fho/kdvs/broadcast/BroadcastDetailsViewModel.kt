@@ -31,10 +31,10 @@ class BroadcastDetailsViewModel @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.IO
 
-    lateinit var showLiveData: LiveData<ShowEntity>
+    lateinit var showLiveData: LiveData<ShowTimeslotEntity>
     lateinit var broadcastLiveData: LiveData<BroadcastEntity>
     lateinit var broadcastFavoriteLiveData: LiveData<FavoriteBroadcastEntity>
-    lateinit var showWithBroadcast: MediatorLiveData<Pair<ShowEntity, BroadcastEntity>>
+    lateinit var showWithBroadcast: MediatorLiveData<Pair<ShowTimeslotEntity, BroadcastEntity>>
 
     lateinit var tracksLiveData: LiveData<List<TrackEntity>>
     private lateinit var trackFavoritesLiveData: LiveData<List<FavoriteTrackEntity>>
@@ -45,15 +45,15 @@ class BroadcastDetailsViewModel @Inject constructor(
     fun initialize(showId: Int, broadcastId: Int) {
         fetchTracks(broadcastId)
 
-        showLiveData = showRepository.showById(showId)
+        showLiveData = showRepository.showTimeslotById(showId)
         broadcastLiveData = broadcastRepository.broadcastById(broadcastId)
         tracksLiveData = trackRepository.tracksForBroadcast(broadcastId)
         trackFavoritesLiveData = favoriteTrackRepository.allFavoritesByBroadcast(broadcastId)
         broadcastFavoriteLiveData = favoriteBroadcastRepository.favoriteByBroadcastId(broadcastId)
 
-        showWithBroadcast = MediatorLiveData<Pair<ShowEntity, BroadcastEntity>>()
+        showWithBroadcast = MediatorLiveData<Pair<ShowTimeslotEntity, BroadcastEntity>>()
             .apply {
-                var showEnt: ShowEntity? = null
+                var showEnt: ShowTimeslotEntity? = null
                 var broadcastEnt: BroadcastEntity? = null
 
                 addSource(showLiveData) { show ->

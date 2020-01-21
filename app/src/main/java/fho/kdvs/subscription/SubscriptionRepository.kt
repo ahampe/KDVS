@@ -2,10 +2,8 @@ package fho.kdvs.subscription
 
 import androidx.lifecycle.LiveData
 import fho.kdvs.global.BaseRepository
-import fho.kdvs.global.database.ShowDao
-import fho.kdvs.global.database.ShowEntity
-import fho.kdvs.global.database.SubscriptionDao
-import fho.kdvs.global.database.SubscriptionEntity
+import fho.kdvs.global.database.*
+import fho.kdvs.global.database.joins.ShowTimeslotsJoin
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,17 +27,16 @@ class SubscriptionRepository @Inject constructor(
         return subscriptions
     }
 
-    fun subscribedShows(): List<ShowEntity> {
-        val shows = mutableListOf<ShowEntity>()
+    fun subscribedShows(): List<ShowTimeslotsJoin> {
+        val showsWithTimeslots = mutableListOf<ShowTimeslotsJoin>()
         val subscriptions = subscriptionDao.getAll()
 
         subscriptions.forEach {
-            val show = showDao.getShowById(it.showId)
-            show?.let { s ->
-                shows.add(s)
+            showDao.getShowTimeslotJoinsById(it.showId)?.let { s ->
+                showsWithTimeslots.add(s)
             }
         }
 
-        return shows
+        return showsWithTimeslots
     }
 }

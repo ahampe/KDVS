@@ -8,7 +8,7 @@
 
         <variable
             name="currentShow"
-            type="fho.kdvs.global.database.ShowEntity" />
+            type="fho.kdvs.global.database.ShowTimeslotEntity" />
 
         <variable
             name="clickListener"
@@ -84,8 +84,8 @@
         <TextView
             android:id="@+id/currentShowTime"
             style="@style/TextAppearance.MaterialComponents.Subtitle2"
-            searchTimeEnd="@{currentShow.timeEnd}"
-            searchTimeStart="@{currentShow.timeStart}"
+            currentShowTimeEnd="@{currentShow.timeEnd}"
+            currentShowTimeStart="@{currentShow.timeStart}"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"

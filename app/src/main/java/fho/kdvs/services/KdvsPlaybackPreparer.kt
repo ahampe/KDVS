@@ -36,10 +36,7 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import fho.kdvs.R
-import fho.kdvs.global.database.BroadcastDao
-import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.ShowDao
-import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.*
 import fho.kdvs.global.extensions.*
 import fho.kdvs.global.util.URLs
 import kotlinx.coroutines.*
@@ -108,7 +105,7 @@ class KdvsPlaybackPreparer @Inject constructor(
      * Updates the metadata of the live stream from the current [show] and an optional current [broadcast].
      * This will track changes to the live status, but will not update the notification unless [isLiveNow] is true.
      */
-    fun changeLiveMetadata(show: ShowEntity, broadcast: BroadcastEntity?, isLiveNow: Boolean) =
+    fun changeLiveMetadata(show: ShowTimeslotEntity, broadcast: BroadcastEntity?, isLiveNow: Boolean) =
         launch {
             // TODO glide seems to crash here despite the applied request options for fallback / error
             val art = try {
@@ -204,7 +201,7 @@ class KdvsPlaybackPreparer @Inject constructor(
 
     /** Prepares playback for a past broadcast. */
     private fun prepareBroadcast(broadcastId: Int, showId: Int, position: Long) = launch {
-        val show = showDao.getShowById(showId) ?: return@launch
+        val show = showDao.getShowTimeslotById(showId) ?: return@launch
         val broadcast = broadcastDao.getBroadcastById(broadcastId) ?: return@launch
 
         // TODO glide seems to crash here despite the applied request options for fallback / error

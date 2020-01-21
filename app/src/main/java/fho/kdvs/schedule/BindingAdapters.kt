@@ -12,7 +12,7 @@ import com.bumptech.glide.request.RequestOptions
 import fho.kdvs.R
 import fho.kdvs.global.ui.TimeSlotPaletteRequestListener
 import fho.kdvs.global.util.TimeHelper
-import fho.kdvs.schedule.TimeSlot.Companion.DUMMY_ID
+import fho.kdvs.schedule.ScheduleTimeslot.Companion.DUMMY_ID
 import kotlinx.android.synthetic.main.cell_timeslot.view.*
 import org.threeten.bp.OffsetDateTime
 import timber.log.Timber
@@ -38,7 +38,7 @@ fun setShowSelectionHeader(view: TextView, index: Int) {
     }
 }
 
-@BindingAdapter("timeSlotSize")
+@BindingAdapter("numShows")
 fun setShowTimeAlternatingText(view: TextView, size: Int) {
     if (size > 1) {
         if (size == 2) view.text = view.resources.getString(R.string.alternating_every_other)
@@ -68,7 +68,7 @@ fun makeShowNames(view: TextView, showNames: List<String>, numHalfHours: Int) {
 }
 
 @BindingAdapter("timeslot", "timeslotHeight")
-fun setTimeSlotLayoutProperties(view: CardView, timeslot: TimeSlot, numHalfHours: Int) {
+fun setTimeSlotLayoutProperties(view: CardView, timeslot: ScheduleTimeslot, numHalfHours: Int) {
     if (timeslot.ids.first() == DUMMY_ID) {
         view.visibility = View.INVISIBLE
         return
@@ -91,7 +91,7 @@ fun setTimeSlotLayoutProperties(view: CardView, timeslot: TimeSlot, numHalfHours
 @BindingAdapter("timeslotGlideHref", "selectedTheme")
 fun loadImageWithGlideAndSetVisualizations(
     view: ImageView,
-    timeslot: TimeSlot?,
+    timeslot: ScheduleTimeslot?,
     selectedTheme: Int
 ) {
     val parent = view.parent as ConstraintLayout

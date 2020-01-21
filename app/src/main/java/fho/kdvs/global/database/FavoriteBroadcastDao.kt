@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import androidx.room.Transaction
+import fho.kdvs.global.database.joins.ShowBroadcastFavoriteJoin
 import io.reactivex.Flowable
 
 @Dao
@@ -15,11 +16,12 @@ interface FavoriteBroadcastDao {
 
     @Transaction
     @Query(
-        """SELECT id, name, host, genre, defaultDesc, defaultImageHref, timeStart, timeEnd, quarter, year from favoriteBroadcastData
+        """SELECT showData.* from favoriteBroadcastData
         INNER JOIN broadcastData on broadcastData.broadcastId = broadcastData.broadcastId
-        INNER JOIN showData on showData.id = broadcastData.showId"""
+        INNER JOIN showData on showData.id = broadcastData.showId
+        INNER JOIN timeslotData on timeslotData.showId = showData.id"""
     )
-    fun allShowBroadcastFavoriteJoins(): Flowable<List<ShowBroadcastFavoriteJoin>>
+    fun allTimeslotShowBroadcastFavoriteJoins(): Flowable<List<ShowBroadcastFavoriteJoin>>
 
     @Query("SELECT * from favoriteBroadcastData where broadcastId = :broadcastId LIMIT 1")
     fun getByBroadcastId(broadcastId: Int?): LiveData<FavoriteBroadcastEntity>

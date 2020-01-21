@@ -199,7 +199,7 @@ class ScheduleFragment : DaggerFragment() {
         }
     }
 
-    fun showSelection(timeslot: TimeSlot) {
+    fun showSelection(timeslot: ScheduleTimeslot) {
         // TODO should use Navigation for this as they now support dialogs
         fragmentManager?.let {
             val args = Bundle()
@@ -234,7 +234,7 @@ class ScheduleFragment : DaggerFragment() {
     /** This class will hold all the data that the [WeekViewAdapter] needs. */
     inner class DayInfo(day: Day, quarter: Quarter, year: Int) {
         val dayName = day.name
-        val timeSlotsLiveData: LiveData<List<TimeSlot>> =
+        val timeSlotsLiveData: LiveData<List<ScheduleTimeslot>> =
             viewModel.getShowsForDay(day, quarter, year)
     }
 }

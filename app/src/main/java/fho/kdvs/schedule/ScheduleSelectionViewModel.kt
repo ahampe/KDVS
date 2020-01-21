@@ -3,7 +3,9 @@ package fho.kdvs.schedule
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.navigation.NavController
+import fho.kdvs.global.database.Show
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.ShowTimeslotEntity
 import fho.kdvs.show.ShowRepository
 import org.threeten.bp.OffsetDateTime
 import javax.inject.Inject
@@ -31,11 +33,11 @@ class ScheduleSelectionViewModel @Inject constructor(
         showRepository.scrapeSchedule()
     }
 
-    suspend fun allOrderedShowsForTime(timeStart: OffsetDateTime): List<ShowEntity?> {
+    suspend fun allOrderedShowsForTime(timeStart: OffsetDateTime): List<ShowTimeslotEntity?> {
         return showRepository.allShowsAtTimeOrderedRelativeToCurrentWeek(timeStart)
     }
 
-    fun getPairedIdsAndNamesForShows(shows: List<ShowEntity?>): List<Pair<Int, String>> {
+    fun getPairedIdsAndNamesForShows(shows: List<Show?>): List<Pair<Int, String>> {
         return shows
             .map { s -> s!!.id }
             .mapIndexed { index, i ->

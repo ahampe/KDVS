@@ -19,7 +19,7 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.MainActivity
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.ShowTimeslotEntity
 import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.ui.PlayerPaletteRequestListener
 import fho.kdvs.global.util.TimeHelper
@@ -147,7 +147,11 @@ class PlayerFragment : DaggerFragment() {
                     broadcast
                 )
             }
-            star.setOnClickListener { sharedViewModel.onClickSubscribe(star, show, context) }
+            star.setOnClickListener {
+                sharedViewModel.getShowTimeslotsJoin(show).observe(this, Observer { join ->
+                    sharedViewModel.onClickSubscribe(star, join, context)
+                })
+            }
             arrow.setOnClickListener { fragmentManager?.popBackStack() }
 
             if (broadcast == null) {
@@ -230,9 +234,9 @@ class PlayerFragment : DaggerFragment() {
         liveControls.visibility = View.GONE
     }
 
-    private fun configureLiveExoPlayer(show: ShowEntity) {
-        val timeStart = show.timeStart
-        val timeEnd = show.timeEnd
+    private fun configureLiveExoPlayer(showTimeslot: ShowTimeslotEntity) {
+        val timeStart = showTimeslot.timeStart
+        val timeEnd = showTimeslot.timeEnd
 
         if (timeStart == null || timeEnd == null) return
 
@@ -247,8 +251,8 @@ class PlayerFragment : DaggerFragment() {
         customExoPlayer.progress.progressBar.visibility = View.VISIBLE
         customExoPlayer.progress.exo_progress.visibility = View.GONE
 
-        customExoPlayer.timeStartLabel.text = TimeHelper.showTimeFormatter.format(show.timeStart)
-        customExoPlayer.timeEndLabel.text = TimeHelper.showTimeFormatter.format(show.timeEnd)
+        customExoPlayer.timeStartLabel.text = TimeHelper.showTimeFormatter.format(showTimeslot.timeStart)
+        customExoPlayer.timeEndLabel.text = TimeHelper.showTimeFormatter.format(showTimeslot.timeEnd)
         customExoPlayer.timeStartLabel.visibility = View.VISIBLE
         customExoPlayer.timeEndLabel.visibility = View.VISIBLE
         customExoPlayer.exo_position.visibility = View.GONE

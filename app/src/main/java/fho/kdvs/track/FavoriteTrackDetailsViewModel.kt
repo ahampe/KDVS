@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import fho.kdvs.broadcast.BroadcastRepository
 import fho.kdvs.favorite.track.FavoriteTrackRepository
 import fho.kdvs.global.database.BroadcastEntity
-import fho.kdvs.global.database.ShowBroadcastTrackFavoriteJoin
+import fho.kdvs.global.database.joins.ShowBroadcastTrackFavoriteJoin
 import fho.kdvs.global.database.TrackEntity
 import javax.inject.Inject
 

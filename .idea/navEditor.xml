@@ -36,6 +36,11 @@
                                 <LayoutPositions />
                               </value>
                             </entry>
+                            <entry key="action_broadcastDetailsFragment_to_showDetailsFragment">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                           </map>
                         </option>
                       </LayoutPositions>
@@ -73,6 +78,11 @@
                         </option>
                         <option name="myPositions">
                           <map>
+                            <entry key="action_favoriteFragment_to_broadcastDetailsFragment">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                             <entry key="action_favoriteFragment_to_favoriteTrackDetailsFragment">
                               <value>
                                 <LayoutPositions />

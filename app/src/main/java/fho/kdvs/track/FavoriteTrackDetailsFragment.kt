@@ -19,7 +19,7 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.FavoriteTrackEntity
 import fho.kdvs.global.database.TrackEntity
-import fho.kdvs.global.database.getTracks
+import fho.kdvs.global.database.joins.getTracks
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.fragment_track_details.*

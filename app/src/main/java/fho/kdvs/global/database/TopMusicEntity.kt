@@ -20,7 +20,7 @@ data class TopMusicEntity(
     @ColumnInfo(name = "label") var label: String? = null,
     @ColumnInfo(name = "imageHref") var imageHref: String? = null,
     @ColumnInfo(name = "spotifyAlbumUri") var spotifyAlbumUri: String? = null,
-    @ColumnInfo(name = "spotifyTrackUris") var spotifyTrackUris: String? = null, // TODO ideally this could be stored as a List<String>, but there are some Room issues with this, even with type converters
+    @ColumnInfo(name = "spotifyTrackUris") var spotifyTrackUris: String? = null, // TODO make this a one-to-many join on separate table?
     @ColumnInfo(name = "youTubeId") var youTubeId: String? = null,
     @ColumnInfo(name = "hasThirdPartyInfo") var hasThirdPartyInfo: Boolean = false
 ) : Parcelable {

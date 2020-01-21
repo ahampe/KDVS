@@ -2,12 +2,12 @@ package fho.kdvs.schedule
 
 import androidx.recyclerview.widget.DiffUtil
 
-class TimeSlotDiffCallback : DiffUtil.ItemCallback<TimeSlot>() {
-    override fun areItemsTheSame(oldItem: TimeSlot, newItem: TimeSlot): Boolean =
+class TimeSlotDiffCallback : DiffUtil.ItemCallback<ScheduleTimeslot>() {
+    override fun areItemsTheSame(oldItem: ScheduleTimeslot, newItem: ScheduleTimeslot): Boolean =
         oldItem.ids == newItem.ids
 
 
-    override fun areContentsTheSame(oldItem: TimeSlot, newItem: TimeSlot): Boolean =
+    override fun areContentsTheSame(oldItem: ScheduleTimeslot, newItem: ScheduleTimeslot): Boolean =
         oldItem == newItem
 }
 

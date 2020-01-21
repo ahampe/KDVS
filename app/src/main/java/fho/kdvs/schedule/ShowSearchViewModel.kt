@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
-import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.joins.ShowTimeslotsJoin
 import fho.kdvs.global.extensions.toLiveData
 import fho.kdvs.show.ShowRepository
 import java.util.concurrent.TimeUnit
@@ -15,14 +15,16 @@ class ShowSearchViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
 
-    fun getShowsForCurrentQuarterYear(currentQuarterYear: QuarterYear): LiveData<List<ShowEntity>> =
-        showRepository.showsForQuarterYear(currentQuarterYear)
+    fun getShowTimeslotsJoinsForCurrentQuarterYear(currentQuarterYear: QuarterYear): LiveData<List<ShowTimeslotsJoin>> =
+        showRepository.showTimeslotsJoinsByQuarterYear(currentQuarterYear)
             .debounce(100L, TimeUnit.MILLISECONDS)
             .toLiveData()
 
-    fun onClickShow(navController: NavController, show: ShowEntity) {
-        val navAction = ShowSearchFragmentDirections
-            .actionShowSearchFragmentToShowDetailsFragment(show.id)
-        navController.navigate(navAction)
+    fun onClickShow(navController: NavController, join: ShowTimeslotsJoin) {
+        join.show?.id?.let {
+            val navAction = ShowSearchFragmentDirections
+                .actionShowSearchFragmentToShowDetailsFragment(it)
+            navController.navigate(navAction)
+        }
     }
 }

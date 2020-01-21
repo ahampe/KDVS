@@ -5,7 +5,9 @@ import android.app.Application
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import fho.kdvs.global.database.Show
 import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.joins.ShowTimeslotsJoin
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.services.LiveShowUpdater.Companion.WEEK_IN_MILLIS
@@ -30,50 +32,56 @@ class KdvsAlarmManager @Inject constructor(
     private var alarmMgr: AlarmManager? = null
     private lateinit var alarmIntent: PendingIntent
 
-    fun registerShowAlarmAsync(show: ShowEntity): Deferred<Boolean> = async {
-        val timeStart = show.timeStart
-
-        timeStart?.let {
+    /**
+     * Register recurring alarms for each [TimeslotEntity] of a [ShowEntity].
+     * */
+    fun registerShowAlarmsAsync(showWithTimeslots: ShowTimeslotsJoin): Deferred<Boolean> = async {
+        showWithTimeslots.show?.let { show ->
             initShowAlarm(show)
 
-            val showsAtTime = showRepository.allShowsAtTimeOrderedRelativeToCurrentWeek(timeStart)
+            showWithTimeslots.timeslots.mapNotNull { t -> t.timeStart }.forEach { timeStart ->
+                val showsAtTime =
+                    showRepository.allShowsAtTimeOrderedRelativeToCurrentWeek(timeStart)
 
-            if (showsAtTime.isNotEmpty()) {
-                val weekOffset = showsAtTime
-                    .indexOfFirst { s -> s?.id == show.id }
-                    .toLong()
+                if (showsAtTime.isNotEmpty()) {
+                    val weekOffset = showsAtTime
+                        .indexOfFirst { s -> s?.id == show.id }
+                        .toLong()
 
-                val adjustedTime = TimeHelper.makeRealWeekRelativeTimeFromEpochTime(timeStart)
+                    val adjustedTime = TimeHelper.makeRealWeekRelativeTimeFromEpochTime(timeStart)
 
-                val alarmTime = adjustedTime
-                    ?.plusWeeks(weekOffset)
-                    ?.minusMinutes(kdvsPreferences.alarmNoticeInterval ?: 0)
+                    val alarmTime = adjustedTime
+                        ?.plusWeeks(weekOffset)
+                        ?.minusMinutes(kdvsPreferences.alarmNoticeInterval ?: 0)
 
-                alarmTime?.let {
-                    cancelShowAlarm(show) // prevent multiple registrations
+                    if (alarmTime == null) {
+                        return@async false
+                    } else {
+                        cancelShowAlarm(show) // prevent multiple registrations
 
-                    // Use setRepeating() for custom interval
-                    alarmMgr?.setRepeating(
-                        AlarmManager.RTC_WAKEUP,
-                        it.toInstant().toEpochMilli(),
-                        WEEK_IN_MILLIS * showsAtTime.size,
-                        alarmIntent
-                    )
-
-                    return@async true
+                        // Use setRepeating() for custom interval
+                        alarmMgr?.setRepeating(
+                            AlarmManager.RTC_WAKEUP,
+                            alarmTime.toInstant().toEpochMilli(),
+                            WEEK_IN_MILLIS * showsAtTime.size,
+                            alarmIntent
+                        )
+                    }
                 }
             }
+
+            return@async true
         }
 
         return@async false
     }
 
-    fun cancelShowAlarm(show: ShowEntity) {
+    fun cancelShowAlarm(show: Show) {
         initShowAlarm(show)
         alarmMgr?.cancel(alarmIntent)
     }
 
-    private fun initShowAlarm(show: ShowEntity) {
+    private fun initShowAlarm(show: Show) {
         if (alarmMgr == null)
             alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 

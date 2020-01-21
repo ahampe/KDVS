@@ -14,7 +14,7 @@ import dagger.android.support.DaggerFragment
 import fho.kdvs.R
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
-import fho.kdvs.global.database.ShowEntity
+import fho.kdvs.global.database.joins.ShowTimeslotsJoin
 import kotlinx.android.synthetic.main.fragment_show_search.*
 import timber.log.Timber
 import javax.inject.Inject
@@ -27,7 +27,7 @@ class ShowSearchFragment : DaggerFragment() {
     private lateinit var sharedVm: SharedViewModel
 
     private var showSearchViewAdapter: ShowSearchViewAdapter? = null
-    var hashedShows = mutableMapOf<String, ArrayList<ShowEntity>>()
+    var hashedShowTimeslotsJoins = mutableMapOf<String, ArrayList<ShowTimeslotsJoin>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,35 +65,24 @@ class ShowSearchFragment : DaggerFragment() {
     private fun subscribeToViewModel() {
         val fragment = this
 
-        vm.run {
-            sharedVm.getCurrentQuarterYear().observe(fragment, Observer { currentQuarterYear ->
-                vm.getShowsForCurrentQuarterYear(currentQuarterYear)
-                    .observe(fragment, Observer { shows ->
-                        // Pair each show with an int corresponding to number of shows in its timeslot
-                        val showsWithTimeSlotSize = shows.groupBy { s -> s.timeStart }
-                            .map { m ->
-                                val list = mutableListOf<Pair<ShowEntity, Int>>()
-                                m.value.forEach {
-                                    list.add(Pair(it, m.value.size))
-                                }
-                                list
-                            }.flatten()
+        sharedVm.getCurrentQuarterYear().observe(fragment, Observer { currentQuarterYear ->
+            vm.getShowTimeslotsJoinsForCurrentQuarterYear(currentQuarterYear)
+                .observe(fragment, Observer { joins ->
+                    val distinctJoins = joins.distinctBy { j -> j.show?.id }
 
-                        showSearchViewAdapter =
-                            ShowSearchViewAdapter(showsWithTimeSlotSize, fragment) {
-                                Timber.d("clicked ${it.item}")
-                                vm.onClickShow(findNavController(), it.item)
-                            }
-
-                        resultsRecycler.run {
-                            layoutManager =
-                                LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-                            adapter = showSearchViewAdapter
+                    showSearchViewAdapter =
+                        ShowSearchViewAdapter(distinctJoins, fragment) {
+                            Timber.d("clicked ${it.item}")
+                            vm.onClickShow(findNavController(), it.item)
                         }
-                    })
-            })
 
-        }
+                    resultsRecycler.run {
+                        layoutManager =
+                            LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+                        adapter = showSearchViewAdapter
+                    }
+                })
+        })
     }
 
     private fun initializeSearchBar() {
@@ -119,7 +108,7 @@ class ShowSearchFragment : DaggerFragment() {
                 showSearchViewAdapter?.let { adapter ->
                     adapter.results.clear()
 
-                    adapter.shows?.let {
+                    adapter.showTimeslotsJoins?.let {
                         adapter.results.addAll(it)
                     }
 
