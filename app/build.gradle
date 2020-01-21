@@ -36,9 +36,6 @@ android {
         exclude 'META-INF/license.txt'
         exclude 'META-INF/notice.txt'
     }
-    sourceSets {
-        test.resources.srcDirs += 'src/test/java/fho/kdvs/resources'
-    }
 }
 
 dependencies {
