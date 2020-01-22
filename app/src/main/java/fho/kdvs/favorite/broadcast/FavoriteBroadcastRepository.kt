@@ -21,7 +21,7 @@ class FavoriteBroadcastRepository @Inject constructor(
     }
 
     fun favoriteByBroadcastId(broadcastId: Int): LiveData<FavoriteBroadcastEntity> {
-        return favoriteBroadcastDao.getByBroadcastId(broadcastId)
+        return favoriteBroadcastDao.favoriteBroadcastByBroadcastId(broadcastId)
     }
 
     fun allFavoritesByBroadcast(broadcastId: Int): LiveData<List<FavoriteBroadcastEntity>> {
