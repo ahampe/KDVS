@@ -1,12 +1,11 @@
 # KDVS
-A pure Kotlin Android app made for [KDVS](https://kdvs.org/) in Davis, CA. Streams the station live from anywhere with internet access, plays past broadcasts, and supports offline access.
+A pure Kotlin Android app made for [KDVS](https://kdvs.org/) in Davis, CA. Stream the station live from anywhere with internet access, play past broadcasts, download broadcasts for offline access, browse & search station content, subscribe to shows and receive alarm notifications, aggregate your favorite tracks, and export music to Spotify or YouTube.
 
 ## TODO
-* Consolidate multi-timeslot shows (e.g. Democracy Now) into single entities
-* Integrate app with an actual back-end database API
+* Integrate app with a back-end API (if we can get access)
 
 ## Nice-to-haves
-* Search functionality (on hold currently; would require unacceptable network usage as it stands)
+* Robust search functionality via KDVS library site
 * Audio fingerprinting to determine the currently playing track (might be infeasible)
 
 ## Architecture
