@@ -1,5 +1,8 @@
 package fho.kdvs.scraper
 
+import android.content.SharedPreferences
+import android.text.Html
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -13,7 +16,9 @@ open class ScraperTest {
     internal lateinit var scraperManager: WebScraperManager
 
     private lateinit var db: KdvsDatabase
-    private lateinit var preferences: KdvsPreferences
+    private lateinit var kdvsPreferences: KdvsPreferences
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var preferencesEditor: SharedPreferences.Editor
     private lateinit var timeslotDao: TimeslotDao
     internal lateinit var showDao: ShowDao
     internal lateinit var broadcastDao: BroadcastDao
@@ -28,7 +33,9 @@ open class ScraperTest {
         initThreeTen()
 
         db = mock()
-        preferences = mock()
+        kdvsPreferences = mock()
+        sharedPreferences = mock()
+        preferencesEditor = mock()
         showDao = mock()
         timeslotDao = mock()
         broadcastDao = mock()
@@ -46,7 +53,9 @@ open class ScraperTest {
         whenever(db.staffDao()).doReturn(staffDao)
         whenever(db.topMusicDao()).doReturn(topMusicDao)
         whenever(db.fundraiserDao()).doReturn(fundraiserDao)
+        whenever(kdvsPreferences.preferences).doReturn(sharedPreferences)
+        whenever(sharedPreferences.edit()).doReturn(preferencesEditor)
 
-        scraperManager = WebScraperManager(db, preferences)
+        scraperManager = WebScraperManager(db, kdvsPreferences)
     }
 }

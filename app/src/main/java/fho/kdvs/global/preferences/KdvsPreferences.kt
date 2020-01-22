@@ -109,7 +109,7 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         SPOTIFY_FAVORITES_PLAYLIST_URI
     }
 
-    val preferences: SharedPreferences = application.getSharedPreferences(FILE_NAME, MODE_PRIVATE)
+    open val preferences: SharedPreferences = application.getSharedPreferences(FILE_NAME, MODE_PRIVATE)
 
     open var streamUrl: String? by StringPreference(Key.STREAM_URL)
 

@@ -416,10 +416,9 @@ object MockObjects {
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-03-25"),
             type=TopMusicType.ADD,
-            position = 1,
+            position = 0,
             artist = "Cavemen",
             album = "Lowlife EP",
-            year=2000,
             label = "Slovenly",
             imageHref= null,
             spotifyAlbumUri = null,
@@ -429,7 +428,7 @@ object MockObjects {
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-03-25"),
             type=TopMusicType.ADD,
-            position = 3,
+            position = 2,
             artist = "Is In Unsamble",
             album = "Is The Belly/In The Belly",
             label = "Gilgongo",
@@ -440,7 +439,7 @@ object MockObjects {
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-02-25"),
             type=TopMusicType.ADD,
-            position = 1,
+            position = 0,
             artist = "The Grundybergs",
             album = "Playing Baseball With Walt Whitman",
             label = "Self-Released",
@@ -454,7 +453,7 @@ object MockObjects {
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-04-01"),
             type=TopMusicType.ALBUM,
-            position = 19,
+            position = 18,
             artist = "Ibibio Sound Machine",
             album = "Doko Mien",
             label = "Merge",
@@ -465,9 +464,9 @@ object MockObjects {
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-03-25"),
             type=TopMusicType.ALBUM,
-            position = 8,
+            position = 7,
             artist = "Fruit Bats & Vetiver",
-            album = "In Real Life (Live at Spacebomb Studios)",
+            album = "In Real Life (Live At Spacebomb Studios)",
             label = "Spacebomb",
             imageHref= null,
             spotifyAlbumUri = null,
@@ -476,7 +475,7 @@ object MockObjects {
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-03-04"),
             type=TopMusicType.ALBUM,
-            position = 8,
+            position = 4,
             artist = "The Real Kids",
             album = "The Kids 1974 Demos - The Real Kids 1977/1978 demos/live",
             label = "Crypt",

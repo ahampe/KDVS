@@ -59,10 +59,10 @@ class TopMusicScraperTest : ScraperTest() {
         val topAlbumsHtml = TestUtils.loadFromResource("Top30Albums.html")
         scraperManager.scrapeTopMusic(topAlbumsHtml)
 
-        expectedTopAlbums.forEach { add ->
+        expectedTopAlbums.forEach { album ->
             assertTrue(
-                "Expected to find album ${add.artist} - ${add.album} at position ${add.position} for week of ${add.weekOf}",
-                scrapedTopAlbums.contains(add)
+                "Expected to find album ${album.artist} - ${album.album} at position ${album.position} for week of ${album.weekOf}",
+                scrapedTopAlbums.contains(album)
             )
         }
     }

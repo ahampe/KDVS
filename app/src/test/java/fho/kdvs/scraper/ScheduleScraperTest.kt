@@ -29,13 +29,16 @@ class ScheduleScraperTest : ScraperTest() {
 
     @Test
     fun scrapeSchedule_fromFile() {
-        expectedShows = MockObjects.scheduleShowsWithTimeslots.map { s -> s.first }
+        expectedShows = MockObjects.scheduleShowsWithTimeslots
+            .distinctBy { s -> s.first.id }
+            .map { s -> s.first }
 
         val html = TestUtils.loadFromResource("schedule-grid.html")
 
         scraperManager.scrapeSchedule(html)
 
-        val scrapedNames = scrapedShows.map { it.name }
+        val scrapedNames = scrapedShows
+            .map { it.name }
 
         expectedShows.forEach { show ->
             assertTrue(

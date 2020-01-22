@@ -1,6 +1,7 @@
 package fho.kdvs.scraper
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.whenever
 import fho.kdvs.MockObjects
@@ -23,7 +24,12 @@ class ShowScraperTest : ScraperTest() {
         super.setup()
 
         whenever(
-            showDao.updateShowDetails(any(), any(), any(), any())
+            showDao.updateShowDetails(
+                any(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull()
+            )
         ).doAnswer {
             val show = ShowEntity(
                 id = it.arguments[0] as Int,
@@ -49,8 +55,7 @@ class ShowScraperTest : ScraperTest() {
         expectedShows = MockObjects.showDetails
 
         expectedShows.forEach { show ->
-            val id = show.id
-            val html = TestUtils.loadFromResource("$id-show-details.html")
+            val html = TestUtils.loadFromResource("${show.id}-show-details.html")
             scraperManager.scrapeShow(html)
 
             assertEquals("Expected to scrape show details", show, scrapedShow)
