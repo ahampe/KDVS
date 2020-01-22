@@ -3,7 +3,9 @@ package fho.kdvs.scraper
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.ShowEntity
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -18,9 +20,34 @@ class ScheduleScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
+        every { showDao.updateOrInsert(any()) } answers {
+            val show = firstArg<ShowEntity>()
+
+            if (show in scrapedShows)
+                showDao.updateShowDefaultImageHref(show.id, show.defaultImageHref)
+            else
+                showDao.insert(show)
+        }
+
+        every { showDao.updateShowDefaultImageHref(any(), any()) } just Runs
+
         every { showDao.insert(any()) } answers {
             val show = firstArg() as ShowEntity
             scrapedShows.add(show)
+        }
+
+        every { timeslotDao.insert(any()) } just Runs
+
+        every {
+            kdvsPreferences getProperty "lastScheduleScrape"
+        } nullablePropertyType Long::class answers {
+            fieldValue
+        }
+
+        every {
+            kdvsPreferences setProperty "lastScheduleScrape" value any<Long>()
+        } answers {
+            value
         }
     }
 

@@ -12,7 +12,6 @@ import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs.SHOW_IMAGE_PLACEHOLDER
 import fho.kdvs.schedule.QuarterYear
 import fho.kdvs.topmusic.TopMusicType
-import kotlinx.android.synthetic.main.exo_playback_control_view.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -372,9 +371,9 @@ class WebScraperManager @Inject constructor(
         }
 
         when (type) {
-            TopMusicType.ADD -> kdvsPreferences.lastTopFiveAddsScrape =
+            TopMusicType.ADD -> kdvsPreferences.lastTopAddsScrape =
                 TimeHelper.getNow().toEpochSecond()
-            TopMusicType.ALBUM -> kdvsPreferences.lastTopThirtyAlbumsScrape =
+            TopMusicType.ALBUM -> kdvsPreferences.lastTopAlbumsScrape =
                 TimeHelper.getNow().toEpochSecond()
         }
 
@@ -545,7 +544,7 @@ class WebScraperManager @Inject constructor(
             }
         }
 
-        kdvsPreferences.lastFundraiserScraper = TimeHelper.getNow().toEpochSecond()
+        kdvsPreferences.lastFundraiserScrape = TimeHelper.getNow().toEpochSecond()
 
         return FundraiserScrapeData(fundraiser)
     }

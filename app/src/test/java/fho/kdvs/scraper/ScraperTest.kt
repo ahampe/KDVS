@@ -13,10 +13,10 @@ open class ScraperTest {
     internal lateinit var scraperManager: WebScraperManager
 
     private lateinit var db: KdvsDatabase
-    private lateinit var kdvsPreferences: KdvsPreferences
+    internal lateinit var kdvsPreferences: KdvsPreferences
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var preferencesEditor: SharedPreferences.Editor
-    private lateinit var timeslotDao: TimeslotDao
+    internal lateinit var timeslotDao: TimeslotDao
     internal lateinit var showDao: ShowDao
     internal lateinit var broadcastDao: BroadcastDao
     internal lateinit var trackDao: TrackDao

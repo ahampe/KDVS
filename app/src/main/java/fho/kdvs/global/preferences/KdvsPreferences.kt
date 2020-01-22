@@ -55,10 +55,10 @@ open class KdvsPreferences @Inject constructor(application: Application) {
         LAST_STAFF_SCRAPE,
 
         // last date/time of top five adds scrape
-        LAST_TOP_FIVE_ADDS_SCRAPE,
+        LAST_TOP_ADDS_SCRAPE,
 
         // last date/time of top thirty albums scrape
-        LAST_TOP_THIRTY_ALBUMS_SCRAPE,
+        LAST_TOP_ALBUMS_SCRAPE,
 
         // last date/time of fundraiser scrape
         LAST_FUNDRAISER_SCRAPE,
@@ -121,11 +121,11 @@ open class KdvsPreferences @Inject constructor(application: Application) {
 
     open var lastStaffScrape: Long? by LongPreference(Key.LAST_STAFF_SCRAPE)
 
-    open var lastTopFiveAddsScrape: Long? by LongPreference(Key.LAST_TOP_FIVE_ADDS_SCRAPE)
+    open var lastTopAddsScrape: Long? by LongPreference(Key.LAST_TOP_ADDS_SCRAPE)
 
-    open var lastTopThirtyAlbumsScrape: Long? by LongPreference(Key.LAST_TOP_THIRTY_ALBUMS_SCRAPE)
+    open var lastTopAlbumsScrape: Long? by LongPreference(Key.LAST_TOP_ALBUMS_SCRAPE)
 
-    open var lastFundraiserScraper: Long? by LongPreference(Key.LAST_FUNDRAISER_SCRAPE)
+    open var lastFundraiserScrape: Long? by LongPreference(Key.LAST_FUNDRAISER_SCRAPE)
 
     open var lastObservedFundraiserAmount: Int? by IntPreference(Key.LAST_OBSERVED_FUNDRAISER_AMOUNT)
 

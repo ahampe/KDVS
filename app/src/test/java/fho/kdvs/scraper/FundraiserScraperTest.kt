@@ -18,8 +18,24 @@ class FundraiserScraperTest : ScraperTest() {
         super.setup()
 
         every { fundraiserDao.insert(any()) } answers {
-            val fundraiser = firstArg() as FundraiserEntity
+            val fundraiser = firstArg<FundraiserEntity>()
             scrapedFundraiser.add(fundraiser)
+        }
+
+        every { fundraiserDao.deleteAll() } answers {
+            scrapedFundraiser.clear()
+        }
+
+        every {
+            kdvsPreferences getProperty "lastFundraiserScrape"
+        } nullablePropertyType Long::class answers {
+            fieldValue
+        }
+
+        every {
+            kdvsPreferences setProperty "lastFundraiserScrape" value any<Long>()
+        } answers {
+            value
         }
     }
 

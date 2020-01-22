@@ -4,7 +4,9 @@ import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -38,10 +40,34 @@ class ShowScraperTest : ScraperTest() {
             scrapedShow = show
         }
 
+        every { broadcastDao.updateOrInsert(any()) } answers {
+            val broadcast = firstArg() as BroadcastEntity
+
+            if (broadcast in scrapedBroadcasts)
+                broadcastDao.updateBroadcastDetails(broadcast.broadcastId, broadcast.description, broadcast.imageHref)
+            else
+                broadcastDao.insert(firstArg())
+        }
+
+        every { broadcastDao.updateBroadcastDetails(any(), any(), any()) } answers {
+            val match = scrapedBroadcasts.firstOrNull { b ->
+                b.broadcastId == firstArg()
+            }
+
+            match?.let {
+                it.description = secondArg()
+                it.imageHref = thirdArg()
+            }
+        }
+
         every { broadcastDao.insert(any()) } answers {
             val broadcast = firstArg() as BroadcastEntity
             scrapedBroadcasts.add(broadcast)
         }
+
+        every { kdvsPreferences.setLastShowScrape(any(), any()) } just Runs
+
+        every { kdvsPreferences.getLastShowScrape(any()) } answers { 0 }
     }
 
     @Test

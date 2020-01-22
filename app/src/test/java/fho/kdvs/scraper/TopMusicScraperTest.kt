@@ -32,6 +32,30 @@ class TopMusicScraperTest : ScraperTest() {
                 }
             }
         }
+
+        every {
+            kdvsPreferences getProperty "lastTopAddsScrape"
+        } nullablePropertyType Long::class answers {
+            fieldValue
+        }
+
+        every {
+            kdvsPreferences setProperty "lastTopAddsScrape" value any<Long>()
+        } answers {
+            value
+        }
+
+        every {
+            kdvsPreferences getProperty "lastTopAlbumsScrape"
+        } nullablePropertyType Long::class answers {
+            fieldValue
+        }
+
+        every {
+            kdvsPreferences setProperty "lastTopAlbumsScrape" value any<Long>()
+        } answers {
+            value
+        }
     }
 
     @Test

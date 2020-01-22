@@ -5,7 +5,9 @@ import fho.kdvs.TestUtils
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.util.TimeHelper
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -22,6 +24,18 @@ class PlaylistScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
+        every { showDao.getShowTimeslotById(any()) } answers { null }
+
+        every { showDao.updateShowDefaultImageHref(any(), any()) } just Runs
+
+        every { broadcastDao.getBroadcastById(any()) } answers {
+            scrapedBroadcast
+        }
+
+        every { broadcastDao.getLatestBroadcastForShow(any()) } answers {
+            scrapedBroadcast
+        }
+
         every { broadcastDao.updateBroadcastDetails(any(), any(), any()) } answers {
             scrapedBroadcast.description = secondArg() as? String
             scrapedBroadcast.imageHref = thirdArg() as? String
@@ -33,6 +47,12 @@ class PlaylistScraperTest : ScraperTest() {
             val track = firstArg() as TrackEntity
             scrapedTracks.add(track)
         }
+
+        every { trackDao.deleteByBroadcast(any()) } just Runs
+
+        every { kdvsPreferences.setLastBroadcastScrape(any(), any()) } just Runs
+
+        every { kdvsPreferences.getLastBroadcastScrape(any()) } answers { 0 }
     }
 
     @Test

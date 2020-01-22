@@ -35,7 +35,7 @@ class TopMusicRepository @Inject constructor(
 
     private fun scrapeTopAdds() = launch {
         val now = TimeHelper.getNow().toEpochSecond()
-        val lastScrape = kdvsPreferences.lastTopFiveAddsScrape ?: 0L
+        val lastScrape = kdvsPreferences.lastTopAddsScrape ?: 0L
         val scrapeFreq = kdvsPreferences.scrapeFrequency ?: WebScraperManager.WEEKLY_SCRAPE_FREQ
 
         if (now - lastScrape > scrapeFreq) {
@@ -47,7 +47,7 @@ class TopMusicRepository @Inject constructor(
 
     private fun scrapeTopAlbums() = launch {
         val now = TimeHelper.getNow().toEpochSecond()
-        val lastScrape = kdvsPreferences.lastTopThirtyAlbumsScrape ?: 0L
+        val lastScrape = kdvsPreferences.lastTopAlbumsScrape ?: 0L
         val scrapeFreq = kdvsPreferences.scrapeFrequency ?: WebScraperManager.WEEKLY_SCRAPE_FREQ
 
         if (now - lastScrape > scrapeFreq) {

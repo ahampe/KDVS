@@ -20,6 +20,18 @@ class NewsScraperTest : ScraperTest() {
             val article = firstArg() as NewsEntity
             scrapedArticles.add(article)
         }
+
+        every {
+            kdvsPreferences getProperty "lastNewsScrape"
+        } nullablePropertyType Long::class answers {
+            fieldValue
+        }
+
+        every {
+            kdvsPreferences setProperty "lastNewsScrape" value any<Long>()
+        } answers {
+            value
+        }
     }
 
     @Test
