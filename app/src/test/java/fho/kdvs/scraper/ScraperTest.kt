@@ -1,15 +1,12 @@
 package fho.kdvs.scraper
 
 import android.content.SharedPreferences
-import android.text.Html
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import fho.kdvs.extensions.initThreeTen
 import fho.kdvs.global.database.*
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.web.WebScraperManager
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Before
 
 open class ScraperTest {
@@ -32,29 +29,29 @@ open class ScraperTest {
     open fun setup() {
         initThreeTen()
 
-        db = mock()
-        kdvsPreferences = mock()
-        sharedPreferences = mock()
-        preferencesEditor = mock()
-        showDao = mock()
-        timeslotDao = mock()
-        broadcastDao = mock()
-        trackDao = mock()
-        newsDao = mock()
-        staffDao = mock()
-        topMusicDao = mock()
-        fundraiserDao = mock()
+        db = mockk()
+        kdvsPreferences = mockk()
+        sharedPreferences = mockk()
+        preferencesEditor = mockk()
+        showDao = mockk()
+        timeslotDao = mockk()
+        broadcastDao = mockk()
+        trackDao = mockk()
+        newsDao = mockk()
+        staffDao = mockk()
+        topMusicDao = mockk()
+        fundraiserDao = mockk()
 
-        whenever(db.showDao()).doReturn(showDao)
-        whenever(db.timeslotDao()).doReturn(timeslotDao)
-        whenever(db.broadcastDao()).doReturn(broadcastDao)
-        whenever(db.trackDao()).doReturn(trackDao)
-        whenever(db.newsDao()).doReturn(newsDao)
-        whenever(db.staffDao()).doReturn(staffDao)
-        whenever(db.topMusicDao()).doReturn(topMusicDao)
-        whenever(db.fundraiserDao()).doReturn(fundraiserDao)
-        whenever(kdvsPreferences.preferences).doReturn(sharedPreferences)
-        whenever(sharedPreferences.edit()).doReturn(preferencesEditor)
+        every { db.showDao() } returns showDao
+        every { db.timeslotDao() } returns timeslotDao
+        every { db.broadcastDao() } returns broadcastDao
+        every { db.trackDao() } returns trackDao
+        every { db.newsDao() } returns newsDao
+        every { db.staffDao() } returns staffDao
+        every { db.topMusicDao() } returns topMusicDao
+        every { db.fundraiserDao() } returns fundraiserDao
+        every { kdvsPreferences.preferences } returns sharedPreferences
+        every { sharedPreferences.edit() } returns preferencesEditor
 
         scraperManager = WebScraperManager(db, kdvsPreferences)
     }

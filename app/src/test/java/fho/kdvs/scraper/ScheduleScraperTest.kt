@@ -1,11 +1,9 @@
 package fho.kdvs.scraper
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doAnswer
-import com.nhaarman.mockitokotlin2.whenever
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.ShowEntity
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -20,10 +18,9 @@ class ScheduleScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        whenever(showDao.insert(any())).doAnswer {
-            val show = it.arguments[0] as ShowEntity
+        every { showDao.insert(any()) } answers {
+            val show = firstArg() as ShowEntity
             scrapedShows.add(show)
-            null
         }
     }
 

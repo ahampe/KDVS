@@ -150,7 +150,7 @@ class TrackDaoTest : DatabaseTest() {
 
     // Helper functions
     private fun insertShow() {
-        val (show, timeslot) = DbTestUtils.createShowsWithOneTimeslot().first()
+        val (show) = DbTestUtils.createShowsWithOneTimeslot().first()
         db.showDao().insert(show)
     }
 

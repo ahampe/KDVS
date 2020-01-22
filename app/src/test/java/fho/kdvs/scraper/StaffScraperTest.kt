@@ -1,11 +1,9 @@
 package fho.kdvs.scraper
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doAnswer
-import com.nhaarman.mockitokotlin2.whenever
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.StaffEntity
+import io.mockk.every
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -18,10 +16,9 @@ class StaffScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        whenever(staffDao.insert(any())).doAnswer {
-            val staffMember = it.arguments[0] as StaffEntity
+        every { staffDao.insert(any()) } answers {
+            val staffMember = firstArg() as StaffEntity
             scrapedStaff.add(staffMember)
-            null
         }
     }
 

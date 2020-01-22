@@ -1,13 +1,10 @@
 package fho.kdvs.scraper
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.anyOrNull
-import com.nhaarman.mockitokotlin2.doAnswer
-import com.nhaarman.mockitokotlin2.whenever
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -23,30 +20,27 @@ class ShowScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        whenever(
+        every {
             showDao.updateShowDetails(
                 any(),
-                anyOrNull(),
-                anyOrNull(),
-                anyOrNull()
+                any(),
+                any(),
+                any()
             )
-        ).doAnswer {
+        } answers {
             val show = ShowEntity(
-                id = it.arguments[0] as Int,
-                host = it.arguments[1] as String?,
-                genre = it.arguments[2] as String?,
-                defaultDesc = it.arguments[3] as String?
+                id = firstArg() as Int,
+                host = secondArg() as String?,
+                genre = thirdArg() as String?,
+                defaultDesc = arg(3) as String?
             )
 
             scrapedShow = show
-
-            null
         }
 
-        whenever(broadcastDao.insert(any())).doAnswer {
-            val broadcast = it.arguments[0] as BroadcastEntity
+        every { broadcastDao.insert(any()) } answers {
+            val broadcast = firstArg() as BroadcastEntity
             scrapedBroadcasts.add(broadcast)
-            null
         }
     }
 

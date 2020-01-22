@@ -164,7 +164,7 @@ class BroadcastDaoTest : DatabaseTest() {
 
     // Helper function that inserts a show that will serve as the parent of broadcastsLiveData in these tests
     private fun insertShow() {
-        val (show, timeslot) = DbTestUtils.createShowsWithOneTimeslot().first()
+        val (show) = DbTestUtils.createShowsWithOneTimeslot().first()
         db.showDao().insert(show)
     }
 

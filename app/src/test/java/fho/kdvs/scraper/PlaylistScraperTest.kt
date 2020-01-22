@@ -1,13 +1,11 @@
 package fho.kdvs.scraper
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doAnswer
-import com.nhaarman.mockitokotlin2.whenever
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.util.TimeHelper
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -24,21 +22,16 @@ class PlaylistScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        whenever(
-            broadcastDao.updateBroadcastDetails(any(), any(), any())
-        ).doAnswer {
-            scrapedBroadcast.description = it.arguments[1] as? String
-            scrapedBroadcast.imageHref = it.arguments[2] as? String
+        every { broadcastDao.updateBroadcastDetails(any(), any(), any()) } answers {
+            scrapedBroadcast.description = secondArg() as? String
+            scrapedBroadcast.imageHref = thirdArg() as? String
 
-            assertEquals(scrapedBroadcast.broadcastId, it.arguments[0])
-
-            null
+            assertEquals(scrapedBroadcast.broadcastId, firstArg())
         }
 
-        whenever(trackDao.insert(any())).doAnswer {
-            val track = it.arguments[0] as TrackEntity
+        every { trackDao.insert(any()) } answers {
+            val track = firstArg() as TrackEntity
             scrapedTracks.add(track)
-            null
         }
     }
 

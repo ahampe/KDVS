@@ -1,11 +1,9 @@
 package fho.kdvs.scraper
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doAnswer
-import com.nhaarman.mockitokotlin2.whenever
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.FundraiserEntity
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -19,10 +17,9 @@ class FundraiserScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        whenever(fundraiserDao.insert(any())).doAnswer {
-            val fundraiser = it.arguments[0] as FundraiserEntity
+        every { fundraiserDao.insert(any()) } answers {
+            val fundraiser = firstArg() as FundraiserEntity
             scrapedFundraiser.add(fundraiser)
-            null
         }
     }
 

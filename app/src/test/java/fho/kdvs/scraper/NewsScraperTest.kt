@@ -1,11 +1,9 @@
 package fho.kdvs.scraper
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doAnswer
-import com.nhaarman.mockitokotlin2.whenever
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.NewsEntity
+import io.mockk.every
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -18,10 +16,9 @@ class NewsScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        whenever(newsDao.insert(any())).doAnswer {
-            val article = it.arguments[0] as NewsEntity
+        every { newsDao.insert(any()) } answers {
+            val article = firstArg() as NewsEntity
             scrapedArticles.add(article)
-            null
         }
     }
 
