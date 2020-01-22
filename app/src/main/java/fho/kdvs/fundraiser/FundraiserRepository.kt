@@ -24,7 +24,7 @@ class FundraiserRepository @Inject constructor(
     /** Runs a fundraiser scrape if it hasn't been fetched recently. */
     fun scrapeFundraiser() = launch {
         val now = TimeHelper.getNow().toEpochSecond()
-        val lastScrape = kdvsPreferences.lastFundraiserScraper ?: 0L
+        val lastScrape = kdvsPreferences.lastFundraiserScrape ?: 0L
         val scrapeFreq = kdvsPreferences.scrapeFrequency ?: WebScraperManager.DEFAULT_SCRAPE_FREQ
 
         if (now - lastScrape > scrapeFreq) {

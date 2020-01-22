@@ -5,11 +5,13 @@ import fho.kdvs.TestUtils
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.util.TimeHelper
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.`when`
 
 class PlaylistScraperTest : ScraperTest() {
     private val scrapedTracks = mutableListOf<TrackEntity>()
@@ -22,20 +24,35 @@ class PlaylistScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        `when`(
-            broadcastDao.updateBroadcastDetails(
-                TestUtils.any(), TestUtils.any(), TestUtils.any()
-            )
-        ).thenAnswer {
-            scrapedBroadcast.description = it.getArgument(1)
-            scrapedBroadcast.imageHref = it.getArgument(2)
-            assertEquals(scrapedBroadcast.broadcastId, it.getArgument(0))
+        every { showDao.getShowTimeslotById(any()) } answers { null }
+
+        every { showDao.updateShowDefaultImageHref(any(), any()) } just Runs
+
+        every { broadcastDao.getBroadcastById(any()) } answers {
+            scrapedBroadcast
         }
 
-        `when`(trackDao.insert(TestUtils.any())).thenAnswer {
-            val track: TrackEntity = it.getArgument(0)
+        every { broadcastDao.getLatestBroadcastForShow(any()) } answers {
+            scrapedBroadcast
+        }
+
+        every { broadcastDao.updateBroadcastDetails(any(), any(), any()) } answers {
+            scrapedBroadcast.description = secondArg() as? String
+            scrapedBroadcast.imageHref = thirdArg() as? String
+
+            assertEquals(scrapedBroadcast.broadcastId, firstArg())
+        }
+
+        every { trackDao.insert(any()) } answers {
+            val track = firstArg() as TrackEntity
             scrapedTracks.add(track)
         }
+
+        every { trackDao.deleteByBroadcast(any()) } just Runs
+
+        every { kdvsPreferences.setLastBroadcastScrape(any(), any()) } just Runs
+
+        every { kdvsPreferences.getLastBroadcastScrape(any()) } answers { 0 }
     }
 
     @Test
@@ -51,7 +68,7 @@ class PlaylistScraperTest : ScraperTest() {
             broadcastId = 51742,
             showId = 5361,
             date = TimeHelper.makeLocalDate("2019-01-12"),
-            description = "I opened the Prog basket and was delighted to find some of my liveFavorites prog ingredients. ELP, PFM, Triumvrat, and IQ will combine to get the project started. I will try to spice these up with new music from Dilemma and Eden in Progress. And, as usual, an Improbably Proggy trak to throw into the mix from Alice Cooper. Questions, comments and suggestions to rockshurewood@gmail.com.",
+            description = "I opened the Prog basket and was delighted to find some of my favorite prog ingredients. ELP, PFM, Triumvrat, and IQ will combine to get the project started. I will try to spice these up with new music from Dilemma and Eden in Progress. And, as usual, an Improbably Proggy trak to throw into the mix from Alice Cooper. Questions, comments and suggestions to rockshurewood@gmail.com.",
             imageHref = "http://www.sevenwondersofwashingtonstate.com/uploads/4/7/4/6/47460045/3719499_orig.jpg"
         )
 

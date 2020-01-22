@@ -62,8 +62,8 @@ dependencies {
     testImplementation "androidx.test:rules:1.2.0"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.2.0"
 
-    // Mockito
-    testImplementation "org.mockito:mockito-core:$mockito_verison"
+    // MockK
+    testImplementation "io.mockk:mockk:$mockk_version"
 
     // Robolectric
     testImplementation "org.robolectric:robolectric:4.1"
@@ -117,7 +117,7 @@ dependencies {
     implementation "android.arch.lifecycle:reactivestreams:1.1.1"
 
     // JSR-310 Android backport
-    implementation "com.jakewharton.threetenabp:threetenabp:1.1.1"
+    implementation "com.jakewharton.threetenabp:threetenabp:1.2.2"
     testImplementation ('org.threeten:threetenbp:1.3.2'){
         exclude group:'com.jakewharton.threetenabp', module:'threetenabp'
     }

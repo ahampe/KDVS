@@ -4,10 +4,12 @@ import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.ShowEntity
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.`when`
 
 class ShowScraperTest : ScraperTest() {
     private lateinit var scrapedShow: ShowEntity
@@ -20,27 +22,52 @@ class ShowScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        `when`(
+        every {
             showDao.updateShowDetails(
-                TestUtils.any(),
-                TestUtils.any(),
-                TestUtils.any(),
-                TestUtils.any()
+                any(),
+                any(),
+                any(),
+                any()
             )
-        ).thenAnswer {
+        } answers {
             val show = ShowEntity(
-                id = it.getArgument(0),
-                host = it.getArgument(1),
-                genre = it.getArgument(2),
-                defaultDesc = it.getArgument(3)
+                id = firstArg() as Int,
+                host = secondArg() as String?,
+                genre = thirdArg() as String?,
+                defaultDesc = arg(3) as String?
             )
-            Any().also { scrapedShow = show } // thenAnswer hack
+
+            scrapedShow = show
         }
 
-        `when`(broadcastDao.insert(TestUtils.any())).thenAnswer {
-            val broadcast: BroadcastEntity = it.getArgument(0)
+        every { broadcastDao.updateOrInsert(any()) } answers {
+            val broadcast = firstArg() as BroadcastEntity
+
+            if (broadcast in scrapedBroadcasts)
+                broadcastDao.updateBroadcastDetails(broadcast.broadcastId, broadcast.description, broadcast.imageHref)
+            else
+                broadcastDao.insert(firstArg())
+        }
+
+        every { broadcastDao.updateBroadcastDetails(any(), any(), any()) } answers {
+            val match = scrapedBroadcasts.firstOrNull { b ->
+                b.broadcastId == firstArg()
+            }
+
+            match?.let {
+                it.description = secondArg()
+                it.imageHref = thirdArg()
+            }
+        }
+
+        every { broadcastDao.insert(any()) } answers {
+            val broadcast = firstArg() as BroadcastEntity
             scrapedBroadcasts.add(broadcast)
         }
+
+        every { kdvsPreferences.setLastShowScrape(any(), any()) } just Runs
+
+        every { kdvsPreferences.getLastShowScrape(any()) } answers { 0 }
     }
 
     @Test
@@ -48,8 +75,7 @@ class ShowScraperTest : ScraperTest() {
         expectedShows = MockObjects.showDetails
 
         expectedShows.forEach { show ->
-            val id = show.id
-            val html = TestUtils.loadFromResource("$id-show-details.html")
+            val html = TestUtils.loadFromResource("${show.id}-show-details.html")
             scraperManager.scrapeShow(html)
 
             assertEquals("Expected to scrape show details", show, scrapedShow)

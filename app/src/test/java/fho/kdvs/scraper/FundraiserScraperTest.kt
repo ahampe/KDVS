@@ -3,10 +3,10 @@ package fho.kdvs.scraper
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.FundraiserEntity
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.`when`
 
 class FundraiserScraperTest : ScraperTest() {
     private val scrapedFundraiser = mutableListOf<FundraiserEntity>()
@@ -17,9 +17,25 @@ class FundraiserScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        `when`(fundraiserDao.insert(TestUtils.any())).thenAnswer {
-            val fundraiser: FundraiserEntity = it.getArgument(0)
+        every { fundraiserDao.insert(any()) } answers {
+            val fundraiser = firstArg<FundraiserEntity>()
             scrapedFundraiser.add(fundraiser)
+        }
+
+        every { fundraiserDao.deleteAll() } answers {
+            scrapedFundraiser.clear()
+        }
+
+        every {
+            kdvsPreferences getProperty "lastFundraiserScrape"
+        } nullablePropertyType Long::class answers {
+            fieldValue
+        }
+
+        every {
+            kdvsPreferences setProperty "lastFundraiserScrape" value any<Long>()
+        } answers {
+            value
         }
     }
 

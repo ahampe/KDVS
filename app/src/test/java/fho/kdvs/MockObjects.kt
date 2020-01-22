@@ -298,6 +298,7 @@ object MockObjects {
         )
     }
 
+    // Note: these objects ignore HTML parsing which is done via an external static method
     val staffMembers: List<StaffEntity> by lazy {
         listOf(
             StaffEntity(
@@ -305,30 +306,21 @@ object MockObjects {
                 position = "General Manager",
                 email = "gm@kdvs.org",
                 duties = "Daily running of the station, FCC regulation, budget, community relations, and general overseeing",
-                officeHours = "Wednesday 2:30-5pm\n" +
-                        "Friday 12-3pm"
+                officeHours = "Wednesday 2:30-5pm<br> Friday 12-3pm"
             ),
             StaffEntity(
-                name = "Tania Quintana & Jay Lounds",
+                name = "Tania Quintana &\nJay Lounds",
                 position = "Co-Programming Directors",
                 email = "programming@kdvs.org",
                 duties = "Scheduling, training, compliance with FCC protocol, and quality control",
-                officeHours = "(Tania):\n" +
-                        "Monday 2-4pm\n" +
-                        "Thursday 12-2pm\n" +
-                        "(Jay):\n" +
-                        "Thursday 2-3pm\n" +
-                        "Friday 1-4pm"
+                officeHours = "(Tania):<br> Monday 2-4pm<br> Thursday 12-2pm<br> (Jay):<br> Thursday 2-3pm<br> Friday 1-4pm"
             ),
             StaffEntity(
-                name = "Grace Swan-Streepy & Desmond Chu",
+                name = "Grace Swan-Streepy &\nDesmond Chu",
                 position = "Co-Events Directors",
                 email = "events@kdvs.org",
-                duties = "KDVS Presents booking and cross-promotion",
-                officeHours = "(Grace):\n" +
-                        "By Appointment\n" +
-                        "(Desmond):\n" +
-                        "By Appointment"
+                duties = "booking and cross-promotion",
+                officeHours = "(Grace):<br> By Appointment<br> (Desmond):<br> By Appointment"
             )
         )
     }
@@ -361,7 +353,7 @@ object MockObjects {
             body = "UCD was ranked #1 on Forbe’s list as the most highly valued degree for women in Science, Technology, Engineering, and Mathematics (STEM). Our spring reporter, Myah Daniels, discusses the UC Davis grant program ADVANCE, which encourages women to establish careers in science and engineering; and interviews students in the program. (Image: ucdavis.edu)",
             date = TimeHelper.makeLocalDate("2016-09-11"),
             articleHref = "https://kdvs.org/uc-davis-makes-forbes-list-for-number-of-women-in-stem/",
-            imageHref = "https://kdvs.org/wp-content/uploads/2016/09/rose-hong-truong-uc-davis-best-women-stem.jpg"
+            imageHref = "./Category Archive for _News_ _ KDVS_files/rose-hong-truong-uc-davis-best-women-stem-300x300.jpg"
         )
     )
 
@@ -416,10 +408,9 @@ object MockObjects {
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-03-25"),
             type=TopMusicType.ADD,
-            position = 1,
+            position = 0,
             artist = "Cavemen",
             album = "Lowlife EP",
-            year=2000,
             label = "Slovenly",
             imageHref= null,
             spotifyAlbumUri = null,
@@ -429,7 +420,7 @@ object MockObjects {
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-03-25"),
             type=TopMusicType.ADD,
-            position = 3,
+            position = 2,
             artist = "Is In Unsamble",
             album = "Is The Belly/In The Belly",
             label = "Gilgongo",
@@ -440,7 +431,7 @@ object MockObjects {
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-02-25"),
             type=TopMusicType.ADD,
-            position = 1,
+            position = 0,
             artist = "The Grundybergs",
             album = "Playing Baseball With Walt Whitman",
             label = "Self-Released",
@@ -454,7 +445,7 @@ object MockObjects {
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-04-01"),
             type=TopMusicType.ALBUM,
-            position = 19,
+            position = 18,
             artist = "Ibibio Sound Machine",
             album = "Doko Mien",
             label = "Merge",
@@ -465,9 +456,9 @@ object MockObjects {
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-03-25"),
             type=TopMusicType.ALBUM,
-            position = 8,
+            position = 7,
             artist = "Fruit Bats & Vetiver",
-            album = "In Real Life (Live at Spacebomb Studios)",
+            album = "In Real Life (Live At Spacebomb Studios)",
             label = "Spacebomb",
             imageHref= null,
             spotifyAlbumUri = null,
@@ -476,7 +467,7 @@ object MockObjects {
         TopMusicEntity(
             weekOf = TimeHelper.makeLocalDate("2019-03-04"),
             type=TopMusicType.ALBUM,
-            position = 8,
+            position = 4,
             artist = "The Real Kids",
             album = "The Kids 1974 Demos - The Real Kids 1977/1978 demos/live",
             label = "Crypt",

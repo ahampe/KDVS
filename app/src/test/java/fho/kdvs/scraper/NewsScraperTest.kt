@@ -3,10 +3,10 @@ package fho.kdvs.scraper
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.NewsEntity
+import io.mockk.every
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.`when`
 
 class NewsScraperTest : ScraperTest() {
     private val scrapedArticles = mutableListOf<NewsEntity>()
@@ -16,9 +16,21 @@ class NewsScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        `when`(newsDao.insert(TestUtils.any())).thenAnswer {
-            val article: NewsEntity = it.getArgument(0)
+        every { newsDao.insert(any()) } answers {
+            val article = firstArg() as NewsEntity
             scrapedArticles.add(article)
+        }
+
+        every {
+            kdvsPreferences getProperty "lastNewsScrape"
+        } nullablePropertyType Long::class answers {
+            fieldValue
+        }
+
+        every {
+            kdvsPreferences setProperty "lastNewsScrape" value any<Long>()
+        } answers {
+            value
         }
     }
 

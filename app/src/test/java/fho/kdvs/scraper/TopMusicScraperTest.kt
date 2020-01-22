@@ -4,10 +4,10 @@ import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.topmusic.TopMusicType
+import io.mockk.every
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.`when`
 
 class TopMusicScraperTest : ScraperTest() {
     private val scrapedTopAdds = mutableListOf<TopMusicEntity>()
@@ -19,8 +19,8 @@ class TopMusicScraperTest : ScraperTest() {
     override fun setup() {
         super.setup()
 
-        `when`(topMusicDao.insert(TestUtils.any())).thenAnswer {
-            val topMusic: TopMusicEntity = it.getArgument(0)
+        every { topMusicDao.insert(any()) } answers {
+            val topMusic = firstArg() as TopMusicEntity
             when (topMusic.type) {
                 TopMusicType.ADD -> {
                     scrapedTopAdds.add(topMusic)
@@ -28,8 +28,33 @@ class TopMusicScraperTest : ScraperTest() {
                 TopMusicType.ALBUM -> {
                     scrapedTopAlbums.add(topMusic)
                 }
-                else -> {}
+                else -> {
+                }
             }
+        }
+
+        every {
+            kdvsPreferences getProperty "lastTopAddsScrape"
+        } nullablePropertyType Long::class answers {
+            fieldValue
+        }
+
+        every {
+            kdvsPreferences setProperty "lastTopAddsScrape" value any<Long>()
+        } answers {
+            value
+        }
+
+        every {
+            kdvsPreferences getProperty "lastTopAlbumsScrape"
+        } nullablePropertyType Long::class answers {
+            fieldValue
+        }
+
+        every {
+            kdvsPreferences setProperty "lastTopAlbumsScrape" value any<Long>()
+        } answers {
+            value
         }
     }
 
@@ -55,10 +80,10 @@ class TopMusicScraperTest : ScraperTest() {
         val topAlbumsHtml = TestUtils.loadFromResource("Top30Albums.html")
         scraperManager.scrapeTopMusic(topAlbumsHtml)
 
-        expectedTopAlbums.forEach { add ->
+        expectedTopAlbums.forEach { album ->
             assertTrue(
-                "Expected to find album ${add.artist} - ${add.album} at position ${add.position} for week of ${add.weekOf}",
-                scrapedTopAlbums.contains(add)
+                "Expected to find album ${album.artist} - ${album.album} at position ${album.position} for week of ${album.weekOf}",
+                scrapedTopAlbums.contains(album)
             )
         }
     }

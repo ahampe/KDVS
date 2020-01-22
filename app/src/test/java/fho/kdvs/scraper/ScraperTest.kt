@@ -1,19 +1,23 @@
 package fho.kdvs.scraper
 
+import android.content.SharedPreferences
+import fho.kdvs.extensions.initThreeTen
 import fho.kdvs.global.database.*
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.web.WebScraperManager
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Before
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
 
 open class ScraperTest {
     internal lateinit var scraperManager: WebScraperManager
 
     private lateinit var db: KdvsDatabase
-    private lateinit var preferences: KdvsPreferences
-    internal lateinit var showDao: ShowDao
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var preferencesEditor: SharedPreferences.Editor
+    internal lateinit var kdvsPreferences: KdvsPreferences
     internal lateinit var timeslotDao: TimeslotDao
+    internal lateinit var showDao: ShowDao
     internal lateinit var broadcastDao: BroadcastDao
     internal lateinit var trackDao: TrackDao
     internal lateinit var newsDao: NewsDao
@@ -23,26 +27,32 @@ open class ScraperTest {
 
     @Before
     open fun setup() {
-        db = mock(KdvsDatabase::class.java)
-        preferences = mock(KdvsPreferences::class.java)
-        showDao = mock(ShowDao::class.java)
-        timeslotDao = mock(TimeslotDao::class.java)
-        broadcastDao = mock(BroadcastDao::class.java)
-        trackDao = mock(TrackDao::class.java)
-        newsDao = mock(NewsDao::class.java)
-        staffDao = mock(StaffDao::class.java)
-        topMusicDao = mock(TopMusicDao::class.java)
-        fundraiserDao = mock(FundraiserDao::class.java)
+        initThreeTen()
 
-        `when`(db.showDao()).thenReturn(showDao)
-        `when`(db.timeslotDao()).thenReturn(timeslotDao)
-        `when`(db.broadcastDao()).thenReturn(broadcastDao)
-        `when`(db.trackDao()).thenReturn(trackDao)
-        `when`(db.newsDao()).thenReturn(newsDao)
-        `when`(db.staffDao()).thenReturn(staffDao)
-        `when`(db.topMusicDao()).thenReturn(topMusicDao)
-        `when`(db.fundraiserDao()).thenReturn(fundraiserDao)
+        db = mockk()
+        kdvsPreferences = mockk()
+        sharedPreferences = mockk()
+        preferencesEditor = mockk()
+        showDao = mockk()
+        timeslotDao = mockk()
+        broadcastDao = mockk()
+        trackDao = mockk()
+        newsDao = mockk()
+        staffDao = mockk()
+        topMusicDao = mockk()
+        fundraiserDao = mockk()
 
-        scraperManager = WebScraperManager(db, preferences)
+        every { db.showDao() } returns showDao
+        every { db.timeslotDao() } returns timeslotDao
+        every { db.broadcastDao() } returns broadcastDao
+        every { db.trackDao() } returns trackDao
+        every { db.newsDao() } returns newsDao
+        every { db.staffDao() } returns staffDao
+        every { db.topMusicDao() } returns topMusicDao
+        every { db.fundraiserDao() } returns fundraiserDao
+        every { kdvsPreferences.preferences } returns sharedPreferences
+        every { sharedPreferences.edit() } returns preferencesEditor
+
+        scraperManager = WebScraperManager(db, kdvsPreferences)
     }
 }
