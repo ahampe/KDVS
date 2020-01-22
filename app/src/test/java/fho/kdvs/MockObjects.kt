@@ -298,6 +298,7 @@ object MockObjects {
         )
     }
 
+    // Note: these objects ignore HTML parsing which is done via an external static method
     val staffMembers: List<StaffEntity> by lazy {
         listOf(
             StaffEntity(
@@ -305,30 +306,21 @@ object MockObjects {
                 position = "General Manager",
                 email = "gm@kdvs.org",
                 duties = "Daily running of the station, FCC regulation, budget, community relations, and general overseeing",
-                officeHours = "Wednesday 2:30-5pm\n" +
-                        "Friday 12-3pm"
+                officeHours = "Wednesday 2:30-5pm<br> Friday 12-3pm"
             ),
             StaffEntity(
-                name = "Tania Quintana & Jay Lounds",
+                name = "Tania Quintana &\nJay Lounds",
                 position = "Co-Programming Directors",
                 email = "programming@kdvs.org",
                 duties = "Scheduling, training, compliance with FCC protocol, and quality control",
-                officeHours = "(Tania):\n" +
-                        "Monday 2-4pm\n" +
-                        "Thursday 12-2pm\n" +
-                        "(Jay):\n" +
-                        "Thursday 2-3pm\n" +
-                        "Friday 1-4pm"
+                officeHours = "(Tania):<br> Monday 2-4pm<br> Thursday 12-2pm<br> (Jay):<br> Thursday 2-3pm<br> Friday 1-4pm"
             ),
             StaffEntity(
-                name = "Grace Swan-Streepy & Desmond Chu",
+                name = "Grace Swan-Streepy &\nDesmond Chu",
                 position = "Co-Events Directors",
                 email = "events@kdvs.org",
-                duties = "KDVS Presents booking and cross-promotion",
-                officeHours = "(Grace):\n" +
-                        "By Appointment\n" +
-                        "(Desmond):\n" +
-                        "By Appointment"
+                duties = "booking and cross-promotion",
+                officeHours = "(Grace):<br> By Appointment<br> (Desmond):<br> By Appointment"
             )
         )
     }

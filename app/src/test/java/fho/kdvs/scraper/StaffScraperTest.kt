@@ -3,7 +3,9 @@ package fho.kdvs.scraper
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
 import fho.kdvs.global.database.StaffEntity
+import fho.kdvs.global.extensions.fromHtmlSafe
 import io.mockk.every
+import io.mockk.mockkStatic
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -20,6 +22,27 @@ class StaffScraperTest : ScraperTest() {
             val staffMember = firstArg() as StaffEntity
             scrapedStaff.add(staffMember)
         }
+
+        every { staffDao.deleteAll() } answers {
+            scrapedStaff.clear()
+        }
+
+        every {
+            kdvsPreferences getProperty "lastStaffScrape"
+        } nullablePropertyType Long::class answers {
+            fieldValue
+        }
+
+        every {
+            kdvsPreferences setProperty "lastStaffScrape" value any<Long>()
+        } answers {
+            value
+        }
+
+        // Because this extension method depends on a static method, we must mock it
+        mockkStatic("fho.kdvs.global.extensions.StringKt")
+
+        every { any<String>().fromHtmlSafe() } answers { firstArg() }
     }
 
     @Test
@@ -30,20 +53,9 @@ class StaffScraperTest : ScraperTest() {
         scraperManager.scrapeStaff(html)
 
         expectedStaff.forEach { staff ->
-            assertTrue("Expected to find staff with name ${staff.name}",
-                scrapedStaff.map { s -> s.name }.contains(staff.name)
-            )
-            assertTrue("Expected to find staff with position ${staff.position}",
-                scrapedStaff.map { s -> s.position }.contains(staff.position)
-            )
-            assertTrue("Expected to find staff with officeHours ${staff.officeHours}",
-                scrapedStaff.map { s -> s.officeHours }.contains(staff.officeHours)
-            )
-            assertTrue("Expected to find staff with duties ${staff.duties}",
-                scrapedStaff.map { s -> s.duties }.contains(staff.duties)
-            )
-            assertTrue("Expected to find staff with email ${staff.email}",
-                scrapedStaff.map { s -> s.email }.contains(staff.email)
+            assertTrue(
+                "Expected to find staff ${staff.name}",
+                scrapedStaff.contains(staff)
             )
         }
     }

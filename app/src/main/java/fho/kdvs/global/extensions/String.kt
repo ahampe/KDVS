@@ -39,7 +39,7 @@ fun String?.containsCaseInsensitive(other: String?) =
 fun String?.removeLeadingArticles() = """^(?:(the|THE|The|a|A|an|AN|An) +)""".toRegex()
     .replace(this ?: "", "")
 
-fun String?.fromHtml(): String? =
+fun String?.fromHtmlSafe(): String? =
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
         Html.fromHtml(this ?: "", Html.FROM_HTML_MODE_LEGACY).toString()
     } else {

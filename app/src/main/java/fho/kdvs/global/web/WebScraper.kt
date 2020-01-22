@@ -5,7 +5,7 @@ import fho.kdvs.global.database.*
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.enums.enumValueOrDefault
-import fho.kdvs.global.extensions.fromHtml
+import fho.kdvs.global.extensions.fromHtmlSafe
 import fho.kdvs.global.extensions.listOfNulls
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.util.TimeHelper
@@ -401,7 +401,7 @@ class WebScraperManager @Inject constructor(
                     ?.map { it.ownText() }
                     ?.reduce { acc, s -> acc + s }
                 val duties = middleContainer?.ownText()
-                val officeHours = rightContainer?.parseHtml()?.fromHtml()?.trim()
+                val officeHours = rightContainer?.parseHtml()?.fromHtmlSafe()?.trim()
 
                 staffScraped.add(
                     StaffEntity(

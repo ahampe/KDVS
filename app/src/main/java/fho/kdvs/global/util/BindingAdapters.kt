@@ -1,23 +1,19 @@
 package fho.kdvs.global.util
 
-import android.text.Html
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
 import fho.kdvs.R
-import fho.kdvs.global.database.TimeslotEntity
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.database.TrackEntity
-import fho.kdvs.global.extensions.fromHtml
+import fho.kdvs.global.extensions.fromHtmlSafe
 import fho.kdvs.global.ui.PlayerPaletteRequestListener
 import fho.kdvs.topmusic.TopMusicType
-import org.threeten.bp.DayOfWeek
 import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
 import org.threeten.bp.format.DateTimeFormatter
-import java.util.*
 
 // Binding adapters designed for reuse
 
@@ -52,7 +48,7 @@ fun safeFormatDate(view: TextView, date: LocalDate?, dateFormatter: DateTimeForm
 @BindingAdapter("desc")
 fun formatDescHtml(view: TextView, desc: String?) {
     val descWithBreaks = desc?.replace("\n", "<br/><br/>")
-    view.text = descWithBreaks.fromHtml()
+    view.text = descWithBreaks.fromHtmlSafe()
 }
 
 @BindingAdapter("comment")
