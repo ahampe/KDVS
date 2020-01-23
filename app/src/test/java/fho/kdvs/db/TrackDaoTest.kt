@@ -1,22 +1,17 @@
 package fho.kdvs.db
 
 import android.database.sqlite.SQLiteConstraintException
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import fho.kdvs.DbTestUtils
+import fho.kdvs.MockObjects
 import org.junit.Assert.assertEquals
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class TrackDaoTest : DatabaseTest() {
-    @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
-
     @Test
     fun insert_basic_noBroadcast() {
-        val track = DbTestUtils.createTracks().first()
+        val track = MockObjects.tracks.first()
         try {
             db.trackDao().insert(track)
             throw AssertionError("Shouldn't be able to insert a track without a broadcast first!")
@@ -29,7 +24,7 @@ class TrackDaoTest : DatabaseTest() {
         insertShow()
         insertBroadcast()
 
-        val track = DbTestUtils.createTracks().first()
+        val track = MockObjects.tracks.first()
         db.trackDao().insert(track)
 
         val trackDb = db.trackDao().getAll()
@@ -42,7 +37,7 @@ class TrackDaoTest : DatabaseTest() {
         insertShow()
         insertBroadcast()
 
-        val tracks = DbTestUtils.createTracks()
+        val tracks = MockObjects.tracks
         tracks.forEach {
             db.trackDao().insert(it)
         }
@@ -61,7 +56,7 @@ class TrackDaoTest : DatabaseTest() {
         insertBroadcast()
         insert_multiple()
 
-        val tracks = DbTestUtils.createTracks()
+        val tracks = MockObjects.tracks
             .filter { !it.airbreak }
         val tracksDb = db.trackDao().getTracksByShow(1888)
 
@@ -77,7 +72,7 @@ class TrackDaoTest : DatabaseTest() {
         insertBroadcast()
         insert_multiple()
 
-        val tracks = DbTestUtils.createTracks().filter { it.artist == "Dolly Parton" }
+        val tracks = MockObjects.tracks.filter { it.artist == "Dolly Parton" }
         val tracksDb = db.trackDao().getTracksByArtist("Dolly Parton")
 
         assertEquals(tracks.size, tracksDb.size)
@@ -92,7 +87,7 @@ class TrackDaoTest : DatabaseTest() {
         insertBroadcast()
         insert_multiple()
 
-        val tracks = DbTestUtils.createTracks().filter { it.album == "Blue Smoke" }
+        val tracks = MockObjects.tracks.filter { it.album == "Blue Smoke" }
         val tracksDb = db.trackDao().getTracksByAlbum("Blue Smoke")
 
         assertEquals(tracks.size, tracksDb.size)
@@ -107,7 +102,7 @@ class TrackDaoTest : DatabaseTest() {
         insertBroadcast()
         insert_multiple()
 
-        val tracks = DbTestUtils.createTracks()
+        val tracks = MockObjects.tracks
             .filter { it.artist == "Dolly Parton" && it.album == "Blue Smoke" }
         val tracksDb = db.trackDao().getTracksByArtistAlbum("Dolly Parton", "Blue Smoke")
 
@@ -123,7 +118,7 @@ class TrackDaoTest : DatabaseTest() {
         insertBroadcast()
         insert_multiple()
 
-        val tracks = DbTestUtils.createTracks().filter { it.label == "Waterbug" }
+        val tracks = MockObjects.tracks.filter { it.label == "Waterbug" }
         val tracksDb = db.trackDao().getTracksByLabel("Waterbug")
 
         assertEquals(tracks.size, tracksDb.size)
@@ -150,12 +145,12 @@ class TrackDaoTest : DatabaseTest() {
 
     // Helper functions
     private fun insertShow() {
-        val (show) = DbTestUtils.createShowsWithOneTimeslot().first()
+        val (show) = MockObjects.showsWithOneTimeslot.first()
         db.showDao().insert(show)
     }
 
     private fun insertBroadcast() {
-        val broadcast = DbTestUtils.createBroadcasts().first()
+        val broadcast = MockObjects.broadcastsWithDetails.first()
         db.broadcastDao().insert(broadcast)
     }
 }

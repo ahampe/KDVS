@@ -2,6 +2,7 @@ package fho.kdvs.scraper
 
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
+import fho.kdvs.TestUtils.isEqualIgnoringProperties
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.topmusic.TopMusicType
 import io.mockk.every
@@ -68,7 +69,10 @@ class TopMusicScraperTest : ScraperTest() {
         expectedTopAdds.forEach { add ->
             assertTrue(
                 "Expected to find add ${add.artist} - ${add.album} at position ${add.position} for week of ${add.weekOf}",
-                scrapedTopAdds.contains(add)
+
+                scrapedTopAdds.any {
+                    add.isEqualIgnoringProperties(it, listOf(TopMusicEntity::topMusicId))
+                }
             )
         }
     }
@@ -83,7 +87,9 @@ class TopMusicScraperTest : ScraperTest() {
         expectedTopAlbums.forEach { album ->
             assertTrue(
                 "Expected to find album ${album.artist} - ${album.album} at position ${album.position} for week of ${album.weekOf}",
-                scrapedTopAlbums.contains(album)
+                scrapedTopAlbums.any {
+                    album.isEqualIgnoringProperties(it, listOf(TopMusicEntity::topMusicId))
+                }
             )
         }
     }

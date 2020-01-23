@@ -11,7 +11,7 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "staffData")
 data class StaffEntity(
-    @PrimaryKey(autoGenerate = true) var id: Int = 0,
+    @PrimaryKey(autoGenerate = true) val staffId: Int = 0,
     @ColumnInfo(name = "name") var name: String? = null,
     @ColumnInfo(name = "position") var position: String? = null,
     @ColumnInfo(name = "email") var email: String? = null,
@@ -20,7 +20,7 @@ data class StaffEntity(
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
-        id = parcel.readInt(),
+        staffId = parcel.readInt(),
         name = parcel.readString(),
         position = parcel.readString(),
         email = parcel.readString(),
@@ -29,7 +29,7 @@ data class StaffEntity(
     )
 
     override fun writeToParcel(dest: Parcel?, flags: Int) {
-        dest?.writeValue(id)
+        dest?.writeValue(staffId)
         dest?.writeValue(name)
         dest?.writeValue(position)
         dest?.writeValue(email)

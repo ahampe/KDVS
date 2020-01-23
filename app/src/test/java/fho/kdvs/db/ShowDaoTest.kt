@@ -1,7 +1,7 @@
 package fho.kdvs.db
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import fho.kdvs.DbTestUtils
+import fho.kdvs.MockObjects
 import fho.kdvs.global.database.ShowTimeslotEntity
 import fho.kdvs.global.database.makeShowTimeslot
 import fho.kdvs.global.enums.Day
@@ -43,7 +43,7 @@ class ShowDaoTest : DatabaseTest() {
 
     @Test
     fun insert_basic_show_and_timeslot() {
-        val (show, timeslot) = DbTestUtils.createShowsWithOneTimeslot().first()
+        val (show, timeslot) = MockObjects.showsWithOneTimeslot.first()
 
         showDao.insert(show)
         timeslotDao.insert(timeslot)
@@ -59,7 +59,7 @@ class ShowDaoTest : DatabaseTest() {
 
     @Test
     fun insert_basic_show_and_timeslots() {
-        val (show, timeslots) = DbTestUtils.createShowsWithMultipleTimeslots().first()
+        val (show, timeslots) = MockObjects.showsWithMultipleTimeslots.first()
 
         showDao.insert(show)
 
@@ -81,7 +81,7 @@ class ShowDaoTest : DatabaseTest() {
 
     @Test
     fun insert_multiple_shows_with_one_timeslot_each() {
-        val showsWithTimeslots = DbTestUtils.createShowsWithOneTimeslot()
+        val showsWithTimeslots = MockObjects.showsWithOneTimeslot
 
         showsWithTimeslots.forEach { (show, timeslot) ->
             showDao.insert(show)
@@ -102,7 +102,7 @@ class ShowDaoTest : DatabaseTest() {
 
     @Test
     fun insert_multiple_shows_multiple_timeslots_each() {
-        val showsWithTimeslots = DbTestUtils.createShowsWithMultipleTimeslots()
+        val showsWithTimeslots = MockObjects.showsWithMultipleTimeslots
         val shows = showsWithTimeslots.map { s -> s.first }
         val timeslots = showsWithTimeslots.flatMap { s -> s.second }
 
@@ -131,7 +131,7 @@ class ShowDaoTest : DatabaseTest() {
 
     @Test
     fun get_all_shows_for_time_range() {
-        val showTimeslots = DbTestUtils.createShowsWithOneTimeslot()
+        val showTimeslots = MockObjects.showsWithOneTimeslot
         val shows = showTimeslots.map { s -> s.first }
 
         showTimeslots.forEach { (show, timeslot) ->
@@ -152,7 +152,7 @@ class ShowDaoTest : DatabaseTest() {
 
     @Test
     fun delete_show() {
-        val showTimeslots = DbTestUtils.createShowsWithOneTimeslot()
+        val showTimeslots = MockObjects.showsWithOneTimeslot
         showTimeslots.forEach { (show, timeslot) ->
             showDao.insert(show)
             timeslotDao.insert(timeslot)
@@ -161,9 +161,17 @@ class ShowDaoTest : DatabaseTest() {
         showDao.deleteShow(showTimeslots.first().first.id)
         val showsDb = showDao.getAllShowTimeslots()
         val timeslotsDb = timeslotDao.getAllTimeslots()
-        assertEquals("delete show failed", 0, showsDb.filter { it.id == showTimeslots.first().first.id }.size)
+        assertEquals(
+            "delete show failed",
+            0,
+            showsDb.filter { it.id == showTimeslots.first().first.id }.size
+        )
         assertEquals("delete show failed", showTimeslots.size - 1, showsDb.size)
-        assertEquals("delete timeslot failed", 0, timeslotsDb.filter { it.showId == showTimeslots.first().first.id }.size)
+        assertEquals(
+            "delete timeslot failed",
+            0,
+            timeslotsDb.filter { it.showId == showTimeslots.first().first.id }.size
+        )
         assertEquals("delete timeslot failed", showTimeslots.size - 1, timeslotsDb.size)
     }
 
@@ -201,7 +209,7 @@ class ShowDaoTest : DatabaseTest() {
     fun observable_insert() {
         compositeDisposable += observeShowTimeslots(showDao.allShowTimeslots())
 
-        val (show, timeslot) = DbTestUtils.createShowsWithOneTimeslot().first()
+        val (show, timeslot) = MockObjects.showsWithOneTimeslot.first()
         showDao.insert(show)
         timeslotDao.insert(timeslot)
 

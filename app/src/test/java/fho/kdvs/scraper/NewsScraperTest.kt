@@ -2,6 +2,7 @@ package fho.kdvs.scraper
 
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
+import fho.kdvs.TestUtils.isEqualIgnoringProperties
 import fho.kdvs.global.database.NewsEntity
 import io.mockk.every
 import org.junit.Assert.assertTrue
@@ -44,7 +45,10 @@ class NewsScraperTest : ScraperTest() {
         expectedArticles.forEach { article ->
             assertTrue(
                 "Expected to find article ${article.title}",
-                scrapedArticles.contains(article)
+
+                scrapedArticles.any {
+                    article.isEqualIgnoringProperties(it, listOf(NewsEntity::newsId))
+                }
             )
         }
     }

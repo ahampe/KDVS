@@ -41,5 +41,5 @@ class FundraiserRepository @Inject constructor(
     fun forceScrapeFundraiser(): Job? = scraperManager.scrape(URLs.FUNDRAISER)
 
     fun getFundraiser(): LiveData<FundraiserEntity> =
-        fundraiserDao.get()
+        fundraiserDao.getFundraiser()
 }

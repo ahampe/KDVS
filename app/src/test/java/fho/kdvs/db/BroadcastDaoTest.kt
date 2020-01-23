@@ -1,23 +1,18 @@
 package fho.kdvs.db
 
 import android.database.sqlite.SQLiteConstraintException
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import fho.kdvs.DbTestUtils
+import fho.kdvs.MockObjects
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class BroadcastDaoTest : DatabaseTest() {
-    @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
-
     @Test
     fun insert_basic_noShow() {
-        val broadcast = DbTestUtils.createBroadcasts().first()
+        val broadcast = MockObjects.broadcastsWithDetails.first()
         try {
             db.broadcastDao().insert(broadcast)
             throw AssertionError("Shouldn't be able to insert a broadcast without a show first!")
@@ -28,7 +23,7 @@ class BroadcastDaoTest : DatabaseTest() {
     @Test
     fun insert_basic() {
         insertShow()
-        val broadcast = DbTestUtils.createBroadcasts().first()
+        val broadcast = MockObjects.broadcastsWithDetails.first()
         db.broadcastDao().insert(broadcast)
 
         val broadcastsDb = db.broadcastDao().getAll()
@@ -39,7 +34,7 @@ class BroadcastDaoTest : DatabaseTest() {
     @Test
     fun insert_multiple() {
         insertShow()
-        val broadcasts = DbTestUtils.createBroadcasts()
+        val broadcasts = MockObjects.broadcastsWithDetails
         broadcasts.forEach {
             db.broadcastDao().insert(it)
         }
@@ -54,7 +49,7 @@ class BroadcastDaoTest : DatabaseTest() {
     @Test
     fun select_by_show() {
         insertShow()
-        val broadcast = DbTestUtils.createBroadcasts().first()
+        val broadcast = MockObjects.broadcastsWithDetails.first()
         insert_basic()
 
         val broadcastsDb = db.broadcastDao().getBroadcastsForShow(1888)
@@ -67,7 +62,7 @@ class BroadcastDaoTest : DatabaseTest() {
         insertShow()
         insert_basic()
         insertTracks()
-        val broadcast = DbTestUtils.createBroadcasts().first()
+        val broadcast = MockObjects.broadcastsWithDetails.first()
 
         val broadcastsDb = db.broadcastDao().getBroadcastsByArtist("Dolly Parton")
         assertEquals(1, broadcastsDb.size)
@@ -79,7 +74,7 @@ class BroadcastDaoTest : DatabaseTest() {
         insertShow()
         insert_basic()
         insertTracks()
-        val broadcast = DbTestUtils.createBroadcasts().first()
+        val broadcast = MockObjects.broadcastsWithDetails.first()
 
         val broadcastsDb = db.broadcastDao().getBroadcastsByAlbum("Blue Smoke")
         assertEquals(1, broadcastsDb.size)
@@ -91,7 +86,7 @@ class BroadcastDaoTest : DatabaseTest() {
         insertShow()
         insert_basic()
         insertTracks()
-        val broadcast = DbTestUtils.createBroadcasts().first()
+        val broadcast = MockObjects.broadcastsWithDetails.first()
 
         val broadcastsDb =
             db.broadcastDao().getBroadcastsByArtistAlbum("Dolly Parton", "Blue Smoke")
@@ -104,7 +99,7 @@ class BroadcastDaoTest : DatabaseTest() {
         insertShow()
         insert_basic()
         insertTracks()
-        val broadcast = DbTestUtils.createBroadcasts().first()
+        val broadcast = MockObjects.broadcastsWithDetails.first()
 
         val broadcastsDb = db.broadcastDao().getBroadcastsByLabel("Waterbug")
         assertEquals(1, broadcastsDb.size)
@@ -114,7 +109,7 @@ class BroadcastDaoTest : DatabaseTest() {
     @Test
     fun delete_broadcast() {
         insertShow()
-        val broadcast = DbTestUtils.createBroadcasts().first()
+        val broadcast = MockObjects.broadcastsWithDetails.first()
         insert_basic()
 
         try {
@@ -128,7 +123,7 @@ class BroadcastDaoTest : DatabaseTest() {
     @Test
     fun delete_broadcasts_for_show() {
         insertShow()
-        val broadcast = DbTestUtils.createBroadcasts().first()
+        val broadcast = MockObjects.broadcastsWithDetails.first()
         insert_basic()
 
         try {
@@ -142,7 +137,7 @@ class BroadcastDaoTest : DatabaseTest() {
     @Test
     fun updateBroadcast() {
         insertShow()
-        val broadcast = DbTestUtils.createBroadcasts().first()
+        val broadcast = MockObjects.broadcastsWithDetails.first()
         db.broadcastDao().insert(broadcast)
 
         val broadcasts = db.broadcastDao().getAll()
@@ -164,12 +159,12 @@ class BroadcastDaoTest : DatabaseTest() {
 
     // Helper function that inserts a show that will serve as the parent of broadcastsLiveData in these tests
     private fun insertShow() {
-        val (show) = DbTestUtils.createShowsWithOneTimeslot().first()
+        val (show) = MockObjects.showsWithOneTimeslot.first()
         db.showDao().insert(show)
     }
 
     private fun insertTracks() {
-        val tracks = DbTestUtils.createTracks()
+        val tracks = MockObjects.tracks
         tracks.forEach {
             db.trackDao().insert(it)
         }

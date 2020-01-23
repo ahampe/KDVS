@@ -14,6 +14,9 @@ interface FavoriteTrackDao {
     @Query("SELECT * from favoriteTrackData")
     fun getAll(): Flowable<List<FavoriteTrackEntity>>
 
+    @Query("SELECT * from favoriteTrackData")
+    fun getAllFavoriteTracks(): List<FavoriteTrackEntity>
+
     @Transaction
     @Query(
         """SELECT showData.* from favoriteTrackData

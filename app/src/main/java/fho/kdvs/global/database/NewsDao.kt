@@ -11,6 +11,9 @@ interface NewsDao {
     @Query("SELECT * from newsData")
     fun getAll(): LiveData<List<NewsEntity>>
 
+    @Query("SELECT * from newsData")
+    fun getAllNews(): List<NewsEntity>
+
     @Query("SELECT * from newsData where date >= :date")
     fun getAllNewsPastDate(date: LocalDate): LiveData<List<NewsEntity>>
 

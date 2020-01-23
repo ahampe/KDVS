@@ -96,7 +96,7 @@ class ShowScraperTest : ScraperTest() {
             val scrapedBroadcastsForShow = scrapedBroadcasts.filter { it.showId == showId }
 
             assertEquals(
-                "Expected to find broadcastsLiveData",
+                "Expected to find broadcasts",
                 expectedBroadcastsForShow,
                 scrapedBroadcastsForShow
             )
