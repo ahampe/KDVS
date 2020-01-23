@@ -1,40 +1,18 @@
 package fho.kdvs.db
 
 import android.database.sqlite.SQLiteConstraintException
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import fho.kdvs.MockObjects
-import fho.kdvs.global.database.ShowTimeslotEntity
 import fho.kdvs.global.database.SubscriptionEntity
-import io.reactivex.disposables.CompositeDisposable
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.util.concurrent.LinkedBlockingQueue
 
 @RunWith(RobolectricTestRunner::class)
 class SubscriptionDaoTest : DatabaseTest() {
-    @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
-
     private val subscriptionDao by lazy { db.subscriptionDao() }
     private val showDao by lazy { db.showDao() }
-    private lateinit var showTimeslotsQueue: LinkedBlockingQueue<List<ShowTimeslotEntity>>
-    private var compositeDisposable = CompositeDisposable()
-
-    @Before
-    fun setup() {
-        showTimeslotsQueue = LinkedBlockingQueue()
-    }
-
-    @After
-    fun tear_down() {
-        compositeDisposable.clear()
-    }
 
     @Test
     fun insert_basic_noShow() {

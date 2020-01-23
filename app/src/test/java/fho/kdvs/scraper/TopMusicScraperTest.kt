@@ -68,7 +68,18 @@ class TopMusicScraperTest : ScraperTest() {
         expectedTopAdds.forEach { add ->
             assertTrue(
                 "Expected to find add ${add.artist} - ${add.album} at position ${add.position} for week of ${add.weekOf}",
-                scrapedTopAdds.contains(add)
+
+                scrapedTopAdds.any { a ->
+                    a.artist == add.artist &&
+                            a.album == add.album &&
+                            a.position == add.position &&
+                            a.weekOf == add.weekOf &&
+                            a.type == add.type &&
+                            a.artist == add.artist &&
+                            a.album == add.album &&
+                            a.label == add.label &&
+                            a.position == add.position
+                }
             )
         }
     }
@@ -83,7 +94,17 @@ class TopMusicScraperTest : ScraperTest() {
         expectedTopAlbums.forEach { album ->
             assertTrue(
                 "Expected to find album ${album.artist} - ${album.album} at position ${album.position} for week of ${album.weekOf}",
-                scrapedTopAlbums.contains(album)
+                scrapedTopAlbums.any { a ->
+                    a.artist == album.artist &&
+                            a.album == album.album &&
+                            a.position == album.position &&
+                            a.weekOf == album.weekOf &&
+                            a.type == album.type &&
+                            a.artist == album.artist &&
+                            a.album == album.album &&
+                            a.label == album.label &&
+                            a.position == album.position
+                }
             )
         }
     }

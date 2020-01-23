@@ -44,7 +44,16 @@ class NewsScraperTest : ScraperTest() {
         expectedArticles.forEach { article ->
             assertTrue(
                 "Expected to find article ${article.title}",
-                scrapedArticles.contains(article)
+
+                // can't do direct equality check because of discrepancies with id
+                scrapedArticles.any {
+                    it.articleHref == article.articleHref &&
+                            it.author == article.author &&
+                            it.body == article.body &&
+                            it.date == article.date &&
+                            it.imageHref == article.imageHref &&
+                            it.title == article.title
+                }
             )
         }
     }

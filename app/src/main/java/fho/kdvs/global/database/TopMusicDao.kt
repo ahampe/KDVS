@@ -12,6 +12,9 @@ abstract class TopMusicDao {
     @Query("SELECT * from topMusicData")
     abstract fun getAll(): LiveData<List<TopMusicEntity>>
 
+    @Query("SELECT * from topMusicData")
+    abstract fun getAllTopMusic(): List<TopMusicEntity>
+
     @Query("SELECT * from topMusicData where type = :type")
     abstract fun getAllOfType(type: TopMusicType): LiveData<List<TopMusicEntity>>
 
@@ -26,6 +29,12 @@ abstract class TopMusicDao {
         weekOf: LocalDate?,
         type: TopMusicType
     ): LiveData<List<TopMusicEntity>>
+
+    @Query("SELECT * from topMusicData where type = :type and weekOf = :weekOf")
+    abstract fun topMusicForWeekOfType(
+        weekOf: LocalDate?,
+        type: TopMusicType
+    ): List<TopMusicEntity>
 
     @Query("UPDATE topMusicData SET spotifyAlbumUri = :spotifyAlbumUri where topMusicId = :id")
     abstract fun updateTopMusicSpotifyAlbumUri(id: Int, spotifyAlbumUri: String)

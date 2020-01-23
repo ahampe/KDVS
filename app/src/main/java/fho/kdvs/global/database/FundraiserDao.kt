@@ -7,8 +7,11 @@ import androidx.room.Query
 
 @Dao
 interface FundraiserDao {
+    @Query("SELECT * from fundraiserData")
+    fun getAll(): List<FundraiserEntity>
+
     @Query("SELECT * from fundraiserData limit 1")
-    fun get(): LiveData<FundraiserEntity>
+    fun getFundraiser(): LiveData<FundraiserEntity>
 
     @Insert
     fun insert(fundraiserEntity: FundraiserEntity)

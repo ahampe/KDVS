@@ -482,8 +482,8 @@ object MockObjects {
 
     val favoriteTracks: List<FavoriteTrackEntity> by lazy {
         listOf(
-            FavoriteTrackEntity(trackId = 1),
-            FavoriteTrackEntity(trackId = 2)
+            FavoriteTrackEntity(favoriteTrackId = 1, trackId = 1),
+            FavoriteTrackEntity(favoriteTrackId = 2, trackId = 2)
         )
     }
 
@@ -516,6 +516,7 @@ object MockObjects {
     val news: List<NewsEntity> by lazy {
         listOf(
             NewsEntity(
+                newsId = 1,
                 title = "Queer Quollaboration – PA Show Highlight",
                 author = "Public Affairs",
                 body = "Show: Queer Quollaboration\n" +
@@ -529,6 +530,7 @@ object MockObjects {
                 imageHref = null
             ),
             NewsEntity(
+                newsId = 2,
                 title = "Fundraiser Week",
                 author = "Public Affairs",
                 body = "Make sure to tune into our Public Affairs programs that air every week from 8:00AM-9:30AM and 4:30PM-6:00PM!...",
@@ -537,6 +539,7 @@ object MockObjects {
                 imageHref = null
             ),
             NewsEntity(
+                newsId = 3,
                 title = "UC Davis Makes Forbe’s List for Number of Women in STEM",
                 author = "General Manager",
                 body = "UCD was ranked #1 on Forbe’s list as the most highly valued degree for women in Science, Technology, Engineering, and Mathematics (STEM). Our spring reporter, Myah Daniels, discusses the UC Davis grant program ADVANCE, which encourages women to establish careers in science and engineering; and interviews students in the program. (Image: ucdavis.edu)",
@@ -599,6 +602,7 @@ object MockObjects {
     val topAdds: List<TopMusicEntity> by lazy {
         listOf(
             TopMusicEntity(
+                topMusicId = 1,
                 weekOf = TimeHelper.makeLocalDate("2019-03-25"),
                 type = TopMusicType.ADD,
                 position = 0,
@@ -611,6 +615,7 @@ object MockObjects {
 
             ),
             TopMusicEntity(
+                topMusicId = 2,
                 weekOf = TimeHelper.makeLocalDate("2019-03-25"),
                 type = TopMusicType.ADD,
                 position = 2,
@@ -622,6 +627,7 @@ object MockObjects {
                 spotifyTrackUris = null
             ),
             TopMusicEntity(
+                topMusicId = 3,
                 weekOf = TimeHelper.makeLocalDate("2019-02-25"),
                 type = TopMusicType.ADD,
                 position = 0,
@@ -638,6 +644,7 @@ object MockObjects {
     val topAlbums: List<TopMusicEntity> by lazy {
         listOf(
             TopMusicEntity(
+                topMusicId = 1,
                 weekOf = TimeHelper.makeLocalDate("2019-04-01"),
                 type = TopMusicType.ALBUM,
                 position = 18,
@@ -649,6 +656,7 @@ object MockObjects {
                 spotifyTrackUris = null
             ),
             TopMusicEntity(
+                topMusicId = 2,
                 weekOf = TimeHelper.makeLocalDate("2019-03-25"),
                 type = TopMusicType.ALBUM,
                 position = 7,
@@ -660,6 +668,7 @@ object MockObjects {
                 spotifyTrackUris = null
             ),
             TopMusicEntity(
+                topMusicId = 3,
                 weekOf = TimeHelper.makeLocalDate("2019-03-04"),
                 type = TopMusicType.ALBUM,
                 position = 4,
@@ -675,6 +684,7 @@ object MockObjects {
 
     val fundraiser: FundraiserEntity by lazy {
         FundraiserEntity(
+            fundraiserId = 1,
             goal = 50000,
             current = 47,
             dateStart = TimeHelper.makeLocalDate("2019-04-22"),

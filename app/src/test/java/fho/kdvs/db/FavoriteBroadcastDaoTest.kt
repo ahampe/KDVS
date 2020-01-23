@@ -1,19 +1,14 @@
 package fho.kdvs.db
 
 import android.database.sqlite.SQLiteConstraintException
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fho.kdvs.MockObjects
 import org.junit.Assert.assertEquals
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class FavoriteBroadcastDaoTest : DatabaseTest() {
-    @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
-
     @Test
     fun insert_basic_noBroadcast() {
         val favoriteBroadcast = MockObjects.favoriteBroadcasts.first()
@@ -84,7 +79,7 @@ class FavoriteBroadcastDaoTest : DatabaseTest() {
         }
 
         assertEquals(0, db.favoriteBroadcastDao().getAllFavoriteBroadcasts()
-            .count { b -> b.broadcastId == broadcastDb.broadcastId})
+            .count { b -> b.broadcastId == broadcastDb.broadcastId })
     }
 
     // Helper functions

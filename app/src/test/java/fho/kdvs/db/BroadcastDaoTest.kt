@@ -1,20 +1,15 @@
 package fho.kdvs.db
 
 import android.database.sqlite.SQLiteConstraintException
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import fho.kdvs.MockObjects
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class BroadcastDaoTest : DatabaseTest() {
-    @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
-
     @Test
     fun insert_basic_noShow() {
         val broadcast = MockObjects.broadcastsWithDetails.first()

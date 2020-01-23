@@ -1,19 +1,14 @@
 package fho.kdvs.db
 
 import android.database.sqlite.SQLiteConstraintException
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fho.kdvs.MockObjects
 import org.junit.Assert.assertEquals
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class TrackDaoTest : DatabaseTest() {
-    @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
-
     @Test
     fun insert_basic_noBroadcast() {
         val track = MockObjects.tracks.first()

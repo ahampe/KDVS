@@ -10,7 +10,7 @@ import org.threeten.bp.LocalDate
 
 @Entity(tableName = "topMusicData")
 data class TopMusicEntity(
-    @PrimaryKey(autoGenerate = true) var topMusicId: Int = 0,
+    @PrimaryKey(autoGenerate = true) val topMusicId: Int = 0,
     @ColumnInfo(name = "weekOf") var weekOf: LocalDate? = null,
     @ColumnInfo(name = "type") var type: TopMusicType? = null,
     @ColumnInfo(name = "position") var position: Int? = null,
