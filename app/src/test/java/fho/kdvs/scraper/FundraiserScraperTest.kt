@@ -2,6 +2,7 @@ package fho.kdvs.scraper
 
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
+import fho.kdvs.TestUtils.isEqualIgnoringProperties
 import fho.kdvs.global.database.FundraiserEntity
 import io.mockk.every
 import org.junit.Assert.assertTrue
@@ -50,10 +51,7 @@ class FundraiserScraperTest : ScraperTest() {
 
         assertTrue(
             "Expected to find fundraiser starting on ${expectedFundraiser.dateStart}",
-            fundraiser.current == expectedFundraiser.current &&
-                    fundraiser.dateEnd == expectedFundraiser.dateEnd &&
-                    fundraiser.dateStart == expectedFundraiser.dateStart &&
-                    fundraiser.goal == expectedFundraiser.goal
+            fundraiser.isEqualIgnoringProperties(expectedFundraiser, listOf(FundraiserEntity::fundraiserId))
         )
     }
 }
