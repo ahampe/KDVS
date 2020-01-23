@@ -2,6 +2,7 @@ package fho.kdvs.scraper
 
 import fho.kdvs.MockObjects
 import fho.kdvs.TestUtils
+import fho.kdvs.TestUtils.isEqualIgnoringProperties
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.topmusic.TopMusicType
 import io.mockk.every
@@ -69,16 +70,8 @@ class TopMusicScraperTest : ScraperTest() {
             assertTrue(
                 "Expected to find add ${add.artist} - ${add.album} at position ${add.position} for week of ${add.weekOf}",
 
-                scrapedTopAdds.any { a ->
-                    a.artist == add.artist &&
-                            a.album == add.album &&
-                            a.position == add.position &&
-                            a.weekOf == add.weekOf &&
-                            a.type == add.type &&
-                            a.artist == add.artist &&
-                            a.album == add.album &&
-                            a.label == add.label &&
-                            a.position == add.position
+                scrapedTopAdds.any {
+                    add.isEqualIgnoringProperties(it, listOf(TopMusicEntity::topMusicId))
                 }
             )
         }
@@ -94,16 +87,8 @@ class TopMusicScraperTest : ScraperTest() {
         expectedTopAlbums.forEach { album ->
             assertTrue(
                 "Expected to find album ${album.artist} - ${album.album} at position ${album.position} for week of ${album.weekOf}",
-                scrapedTopAlbums.any { a ->
-                    a.artist == album.artist &&
-                            a.album == album.album &&
-                            a.position == album.position &&
-                            a.weekOf == album.weekOf &&
-                            a.type == album.type &&
-                            a.artist == album.artist &&
-                            a.album == album.album &&
-                            a.label == album.label &&
-                            a.position == album.position
+                scrapedTopAlbums.any {
+                    album.isEqualIgnoringProperties(it, listOf(TopMusicEntity::topMusicId))
                 }
             )
         }
