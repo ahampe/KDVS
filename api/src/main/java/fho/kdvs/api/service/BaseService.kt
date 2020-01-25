@@ -2,7 +2,7 @@ package fho.kdvs.api.service
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -13,6 +13,6 @@ abstract class BaseService : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
 
-    private val job = Job()
+    private val job = SupervisorJob()
 
 }

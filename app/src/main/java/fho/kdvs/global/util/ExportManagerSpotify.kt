@@ -22,11 +22,11 @@ class ExportManagerSpotify @Inject constructor(
         if (trackUris.isNullOrEmpty()) return null
 
         playlist = if (!storedPlaylistUri.isNullOrEmpty()) {
-            spotifyService.getPlaylistFromUserAsync(storedPlaylistUri, userToken).await()
+            spotifyService.getPlaylistFromUserAsync(storedPlaylistUri, userToken)?.await()
         } else {
             spotifyService.getSpotifyPlaylistFromTitleAsync(playlistTitle, userToken)
-                .await() ?: spotifyService.createPlaylistAsync(playlistTitle, userToken)
-                .await()
+                ?.await() ?: spotifyService.createPlaylistAsync(playlistTitle, userToken)
+                ?.await()
         }
 
         return if (exportTracksToSpotifyPlaylistAsync().await() == true) {
@@ -55,7 +55,7 @@ class ExportManagerSpotify @Inject constructor(
                     if (p.count > 0) {
                         (0..p.count step 100).takeWhile { uris.isNotEmpty() }.forEach { offset ->
                             spotifyService.getTracksInPlaylistAsync(id, userToken, offset)
-                                .await()
+                                ?.await()
                                 ?.mapNotNull { t -> t?.uri }
                                 ?.let { existingTrackUris ->
                                     uris = uris.filter { u -> !existingTrackUris.contains(u) }
@@ -68,7 +68,8 @@ class ExportManagerSpotify @Inject constructor(
                     uris.chunked(100).forEach { tracks ->
                         success.add(
                             spotifyService.addTracksToPlaylistAsync(tracks, id, userToken)
-                                .await()
+                                ?.await()
+                                ?: false
                         )
                     }
 

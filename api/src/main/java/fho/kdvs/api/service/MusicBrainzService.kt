@@ -9,7 +9,7 @@ import fho.kdvs.api.mapper.nullIfBlank
 import fho.kdvs.base.urlEncoded
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.supervisorScope
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -25,35 +25,47 @@ class MusicBrainzService @Inject constructor(
 
     private val mapper = MusicBrainzMapper()
 
-    suspend fun findAlbumsAsync(album: String?,
-                                artist: String?): Deferred<MusicBrainzAlbum?> = coroutineScope {
-        async {
-            if (album.isNullOrBlank() || artist.isNullOrBlank()) return@async null
+    suspend fun findAlbumAsync(
+        album: String?,
+        artist: String?
+    ): Deferred<MusicBrainzAlbum?>? = supervisorScope {
+        try {
+            async {
+                if (album.isNullOrBlank() || artist.isNullOrBlank()) return@async null
 
-            val query = makeAlbumQuery(album, artist)
-            val response = mbEndpoint.searchAlbums(query)
-            if (response.isSuccessful) {
-                return@async mapper.album(response.body())
-            } else {
-                Timber.d("Error searching MusicBrainz for $album and $artist")
-                Timber.d(response.message())
-                response.errorBody()?.let { Timber.d(it.string()) }
-                return@async null
+                val query = makeAlbumQuery(album, artist)
+                val response = mbEndpoint.searchAlbums(query)
+                if (response.isSuccessful) {
+                    return@async mapper.album(response.body())
+                } else {
+                    Timber.d("Error searching MusicBrainz for $album and $artist")
+                    Timber.d(response.message())
+                    response.errorBody()?.let { Timber.d(it.toString()) }
+                    return@async null
+                }
             }
+        } catch (e: Exception) {
+            Timber.e("Error finding MusicBrainz album: $e")
+            null
         }
     }
 
-    suspend fun getAlbumArtHrefAsync(releaseId: String): Deferred<String?> = coroutineScope {
-        async {
-            val response = caEndpoint.getAlbumArtHref(releaseId)
-            if (response.isSuccessful) {
-                return@async response.body()?.images?.firstOrNull()?.imageHref.nullIfBlank()
-            } else {
-                Timber.d("Error searching cover art archive")
-                Timber.d(response.message())
-                response.errorBody()?.let { Timber.d(it.string()) }
-                return@async null
+    suspend fun getAlbumArtHrefAsync(releaseId: String): Deferred<String?>? = supervisorScope {
+        try {
+            async {
+                val response = caEndpoint.getAlbumArtHref(releaseId)
+                if (response.isSuccessful) {
+                    return@async response.body()?.images?.firstOrNull()?.imageHref.nullIfBlank()
+                } else {
+                    Timber.d("Error searching cover art archive")
+                    Timber.d(response.message())
+                    response.errorBody()?.let { Timber.d(it.toString()) }
+                    return@async null
+                }
             }
+        } catch (e: Exception) {
+            Timber.e("Error getting album art: $e")
+            null
         }
     }
 

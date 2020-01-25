@@ -45,7 +45,9 @@ import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
 import fho.kdvs.news.NewsRepository
 import fho.kdvs.schedule.QuarterRepository
 import fho.kdvs.schedule.QuarterYear
-import fho.kdvs.services.*
+import fho.kdvs.services.KdvsAlarmManager
+import fho.kdvs.services.LiveShowUpdater
+import fho.kdvs.services.MediaSessionConnection
 import fho.kdvs.services.notification.CustomAction
 import fho.kdvs.services.notification.PlaybackType
 import fho.kdvs.show.ShowRepository
@@ -385,7 +387,7 @@ class SharedViewModel @Inject constructor(
                 TimeHelper.isShowBroadcastLive(show, broadcast)
     }
 
-    fun makeOfflineModeToast(activity: FragmentActivity?) {
+    private fun makeOfflineModeToast(activity: FragmentActivity?) {
         Toast.makeText(
             activity as? MainActivity,
             "Offline mode prevents live streaming.",
@@ -477,16 +479,6 @@ class SharedViewModel @Inject constructor(
 
     private fun makeYoutubeQuery(track: TrackEntity?) =
         "$YOUTUBE_SEARCH_URL${track?.artist} ${track?.song}$YOUTUBE_QUERYSTRING".urlEncoded
-
-    private fun openYouTubeApp(context: Context, uri: String) {
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            data = Uri.parse(uri)
-            putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + context.packageName))
-        }
-        if (intent.resolveActivity(context.packageManager) != null) {
-            startActivity(context, intent, null)
-        }
-    }
 
     private fun onClickSpotifyNoApp(context: Context, spotifyUri: String) {
         val url = makeSpotifyUrl(spotifyUri)
@@ -703,7 +695,7 @@ class SharedViewModel @Inject constructor(
 
     private fun getDownloadedFilename(title: String) = "$title$BROADCAST_EXT"
 
-    fun getDownloadingFilename(title: String) = "$title$BROADCAST_EXT$TEMP_EXT"
+    private fun getDownloadingFilename(title: String) = "$title$BROADCAST_EXT$TEMP_EXT"
 
     fun removeExtension(src: File): Boolean {
         if (src.exists()) {
@@ -720,7 +712,11 @@ class SharedViewModel @Inject constructor(
         return false
     }
 
-    fun makeDownloadRequest(url: String, title: String, filename: String): DownloadManager.Request {
+    private fun makeDownloadRequest(
+        url: String,
+        title: String,
+        filename: String
+    ): DownloadManager.Request {
         return DownloadManager.Request(Uri.parse(url))
             .setTitle(title)
             .setDescription("Downloading")
@@ -733,7 +729,7 @@ class SharedViewModel @Inject constructor(
             .setAllowedOverRoaming(true)
     }
 
-    fun deleteFile(file: File) {
+    private fun deleteFile(file: File) {
         try {
             file.delete()
         } catch (e: Exception) {
@@ -809,18 +805,18 @@ class SharedViewModel @Inject constructor(
         launch {
             val spotifyFind = spotifyService.findAlbumAsync(topMusic.album, topMusic.artist)
             val musicBrainzFind =
-                musicBrainzService.findAlbumsAsync(topMusic.album, topMusic.artist)
+                musicBrainzService.findAlbumAsync(topMusic.album, topMusic.artist)
             val youTubeFind = youTubeService.findVideoAsync(topMusic.artist, topMusic.album)
 
-            val spotAlbum = spotifyFind.await()
-            val mbAlbum = musicBrainzFind.await()
+            val spotAlbum = spotifyFind?.await()
+            val mbAlbum = musicBrainzFind?.await()
 
             // We must make another API request to obtain tracks
             val spotifyGet = spotifyService.getAlbumFromIDAsync(spotAlbum?.id)
-            val spotTracks = spotifyGet.await()?.tracks
+            val spotTracks = spotifyGet?.await()?.tracks
 
             val mbAlbumHref = mbAlbum?.id?.let { id ->
-                musicBrainzService.getAlbumArtHrefAsync(id).await()
+                musicBrainzService.getAlbumArtHrefAsync(id)?.await()
             }
 
             val album = mbAlbum?.name ?: spotAlbum?.name
@@ -854,7 +850,7 @@ class SharedViewModel @Inject constructor(
                 topMusicRepository.updateTopMusicSpotifyTrackUris(topMusic.topMusicId, it)
             }
 
-            val youTubeVideo = youTubeFind.await()
+            val youTubeVideo = youTubeFind?.await()
             val youTubeId = youTubeVideo?.id
 
             youTubeId?.let {
@@ -873,15 +869,15 @@ class SharedViewModel @Inject constructor(
         return launch {
             val spotifyAlbumFind = spotifyService.findAlbumAsync(track.album, track.artist)
             val spotifyTrackFind = spotifyService.findTrackAsync(track.song, track.artist)
-            val musicBrainzFind = musicBrainzService.findAlbumsAsync(track.album, track.artist)
+            val musicBrainzFind = musicBrainzService.findAlbumAsync(track.album, track.artist)
             val youTubeFind = youTubeService.findVideoAsync(track.artist, track.song)
 
-            val spotAlbum = spotifyAlbumFind.await()
-            val spotTrack = spotifyTrackFind.await()
-            val mbAlbum = musicBrainzFind.await()
+            val spotAlbum = spotifyAlbumFind?.await()
+            val spotTrack = spotifyTrackFind?.await()
+            val mbAlbum = musicBrainzFind?.await()
 
             val mbAlbumHref = mbAlbum?.id?.let { id ->
-                musicBrainzService.getAlbumArtHrefAsync(id).await()
+                musicBrainzService.getAlbumArtHrefAsync(id)?.await()
             }
 
             val album = mbAlbum?.name ?: spotAlbum?.name
@@ -915,7 +911,7 @@ class SharedViewModel @Inject constructor(
                 trackRepository.updateSpotifyTrackUri(track.trackId, trackUri)
             }
 
-            val youTubeVideo = youTubeFind.await()
+            val youTubeVideo = youTubeFind?.await()
             val youTubeId = youTubeVideo?.id
 
             youTubeId?.let {
@@ -995,7 +991,11 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun onClickSubscribe(imageView: ImageView, showWithTimeslots: ShowTimeslotsJoin, context: Context?) {
+    fun onClickSubscribe(
+        imageView: ImageView,
+        showWithTimeslots: ShowTimeslotsJoin,
+        context: Context?
+    ) {
         showWithTimeslots.show?.let { show ->
             if (imageView.tag == 0) {
                 subscribeToShowAndMakeToast(showWithTimeslots, context)
@@ -1187,7 +1187,10 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    private fun subscribeToShowAndMakeToast(showWithTimeslots: ShowTimeslotsJoin, context: Context?) {
+    private fun subscribeToShowAndMakeToast(
+        showWithTimeslots: ShowTimeslotsJoin,
+        context: Context?
+    ) {
         launch {
             showWithTimeslots.show?.let { show ->
                 val success = subscribeToShow(showWithTimeslots)
