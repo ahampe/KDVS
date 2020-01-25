@@ -25,7 +25,11 @@ import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.collapseExpand
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
-import fho.kdvs.global.util.*
+import fho.kdvs.global.util.ExportManagerSpotify
+import fho.kdvs.global.util.RequestCodes
+import fho.kdvs.global.util.TimeHelper
+import fho.kdvs.global.util.URLs
+import fho.kdvs.global.web.ConnectionManager
 import kotlinx.android.synthetic.main.fragment_broadcast_details.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
@@ -51,6 +55,8 @@ class BroadcastDetailsFragment : BaseFragment() {
     lateinit var spotifyService: SpotifyService
 
     private var tracksAdapter: BroadcastTracksAdapter? = null
+
+    private val connectionManager = ConnectionManager(viewModel.getApplication())
 
     private val broadcastId: Int by lazy {
         arguments?.let { BroadcastDetailsFragmentArgs.fromBundle(it) }?.broadcastId
@@ -323,17 +329,18 @@ class BroadcastDetailsFragment : BaseFragment() {
         })
     }
 
-    // TODO: The UI thread appears to get deadlocked sometimes after this?
     private fun setPlaybackViewsAndHideProgressBar(broadcast: BroadcastEntity) {
         doAsync {
-            if (HttpHelper.isConnectionAvailable(URLs.archiveForBroadcast(broadcast))) {
-                context?.runOnUiThread {
-                    setDownloadViewsVisible()
+            URLs.archiveForBroadcast(broadcast)?.let {
+                if (connectionManager.canConnectToServer(it)) {
+                    context?.runOnUiThread {
+                        setDownloadViewsVisible()
+                    }
                 }
-            }
 
-            context?.runOnUiThread {
-                LoadScreen.hideLoadScreen(detailsRoot)
+                context?.runOnUiThread {
+                    LoadScreen.hideLoadScreen(detailsRoot)
+                }
             }
         }
     }
