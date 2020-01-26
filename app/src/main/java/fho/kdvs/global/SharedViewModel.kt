@@ -12,6 +12,8 @@ import android.os.FileObserver
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -409,12 +411,9 @@ class SharedViewModel @Inject constructor(
     }
 
     fun openBrowser(context: Context, url: String?) {
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            data = Uri.parse(url)
-        }
-        if (intent.resolveActivity(context.packageManager) != null) {
-            startActivity(context, intent, null)
-        }
+        val builder = CustomTabsIntent.Builder()
+        val customTabsIntent = builder.build()
+        customTabsIntent.launchUrl(context, Uri.parse(url))
     }
 
     fun openPhone(view: View, number: String?) {
