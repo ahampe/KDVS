@@ -2,12 +2,15 @@ package fho.kdvs.global.util
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.drawable.Drawable
 import androidx.core.content.res.ResourcesCompat
 import fho.kdvs.R
 import java.util.*
 
 
 object ColorHelper {
+
     fun getComplementaryColor(color: Int): Int {
         val hsv = FloatArray(3)
         Color.colorToHSV(color, hsv)
@@ -16,9 +19,11 @@ object ColorHelper {
         return Color.HSVToColor(floatArrayOf(hueComp, hsv[1], hsv[2]))
     }
 
-    fun getRandomMatColor(typeColor: Int, context: Context, seed: Long?): Int {
+
+    fun getRandomMaterialColor(typeColor: Int, context: Context, seed: Long?): Int {
         var returnColor =
             ResourcesCompat.getColor(context.resources, R.color.colorAccent, context.theme)
+
         val arrayId = context.resources.getIdentifier(
             "mdcolor_$typeColor",
             "array",
@@ -34,5 +39,18 @@ object ColorHelper {
         }
 
         return returnColor
+    }
+
+    /**
+     * Converts the given drawable to a grayscale image.
+     */
+    fun convertDrawableToGrayScale(drawable: Drawable?): Drawable? {
+        if (drawable == null) {
+            return null
+        }
+
+        val res: Drawable = drawable.mutate()
+        res.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_IN)
+        return res
     }
 }

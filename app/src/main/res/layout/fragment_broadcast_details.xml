@@ -41,7 +41,7 @@
             app:layout_constraintVertical_bias="1.0"
             tools:layout_editor_absoluteX="0dp" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/spotifyExportIconBroadcast"
             android:layout_width="@dimen/external_link_icon"
             android:layout_height="0dp"
@@ -56,7 +56,7 @@
             app:layout_constraintTop_toBottomOf="@id/description_container"
             tools:visibility="visible" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/youtubeExportIconBroadcast"
             android:layout_width="@dimen/external_link_icon"
             android:layout_height="0dp"

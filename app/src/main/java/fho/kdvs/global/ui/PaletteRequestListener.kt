@@ -172,7 +172,7 @@ class TimeSlotPaletteRequestListener(
     private fun setRandomColor() {
         // TODO: make random color fit with theme
         // TODO: make colortype dynamic?
-        selectedColor = ColorHelper.getRandomMatColor(500, viewWithColor.context, seed)
+        selectedColor = ColorHelper.getRandomMaterialColor(500, viewWithColor.context, seed)
     }
 
     override fun setTargetView() {

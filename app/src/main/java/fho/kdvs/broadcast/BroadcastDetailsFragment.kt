@@ -23,6 +23,7 @@ import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.collapseExpand
+import fho.kdvs.global.extensions.setButtonEnabled
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.LoadScreen
 import fho.kdvs.global.util.*
@@ -162,6 +163,9 @@ class BroadcastDetailsFragment : BaseFragment() {
         broadcast_date.setOnClickListener {
             onClickHeader()
         }
+
+        spotifyExportIconBroadcast.setButtonEnabled(context, false, R.drawable.ic_spotify_icon_rgb_white)
+        youtubeExportIconBroadcast.setButtonEnabled(context, false, R.drawable.ic_yt_icon_mono_dark)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -234,7 +238,7 @@ class BroadcastDetailsFragment : BaseFragment() {
         })
 
         viewModel.tracksWithFavorites.observe(fragment, Observer { (tracks, _) ->
-            Timber.d("Got tracks: $tracks with liveFavorites")
+            Timber.d("Got tracks: $tracks with favorites")
 
             noTracksMessage.visibility = if (tracks.isEmpty()) View.VISIBLE
             else View.GONE
@@ -247,21 +251,33 @@ class BroadcastDetailsFragment : BaseFragment() {
 
             tracksAdapter?.onTracksChanged(tracks)
 
-            spotifyExportIconBroadcast?.setOnClickListener {
-                sharedViewModel.onClickExportIcon(
-                    this,
-                    RequestCodes.SPOTIFY_EXPORT_BROADCAST,
-                    ThirdPartyService.SPOTIFY
-                )
+            // Toggle export icon functionality based on third-party fetch data
+            if (tracks.all { t -> t.hasThirdPartyInfo }) {
+                if (tracks.any { t -> t.spotifyTrackUri != null }) {
+                    spotifyExportIconBroadcast?.setOnClickListener {
+                        sharedViewModel.onClickExportIcon(
+                            this,
+                            RequestCodes.SPOTIFY_EXPORT_BROADCAST,
+                            ThirdPartyService.SPOTIFY
+                        )
+                    }
+
+                    spotifyExportIconBroadcast.setButtonEnabled(context, true, R.drawable.ic_spotify_icon_rgb_white)
+                }
+
+                if (tracks.any { t -> t.youTubeId != null }) {
+                    youtubeExportIconBroadcast?.setOnClickListener {
+                        sharedViewModel.onClickExportIcon(
+                            this,
+                            RequestCodes.YOUTUBE_EXPORT_BROADCAST,
+                            ThirdPartyService.YOUTUBE
+                        )
+                    }
+
+                    youtubeExportIconBroadcast.setButtonEnabled(context, true, R.drawable.ic_yt_icon_mono_dark)
+                }
             }
 
-            youtubeExportIconBroadcast?.setOnClickListener {
-                sharedViewModel.onClickExportIcon(
-                    this,
-                    RequestCodes.YOUTUBE_EXPORT_BROADCAST,
-                    ThirdPartyService.YOUTUBE
-                )
-            }
         })
 
         viewModel.broadcastFavoriteLiveData.observe(fragment, Observer {

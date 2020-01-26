@@ -65,7 +65,7 @@ fun setCurrentShowLabel(view: TextView, start: OffsetDateTime, end: OffsetDateTi
 @BindingAdapter("staffIcon")
 fun applyRandomStaffColor(view: ImageView, name: String) {
     val seed = name.hashCode().toLong()
-    val color = ColorHelper.getRandomMatColor(500, view.context, seed)
+    val color = ColorHelper.getRandomMaterialColor(500, view.context, seed)
 
     view.setColorFilter(color)
     view.alpha = 0.75f
