@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.Transformations
 import androidx.navigation.NavController
 import fho.kdvs.R
 import fho.kdvs.favorite.broadcast.FavoriteBroadcastRepository
@@ -37,6 +38,7 @@ class BroadcastDetailsViewModel @Inject constructor(
     lateinit var showWithBroadcast: MediatorLiveData<Pair<ShowTimeslotEntity, BroadcastEntity>>
 
     lateinit var tracksLiveData: LiveData<List<TrackEntity>>
+    lateinit var songsLiveData: LiveData<List<TrackEntity>>
     private lateinit var trackFavoritesLiveData: LiveData<List<FavoriteTrackEntity>>
     lateinit var tracksWithFavorites: MediatorLiveData<Pair<List<TrackEntity>, List<FavoriteTrackEntity>?>>
 
@@ -50,6 +52,10 @@ class BroadcastDetailsViewModel @Inject constructor(
         tracksLiveData = trackRepository.tracksForBroadcast(broadcastId)
         trackFavoritesLiveData = favoriteTrackRepository.allFavoritesByBroadcast(broadcastId)
         broadcastFavoriteLiveData = favoriteBroadcastRepository.favoriteByBroadcastId(broadcastId)
+
+        songsLiveData = Transformations.map(
+            tracksLiveData
+        ) { tracks -> tracks.filterNot { t -> t.airbreak } }
 
         showWithBroadcast = MediatorLiveData<Pair<ShowTimeslotEntity, BroadcastEntity>>()
             .apply {

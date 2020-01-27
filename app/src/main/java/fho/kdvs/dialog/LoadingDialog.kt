@@ -16,8 +16,8 @@ import kotlin.coroutines.CoroutineContext
 class LoadingDialog(
     private val context: Context,
     private val label: String,
-    private val errorMessage: String,
-    private val timeout: Long = 8000L,
+    private val timeout: Long = 10000L,
+    private val timeoutMessage: String,
     private val onCancel: (() -> Unit)?
 ): Displayable, CoroutineScope {
     private lateinit var dialog: Dialog
@@ -36,6 +36,7 @@ class LoadingDialog(
         dialog.findViewById<TextView>(R.id.loading_label).text = label
         dialog.setOnCancelListener {
             onCancel?.invoke()
+            hide()
         }
 
         dialog.show()
@@ -51,7 +52,7 @@ class LoadingDialog(
 
             Toast.makeText(
                 context,
-                errorMessage,
+                timeoutMessage,
                 Toast.LENGTH_SHORT
             ).show()
 

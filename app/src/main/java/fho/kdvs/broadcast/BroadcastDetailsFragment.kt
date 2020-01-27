@@ -299,8 +299,8 @@ class BroadcastDetailsFragment : BaseFragment() {
             LoadingDialog(
                 requireContext(),
                 "Exporting...",
-                "Error exporting music",
-                10000L
+                8000L,
+                "Error exporting music"
             ) { exportJob?.cancel() }.apply {
                 display()
             }
@@ -313,7 +313,7 @@ class BroadcastDetailsFragment : BaseFragment() {
 
         // Launch export job when we have fetched all third-party data
         viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
-            viewModel.tracksLiveData.observe(this, Observer { tracks ->
+            viewModel.songsLiveData.observe(this, Observer { tracks ->
                 if (!hasExecuted && tracks.all { t -> t.hasThirdPartyInfo }) {
                     exportJob = launch {
                         val uris = tracks.mapNotNull { t -> t.spotifyTrackUri }

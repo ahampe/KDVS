@@ -860,9 +860,7 @@ class SharedViewModel @Inject constructor(
                 topMusicRepository.updateTopMusicYouTubeId(topMusic.topMusicId, it)
             }
 
-            if (listOfNotNull(album, year, label, imageHref, youTubeId).isNotEmpty()) {
-                topMusicRepository.updateHasThirdPartyInfo(topMusic.topMusicId, true)
-            }
+            topMusicRepository.updateHasThirdPartyInfo(topMusic.topMusicId, true)
         }
     }
 
@@ -921,18 +919,7 @@ class SharedViewModel @Inject constructor(
                 trackRepository.updateTrackYouTubeId(track.trackId, it)
             }
 
-            if (listOfNotNull(
-                    album,
-                    year,
-                    label,
-                    imageHref,
-                    albumUri,
-                    trackUri,
-                    youTubeId
-                ).isNotEmpty()
-            ) {
-                trackRepository.updateHasThirdPartyInfo(track.trackId, true)
-            }
+            trackRepository.updateHasThirdPartyInfo(track.trackId, true)
         }
     }
 
