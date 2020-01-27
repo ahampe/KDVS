@@ -25,7 +25,7 @@ import fho.kdvs.global.database.joins.ShowBroadcastTrackFavoriteJoin
 import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.preferences.KdvsPreferences
-import fho.kdvs.global.util.ExportManagerSpotify
+import fho.kdvs.global.export.ExportManagerSpotify
 import fho.kdvs.global.util.RequestCodes
 import kotlinx.android.synthetic.main.cell_favorite_track.view.*
 import kotlinx.android.synthetic.main.favorite_page_sort_menu.*

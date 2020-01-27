@@ -1,4 +1,4 @@
-package fho.kdvs.global.util
+package fho.kdvs.global.export
 
 /**
  * Interface for exporting music through third-party APIs.

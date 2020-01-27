@@ -23,13 +23,16 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.enums.ThirdPartyService
+import fho.kdvs.global.export.ExportManagerSpotify
 import fho.kdvs.global.extensions.collapseExpand
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.MaskingLoadScreen
-import fho.kdvs.global.util.*
+import fho.kdvs.global.util.HttpHelper
+import fho.kdvs.global.util.RequestCodes
+import fho.kdvs.global.util.TimeHelper
+import fho.kdvs.global.util.URLs
 import kotlinx.android.synthetic.main.fragment_broadcast_details.*
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.runOnUiThread
@@ -293,23 +296,26 @@ class BroadcastDetailsFragment : BaseFragment() {
         var exportJob: Job? = null
 
         val loadingDialog =
-            LoadingDialog(requireContext()) { exportJob?.cancel() }.apply {
+            LoadingDialog(
+                requireContext(),
+                "Exporting...",
+                "Error exporting music",
+                10000L
+            ) { exportJob?.cancel() }.apply {
                 display()
             }
 
+        viewModel.tracksLiveData.observe(this, Observer { tracks ->
+            tracks.forEach {
+                sharedViewModel.fetchThirdPartyDataForTrack(it)
+            }
+        })
+
+        // Launch export job when we have fetched all third-party data
         viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
             viewModel.tracksLiveData.observe(this, Observer { tracks ->
-                if (!hasExecuted) {
-                    val jobs = mutableListOf<Job?>() // We must fetch data prior to export
-
-                    tracks.forEach {
-                        jobs.add(sharedViewModel.fetchThirdPartyDataForTrack(it))
-                    }
-
+                if (!hasExecuted && tracks.all { t -> t.hasThirdPartyInfo }) {
                     exportJob = launch {
-                        jobs.filterNotNull()
-                            .joinAll()
-
                         val uris = tracks.mapNotNull { t -> t.spotifyTrackUri }
                         val title = sharedViewModel.getBroadcastDownloadUiTitle(broadcast, show)
 
@@ -342,7 +348,7 @@ class BroadcastDetailsFragment : BaseFragment() {
         var hasExecuted = false
 
         viewModel.tracksLiveData.observe(this, Observer { tracks ->
-            if (!hasExecuted) {
+            if (!hasExecuted && tracks.all { t -> t.hasThirdPartyInfo }) {
                 val ids = tracks.mapNotNull { t -> t.youTubeId }
 
                 if (ids.isNotEmpty()) {

@@ -2,18 +2,32 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <com.github.ybq.android.spinkit.SpinKitView
         android:id="@+id/spin_kit"
-        style="@style/SpinKitView.Large.RotatingCircle"
+        style="@style/SpinKitView.Large.ThreeBounce"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        app:SpinKit_Color="@color/colorAccent"
+        app:SpinKit_Color="@color/colorWhite"
+        android:background="@color/colorAccent"
+        android:padding="@dimen/spacing_large"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/loading_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/spin_kit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="Exporting..."
+        android:textColor="@color/colorWhite"
+        android:layout_marginBottom="@dimen/spacing_medium"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

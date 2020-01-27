@@ -1,4 +1,4 @@
-package fho.kdvs.global.util
+package fho.kdvs.global.export
 
 import android.content.Context
 import android.widget.Toast
@@ -34,14 +34,6 @@ class ExportManagerSpotify @Inject constructor(
         return if (exportTracksToSpotifyPlaylistAsync().await()) {
             playlist?.uri
         } else {
-            withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    context,
-                    "Error exporting music. Try again.",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
             null
         }
     }
