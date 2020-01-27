@@ -29,7 +29,8 @@ import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.fade
 import fho.kdvs.global.preferences.KdvsPreferences
-import fho.kdvs.global.ui.LoadScreen
+import fho.kdvs.global.ui.MaskingLoadScreen
+import fho.kdvs.global.ui.Displayable
 import fho.kdvs.global.util.*
 import fho.kdvs.news.NewsArticlesAdapter
 import fho.kdvs.staff.StaffAdapter
@@ -39,6 +40,7 @@ import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
 import timber.log.Timber
+import java.lang.ref.WeakReference
 import java.text.DecimalFormat
 import java.util.*
 import javax.inject.Inject
@@ -57,6 +59,7 @@ class HomeFragment : BaseFragment() {
     private lateinit var viewModel: HomeViewModel
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var fragmentHomeBinding: FragmentHomeBinding
+    private lateinit var loadScreen: Displayable
 
     private var currentShowsAdapter: CurrentShowsAdapter? = null
     private var newsArticlesAdapter: NewsArticlesAdapter? = null
@@ -101,7 +104,10 @@ class HomeFragment : BaseFragment() {
 
         val snapHelper = PagerSnapHelper()
 
-        LoadScreen.displayLoadScreen(homeRoot)
+        loadScreen = MaskingLoadScreen(WeakReference(homeRoot))
+            .apply {
+            display()
+        }
 
         if (sharedViewModel.isSpotifyInstalledOnDevice(requireContext())) {
             topAddsExportSpotify.visibility = View.VISIBLE
@@ -287,7 +293,7 @@ class HomeFragment : BaseFragment() {
             currentShows.observe(viewLifecycleOwner, Observer { shows ->
                 Timber.d("Got current shows: $shows")
                 currentShowsAdapter?.onCurrentShowsChanged(shows)
-                LoadScreen.hideLoadScreen(homeRoot)
+                loadScreen.hide()
             })
 
             newsArticles.observe(viewLifecycleOwner, Observer { articles ->
@@ -333,15 +339,10 @@ class HomeFragment : BaseFragment() {
                         topAdds.visibility = View.VISIBLE
 
                         topAddsExportSpotify.setOnClickListener {
-                            val uris = getTopMusicSpotifyUris(adds)
-
-                            val count = uris?.count() ?: 0
-
                             sharedViewModel.onClickExportIcon(
                                 this@HomeFragment,
                                 RequestCodes.SPOTIFY_EXPORT_TOP_ADDS,
-                                ThirdPartyService.SPOTIFY,
-                                count
+                                ThirdPartyService.SPOTIFY
                             )
                         }
 
@@ -349,8 +350,7 @@ class HomeFragment : BaseFragment() {
                             sharedViewModel.onClickExportIcon(
                                 this@HomeFragment,
                                 RequestCodes.YOUTUBE_EXPORT_TOP_ADDS,
-                                ThirdPartyService.YOUTUBE,
-                                adds.size
+                                ThirdPartyService.YOUTUBE
                             )
                         }
                     }
@@ -386,15 +386,10 @@ class HomeFragment : BaseFragment() {
                         topAlbums.visibility = View.VISIBLE
 
                         topAlbumsExportSpotify.setOnClickListener {
-                            val uris = getTopMusicSpotifyUris(albums)
-
-                            val count = uris?.count() ?: 0
-
                             sharedViewModel.onClickExportIcon(
                                 this@HomeFragment,
                                 RequestCodes.SPOTIFY_EXPORT_TOP_ALBUMS,
-                                ThirdPartyService.SPOTIFY,
-                                count
+                                ThirdPartyService.SPOTIFY
                             )
                         }
 
@@ -402,8 +397,7 @@ class HomeFragment : BaseFragment() {
                             sharedViewModel.onClickExportIcon(
                                 this@HomeFragment,
                                 RequestCodes.YOUTUBE_EXPORT_TOP_ALBUMS,
-                                ThirdPartyService.YOUTUBE,
-                                albums.size
+                                ThirdPartyService.YOUTUBE
                             )
                         }
                     }

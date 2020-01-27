@@ -228,8 +228,7 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
             sharedViewModel.onClickExportIcon(
                 this,
                 RequestCodes.SPOTIFY_EXPORT_FAVORITES,
-                ThirdPartyService.SPOTIFY,
-                currentlyDisplayingResults.count { r -> !r?.track?.spotifyTrackUri.isNullOrEmpty() }
+                ThirdPartyService.SPOTIFY
             )
         }
 
@@ -237,8 +236,7 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
             sharedViewModel.onClickExportIcon(
                 this,
                 RequestCodes.YOUTUBE_EXPORT_FAVORITES,
-                ThirdPartyService.YOUTUBE,
-                currentlyDisplayingResults.count { r -> !r?.track?.youTubeId.isNullOrEmpty() }
+                ThirdPartyService.YOUTUBE
             )
         }
 

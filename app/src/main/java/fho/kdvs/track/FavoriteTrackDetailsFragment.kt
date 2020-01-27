@@ -20,9 +20,11 @@ import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.FavoriteTrackEntity
 import fho.kdvs.global.database.TrackEntity
 import fho.kdvs.global.database.joins.getTracks
-import fho.kdvs.global.ui.LoadScreen
+import fho.kdvs.global.ui.MaskingLoadScreen
+import fho.kdvs.global.ui.Displayable
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.fragment_track_details.*
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 class FavoriteTrackDetailsFragment : DaggerFragment() {
@@ -38,6 +40,8 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
     private var tracksViewAdapter: TracksViewAdapter? = null
 
     private var trackLayoutManager: LinearLayoutManager? = null
+
+    private lateinit var loadScreen: Displayable
 
     private val snapHelper = PagerSnapHelper()
 
@@ -99,7 +103,13 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        LoadScreen.displayLoadScreen(trackDetailsRoot)
+        loadScreen = MaskingLoadScreen(
+            WeakReference(
+                trackDetailsRoot
+            )
+        ).apply {
+            display()
+        }
 
         setTrackInfo(track)
 
@@ -167,7 +177,7 @@ class FavoriteTrackDetailsFragment : DaggerFragment() {
             scrollingToCurrentItem = false
         }
 
-        LoadScreen.hideLoadScreen(trackDetailsRoot)
+        loadScreen.hide()
     }
 
     // Correct for airbreak slots

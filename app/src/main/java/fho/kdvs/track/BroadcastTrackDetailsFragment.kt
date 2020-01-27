@@ -21,10 +21,12 @@ import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.database.FavoriteTrackEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TrackEntity
-import fho.kdvs.global.ui.LoadScreen
+import fho.kdvs.global.ui.MaskingLoadScreen
+import fho.kdvs.global.ui.Displayable
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.fragment_track_details.*
 import timber.log.Timber
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 // TODO: Refactor this + FavoriteTrackDetails + TopMusicDetails to share overlapping code
@@ -43,6 +45,8 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
     private var tracksViewAdapter: TracksViewAdapter? = null
 
     private var trackLayoutManager: LinearLayoutManager? = null
+
+    private lateinit var loadScreen: Displayable
 
     private val snapHelper = PagerSnapHelper()
 
@@ -99,7 +103,13 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        LoadScreen.displayLoadScreen(trackDetailsRoot)
+        loadScreen = MaskingLoadScreen(
+            WeakReference(
+                trackDetailsRoot
+            )
+        ).apply {
+            display()
+        }
 
         setTrackInfo(track)
 
@@ -160,7 +170,7 @@ class BroadcastTrackDetailsFragment : DaggerFragment() {
             scrollingToCurrentItem = false
         }
 
-        LoadScreen.hideLoadScreen(trackDetailsRoot)
+        loadScreen.hide()
     }
 
     // Correct for airbreak slots

@@ -7,7 +7,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 
-
+/**
+ * Displays a yes/no dialog.
+ */
 class BinaryChoiceDialogFragment : DialogFragment() {
     private val title: String by lazy {
         arguments?.let { BinaryChoiceDialogFragmentArgs.fromBundle(it) }?.title

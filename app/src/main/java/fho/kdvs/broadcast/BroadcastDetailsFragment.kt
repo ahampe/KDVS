@@ -17,6 +17,7 @@ import fho.kdvs.R
 import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.databinding.FragmentBroadcastDetailsBinding
 import fho.kdvs.dialog.BinaryChoiceDialogFragment
+import fho.kdvs.dialog.LoadingDialog
 import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
@@ -24,7 +25,7 @@ import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.extensions.collapseExpand
 import fho.kdvs.global.preferences.KdvsPreferences
-import fho.kdvs.global.ui.LoadScreen
+import fho.kdvs.global.ui.MaskingLoadScreen
 import fho.kdvs.global.util.*
 import kotlinx.android.synthetic.main.fragment_broadcast_details.*
 import kotlinx.coroutines.Job
@@ -33,6 +34,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.runOnUiThread
 import timber.log.Timber
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 const val DOWNLOAD_ICON = "download"
@@ -49,6 +51,8 @@ class BroadcastDetailsFragment : BaseFragment() {
 
     @Inject
     lateinit var spotifyService: SpotifyService
+
+    private lateinit var loadScreen: MaskingLoadScreen
 
     private var tracksAdapter: BroadcastTracksAdapter? = null
 
@@ -95,7 +99,13 @@ class BroadcastDetailsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        LoadScreen.displayLoadScreen(detailsRoot) // TODO: this renders beneath motionscene stuff
+        loadScreen = MaskingLoadScreen(
+            WeakReference(
+                detailsRoot
+            )
+        ).apply {
+            display()
+        }
 
         tracksAdapter = BroadcastTracksAdapter(viewModel, sharedViewModel) {
             Timber.d("Clicked ${it.item}")
@@ -220,14 +230,14 @@ class BroadcastDetailsFragment : BaseFragment() {
 
                     enableDeleteIcon()
 
-                    LoadScreen.hideLoadScreen(detailsRoot)
+                    loadScreen.hide()
                 }
                 sharedViewModel.isBroadcastDownloading(broadcast, show) -> {
                     setDownloadViewsVisible()
 
                     setDownloadingIcon()
 
-                    LoadScreen.hideLoadScreen(detailsRoot)
+                    loadScreen.hide()
                 }
                 else -> setPlaybackViewsAndHideProgressBar(broadcast)
             }
@@ -280,6 +290,12 @@ class BroadcastDetailsFragment : BaseFragment() {
 
     private fun exportTracksToSpotify(token: String) {
         var hasExecuted = false
+        var exportJob: Job? = null
+
+        val loadingDialog =
+            LoadingDialog(requireContext()) { exportJob?.cancel() }.apply {
+                display()
+            }
 
         viewModel.showWithBroadcast.observe(this, Observer { (show, broadcast) ->
             viewModel.tracksLiveData.observe(this, Observer { tracks ->
@@ -290,36 +306,50 @@ class BroadcastDetailsFragment : BaseFragment() {
                         jobs.add(sharedViewModel.fetchThirdPartyDataForTrack(it))
                     }
 
-                    launch {
+                    exportJob = launch {
                         jobs.filterNotNull()
                             .joinAll()
 
                         val uris = tracks.mapNotNull { t -> t.spotifyTrackUri }
                         val title = sharedViewModel.getBroadcastDownloadUiTitle(broadcast, show)
 
-                        ExportManagerSpotify(
-                            context = requireContext(),
-                            spotifyService = spotifyService,
-                            trackUris = uris,
-                            userToken = token,
-                            playlistTitle = title
-                        ).getExportPlaylistUri()
-                            ?.let {
-                                sharedViewModel.openSpotify(requireContext(), it)
-                            }
-                    }
+                        if (uris.isNotEmpty()) {
+                            ExportManagerSpotify(
+                                context = requireContext(),
+                                spotifyService = spotifyService,
+                                trackUris = uris,
+                                userToken = token,
+                                playlistTitle = title
+                            ).getExportPlaylistUri()
+                                ?.let {
+                                    sharedViewModel.openSpotify(requireContext(), it)
+                                }
 
-                    hasExecuted = true
+                            hasExecuted = true
+
+                        }
+                    }.also {
+                        it.invokeOnCompletion {
+                            loadingDialog.hide()
+                        }
+                    }
                 }
             })
         })
     }
 
     private fun exportTracksToYouTube() {
-        viewModel.tracksLiveData.observe(this, Observer { tracks ->
-            val ids = tracks.mapNotNull { t -> t.youTubeId }
+        var hasExecuted = false
 
-            sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
+        viewModel.tracksLiveData.observe(this, Observer { tracks ->
+            if (!hasExecuted) {
+                val ids = tracks.mapNotNull { t -> t.youTubeId }
+
+                if (ids.isNotEmpty()) {
+                    sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
+                    hasExecuted = true
+                }
+            }
         })
     }
 
@@ -333,7 +363,7 @@ class BroadcastDetailsFragment : BaseFragment() {
             }
 
             context?.runOnUiThread {
-                LoadScreen.hideLoadScreen(detailsRoot)
+                loadScreen.hide()
             }
         }
     }

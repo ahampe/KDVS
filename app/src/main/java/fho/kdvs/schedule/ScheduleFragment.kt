@@ -21,11 +21,13 @@ import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.enums.Day
 import fho.kdvs.global.enums.Quarter
 import fho.kdvs.global.preferences.KdvsPreferences
-import fho.kdvs.global.ui.LoadScreen
+import fho.kdvs.global.ui.MaskingLoadScreen
+import fho.kdvs.global.ui.Displayable
 import fho.kdvs.global.util.TimeHelper
 import kotlinx.android.synthetic.main.fragment_schedule.*
 import kotlinx.android.synthetic.main.fragment_schedule.view.*
 import timber.log.Timber
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 class ScheduleFragment : DaggerFragment() {
@@ -37,6 +39,7 @@ class ScheduleFragment : DaggerFragment() {
 
     lateinit var viewModel: ScheduleViewModel
     lateinit var sharedViewModel: SharedViewModel
+    private lateinit var loadScreen: Displayable
 
     // Outer horizontal RecyclerView. Holds a vertical RecyclerView for each day of week.
     private var weekLayoutManager: LinearLayoutManager? = null
@@ -74,7 +77,13 @@ class ScheduleFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        LoadScreen.displayLoadScreen(scheduleRoot)
+        loadScreen = MaskingLoadScreen(
+            WeakReference(
+                scheduleRoot
+            )
+        ).apply {
+            display()
+        }
 
         // Configure the layout manager and keep a reference to it
         weekLayoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
@@ -97,7 +106,7 @@ class ScheduleFragment : DaggerFragment() {
             }
         }
 
-        LoadScreen.hideLoadScreen(scheduleRoot)
+        loadScreen.hide()
     }
 
     /** Reconfigures the week recycler view and time recycler view. Use when the quarter-year changes or the fragment is recreated. */

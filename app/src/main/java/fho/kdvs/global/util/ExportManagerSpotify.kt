@@ -7,6 +7,8 @@ import fho.kdvs.api.service.SpotifyService
 import kotlinx.coroutines.*
 import javax.inject.Inject
 
+const val MAX_SPOTIFY_EXPORT_COUNT = 100
+
 class ExportManagerSpotify @Inject constructor(
     val context: Context,
     val spotifyService: SpotifyService,
@@ -29,7 +31,7 @@ class ExportManagerSpotify @Inject constructor(
                 .await()
         }
 
-        return if (exportTracksToSpotifyPlaylistAsync().await() == true) {
+        return if (exportTracksToSpotifyPlaylistAsync().await()) {
             playlist?.uri
         } else {
             withContext(Dispatchers.Main) {
@@ -44,28 +46,28 @@ class ExportManagerSpotify @Inject constructor(
         }
     }
 
-    private suspend fun exportTracksToSpotifyPlaylistAsync(): Deferred<Boolean?> = coroutineScope {
+    private suspend fun exportTracksToSpotifyPlaylistAsync(): Deferred<Boolean> = coroutineScope {
         async {
             playlist?.let { p ->
                 trackUris?.let {
                     var uris = it
                     val id = getPlaylistIDFromUri(p.uri)
 
-                    // Skip duplicates in playlist with existing tracks
-                    if (p.count > 0) {
-                        (0..p.count step 100).takeWhile { uris.isNotEmpty() }.forEach { offset ->
+                    // Skip duplicates in playlists with existing tracks
+                    (0..p.count step MAX_SPOTIFY_EXPORT_COUNT)
+                        .takeWhile { uris.isNotEmpty() }
+                        .forEach { offset ->
                             spotifyService.getTracksInPlaylistAsync(id, userToken, offset)
                                 .await()
                                 ?.mapNotNull { t -> t?.uri }
                                 ?.let { existingTrackUris ->
                                     uris = uris.filter { u -> !existingTrackUris.contains(u) }
-                                }
                         }
                     }
 
                     val success = mutableListOf<Boolean>()
 
-                    uris.chunked(100).forEach { tracks ->
+                    uris.chunked(MAX_SPOTIFY_EXPORT_COUNT).forEach { tracks ->
                         success.add(
                             spotifyService.addTracksToPlaylistAsync(tracks, id, userToken)
                                 .await()

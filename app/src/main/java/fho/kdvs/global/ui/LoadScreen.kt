@@ -6,63 +6,57 @@ import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import fho.kdvs.R
 
-/** Toggling a loading view to hide observable data pop-in. */
-object LoadScreen {
-    private const val tagStr = "Loading"
+const val LOAD_SCREEN_TAG = "Loading"
 
-    @JvmStatic
-    fun displayLoadScreen(root: ViewGroup?, offsetFromBottom: Boolean = true) {
-        if (root == null) return
+class LoadScreen(
+    val root: ViewGroup?,
+    private val offsetFromBottom: Boolean = true
+) : Displayable {
 
-        val layout = RelativeLayout(root.context)
-        val progressBar = ProgressBar(root.context)
+    override fun display() {
+        root?.let{
+            val layout = RelativeLayout(root.context)
+            val progressBar = ProgressBar(root.context)
 
-        layout.apply {
-            val params = RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT,
-                RelativeLayout.LayoutParams.MATCH_PARENT
-            )
-
-            if (offsetFromBottom)
-                params.bottomMargin = root.resources.getDimension(R.dimen.bottom_nav_height).toInt()
-
-            layoutParams = params
-            tag = tagStr
-            visibility = View.VISIBLE
-            elevation = 2f
-
-            setBackgroundColor(
-                root.resources.getColor(
-                    R.color.colorPrimaryDark,
-                    root.context.theme
+            layout.apply {
+                val params = RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.MATCH_PARENT
                 )
+
+                if (offsetFromBottom)
+                    params.bottomMargin = root.resources.getDimension(R.dimen.bottom_nav_height).toInt()
+
+                layoutParams = params
+                tag = LOAD_SCREEN_TAG
+                visibility = View.VISIBLE
+                elevation = 2f
+            }
+
+            progressBar.apply {
+                isIndeterminate = true
+            }
+
+            val params = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
             )
+
+            params.addRule(RelativeLayout.CENTER_IN_PARENT)
+
+            layout.addView(progressBar, params)
+
+            root.addView(layout)
         }
-
-        progressBar.apply {
-            isIndeterminate = true
-        }
-
-        val params = RelativeLayout.LayoutParams(
-            RelativeLayout.LayoutParams.WRAP_CONTENT,
-            RelativeLayout.LayoutParams.WRAP_CONTENT
-        )
-
-        params.addRule(RelativeLayout.CENTER_IN_PARENT)
-
-        layout.addView(progressBar, params)
-
-        root.addView(layout)
     }
 
-    @JvmStatic
-    fun hideLoadScreen(root: ViewGroup?) {
-        if (root == null) return
-
-        for (i in 0..root.childCount) {
-            if (root.getChildAt(i)?.tag == tagStr) {
-                root.getChildAt(i)?.visibility = View.GONE
-                return
+    override fun hide() {
+        root?.let {
+            for (i in 0..root.childCount) {
+                if (root.getChildAt(i)?.tag == LOAD_SCREEN_TAG) {
+                    root.getChildAt(i)?.visibility = View.GONE
+                    return
+                }
             }
         }
     }

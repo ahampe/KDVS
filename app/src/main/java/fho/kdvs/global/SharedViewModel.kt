@@ -1045,31 +1045,14 @@ class SharedViewModel @Inject constructor(
     }
 
     /** Method to generalize the process of exporting music to third-party playlists via dialog. */
-    fun onClickExportIcon(
-        fragment: Fragment,
-        requestCode: Int,
-        service: ThirdPartyService,
-        count: Int? = null
-    ) {
-        if (count == 0) {
-            Toast.makeText(
-                fragment.context,
-                "Sorry, there are no exportable items.",
-                Toast.LENGTH_LONG
-            )
-                .show()
-
-            return
-        }
-
+    fun onClickExportIcon(fragment: Fragment, requestCode: Int, service: ThirdPartyService) {
         val dialog = BinaryChoiceDialogFragment()
         val args = Bundle()
 
         args.putString("title", "Export")
         args.putString(
             "message",
-            "Export${count
-                ?: ""} ${if (count == 1) "track" else "tracks"} to a ${service.title} playlist?"
+            "Export tracks to a ${service.title} playlist?"
         )
 
         dialog.arguments = args

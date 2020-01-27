@@ -17,12 +17,14 @@ import fho.kdvs.databinding.FragmentTopmusicDetailsBinding
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.TopMusicEntity
-import fho.kdvs.global.ui.LoadScreen
+import fho.kdvs.global.ui.MaskingLoadScreen
+import fho.kdvs.global.ui.Displayable
 import kotlinx.android.synthetic.main.fragment_topmusic_details.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import timber.log.Timber
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -32,6 +34,8 @@ class TopMusicDetailsFragment : DaggerFragment(), CoroutineScope {
     private lateinit var viewModel: TopMusicDetailsViewModel
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var fragmentTopMusicDetailsBinding: FragmentTopmusicDetailsBinding
+
+    private lateinit var loadScreen: Displayable
 
     private lateinit var topMusicItems: List<TopMusicEntity>
 
@@ -92,7 +96,13 @@ class TopMusicDetailsFragment : DaggerFragment(), CoroutineScope {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        LoadScreen.displayLoadScreen(topMusicDetailsRoot)
+        loadScreen = MaskingLoadScreen(
+            WeakReference(
+                topMusicDetailsRoot
+            )
+        ).apply {
+            display()
+        }
 
         topMusicViewAdapter = TopMusicViewAdapter { }
         topMusicLayoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
@@ -131,7 +141,7 @@ class TopMusicDetailsFragment : DaggerFragment(), CoroutineScope {
                 scrollingToCurrentItem = false
             }
 
-            LoadScreen.hideLoadScreen(topMusicDetailsRoot)
+            loadScreen.hide()
         })
     }
 

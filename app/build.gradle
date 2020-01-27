@@ -129,6 +129,9 @@ dependencies {
     // WaveView
     implementation 'com.narayanacharya:WaveView:0.9.3'
 
+    // Spinkit
+    implementation 'com.github.ybq:Android-SpinKit:1.4.0'
+
     // Expandable Layout
     implementation 'net.cachapa.expandablelayout:expandablelayout:2.9.2'
 
