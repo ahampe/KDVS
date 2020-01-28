@@ -138,7 +138,7 @@ class MainActivity : DaggerAppCompatActivity() {
                     AuthenticationResponse.Type.TOKEN -> {
                         kdvsPreferences.spotifyLastLogin = TimeHelper.getNowUTC().toEpochSecond()
                         kdvsPreferences.spotifyAuthToken = response.accessToken
-                        viewModel.spotToken.postValue(response.accessToken)
+                        viewModel.spotifyAuthToken.postValue(response.accessToken)
                     }
                     AuthenticationResponse.Type.ERROR -> {
                         Toast.makeText(

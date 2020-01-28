@@ -115,7 +115,7 @@ class SharedViewModel @Inject constructor(
     val liveBroadcast: LiveData<BroadcastEntity>
         get() = broadcastRepository.liveBroadcastLiveData
 
-    val spotToken = MutableLiveData<String>()
+    val spotifyAuthToken = MutableLiveData<String>()
 
     val isPlayingAudioNow = mediaSessionConnection.playbackState
 
@@ -520,9 +520,6 @@ class SharedViewModel @Inject constructor(
 
         AuthenticationClient.openLoginActivity(activity, RequestCodes.SPOTIFY_LOGIN, request)
     }
-
-    fun isSpotifyAuthVoidOrExpired() = kdvsPreferences.spotifyAuthToken.isNullOrEmpty() ||
-            kdvsPreferences.spotifyLastLogin ?: 0 < TimeHelper.getOneHourAgoUTC().toEpochSecond()
 
     private fun openSpotifyApp(context: Context, spotifyUri: String) {
         val intent = Intent(Intent.ACTION_VIEW).apply {

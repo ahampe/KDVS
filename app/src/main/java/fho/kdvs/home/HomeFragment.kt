@@ -27,12 +27,15 @@ import fho.kdvs.global.database.FundraiserEntity
 import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.enums.ThirdPartyService
+import fho.kdvs.global.export.SpotifyExportManager
 import fho.kdvs.global.extensions.fade
 import fho.kdvs.global.preferences.KdvsPreferences
-import fho.kdvs.global.ui.MaskingLoadScreen
 import fho.kdvs.global.ui.Displayable
-import fho.kdvs.global.util.*
-import fho.kdvs.global.export.ExportManagerSpotify
+import fho.kdvs.global.ui.MaskingLoadScreen
+import fho.kdvs.global.util.BindingViewHolder
+import fho.kdvs.global.util.RequestCodes
+import fho.kdvs.global.util.TimeHelper
+import fho.kdvs.global.util.URLs
 import fho.kdvs.news.NewsArticlesAdapter
 import fho.kdvs.staff.StaffAdapter
 import fho.kdvs.topmusic.TopMusicAdapter
@@ -61,6 +64,7 @@ class HomeFragment : BaseFragment() {
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var fragmentHomeBinding: FragmentHomeBinding
     private lateinit var loadScreen: Displayable
+    private lateinit var spotifyExportManager: SpotifyExportManager
 
     private var currentShowsAdapter: CurrentShowsAdapter? = null
     private var newsArticlesAdapter: NewsArticlesAdapter? = null
@@ -107,8 +111,15 @@ class HomeFragment : BaseFragment() {
 
         loadScreen = MaskingLoadScreen(WeakReference(homeRoot))
             .apply {
-            display()
-        }
+                display()
+            }
+
+        spotifyExportManager = SpotifyExportManager(
+            requireActivity(),
+            spotifyService,
+            kdvsPreferences,
+            sharedViewModel
+        )
 
         if (sharedViewModel.isSpotifyInstalledOnDevice(requireContext())) {
             topAddsExportSpotify.visibility = View.VISIBLE
@@ -221,48 +232,26 @@ class HomeFragment : BaseFragment() {
         when (requestCode) {
             RequestCodes.SPOTIFY_EXPORT_TOP_ADDS -> {
                 if (resultCode == Activity.RESULT_OK) {
-                    if (sharedViewModel.isSpotifyAuthVoidOrExpired()) { // TODO refactor this code block to share with other exports
-                        sharedViewModel.loginSpotify(requireActivity())
-                        sharedViewModel.spotToken.observe(viewLifecycleOwner, Observer { token ->
-                            token?.let {
-                                viewModel.topMusicAdds.observe(
-                                    viewLifecycleOwner,
-                                    Observer { adds ->
-                                        exportTopMusicToSpotify(adds, token)
-                                    })
-                            }
-                        })
-                    } else {
-                        viewModel.topMusicAdds.observe(viewLifecycleOwner, Observer { adds ->
-                            exportTopMusicToSpotify(
-                                adds,
-                                kdvsPreferences.spotifyAuthToken as String
-                            )
-                        })
-                    }
+                    spotifyExportManager.loginIfNecessary()
+                    sharedViewModel.spotifyAuthToken.observe(this, Observer {
+                        viewModel.topMusicAdds.observe(
+                            viewLifecycleOwner,
+                            Observer { adds ->
+                                exportTopMusicToSpotify(adds)
+                            })
+                    })
                 }
             }
             RequestCodes.SPOTIFY_EXPORT_TOP_ALBUMS -> {
                 if (resultCode == Activity.RESULT_OK) {
-                    if (sharedViewModel.isSpotifyAuthVoidOrExpired()) {
-                        sharedViewModel.loginSpotify(requireActivity())
-                        sharedViewModel.spotToken.observe(viewLifecycleOwner, Observer { token ->
-                            token?.let {
-                                viewModel.topMusicAlbums.observe(
-                                    viewLifecycleOwner,
-                                    Observer { albums ->
-                                        exportTopMusicToSpotify(albums, token)
-                                    })
-                            }
-                        })
-                    } else {
-                        viewModel.topMusicAlbums.observe(viewLifecycleOwner, Observer { albums ->
-                            exportTopMusicToSpotify(
-                                albums,
-                                kdvsPreferences.spotifyAuthToken as String
-                            )
-                        })
-                    }
+                    spotifyExportManager.loginIfNecessary()
+                    sharedViewModel.spotifyAuthToken.observe(this, Observer {
+                        viewModel.topMusicAlbums.observe(
+                            viewLifecycleOwner,
+                            Observer { albums ->
+                                exportTopMusicToSpotify(albums)
+                            })
+                    })
                 }
             }
             RequestCodes.YOUTUBE_EXPORT_TOP_ADDS -> {
@@ -600,21 +589,14 @@ class HomeFragment : BaseFragment() {
         fundraiserProgress.progress = if (progress > 100) 100 else progress.toInt()
     }
 
-    private fun exportTopMusicToSpotify(topMusic: List<TopMusicEntity>, token: String) {
+    private fun exportTopMusicToSpotify(topMusic: List<TopMusicEntity>) {
         val mostRecentDate = topMusic.maxBy { a -> a.topMusicId }?.weekOf
-
         val type = if (topMusic.first().type == TopMusicType.ADD) "Adds" else "Albums"
-
+        val uris = getTopMusicSpotifyUris(topMusic)
         val title = "KDVS Top $type (${TimeHelper.uiDateFormatter.format(mostRecentDate)})"
 
         launch {
-            ExportManagerSpotify(
-                context = requireContext(),
-                spotifyService = spotifyService,
-                trackUris = getTopMusicSpotifyUris(topMusic),
-                userToken = token,
-                playlistTitle = title
-            ).getExportPlaylistUri()
+            spotifyExportManager.exportTracksToDynamicPlaylistAsync(uris, title).await()
                 ?.let {
                     sharedViewModel.openSpotify(requireContext(), it)
                 }

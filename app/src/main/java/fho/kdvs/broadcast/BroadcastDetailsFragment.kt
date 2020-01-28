@@ -17,13 +17,13 @@ import fho.kdvs.R
 import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.databinding.FragmentBroadcastDetailsBinding
 import fho.kdvs.dialog.BinaryChoiceDialogFragment
-import fho.kdvs.dialog.LoadingDialog
+import fho.kdvs.dialog.ExportLoadingDialog
 import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.BroadcastEntity
 import fho.kdvs.global.enums.ThirdPartyService
-import fho.kdvs.global.export.ExportManagerSpotify
+import fho.kdvs.global.export.SpotifyExportManager
 import fho.kdvs.global.extensions.collapseExpand
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.MaskingLoadScreen
@@ -56,6 +56,8 @@ class BroadcastDetailsFragment : BaseFragment() {
     lateinit var spotifyService: SpotifyService
 
     private lateinit var loadScreen: MaskingLoadScreen
+
+    private lateinit var spotifyExportManager: SpotifyExportManager
 
     private var tracksAdapter: BroadcastTracksAdapter? = null
 
@@ -109,6 +111,13 @@ class BroadcastDetailsFragment : BaseFragment() {
         ).apply {
             display()
         }
+
+        spotifyExportManager = SpotifyExportManager(
+            requireActivity(),
+            spotifyService,
+            kdvsPreferences,
+            sharedViewModel
+        )
 
         tracksAdapter = BroadcastTracksAdapter(viewModel, sharedViewModel) {
             Timber.d("Clicked ${it.item}")
@@ -193,16 +202,8 @@ class BroadcastDetailsFragment : BaseFragment() {
             }
             RequestCodes.SPOTIFY_EXPORT_BROADCAST -> {
                 if (resultCode == Activity.RESULT_OK) {
-                    if (sharedViewModel.isSpotifyAuthVoidOrExpired()) {
-                        sharedViewModel.loginSpotify(requireActivity())
-                        sharedViewModel.spotToken.observe(viewLifecycleOwner, Observer { token ->
-                            token?.let {
-                                exportTracksToSpotify(token)
-                            }
-                        })
-                    } else {
-                        exportTracksToSpotify(kdvsPreferences.spotifyAuthToken as String)
-                    }
+                    spotifyExportManager.loginIfNecessary()
+                    exportTracksToSpotify()
                 }
             }
             RequestCodes.YOUTUBE_EXPORT_BROADCAST -> {
@@ -291,17 +292,14 @@ class BroadcastDetailsFragment : BaseFragment() {
         })
     }
 
-    private fun exportTracksToSpotify(token: String) {
+    private fun exportTracksToSpotify() {
         var hasExecuted = false
         var exportJob: Job? = null
 
         val loadingDialog =
-            LoadingDialog(
-                requireContext(),
-                "Exporting...",
-                8000L,
-                "Error exporting music"
-            ) { exportJob?.cancel() }.apply {
+            ExportLoadingDialog(requireContext()) {
+                exportJob?.cancel()
+            }.apply {
                 display()
             }
 
@@ -320,23 +318,17 @@ class BroadcastDetailsFragment : BaseFragment() {
                         val title = sharedViewModel.getBroadcastDownloadUiTitle(broadcast, show)
 
                         if (uris.isNotEmpty()) {
-                            ExportManagerSpotify(
-                                context = requireContext(),
-                                spotifyService = spotifyService,
-                                trackUris = uris,
-                                userToken = token,
-                                playlistTitle = title
-                            ).getExportPlaylistUri()
+                            spotifyExportManager.exportTracksToDynamicPlaylistAsync(uris, title).await()
                                 ?.let {
                                     sharedViewModel.openSpotify(requireContext(), it)
                                 }
 
                             hasExecuted = true
-
                         }
                     }.also {
                         it.invokeOnCompletion {
                             loadingDialog.hide()
+                            hasExecuted = true
                         }
                     }
                 }
@@ -347,7 +339,20 @@ class BroadcastDetailsFragment : BaseFragment() {
     private fun exportTracksToYouTube() {
         var hasExecuted = false
 
+        val loadingDialog =
+            ExportLoadingDialog(requireContext()) {
+                hasExecuted = true
+            }.apply {
+                display()
+            }
+
         viewModel.tracksLiveData.observe(this, Observer { tracks ->
+            tracks.forEach {
+                sharedViewModel.fetchThirdPartyDataForTrack(it)
+            }
+        })
+
+        viewModel.songsLiveData.observe(this, Observer { tracks ->
             if (!hasExecuted && tracks.all { t -> t.hasThirdPartyInfo }) {
                 val ids = tracks.mapNotNull { t -> t.youTubeId }
 
@@ -355,6 +360,8 @@ class BroadcastDetailsFragment : BaseFragment() {
                     sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
                     hasExecuted = true
                 }
+
+                loadingDialog.hide()
             }
         })
     }

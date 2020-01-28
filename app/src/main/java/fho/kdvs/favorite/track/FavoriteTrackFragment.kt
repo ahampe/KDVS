@@ -23,9 +23,9 @@ import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.joins.ShowBroadcastTrackFavoriteJoin
 import fho.kdvs.global.enums.ThirdPartyService
+import fho.kdvs.global.export.SpotifyExportManager
 import fho.kdvs.global.extensions.removeLeadingArticles
 import fho.kdvs.global.preferences.KdvsPreferences
-import fho.kdvs.global.export.ExportManagerSpotify
 import fho.kdvs.global.util.RequestCodes
 import kotlinx.android.synthetic.main.cell_favorite_track.view.*
 import kotlinx.android.synthetic.main.favorite_page_sort_menu.*
@@ -48,6 +48,7 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
 
     private lateinit var viewModel: FavoriteTrackViewModel
     private lateinit var sharedViewModel: SharedViewModel
+    private lateinit var spotifyExportManager: SpotifyExportManager
 
     var favoriteTrackViewAdapter: FavoriteTrackViewAdapter? = null
 
@@ -80,6 +81,13 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        spotifyExportManager = SpotifyExportManager(
+            requireActivity(),
+            spotifyService,
+            kdvsPreferences,
+            sharedViewModel
+        )
+
         initializeClickListeners()
         initializeSearchBar()
         initializeIcons()
@@ -92,16 +100,14 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
         when (requestCode) {
             RequestCodes.SPOTIFY_EXPORT_FAVORITES -> {
                 if (resultCode == Activity.RESULT_OK) {
-                    if (sharedViewModel.isSpotifyAuthVoidOrExpired()) {
-                        sharedViewModel.loginSpotify(requireActivity())
-                        sharedViewModel.spotToken.observe(viewLifecycleOwner, Observer { token ->
+                    spotifyExportManager.loginIfNecessary()
+                    sharedViewModel.spotifyAuthToken.observe(
+                        viewLifecycleOwner,
+                        Observer { token ->
                             token?.let {
-                                exportTracksToSpotify(kdvsPreferences.spotifyAuthToken as String)
+                                exportTracksToSpotify()
                             }
                         })
-                    } else {
-                        exportTracksToSpotify(kdvsPreferences.spotifyAuthToken as String)
-                    }
                 }
             }
             RequestCodes.YOUTUBE_EXPORT_FAVORITES -> {
@@ -334,24 +340,19 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
         }
     }
 
-    private fun exportTracksToSpotify(token: String) {
+    private fun exportTracksToSpotify() {
         val uris = currentlyDisplayingResults
             .mapNotNull { r -> r?.track?.spotifyTrackUri }
 
         launch {
-            ExportManagerSpotify(
-                context = requireContext(),
-                spotifyService = spotifyService,
-                trackUris = uris,
-                userToken = token,
-                playlistTitle = "My KDVS Favorites",
-                storedPlaylistUri = kdvsPreferences.spotifyFavoritesPlaylistUri
-            ).getExportPlaylistUri()
-                ?.let {
-                    kdvsPreferences.spotifyFavoritesPlaylistUri = it
+            spotifyExportManager.exportTracksToStoredPlaylistAsync(
+                uris,
+                kdvsPreferences.spotifyFavoritesPlaylistUri
+            ).await()?.let {
+                kdvsPreferences.spotifyFavoritesPlaylistUri = it
 
-                    sharedViewModel.openSpotify(requireContext(), it)
-                }
+                sharedViewModel.openSpotify(requireContext(), it)
+            }
         }
     }
 
