@@ -11,7 +11,7 @@ import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 /**
- * Cancellable loading dialog with timeout.
+ * Cancellable loading dialog with timeout toast.
  */
 class LoadingDialog(
     private val context: Context,
@@ -21,6 +21,7 @@ class LoadingDialog(
     private val onCancel: (() -> Unit)?
 ): Displayable, CoroutineScope {
     private lateinit var dialog: Dialog
+    private lateinit var timeoutJob: Job
 
     private val job = Job()
     override val coroutineContext: CoroutineContext
@@ -44,10 +45,13 @@ class LoadingDialog(
 
     override fun hide() {
         dialog.dismiss()
+
+        if (::timeoutJob.isInitialized)
+            timeoutJob.cancel()
     }
 
     private fun initializeTimeout() {
-        launch {
+        timeoutJob = launch {
             delay(timeout)
 
             Toast.makeText(

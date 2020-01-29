@@ -25,7 +25,7 @@ class ExportLoadingDialog(val context: Context, onCancel: (() -> Unit)?) : Displ
 
     companion object {
         const val EXPORT_LABEL = "Exporting..."
-        const val EXPORT_TIMEOUT = 8000L
-        const val EXPORT_TIMEOUT_MESSAGE = "Error exporting music"
+        const val EXPORT_TIMEOUT = 10000L
+        const val EXPORT_TIMEOUT_MESSAGE = "Error exporting music; try again."
     }
 }

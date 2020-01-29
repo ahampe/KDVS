@@ -164,7 +164,6 @@ class FavoriteTrackViewAdapter(
 
     private fun String?.formatName() = this?.toUpperCase().removeLeadingArticles()
 
-
     class ViewHolder(
         private val binding: CellFavoriteTrackBinding,
         private val queryStr: String

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.R
 import fho.kdvs.api.service.SpotifyService
+import fho.kdvs.dialog.ExportLoadingDialog
 import fho.kdvs.favorite.FavoriteFragment.SortDirection
 import fho.kdvs.favorite.FavoriteFragment.SortType
 import fho.kdvs.favorite.FavoritePage
@@ -31,6 +32,7 @@ import kotlinx.android.synthetic.main.cell_favorite_track.view.*
 import kotlinx.android.synthetic.main.favorite_page_sort_menu.*
 import kotlinx.android.synthetic.main.favorite_page_top_controls.*
 import kotlinx.android.synthetic.main.fragment_favorite_track.*
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -105,13 +107,13 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
                         viewLifecycleOwner,
                         Observer { token ->
                             token?.let {
-                                exportTracksToSpotify()
+                                exportAllFavoritedTracksToSpotify()
                             }
                         })
                 }
             }
             RequestCodes.YOUTUBE_EXPORT_FAVORITES -> {
-                exportTracksToYouTube()
+                exportAllFavoritedTracksToYouTube()
             }
         }
     }
@@ -120,7 +122,7 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
         val fragment = this
 
         viewModel.run {
-            showBroadcastTrackFavoriteJoins.observe(fragment, Observer { joins ->
+            showBroadcastTrackFavoriteJoinsLiveData.observe(fragment, Observer { joins ->
                 processFavorites(joins)
             })
         }
@@ -341,29 +343,63 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
     }
 
     /**
-     * Note: it is assumed that we have all fetched data for tracks in [FavoriteTrackFragment],
-     * as we launch fetches when a track is favorited.
+     * Note: we can assume all third-party data fetches have launched for favorited tracks, but
+     * we can't assume that those fetches have all completed by the time the user navigates to
+     * [FavoriteTrackFragment] and clicks export.
      */
-    private fun exportTracksToSpotify() {
-        val uris = currentlyDisplayingResults
-            .mapNotNull { r -> r?.track?.spotifyTrackUri }
+    private fun exportAllFavoritedTracksToSpotify() {
+        var hasExecuted = false
+        var exportJob: Job? = null
 
-        launch {
-            spotifyExportManager.exportTracksToStoredPlaylistAsync(
-                uris,
-                kdvsPreferences.spotifyFavoritesPlaylistUri
-            ).await()?.let {
-                kdvsPreferences.spotifyFavoritesPlaylistUri = it
-                sharedViewModel.openSpotify(requireContext(), it)
+        val loadingDialog =
+            ExportLoadingDialog(requireContext()) {
+                exportJob?.cancel()
+            }.apply {
+                display()
             }
-        }
+
+        viewModel.favoritedTracksLiveData.observe(this, Observer { tracks ->
+            if (!hasExecuted && tracks.all { t -> t.hasThirdPartyInfo }) {
+                val uris = tracks.mapNotNull { t -> t.spotifyTrackUri }
+
+                exportJob = launch {
+                    spotifyExportManager.exportTracksToStoredPlaylistAsync(
+                        uris,
+                        kdvsPreferences.spotifyFavoritesPlaylistUri
+                    ).await()?.let {
+                        kdvsPreferences.spotifyFavoritesPlaylistUri = it
+
+                        sharedViewModel.openSpotify(requireContext(), it)
+
+                        loadingDialog.hide()
+                    }
+                }
+
+                hasExecuted = true
+            }
+        })
     }
 
-    private fun exportTracksToYouTube() {
-        val ids = currentlyDisplayingResults
-            .mapNotNull { r -> r?.track?.youTubeId }
+    private fun exportAllFavoritedTracksToYouTube() {
+        var hasExecuted = false
 
-        if (ids.isNotEmpty())
-            sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
+        val loadingDialog =
+            ExportLoadingDialog(requireContext()) {
+                hasExecuted = true
+            }.apply {
+                display()
+            }
+
+        viewModel.favoritedTracksLiveData.observe(this, Observer { tracks ->
+            if (!hasExecuted && tracks.all { t -> t.hasThirdPartyInfo }) {
+                val ids = tracks.mapNotNull { t -> t.youTubeId }
+
+                sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
+
+                loadingDialog.hide()
+
+                hasExecuted = true
+            }
+        })
     }
 }

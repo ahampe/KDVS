@@ -319,15 +319,11 @@ class BroadcastDetailsFragment : BaseFragment() {
                                 .await()
                                 ?.let {
                                     sharedViewModel.openSpotify(requireContext(), it)
+                                    loadingDialog.hide()
                                 }
+                        }
 
-                            hasExecuted = true
-                        }
-                    }.also {
-                        it.invokeOnCompletion {
-                            loadingDialog.hide()
-                            hasExecuted = true
-                        }
+                        hasExecuted = true
                     }
                 }
             })
@@ -354,12 +350,10 @@ class BroadcastDetailsFragment : BaseFragment() {
             if (!hasExecuted && tracks.all { t -> t.hasThirdPartyInfo }) {
                 val ids = tracks.mapNotNull { t -> t.youTubeId }
 
-                if (ids.isNotEmpty()) {
-                    sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
-                    hasExecuted = true
-                }
+                sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
 
                 loadingDialog.hide()
+                hasExecuted = true
             }
         })
     }

@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 import fho.kdvs.R
 import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.databinding.FragmentHomeBinding
+import fho.kdvs.dialog.ExportLoadingDialog
 import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
@@ -39,6 +40,7 @@ import fho.kdvs.staff.StaffAdapter
 import fho.kdvs.topmusic.TopMusicAdapter
 import fho.kdvs.topmusic.TopMusicType
 import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
 import timber.log.Timber
@@ -588,15 +590,25 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun exportTopMusicToSpotify(topMusic: List<TopMusicEntity>) {
+        var exportJob: Job? = null
+
         val mostRecentDate = topMusic.maxBy { a -> a.topMusicId }?.weekOf
         val type = if (topMusic.first().type == TopMusicType.ADD) "Adds" else "Albums"
         val uris = getTopMusicSpotifyUris(topMusic)
         val title = "KDVS Top $type (${TimeHelper.uiDateFormatter.format(mostRecentDate)})"
 
-        launch {
+        val loadingDialog =
+            ExportLoadingDialog(requireContext()) {
+                exportJob?.cancel()
+            }.apply {
+                display()
+            }
+
+        exportJob = launch {
             spotifyExportManager.exportTracksToDynamicPlaylistAsync(uris, title).await()
                 ?.let {
                     sharedViewModel.openSpotify(requireContext(), it)
+                    loadingDialog.hide()
                 }
         }
     }

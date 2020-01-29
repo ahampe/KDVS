@@ -456,9 +456,11 @@ class SharedViewModel @Inject constructor(
      * video IDs (max URL size: 2048 chars). If user has YouTube app installed, they'll be redirected
      * automatically from their browser to the app.
      */
-    fun exportVideosToYouTubePlaylist(context: Context, ids: List<String>) {
-        val url = makeYouTubePlaylist(ids)
-        openBrowser(context, url)
+    fun exportVideosToYouTubePlaylist(context: Context, ids: List<String>?) {
+        if (!ids.isNullOrEmpty()) {
+            val url = makeYouTubePlaylist(ids)
+            openBrowser(context, url)
+        }
     }
 
     private fun makeYouTubePlaylist(ids: List<String>) =
