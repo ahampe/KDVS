@@ -24,7 +24,6 @@ import fho.kdvs.global.BaseFragment
 import fho.kdvs.global.KdvsViewModelFactory
 import fho.kdvs.global.SharedViewModel
 import fho.kdvs.global.database.FundraiserEntity
-import fho.kdvs.global.database.ShowEntity
 import fho.kdvs.global.database.TopMusicEntity
 import fho.kdvs.global.enums.ThirdPartyService
 import fho.kdvs.global.export.SpotifyExportManager
@@ -32,7 +31,6 @@ import fho.kdvs.global.extensions.fade
 import fho.kdvs.global.preferences.KdvsPreferences
 import fho.kdvs.global.ui.Displayable
 import fho.kdvs.global.ui.MaskingLoadScreen
-import fho.kdvs.global.util.BindingViewHolder
 import fho.kdvs.global.util.RequestCodes
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
@@ -134,7 +132,7 @@ class HomeFragment : BaseFragment() {
         }
 
         currentShowsRecycler.apply {
-            val adapter = currentShowsAdapter as RecyclerView.Adapter<BindingViewHolder<ShowEntity>>
+            val adapter = currentShowsAdapter as RecyclerView.Adapter<*>
 
             this.initialize(adapter)
             this.setDefaultPos(1)

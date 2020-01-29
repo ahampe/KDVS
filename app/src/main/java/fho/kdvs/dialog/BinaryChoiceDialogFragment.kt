@@ -6,6 +6,7 @@ import android.content.DialogInterface
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import fho.kdvs.R
 
 /**
  * Displays a yes/no dialog.
@@ -25,9 +26,9 @@ class BinaryChoiceDialogFragment : DialogFragment() {
         return AlertDialog.Builder(requireContext())
             .setTitle(title)
             .setMessage(message)
-            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setIcon(R.drawable.ic_announcement_white_24dp)
             .setPositiveButton(android.R.string.yes,
-                DialogInterface.OnClickListener { _, _ ->
+                { _, _ ->
                     targetFragment
                         ?.onActivityResult(targetRequestCode, Activity.RESULT_OK, null)
                 })

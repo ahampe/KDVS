@@ -31,7 +31,11 @@ object URLs {
 
     const val YOUTUBE_SEARCH_URL = "https://www.youtube.com/results?search_query="
 
+    const val YOUTUBE_PLAYLIST_URL = "https://www.youtube.com/watch_videos?video_ids="
+
     const val YOUTUBE_QUERYSTRING = "&sp=EgIQAQ%253D%253D"
+
+    const val SPOTIFY_OPEN_URL = "https://open.spotify.com/"
 
     const val CONTACT_EMAIL = "kdvsappdevs@gmail.com"
 

@@ -93,7 +93,7 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
         initializeIcons()
     }
 
-    /** Handle third-party getExportPlaylistUri request launched in [FavoriteTrackFragment]. */
+    /** Handle third-party export request launched in [FavoriteTrackFragment]. */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -340,6 +340,10 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
         }
     }
 
+    /**
+     * Note: it is assumed that we have all fetched data for tracks in [FavoriteTrackFragment],
+     * as we launch fetches when a track is favorited.
+     */
     private fun exportTracksToSpotify() {
         val uris = currentlyDisplayingResults
             .mapNotNull { r -> r?.track?.spotifyTrackUri }
@@ -350,7 +354,6 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
                 kdvsPreferences.spotifyFavoritesPlaylistUri
             ).await()?.let {
                 kdvsPreferences.spotifyFavoritesPlaylistUri = it
-
                 sharedViewModel.openSpotify(requireContext(), it)
             }
         }
@@ -360,6 +363,7 @@ class FavoriteTrackFragment : BaseFragment(), FavoritePage<ShowBroadcastTrackFav
         val ids = currentlyDisplayingResults
             .mapNotNull { r -> r?.track?.youTubeId }
 
-        sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
+        if (ids.isNotEmpty())
+            sharedViewModel.exportVideosToYouTubePlaylist(requireContext(), ids)
     }
 }

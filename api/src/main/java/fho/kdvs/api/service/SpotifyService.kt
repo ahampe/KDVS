@@ -34,8 +34,10 @@ class SpotifyService @Inject constructor(
     /**
      * Returns first search result (if any) for an album query.
      */
-    suspend fun findAlbumAsync(album: String?,
-                               artist: String?): Deferred<SpotifySimpleAlbum?> = coroutineScope {
+    suspend fun findAlbumAsync(
+        album: String?,
+        artist: String?
+    ): Deferred<SpotifySimpleAlbum?> = coroutineScope {
         async {
             if (album.isNullOrBlank()) return@async null
 
@@ -51,19 +53,23 @@ class SpotifyService @Inject constructor(
                         val auth = endpoint.authorizeApp()
                         val newResponse = auth.body()?.token?.let { token ->
                             clientToken = token
-                            endpoint.searchAlbums(query = query, authHeader = makeClientAuthHeader()).body()
+                            endpoint.searchAlbums(
+                                query = query,
+                                authHeader = makeClientAuthHeader()
+                            ).body()
                         }
                         return@async newResponse?.let { mapper.album(it) }
                     }
                     429 -> {
                         // TODO untested
                         // Hit rate limit. Wait for specified span of time and try again recursively
-                        return@async response.headers().get("Retry-After")?.toIntOrNull()?.let { seconds ->
-                            val millis = seconds * 1000L
-                            delay(millis)
-                            val search = findAlbumAsync(album, artist)
-                            search.await()
-                        }
+                        return@async response.headers().get("Retry-After")?.toIntOrNull()
+                            ?.let { seconds ->
+                                val millis = seconds * 1000L
+                                delay(millis)
+                                val search = findAlbumAsync(album, artist)
+                                search.await()
+                            }
                     }
                     else -> {
                         Timber.d("Error searching for album given $album and $artist")
@@ -79,8 +85,10 @@ class SpotifyService @Inject constructor(
     /**
      * Returns first search result (if any) for a track query.
      */
-    suspend fun findTrackAsync(track: String?,
-                               artist: String?): Deferred<SpotifyTrack?> = coroutineScope {
+    suspend fun findTrackAsync(
+        track: String?,
+        artist: String?
+    ): Deferred<SpotifyTrack?> = coroutineScope {
         async {
             if (track.isNullOrBlank()) return@async null
 
@@ -95,19 +103,23 @@ class SpotifyService @Inject constructor(
                         val auth = endpoint.authorizeApp()
                         val newResponse = auth.body()?.token?.let { token ->
                             clientToken = token
-                            endpoint.searchTracks(query = query, authHeader = makeClientAuthHeader()).body()
+                            endpoint.searchTracks(
+                                query = query,
+                                authHeader = makeClientAuthHeader()
+                            ).body()
                         }
                         return@async newResponse?.let { mapper.track(it) }
                     }
                     429 -> {
                         // TODO untested
                         // Hit rate limit. Wait for specified span of time and try again recursively
-                        return@async response.headers().get("Retry-After")?.toIntOrNull()?.let { seconds ->
-                            val millis = seconds * 1000L
-                            delay(millis)
-                            val search = findTrackAsync(track, artist)
-                            search.await()
-                        }
+                        return@async response.headers().get("Retry-After")?.toIntOrNull()
+                            ?.let { seconds ->
+                                val millis = seconds * 1000L
+                                delay(millis)
+                                val search = findTrackAsync(track, artist)
+                                search.await()
+                            }
                     }
                     else -> {
                         Timber.d("Error searching for track given $track and $artist")
@@ -136,10 +148,12 @@ class SpotifyService @Inject constructor(
     }
 
     /**
-     * Returns playlist, if any, in user's playlists corresponding to uri.
+     * Returns [SpotifyPlaylist], if any, in user's playlists, corresponding to uri.
      */
-    suspend fun getPlaylistFromUserAsync(uri: String,
-                                         token: String): Deferred<SpotifyPlaylist?> = coroutineScope {
+    suspend fun getPlaylistFromUserAsync(
+        uri: String,
+        token: String
+    ): Deferred<SpotifyPlaylist?> = coroutineScope {
         async {
             val response = endpoint.getPlaylists(auth = makeAuthHeader(token))
 
@@ -155,8 +169,10 @@ class SpotifyService @Inject constructor(
      * Attempts to locate a playlist in user's Spotify account matching a given title, to prevent
      * the creation of duplicate playlists.
      */
-    suspend fun getSpotifyPlaylistFromTitleAsync(title: String,
-                                                 token: String): Deferred<SpotifyPlaylist?> = coroutineScope {
+    suspend fun getSpotifyPlaylistFromTitleAsync(
+        title: String,
+        token: String
+    ): Deferred<SpotifyPlaylist?> = coroutineScope {
         async {
             val response = endpoint.getPlaylists(auth = makeAuthHeader(token))
 
@@ -173,8 +189,10 @@ class SpotifyService @Inject constructor(
     /**
      * Create Spotify playlist with specified title for user of corresponding token.
      */
-    suspend fun createPlaylistAsync(title: String,
-                                    token: String): Deferred<SpotifyPlaylist?> = coroutineScope {
+    suspend fun createPlaylistAsync(
+        title: String,
+        token: String
+    ): Deferred<SpotifyPlaylist?> = coroutineScope {
         async {
             val profile = getUserProfileAsync(token).await()
 
@@ -188,7 +206,8 @@ class SpotifyService @Inject constructor(
 
                 val req = RequestBody.create(MediaType.parse("application/json"), body.toString())
 
-                val response = endpoint.createPlaylist(url = url, body = req, auth = makeAuthHeader(token))
+                val response =
+                    endpoint.createPlaylist(url = url, body = req, auth = makeAuthHeader(token))
                 if (response.isSuccessful) {
                     return@async mapper.playlist(response.body())
                 } else {
@@ -200,9 +219,14 @@ class SpotifyService @Inject constructor(
         }
     }
 
-    suspend fun getTracksInPlaylistAsync(playlistId: String,
-                                         token: String,
-                                         offset: Int = 0): Deferred<List<SpotifyTrack?>?> = coroutineScope {
+    /**
+     * Obtains a list of [SpotifyTrack]s for a given playlist
+     */
+    suspend fun getTracksInPlaylistAsync(
+        playlistId: String,
+        token: String,
+        offset: Int = 0
+    ): Deferred<List<SpotifyTrack?>?> = coroutineScope {
         async {
             val response = endpoint.getTracksInPlaylist(
                 auth = makeAuthHeader(token),
@@ -235,16 +259,22 @@ class SpotifyService @Inject constructor(
      * Adds music from a list of Spotify track URIs to a playlist of a given ID.
      * Takes a max of 100 tracks at a time.
      */
-    suspend fun addTracksToPlaylistAsync(uris: List<String>,
-                                         playlistId: String,
-                                         token: String): Deferred<Boolean> = coroutineScope {
+    suspend fun addTracksToPlaylistAsync(
+        uris: List<String>,
+        playlistId: String,
+        token: String
+    ): Deferred<Boolean> = coroutineScope {
         async {
             val body = JSONObject()
             body.put("uris", JSONArray(uris))
 
             val req = RequestBody.create(MediaType.parse("application/json"), body.toString())
 
-            val response = endpoint.addTracksToPlaylist(body = req, auth = makeAuthHeader(token), id = playlistId)
+            val response = endpoint.addTracksToPlaylist(
+                body = req,
+                auth = makeAuthHeader(token),
+                id = playlistId
+            )
             if (response.isSuccessful) {
                 return@async true
             } else {
@@ -266,15 +296,16 @@ class SpotifyService @Inject constructor(
         }
     }
 
-    private suspend fun getUserProfileAsync(token: String): Deferred<SpotifyProfile?> = coroutineScope {
-        async {
-            val response = endpoint.getUserProfile(authHeader = "Bearer $token")
+    private suspend fun getUserProfileAsync(token: String): Deferred<SpotifyProfile?> =
+        coroutineScope {
+            async {
+                val response = endpoint.getUserProfile(authHeader = "Bearer $token")
 
-            if (response.isSuccessful) {
-                mapper.profile(response.body())
-            } else return@async null
+                if (response.isSuccessful) {
+                    mapper.profile(response.body())
+                } else return@async null
+            }
         }
-    }
 
     /**
      * Creates an encoded query for music search for a given [SearchType] and [artist]

@@ -40,9 +40,6 @@ import timber.log.Timber
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 
-const val DOWNLOAD_ICON = "download"
-const val DELETE_ICON = "delete"
-
 class BroadcastDetailsFragment : BaseFragment() {
     @Inject
     lateinit var vmFactory: KdvsViewModelFactory
@@ -318,7 +315,8 @@ class BroadcastDetailsFragment : BaseFragment() {
                         val title = sharedViewModel.getBroadcastDownloadUiTitle(broadcast, show)
 
                         if (uris.isNotEmpty()) {
-                            spotifyExportManager.exportTracksToDynamicPlaylistAsync(uris, title).await()
+                            spotifyExportManager.exportTracksToDynamicPlaylistAsync(uris, title)
+                                .await()
                                 ?.let {
                                     sharedViewModel.openSpotify(requireContext(), it)
                                 }
@@ -445,5 +443,10 @@ class BroadcastDetailsFragment : BaseFragment() {
             .actionBroadcastDetailsFragmentToShowDetailsFragment(showId)
         if (findNavController().currentDestination?.id == R.id.broadcastDetailsFragment)
             findNavController().navigate(navAction)
+    }
+
+    companion object {
+        const val DOWNLOAD_ICON = "download"
+        const val DELETE_ICON = "delete"
     }
 }

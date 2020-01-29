@@ -13,17 +13,12 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
 import androidx.navigation.NavController
-import com.spotify.sdk.android.authentication.AuthenticationClient
-import com.spotify.sdk.android.authentication.AuthenticationRequest
-import com.spotify.sdk.android.authentication.AuthenticationResponse
 import fho.kdvs.R
-import fho.kdvs.api.endpoint.SpotifyEndpoint
 import fho.kdvs.api.service.MusicBrainzService
 import fho.kdvs.api.service.SpotifyService
 import fho.kdvs.api.service.YouTubeService
@@ -37,11 +32,12 @@ import fho.kdvs.global.extensions.isPlaying
 import fho.kdvs.global.extensions.isPrepared
 import fho.kdvs.global.extensions.urlEncoded
 import fho.kdvs.global.preferences.KdvsPreferences
-import fho.kdvs.global.util.RequestCodes
 import fho.kdvs.global.util.TimeHelper
 import fho.kdvs.global.util.URLs
 import fho.kdvs.global.util.URLs.DISCOGS_QUERYSTRING
 import fho.kdvs.global.util.URLs.DISCOGS_SEARCH_URL
+import fho.kdvs.global.util.URLs.SPOTIFY_OPEN_URL
+import fho.kdvs.global.util.URLs.YOUTUBE_PLAYLIST_URL
 import fho.kdvs.global.util.URLs.YOUTUBE_QUERYSTRING
 import fho.kdvs.global.util.URLs.YOUTUBE_SEARCH_URL
 import fho.kdvs.news.NewsRepository
@@ -466,7 +462,7 @@ class SharedViewModel @Inject constructor(
     }
 
     private fun makeYouTubePlaylist(ids: List<String>) =
-        ("https://www.youtube.com/watch_videos?video_ids=" + ids.joinToString(",")).let {
+        (YOUTUBE_PLAYLIST_URL + ids.joinToString(",")).let {
             it.substring(0, min(it.length, 2048))
                 .substringBeforeLast(",")
         }
@@ -477,48 +473,22 @@ class SharedViewModel @Inject constructor(
     private fun makeYoutubeQuery(track: TrackEntity?) =
         "$YOUTUBE_SEARCH_URL${track?.artist} ${track?.song}$YOUTUBE_QUERYSTRING".urlEncoded
 
-    private fun openYouTubeApp(context: Context, uri: String) {
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            data = Uri.parse(uri)
-            putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + context.packageName))
-        }
-        if (intent.resolveActivity(context.packageManager) != null) {
-            startActivity(context, intent, null)
-        }
-    }
-
-    private fun onClickSpotifyNoApp(context: Context, spotifyUri: String) {
-        val url = makeSpotifyUrl(spotifyUri)
-        if (url.isNotEmpty())
-            openBrowser(context, url)
-    }
-
     fun openSpotify(context: Context, spotifyUri: String) {
         if (isSpotifyInstalledOnDevice(context))
             openSpotifyApp(context, spotifyUri)
         else
-            onClickSpotifyNoApp(context, spotifyUri)
+            openSpotifyInBrowser(context, spotifyUri)
     }
 
-    /** Launches Spotify login activity. */
-    fun loginSpotify(activity: FragmentActivity) {
-        val builder = AuthenticationRequest.Builder(
-            SpotifyEndpoint.SPOTIFY_CLIENT_ID,
-            AuthenticationResponse.Type.TOKEN,
-            SpotifyEndpoint.SPOTIFY_REDIRECT_URI
-        )
+    fun isSpotifyInstalledOnDevice(context: Context): Boolean {
+        var isSpotifyInstalled = false
 
-        builder.setScopes(
-            arrayOf(
-                "playlist-modify-public",
-                "playlist-read-private",
-                "playlist-modify-private"
-            )
-        )
+        try {
+            context.packageManager.getPackageInfo("com.spotify.music", 0)
+            isSpotifyInstalled = true
+        } catch (e: PackageManager.NameNotFoundException) { }
 
-        val request = builder.build()
-
-        AuthenticationClient.openLoginActivity(activity, RequestCodes.SPOTIFY_LOGIN, request)
+        return isSpotifyInstalled
     }
 
     private fun openSpotifyApp(context: Context, spotifyUri: String) {
@@ -529,20 +499,14 @@ class SharedViewModel @Inject constructor(
         if (intent.resolveActivity(context.packageManager) != null) {
             startActivity(context, intent, null)
         } else {
-            onClickSpotifyNoApp(context, spotifyUri)
+            openSpotifyInBrowser(context, spotifyUri)
         }
     }
 
-    fun isSpotifyInstalledOnDevice(context: Context): Boolean {
-        var isSpotifyInstalled = false
-
-        try {
-            context.packageManager.getPackageInfo("com.spotify.music", 0)
-            isSpotifyInstalled = true
-        } catch (e: PackageManager.NameNotFoundException) {
-        }
-
-        return isSpotifyInstalled
+    private fun openSpotifyInBrowser(context: Context, spotifyUri: String) {
+        val url = makeSpotifyUrl(spotifyUri)
+        if (url.isNotEmpty())
+            openBrowser(context, url)
     }
 
     private fun makeSpotifyUrl(spotifyUri: String): String {
@@ -553,7 +517,7 @@ class SharedViewModel @Inject constructor(
         val id = re?.groupValues?.getOrNull(2)
 
         if (!type.isNullOrEmpty() && !id.isNullOrEmpty())
-            url = "https://open.spotify.com/$type/$id"
+            url = "$SPOTIFY_OPEN_URL$type/$id"
 
         return url
     }
